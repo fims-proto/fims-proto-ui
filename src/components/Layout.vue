@@ -1,7 +1,7 @@
 <template>
 
 <header>
-  <h3>Cities</h3>
+  <h3>Header</h3>
 </header>
 
 <section>
