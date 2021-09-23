@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory} from 'vue-router'
+import Layout from "../components/Layout.vue";
 import BaseInput from '../components/BaseInput.vue'
 import About from '../components/About.vue'
 
@@ -6,15 +7,21 @@ import About from '../components/About.vue'
 const routes = [
   {
 		path: '/',
-		component: BaseInput,
-		// children: [{
-		// 	path: '',
-		// 	component: () => import(/* webpackChunkName: "example-create" */ '../components/views/Home.vue')
-		// }]
+		component: Layout,
+		children: [{
+			path: '',
+			component: BaseInput
+		}]
 	},
 	{
 		path: '/about',
-		component: About
+		component: Layout,
+		children: [
+			{
+				path:'',
+				component: About
+			}
+		]
 	}
 ]
 
