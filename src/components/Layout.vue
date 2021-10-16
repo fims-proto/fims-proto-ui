@@ -1,23 +1,28 @@
+<script lang="ts">
+import { defineComponent } from "@vue/runtime-core";
+import TheHeader from "./TheHeader.vue";
+
+export default defineComponent({
+  components: { TheHeader }
+})
+</script>
+
 <template>
+  <the-header />
 
-<header>
-  <h3>Header</h3>
-</header>
-
-<section>
-  <nav>
-    	<a href="/about">About</a>
+  <section>
+    <nav>
+      <a href="/about">About</a>
       <a href="/">Base</a>
-  </nav>
+    </nav>
 
-  <article>
-		<router-view></router-view>
-	</article>
-</section>
+    <article>
+      <router-view></router-view>
+    </article>
+  </section>
 
-
-<!-- Use any element to open the sidenav -->
-<!-- Add all page content inside this div if you want the side nav to push page content to the right (not used if you only want the sidenav to sit on top of the page -->
+  <!-- Use any element to open the sidenav -->
+  <!-- Add all page content inside this div if you want the side nav to push page content to the right (not used if you only want the sidenav to sit on top of the page -->
 </template>
 
 <style scoped>
@@ -29,14 +34,14 @@ header {
   text-align: center;
   font-size: 35px;
   color: white;
-	height: 20%;
+  height: 20%;
 }
 
 /* Container for flexboxes */
 section {
   display: -webkit-flex;
   display: flex;
-	height: 80%;
+  height: 80%;
 }
 
 /* Style the navigation menu */
@@ -46,7 +51,7 @@ nav {
   flex: 1;
   background: #ccc;
   padding: 20px;
-	height: 80vh;
+  height: 80vh;
 }
 
 /* Style the list inside the menu */
@@ -62,7 +67,7 @@ nav a {
 article {
   -webkit-flex: 3;
   -ms-flex: 3;
-	left: 160px;
+  left: 160px;
   flex: 3;
   background-color: #f2f2f2;
   padding: 10px;
@@ -82,7 +87,7 @@ footer {
   position: fixed; /* Fixed Sidebar (stay in place on scroll) */
   z-index: 1; /* Stay on top */
   /* top: 0; Stay at the top */
-	height: 100vh;
+  height: 100vh;
   left: 0;
   background-color: #111; /* Black */
   overflow-x: hidden; /* Disable horizontal scroll */
@@ -114,14 +119,18 @@ footer {
 
 /* Style page content - use this if you want to push the page content to the right when you open the side navigation */
 #main {
-  transition: margin-left .5s;
+  transition: margin-left 0.5s;
   padding: 20px;
 }
 
 /* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
 @media screen and (max-height: 450px) {
-  .sidenav {padding-top: 15px;}
-  .sidenav a {font-size: 18px;}
+  .sidenav {
+    padding-top: 15px;
+  }
+  .sidenav a {
+    font-size: 18px;
+  }
 }
 </style>
 

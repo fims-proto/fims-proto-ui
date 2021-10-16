@@ -1,14 +1,30 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-import { Auth } from '../domain/auth';
-import Login from "../components/Login.vue";
+import Auth from '../domain/Auth';
 import Layout from "../components/Layout.vue";
 import BaseInput from '../components/BaseInput.vue'
 import About from '../components/About.vue'
+import UserLogin from "../components/UserLogin.vue";
+import UserLoggedOut from "../components/UserLoggedOut.vue";
+import UserLayout from '../components/UserLayout.vue'
+import UserSetting from '../components/UserSetting.vue'
 
 const routes: Array<RouteRecordRaw> = [
 	{
 		path: '/login',
-		component: Login,
+		component: UserLogin,
+	},
+	{
+		path: '/user/loggedOut',
+		component: UserLoggedOut,
+	},
+	{
+		path: '/user',
+		component: UserLayout,
+		meta: { requiresAuth: true },
+		children: [{
+			path: 'settings',
+			component: UserSetting,
+		}]
 	},
 	{
 		path: '/',
@@ -37,8 +53,8 @@ const router = createRouter({
 	routes,
 })
 
-router.beforeEach((to) => {
-	if (to.meta.requiresAuth && !Auth.isLoggedIn()) {
+router.beforeEach(async (to) => {
+	if (to.meta.requiresAuth && !await Auth.isLoggedIn()) {
 		return {
 			path: '/login',
 			// save the location we were at to come back later

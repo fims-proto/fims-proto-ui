@@ -3,6 +3,9 @@ import { KRATOS_URL } from '../config'
 
 export const kratos = new V0alpha1Api(
   new Configuration({
-    basePath: KRATOS_URL
+    basePath: KRATOS_URL,
+    baseOptions: {
+      withCredentials: true
+    }
   })
 )
