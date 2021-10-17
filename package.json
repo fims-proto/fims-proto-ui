@@ -8,7 +8,6 @@
     },
     "dependencies": {
         "@ory/kratos-client": "^0.7.6-alpha.7",
-        "axios": "^0.21.4",
         "vue": "^3.2.6",
         "vue-router": "^4.0.11"
     },
