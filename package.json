@@ -9,7 +9,8 @@
     "dependencies": {
         "@ory/kratos-client": "^0.7.6-alpha.7",
         "vue": "^3.2.6",
-        "vue-router": "^4.0.11"
+        "vue-router": "^4.0.11",
+        "vuex": "^4.0.2"
     },
     "devDependencies": {
         "@iconify-json/mdi": "^1.0.6",

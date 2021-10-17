@@ -1,5 +1,6 @@
 import { Identity, Session } from '@ory/kratos-client'
 import FlowRepository from './FlowRepository'
+import store from '../store'
 
 export interface CurrentUser {
   id: string
@@ -45,6 +46,8 @@ class Auth {
       firstName: ident.traits.name?.first,
       lastName: ident.traits.name?.last
     }
+
+    store.commit('setUser', this.currentUser)
   }
 
   public clearSession() {

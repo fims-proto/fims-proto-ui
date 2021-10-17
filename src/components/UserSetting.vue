@@ -4,6 +4,7 @@ import { defineComponent, onMounted } from "@vue/runtime-core";
 import { computed, ref } from "vue";
 import Auth from "../domain/Auth";
 import FlowRepository from "../domain/FlowRepository";
+import Notifier from "../domain/Notifier";
 import { KratosFlow, UiNode } from "../types";
 import UserForm from "./UserForm.vue";
 
@@ -17,13 +18,8 @@ export default defineComponent({
       flow.value = await FlowRepository.initSettingFlow()
     })
 
-    const profileNodes = computed(() => {
-      return filterNodes('profile', flow.value)
-    })
-
-    const passwordNodes = computed(() => {
-      return filterNodes('password', flow.value)
-    })
+    const profileNodes = computed(() => filterNodes('profile', flow.value))
+    const passwordNodes = computed(() => filterNodes('password', flow.value))
 
     const onProfileSubmit = async () => {
       if (!flow.value) {
@@ -38,6 +34,7 @@ export default defineComponent({
 
       if (!error.value) {
         Auth.setUser(result.data?.identity)
+        Notifier.push({ content: 'Profile updated', type: 'success' })
       }
     }
 
@@ -51,6 +48,11 @@ export default defineComponent({
 
       flow.value = result.flow ?? flow.value
       error.value = result.error
+
+      if (!error.value) {
+        Auth.setUser(result.data?.identity)
+        Notifier.push({ content: 'Password updated', type: 'success' })
+      }
     }
 
     return {
