@@ -1,9 +1,0 @@
-a {
-    background-color: transparent;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-a:visited {
-    color: inherit;
-}

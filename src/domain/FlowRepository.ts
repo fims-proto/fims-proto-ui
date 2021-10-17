@@ -10,7 +10,9 @@ class FlowRepository {
 
       return result.data
     } catch (error) {
-      console.error(error)
+      if (!axios.isAxiosError(error) || error.response?.data.error.code != '401') {
+        console.error(error)
+      }
     }
   }
 
