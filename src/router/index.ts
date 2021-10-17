@@ -19,7 +19,7 @@ const routes: Array<RouteRecordRaw> = [
 	},
 	{
 		path: '/user',
-		component: UserLayout,
+		component: Layout,
 		meta: { requiresAuth: true },
 		children: [{
 			path: 'settings',

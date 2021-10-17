@@ -1,4 +1,4 @@
-import { Session } from '@ory/kratos-client'
+import { Identity, Session } from '@ory/kratos-client'
 import FlowRepository from './FlowRepository'
 
 export interface CurrentUser {
@@ -8,12 +8,12 @@ export interface CurrentUser {
   lastName: string
 }
 
-export default class Auth {
+class Auth {
 
-  private static session: Session | undefined
-  private static currentUser: CurrentUser | undefined
+  private session: Session | undefined
+  private currentUser: CurrentUser | undefined
 
-  static async isLoggedIn(): Promise<boolean> {
+  public async isLoggedIn(): Promise<boolean> {
     if (!this.session) {
       const session = await FlowRepository.whoAmI()
       this.setSession(session)
@@ -21,7 +21,7 @@ export default class Auth {
     return !!this.session
   }
 
-  static async logout() {
+  public async logout() {
     const url = await FlowRepository.initLogoutFlow()
     if (url) {
       this.clearSession()
@@ -29,24 +29,32 @@ export default class Auth {
     }
   }
 
-  static setSession(session: Session | undefined) {
+  public setSession(session: Session | undefined) {
     if (!session) return
 
     this.session = session
+    this.setUser(session.identity)
+  }
+
+  public setUser(ident: Identity | undefined) {
+    if (!ident) return
+
     this.currentUser = {
-      id: session.identity.id,
-      email: session.identity.traits.email,
-      firstName: session.identity.traits.name?.first,
-      lastName: session.identity.traits.name?.last
+      id: ident.id,
+      email: ident.traits.email,
+      firstName: ident.traits.name?.first,
+      lastName: ident.traits.name?.last
     }
   }
 
-  static clearSession() {
+  public clearSession() {
     this.session = undefined
     this.currentUser = undefined
   }
 
-  static getUserInfo() {
+  public getUserInfo() {
     return this.currentUser
   }
 }
+
+export default new Auth()

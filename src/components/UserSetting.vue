@@ -2,6 +2,7 @@
 import { SubmitSelfServiceSettingsFlowBody } from "@ory/kratos-client";
 import { defineComponent, onMounted } from "@vue/runtime-core";
 import { computed, ref } from "vue";
+import Auth from "../domain/Auth";
 import FlowRepository from "../domain/FlowRepository";
 import { KratosFlow, UiNode } from "../types";
 import UserForm from "./UserForm.vue";
@@ -34,6 +35,10 @@ export default defineComponent({
 
       flow.value = result.flow ?? flow.value
       error.value = result.error
+
+      if (!error.value) {
+        Auth.setUser(result.data?.identity)
+      }
     }
 
     const onPasswordSubmit = async () => {

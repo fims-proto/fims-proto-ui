@@ -3,8 +3,8 @@ import axios, { AxiosError } from 'axios'
 import { kratos } from '../lib/kratos'
 import { KratosFlow, SubmitLoginResult, SubmitSettingResult } from '../types'
 
-export default class FlowRepository {
-  static async whoAmI(): Promise<Session | undefined> {
+class FlowRepository {
+  public async whoAmI(): Promise<Session | undefined> {
     try {
       const result = await kratos.toSession()
 
@@ -14,7 +14,7 @@ export default class FlowRepository {
     }
   }
 
-  static async initLoginFlow(): Promise<KratosFlow | undefined> {
+  public async initLoginFlow(): Promise<KratosFlow | undefined> {
     try {
       const result = await kratos.initializeSelfServiceLoginFlowForBrowsers()
 
@@ -24,7 +24,7 @@ export default class FlowRepository {
     }
   }
 
-  static async submitLoginFlow(flowId: string, payload: SubmitSelfServiceLoginFlowWithPasswordMethodBody): Promise<SubmitLoginResult> {
+  public async submitLoginFlow(flowId: string, payload: SubmitSelfServiceLoginFlowWithPasswordMethodBody): Promise<SubmitLoginResult> {
     try {
       const result = await kratos.submitSelfServiceLoginFlow(flowId, payload)
 
@@ -32,11 +32,11 @@ export default class FlowRepository {
         data: result.data
       }
     } catch (error) {
-      return handleError(error)
+      return this.handleError(error)
     }
   }
 
-  static async initSettingFlow(): Promise<KratosFlow | undefined> {
+  public async initSettingFlow(): Promise<KratosFlow | undefined> {
     try {
       const result = await kratos.initializeSelfServiceSettingsFlowForBrowsers()
 
@@ -46,7 +46,7 @@ export default class FlowRepository {
     }
   }
 
-  static async submitSettingFlow(flowId: string, payload: SubmitSelfServiceSettingsFlowBody): Promise<SubmitSettingResult> {
+  public async submitSettingFlow(flowId: string, payload: SubmitSelfServiceSettingsFlowBody): Promise<SubmitSettingResult> {
     try {
       const result = await kratos.submitSelfServiceSettingsFlow(flowId, undefined, payload)
 
@@ -54,11 +54,11 @@ export default class FlowRepository {
         data: result.data
       }
     } catch (error) {
-      return handleError(error)
+      return this.handleError(error)
     }
   }
 
-  static async initLogoutFlow(): Promise<string | undefined> {
+  public async initLogoutFlow(): Promise<string | undefined> {
     try {
       const result = await kratos.createSelfServiceLogoutFlowUrlForBrowsers()
       return result.data.logout_url
@@ -66,15 +66,17 @@ export default class FlowRepository {
       console.log(error)
     }
   }
-}
 
-function handleError(error: unknown) {
-  if (axios.isAxiosError(error) && (error as AxiosError).response?.status == 400) {
+  private handleError(error: unknown) {
+    if (axios.isAxiosError(error) && (error as AxiosError).response?.status == 400) {
+      return {
+        flow: (error as AxiosError).response?.data
+      }
+    }
     return {
-      flow: (error as AxiosError).response?.data
+      error: (error as Error)
     }
   }
-  return {
-    error: (error as Error)
-  }
 }
+
+export default new FlowRepository()
