@@ -36,8 +36,8 @@ export default class Auth {
     this.currentUser = {
       id: session.identity.id,
       email: session.identity.traits.email,
-      firstName: session.identity.traits.name.first,
-      lastName: session.identity.traits.name.last
+      firstName: session.identity.traits.name?.first,
+      lastName: session.identity.traits.name?.last
     }
   }
 

@@ -66,16 +66,18 @@ function buildJsonFromFlow(flow: KratosFlow) {
 
 <template>
   <section>
-    <div v-if="error" class="messageContainer">{{ error.message }}</div>
-    <div v-if="flow?.ui.messages && flow?.ui.messages?.length > 0">
-      <div v-for="message in flow.ui.messages" class="messageContainer">{{ message.text }}</div>
+    <div class="container">
+      <div v-if="error" class="messageContainer">{{ error.message }}</div>
+      <div v-if="flow?.ui.messages && flow?.ui.messages?.length > 0">
+        <div v-for="message in flow.ui.messages" class="messageContainer">{{ message.text }}</div>
+      </div>
+      <UserForm
+        :action="flow?.ui.action"
+        :method="flow?.ui.method"
+        :ui-nodes="flow?.ui.nodes"
+        @submit="onSubmit"
+      />
     </div>
-    <UserForm
-      :action="flow?.ui.action"
-      :method="flow?.ui.method"
-      :ui-nodes="flow?.ui.nodes"
-      @submit="onSubmit"
-    />
   </section>
 </template>
 
@@ -88,6 +90,10 @@ section {
   align-items: center;
   font-size: 1.5rem;
   color: var(--dark);
+}
+
+.container {
+  width: 25rem;
 }
 
 .messageContainer {
