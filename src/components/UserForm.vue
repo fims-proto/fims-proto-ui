@@ -69,8 +69,8 @@ export default defineComponent({
 }
 
 .formLine input {
-  display: block;
   width: 100%;
+  padding: 0.3rem 0.5rem;
 }
 
 .formLine input[type="submit"] {

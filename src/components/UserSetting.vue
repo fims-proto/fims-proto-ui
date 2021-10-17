@@ -85,32 +85,35 @@ function buildJsonFromFlow<T>(uiNodes: Array<UiNode> | undefined, requiredFields
 
 <template>
   <section>
-    <div v-if="flow?.ui.messages && flow?.ui.messages?.length > 0">
-      <div v-for="message in flow.ui.messages" class="messageContainer">{{ message.text }}</div>
+    <div class="container">
+      <div v-if="flow?.ui.messages && flow?.ui.messages?.length > 0">
+        <div v-for="message in flow.ui.messages" class="messageContainer">{{ message.text }}</div>
+      </div>
+      <UserForm
+        :action="flow?.ui.action"
+        :method="flow?.ui.method"
+        :ui-nodes="profileNodes"
+        @submit="onProfileSubmit"
+      />
+      <hr />
+      <UserForm
+        :action="flow?.ui.action"
+        :method="flow?.ui.method"
+        :ui-nodes="passwordNodes"
+        @submit="onPasswordSubmit"
+      />
     </div>
-    <UserForm
-      :action="flow?.ui.action"
-      :method="flow?.ui.method"
-      :ui-nodes="profileNodes"
-      @submit="onProfileSubmit"
-    />
-    <UserForm
-      :action="flow?.ui.action"
-      :method="flow?.ui.method"
-      :ui-nodes="passwordNodes"
-      @submit="onPasswordSubmit"
-    />
   </section>
 </template>
 
 <style scoped>
 section {
-  height: 100vh;
-  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.5rem;
-  color: var(--dark);
+}
+
+.container {
+  width: 30rem;
 }
 </style>

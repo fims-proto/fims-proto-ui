@@ -18,16 +18,14 @@ export default defineComponent({
       <router-view></router-view>
     </article>
   </section>
-
-  <!-- Use any element to open the sidenav -->
-  <!-- Add all page content inside this div if you want the side nav to push page content to the right (not used if you only want the sidenav to sit on top of the page -->
 </template>
 
 <style scoped>
 section {
-  display: -webkit-flex;
   display: flex;
-  height: calc(100% - 3rem);
+  height: calc(100vh - 3rem);
+  background-color: var(--light);
+  color: var(--dark);
 }
 
 .appHeader {
@@ -35,12 +33,8 @@ section {
 }
 
 .appContainer {
-  -webkit-flex: 3;
-  -ms-flex: 3;
-  left: 160px;
-  flex: 3;
-  background-color: #f2f2f2;
-  padding: 10px;
+  width: 100%;
+  height: 100%;
 }
 </style>
 

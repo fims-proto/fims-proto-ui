@@ -88,8 +88,6 @@ section {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.5rem;
-  color: var(--dark);
 }
 
 .container {
