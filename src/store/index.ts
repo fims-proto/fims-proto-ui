@@ -1,10 +1,10 @@
 import { createStore } from "vuex";
 import authModule from "./modules/auth";
-import notifierModule from "./modules/notifier";
+import notificationModule from "./modules/notification";
 
 export default createStore({
   modules: {
     auth: authModule,
-    notifier: notifierModule
+    notification: notificationModule
   }
 })

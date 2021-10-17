@@ -15,7 +15,7 @@ export default defineComponent({
     }
 
     return {
-      messages: computed(() => store.state.notifier.messages),
+      messages: computed(() => store.state.notification.messages),
       removeMessage
     }
   }
