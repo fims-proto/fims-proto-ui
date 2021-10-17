@@ -1,20 +1,20 @@
 <script lang="ts">
 import { defineComponent } from "@vue/runtime-core";
-import { ref } from "vue";
+import { computed } from "vue";
+import { useStore } from "vuex";
 import Auth from "../domain/Auth";
+import Notifier from "../domain/Notifier";
 import BaseLink from "./BaseLink.vue";
 import LogoutIcon from '~icons/mdi/logout';
 
 export default defineComponent({
   components: { BaseLink, LogoutIcon },
   setup() {
-    const user = ref(Auth.getUserInfo())
-    const logout = () => {
-      Auth.logout()
-    }
+    const store = useStore()
     return {
-      user,
-      logout
+      user: computed(() => store.state.auth.user),
+      logout: () => Auth.logout(),
+      notify: () => Notifier.push({ content: 'test', type: 'success' })
     }
   }
 })
@@ -27,6 +27,7 @@ export default defineComponent({
     </div>
 
     <div class="rightHeader">
+      <BaseLink @click="notify">notify</BaseLink>&nbsp;
       <div class="currentUser">
         <span>Hello!&nbsp;</span>
         <BaseLink href="/user/settings">{{ user?.lastName }} {{ user?.firstName }}</BaseLink>

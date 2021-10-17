@@ -5,7 +5,6 @@ import BaseInput from '../components/BaseInput.vue'
 import About from '../components/About.vue'
 import UserLogin from "../components/UserLogin.vue";
 import UserLoggedOut from "../components/UserLoggedOut.vue";
-import UserLayout from '../components/UserLayout.vue'
 import UserSetting from '../components/UserSetting.vue'
 
 const routes: Array<RouteRecordRaw> = [

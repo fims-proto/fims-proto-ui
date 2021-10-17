@@ -23,13 +23,13 @@ export default defineComponent({
 <style scoped>
 section {
   display: flex;
-  height: calc(100vh - 3rem);
+  height: calc(100vh - var(--header-height));
   background-color: var(--light);
   color: var(--dark);
 }
 
 .appHeader {
-  height: 3rem;
+  height: var(--header-height);
 }
 
 .appContainer {

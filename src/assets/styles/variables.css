@@ -31,4 +31,6 @@
     --danger: var(--red);
     --light: var(--gray-100);
     --dark: var(--gray-900);
+    /*  */
+    --header-height: 3rem
 }

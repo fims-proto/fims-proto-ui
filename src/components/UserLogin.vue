@@ -16,9 +16,7 @@ export default defineComponent({
     const flow = ref<KratosFlow | undefined>()
     const error = ref<Error>()
 
-    const getOut = () => {
-      router.push(route.query?.['redirect'] as string ?? '/')
-    }
+    const getOut = () => router.push(route.query?.['redirect'] as string ?? '/')
 
     onMounted(async () => {
       if (await Auth.isLoggedIn()) {
