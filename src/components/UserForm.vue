@@ -66,7 +66,6 @@ export default defineComponent({
 
 .formLine label {
   display: block;
-  margin-right: 1rem;
 }
 
 .formLine input {
@@ -74,19 +73,19 @@ export default defineComponent({
   width: 100%;
 }
 
-.formLine button[type="submit"] {
+.formLine input[type="submit"] {
   width: 100%;
   background-color: var(--dark);
   color: var(--light);
   border: none;
   cursor: pointer;
   padding: 0.4rem;
-  margin-top: 2rem;
+  margin-top: 1rem;
   border-radius: 0.3rem;
   transition: all 0.5s ease;
 }
 
-.formLine button[type="submit"]:hover {
+.formLine input[type="submit"]:hover {
   opacity: 0.8;
 }
 </style>
