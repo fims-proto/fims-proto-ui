@@ -1,13 +1,35 @@
-import { createRouter, createWebHistory} from 'vue-router'
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+import Auth from '../domain/Auth';
 import Layout from "../components/Layout.vue";
 import BaseInput from '../components/BaseInput.vue'
 import About from '../components/About.vue'
+import UserLogin from "../components/UserLogin.vue";
+import UserLoggedOut from "../components/UserLoggedOut.vue";
+import UserLayout from '../components/UserLayout.vue'
+import UserSetting from '../components/UserSetting.vue'
 
-
-const routes = [
-  {
+const routes: Array<RouteRecordRaw> = [
+	{
+		path: '/login',
+		component: UserLogin,
+	},
+	{
+		path: '/user/loggedOut',
+		component: UserLoggedOut,
+	},
+	{
+		path: '/user',
+		component: Layout,
+		meta: { requiresAuth: true },
+		children: [{
+			path: 'settings',
+			component: UserSetting,
+		}]
+	},
+	{
 		path: '/',
 		component: Layout,
+		meta: { requiresAuth: true },
 		children: [{
 			path: '',
 			component: BaseInput
@@ -16,9 +38,10 @@ const routes = [
 	{
 		path: '/about',
 		component: Layout,
+		meta: { requiresAuth: true },
 		children: [
 			{
-				path:'',
+				path: '',
 				component: About
 			}
 		]
@@ -26,9 +49,18 @@ const routes = [
 ]
 
 const router = createRouter({
-  // 4. Provide the history implementation to use. We are using the hash history for simplicity here.
-  history: createWebHistory(),
-  routes: routes, // short for `routes: routes`
+	history: createWebHistory(),
+	routes,
+})
+
+router.beforeEach(async (to) => {
+	if (to.meta.requiresAuth && !await Auth.isLoggedIn()) {
+		return {
+			path: '/login',
+			// save the location we were at to come back later
+			query: { redirect: to.fullPath },
+		}
+	}
 })
 
 export default router
