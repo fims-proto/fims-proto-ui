@@ -37,22 +37,22 @@ export default defineComponent({
           v-if="node.attributes.type != 'submit' && node.meta.label"
           :for="node.attributes.name"
         >{{ node.meta.label.text }}</label>
-        <BaseInput
+        <base-input
           v-if="node.attributes.type != 'submit'"
           :name="node.attributes.name"
           :type="node.attributes.type"
           :required="node.attributes.required"
           :disabled="node.attributes.disabled"
           v-model="node.attributes.value"
-        ></BaseInput>
-        <BaseInput
+        ></base-input>
+        <base-input
           v-else
           :name="node.attributes.name"
           :type="node.attributes.type"
           :required="node.attributes.required"
           :disabled="node.attributes.disabled"
           :value="node.meta.label?.text"
-        ></BaseInput>
+        ></base-input>
       </div>
       <span v-else>Not supported type: {{ node.type }}</span>
     </template>

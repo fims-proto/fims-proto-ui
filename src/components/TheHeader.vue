@@ -21,17 +21,17 @@ export default defineComponent({
 <template>
   <header>
     <div class="leftHeader">
-      <BaseLink class="appTitle" href="/">FIMS</BaseLink>
+      <router-link class="appTitle" to="/">FIMS</router-link>
     </div>
 
     <div class="rightHeader">
       <div class="currentUser">
         <span>Hello!&nbsp;</span>
-        <BaseLink href="/user/settings">{{ user?.lastName }} {{ user?.firstName }}</BaseLink>
+        <router-link to="/user/settings">{{ user?.lastName }} {{ user?.firstName }}</router-link>
       </div>
-      <BaseLink @click="logout">
+      <base-link @click="logout">
         <logout-icon />
-      </BaseLink>
+      </base-link>
     </div>
   </header>
 </template>

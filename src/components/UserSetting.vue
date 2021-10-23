@@ -91,14 +91,14 @@ function buildJsonFromFlow<T>(uiNodes: Array<UiNode> | undefined, requiredFields
       <div v-if="flow?.ui.messages && flow?.ui.messages?.length > 0">
         <div v-for="message in flow.ui.messages" class="messageContainer">{{ message.text }}</div>
       </div>
-      <UserForm
+      <user-form
         :action="flow?.ui.action"
         :method="flow?.ui.method"
         :ui-nodes="profileNodes"
         @submit="onProfileSubmit"
       />
       <hr />
-      <UserForm
+      <user-form
         :action="flow?.ui.action"
         :method="flow?.ui.method"
         :ui-nodes="passwordNodes"

@@ -69,7 +69,7 @@ function buildJsonFromFlow(flow: KratosFlow) {
       <div v-if="flow?.ui.messages && flow?.ui.messages?.length > 0">
         <div v-for="message in flow.ui.messages" class="messageContainer">{{ message.text }}</div>
       </div>
-      <UserForm
+      <user-form
         :action="flow?.ui.action"
         :method="flow?.ui.method"
         :ui-nodes="flow?.ui.nodes"

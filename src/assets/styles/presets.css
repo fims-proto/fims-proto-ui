@@ -1,0 +1,16 @@
+/* used by base-link and router-link */
+
+a {
+    background-color: transparent;
+    text-decoration: none;
+    cursor: pointer;
+    transition: 0.5s ease;
+}
+
+a:visited {
+    color: inherit;
+}
+
+a:hover {
+    opacity: 0.6;
+}

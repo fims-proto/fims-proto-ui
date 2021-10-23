@@ -25,7 +25,7 @@ export default defineComponent({
 <template>
   <div class="notificationList">
     <template v-for="message in messages">
-      <NotificationItem
+      <notification-item
         @on-hide="removeMessage"
         :id="message.id"
         :content="message.content"
