@@ -6,6 +6,7 @@ import About from '../components/About.vue'
 import UserLogin from "../components/UserLogin.vue";
 import UserLoggedOut from "../components/UserLoggedOut.vue";
 import UserSetting from '../components/UserSetting.vue'
+import NotFound from '../components/NotFound.vue';
 
 const routes: Array<RouteRecordRaw> = [
 	{
@@ -44,6 +45,10 @@ const routes: Array<RouteRecordRaw> = [
 				component: About
 			}
 		]
+	},
+	{
+		path: '/:pathMatch(.*)*',
+		component: NotFound
 	}
 ]
 
