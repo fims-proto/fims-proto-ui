@@ -1,15 +1,30 @@
 <script lang="ts">
 import { defineComponent } from "@vue/runtime-core";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
+  emits: ['click'],
   props: {
     href: String
+  },
+  setup(_, { emit }) {
+    const router = useRouter()
+    const onClick = (e: MouseEvent) => {
+      if ((e.target as HTMLAnchorElement).pathname) {
+        router.push((e.target as HTMLAnchorElement).pathname)
+      } else {
+        emit('click')
+      }
+    }
+    return {
+      onClick
+    }
   }
 })
 </script>
 
 <template>
-  <a :href="href">
+  <a :href="href" @click.prevent="onClick">
     <slot></slot>
   </a>
 </template>
