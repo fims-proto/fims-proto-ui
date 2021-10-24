@@ -63,11 +63,16 @@ function buildJsonFromFlow(flow: KratosFlow) {
 </script>
 
 <template>
-  <section>
-    <div class="container">
-      <div v-if="error" class="messageContainer">{{ error.message }}</div>
+  <section class="loggin">
+    <div class="loggin__container">
+      <el-alert v-if="error" type="error" :title="error.message" />
       <div v-if="flow?.ui.messages && flow?.ui.messages?.length > 0">
-        <div v-for="message in flow.ui.messages" class="messageContainer">{{ message.text }}</div>
+        <el-alert
+          v-for="message in flow.ui.messages"
+          :type="message.type"
+          :title="message.text"
+          :closable="false"
+        />
       </div>
       <user-form
         :action="flow?.ui.action"
@@ -80,7 +85,7 @@ function buildJsonFromFlow(flow: KratosFlow) {
 </template>
 
 <style scoped>
-section {
+.loggin {
   height: 100vh;
   width: 100%;
   display: flex;
@@ -88,11 +93,7 @@ section {
   align-items: center;
 }
 
-.container {
+.loggin__container {
   width: 25rem;
-}
-
-.messageContainer {
-  color: var(--danger);
 }
 </style>

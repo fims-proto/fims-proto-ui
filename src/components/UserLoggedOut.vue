@@ -1,12 +1,6 @@
 <template>
-  <div class="logoutContainer">
+  <div style="padding: 5rem;">
     <div>Logged out.</div>
     <a href="/login">Login</a> again.
   </div>
 </template>
-
-<style scoped>
-.logoutContainer {
-  padding: 5rem;
-}
-</style>

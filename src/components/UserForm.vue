@@ -1,10 +1,8 @@
 <script lang="ts">
 import { defineComponent, PropType } from "@vue/runtime-core";
 import { UiNode } from "../types";
-import BaseInput from "./BaseInput.vue";
 
 export default defineComponent({
-  components: { BaseInput },
   props: {
     action: String,
     method: String,
@@ -27,65 +25,56 @@ export default defineComponent({
 <template>
   <div v-if="!uiNodes">Loading ...</div>
 
-  <form v-else :action="action" :method="method" @submit.prevent="onSubmit">
+  <el-form v-else label-position="top" @submit.prevent="onSubmit">
     <template v-for="node in uiNodes" :key="node.attributes.name">
-      <div v-if="node.type == 'input'" class="formLine">
-        <div v-if="node.messages && node.messages?.length > 0">
-          <div v-for="message in node.messages" class="messageContainer">{{ message.text }}</div>
+      <div v-if="node.type == 'input'">
+        <div v-if="node.messages && node.messages?.length > 0" class="sign">
+          <el-alert
+            v-for="message in node.messages"
+            :type="message.type"
+            :title="message.text"
+            :closable="false"
+          ></el-alert>
         </div>
-        <label
-          v-if="node.attributes.type != 'submit' && node.meta.label"
-          :for="node.attributes.name"
-        >{{ node.meta.label.text }}</label>
-        <base-input
-          v-if="node.attributes.type != 'submit'"
+
+        <input
+          v-if="node.attributes.type === 'hidden'"
           :name="node.attributes.name"
           :type="node.attributes.type"
           :required="node.attributes.required"
           :disabled="node.attributes.disabled"
           v-model="node.attributes.value"
-        ></base-input>
-        <base-input
-          v-else
-          :name="node.attributes.name"
-          :type="node.attributes.type"
-          :required="node.attributes.required"
-          :disabled="node.attributes.disabled"
-          :value="node.meta.label?.text"
-        ></base-input>
+        />
+
+        <el-form-item
+          :label="node.meta.label.text"
+          v-else-if="node.attributes.type != 'submit' && node.meta.label"
+        >
+          <el-input
+            v-if="node.attributes.type != 'submit'"
+            :name="node.attributes.name"
+            :type="node.attributes.type"
+            :required="node.attributes.required"
+            :disabled="node.attributes.disabled"
+            v-model="node.attributes.value"
+          ></el-input>
+        </el-form-item>
+        <el-form-item v-else>
+          <el-button
+            class="user-form__button--submit"
+            :name="node.attributes.name"
+            type="primary"
+            @click="onSubmit"
+          >{{ node.meta.label?.text }}</el-button>
+        </el-form-item>
       </div>
       <span v-else>Not supported type: {{ node.type }}</span>
     </template>
-  </form>
+  </el-form>
 </template>
 
 <style scoped>
-.formLine {
-  padding-bottom: 1rem;
-}
-
-.formLine label {
-  display: block;
-}
-
-.formLine input {
+.user-form__button--submit {
   width: 100%;
-  padding: 0.3rem 0.5rem;
-}
-
-.formLine input[type="submit"] {
-  width: 100%;
-  background-color: var(--dark);
-  color: var(--light);
-  border: none;
-  cursor: pointer;
-  padding: 0.4rem;
-  margin-top: 1rem;
-  border-radius: 0.3rem;
-  transition: all 0.5s ease;
-}
-
-.formLine input[type="submit"]:hover {
-  opacity: 0.8;
 }
 </style>

@@ -53,7 +53,9 @@ class FlowRepository {
       const result = await kratos.submitSelfServiceSettingsFlow(flowId, undefined, payload)
 
       return {
-        data: result.data
+        flow: result.data.flow as KratosFlow,
+        data: result.data,
+        success: true
       }
     } catch (error) {
       return this.handleError(error)
@@ -72,11 +74,13 @@ class FlowRepository {
   private handleError(error: unknown) {
     if (axios.isAxiosError(error) && (error as AxiosError).response?.status == 400) {
       return {
-        flow: (error as AxiosError).response?.data
+        flow: (error as AxiosError).response?.data,
+        success: false
       }
     }
     return {
-      error: (error as Error)
+      error: (error as Error),
+      success: false
     }
   }
 }

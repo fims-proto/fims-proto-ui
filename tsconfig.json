@@ -12,9 +12,6 @@
     "lib": [
       "esnext",
       "dom"
-    ],
-    "types": [
-      "unplugin-icons/types/vue",
     ]
   },
   "include": [
