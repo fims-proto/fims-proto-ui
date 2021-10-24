@@ -9,7 +9,7 @@ export default defineComponent({
 
 <template>
   <router-view></router-view>
-  <NotificationList />
+  <notification-list />
 </template>
 
 <style>

@@ -86,8 +86,8 @@ function buildJsonFromFlow<T>(uiNodes: Array<UiNode> | undefined, requiredFields
 </script>
 
 <template>
-  <section>
-    <div class="container">
+  <section class="userSettingContainer">
+    <div class="userSettingContent">
       <div v-if="flow?.ui.messages && flow?.ui.messages?.length > 0">
         <div v-for="message in flow.ui.messages" class="messageContainer">{{ message.text }}</div>
       </div>
@@ -109,13 +109,13 @@ function buildJsonFromFlow<T>(uiNodes: Array<UiNode> | undefined, requiredFields
 </template>
 
 <style scoped>
-section {
+.userSettingContainer {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.container {
+.userSettingContent {
   width: 30rem;
 }
 </style>
