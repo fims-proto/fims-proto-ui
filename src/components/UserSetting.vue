@@ -1,6 +1,6 @@
 <script lang="ts">
 import { SubmitSelfServiceSettingsFlowBody } from "@ory/kratos-client";
-import { defineComponent, onMounted } from "@vue/runtime-core";
+import { defineComponent, onMounted } from "vue";
 import { computed, ref } from "vue";
 import { ElNotification } from 'element-plus';
 import Auth from "../domain/Auth";
