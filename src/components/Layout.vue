@@ -1,13 +1,13 @@
 <script lang="ts">
 import { defineComponent } from '@vue/runtime-core';
 import { computed } from 'vue';
-import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import Auth from '../domain/Auth';
+import { useUserStore } from '../store/user';
 
 export default defineComponent({
   setup() {
-    const store = useStore()
+    const userStore = useUserStore()
     const router = useRouter()
 
     const handleAvatarCommand = (command: string) => {
@@ -24,7 +24,7 @@ export default defineComponent({
     }
 
     return {
-      user: computed(() => store.state.auth.user),
+      user: computed(() => userStore.state.user),
       handleAvatarCommand
     }
   }

@@ -1,18 +1,12 @@
 import { Identity, Session } from '@ory/kratos-client'
+import { useUserStore } from '../store/user'
 import FlowRepository from './FlowRepository'
-import store from '../store'
-
-export interface CurrentUser {
-  id: string
-  email: string
-  firstName: string
-  lastName: string
-}
 
 class Auth {
 
   private session: Session | undefined
-  private currentUser: CurrentUser | undefined
+  private currentUser: any
+  private userStore = useUserStore()
 
   public async isLoggedIn(): Promise<boolean> {
     if (!this.session) {
@@ -47,7 +41,7 @@ class Auth {
       lastName: ident.traits.name?.last
     }
 
-    store.commit('setUser', this.currentUser)
+    this.userStore.action.updateUser(this.currentUser)
   }
 
   public clearSession() {
