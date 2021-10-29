@@ -1,8 +1,3 @@
-/**
- * suffix:
- *  - T: text
- *  - B: button
- */
 export default {
 
   lang: {
