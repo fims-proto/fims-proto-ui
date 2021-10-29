@@ -1,40 +1,74 @@
 <script lang="ts">
-import { defineComponent } from "@vue/runtime-core";
-import TheHeader from "./TheHeader.vue";
-import TheSidebar from "./TheSidebar.vue";
+import { defineComponent } from '@vue/runtime-core';
+import { computed } from 'vue';
+import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
+import Auth from '../domain/Auth';
 
 export default defineComponent({
-  components: { TheHeader, TheSidebar }
+  setup() {
+    const store = useStore()
+    const router = useRouter()
+
+    const handleAvatarCommand = (command: string) => {
+      switch (command) {
+        case 'changeProfile':
+          router.push({ name: 'userSettings' })
+          break;
+        case 'logout':
+          Auth.logout()
+          break;
+        default:
+          break;
+      }
+    }
+
+    return {
+      user: computed(() => store.state.auth.user),
+      handleAvatarCommand
+    }
+  }
 })
 </script>
 
 <template>
-  <the-header class="appHeader" />
+  <el-container>
+    <el-header class="header">
+      <div class="header__menu">
+        <router-link to="/" class="header__menu__app-title">FIMS</router-link>
+        <router-link to="/sobs">sobs</router-link>
+      </div>
 
-  <section>
-    <the-sidebar />
+      <div :span="12" v-if="user" class="header__user">
+        <el-dropdown trigger="click" @command="handleAvatarCommand">
+          <el-button round icon="el-icon-user">{{ user?.firstName }}</el-button>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item disabled>Hello! {{ user?.lastName }} {{ user?.firstName }}</el-dropdown-item>
+              <el-dropdown-item command="changeProfile" divided>change profile</el-dropdown-item>
+              <el-dropdown-item command="logout" divided>logout</el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+      </div>
+    </el-header>
 
-    <article class="appContainer">
-      <router-view></router-view>
-    </article>
-  </section>
+    <el-main>
+      <router-view />
+    </el-main>
+  </el-container>
 </template>
 
 <style scoped>
-section {
+.header {
   display: flex;
-  height: calc(100vh - var(--header-height));
-  background-color: var(--light);
-  color: var(--dark);
+  align-items: center;
+  justify-content: space-between;
 }
 
-.appHeader {
-  height: var(--header-height);
-}
-
-.appContainer {
-  width: 100%;
-  height: 100%;
+.header__menu__app-title {
+  margin-right: 3rem;
+  text-decoration: none;
+  font-weight: bolder;
 }
 </style>
-

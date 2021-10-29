@@ -45,5 +45,6 @@ export type SubmitLoginResult = {
 export type SubmitSettingResult = {
   data?: SuccessfulSelfServiceSettingsWithoutBrowser,
   flow?: KratosFlow,
-  error?: Error
+  error?: Error,
+  success: Boolean
 }

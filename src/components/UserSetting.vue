@@ -2,9 +2,9 @@
 import { SubmitSelfServiceSettingsFlowBody } from "@ory/kratos-client";
 import { defineComponent, onMounted } from "@vue/runtime-core";
 import { computed, ref } from "vue";
+import { ElNotification } from 'element-plus';
 import Auth from "../domain/Auth";
 import FlowRepository from "../domain/FlowRepository";
-import Notifier from "../domain/Notifier";
 import { KratosFlow, UiNode } from "../types";
 import UserForm from "./UserForm.vue";
 
@@ -32,9 +32,9 @@ export default defineComponent({
       flow.value = result.flow ?? flow.value
       error.value = result.error
 
-      if (!error.value) {
+      if (result.success) {
         Auth.setUser(result.data?.identity)
-        Notifier.push({ content: 'Profile updated', type: 'success' })
+        ElNotification.success({ message: 'Profile updated' })
       }
     }
 
@@ -49,9 +49,9 @@ export default defineComponent({
       flow.value = result.flow ?? flow.value
       error.value = result.error
 
-      if (!error.value) {
+      if (result.success) {
         Auth.setUser(result.data?.identity)
-        Notifier.push({ content: 'Password updated', type: 'success' })
+        ElNotification.success({ message: 'Password updated' })
       }
     }
 
@@ -86,36 +86,41 @@ function buildJsonFromFlow<T>(uiNodes: Array<UiNode> | undefined, requiredFields
 </script>
 
 <template>
-  <section>
-    <div class="container">
+  <div class="user-setting">
+    <div class="user-setting__container">
       <div v-if="flow?.ui.messages && flow?.ui.messages?.length > 0">
-        <div v-for="message in flow.ui.messages" class="messageContainer">{{ message.text }}</div>
+        <el-alert
+          v-for="message in flow.ui.messages"
+          :type="message.type"
+          :title="message.text"
+          :closable="false"
+        ></el-alert>
       </div>
-      <UserForm
+      <user-form
         :action="flow?.ui.action"
         :method="flow?.ui.method"
         :ui-nodes="profileNodes"
         @submit="onProfileSubmit"
       />
-      <hr />
-      <UserForm
+      <el-divider />
+      <user-form
         :action="flow?.ui.action"
         :method="flow?.ui.method"
         :ui-nodes="passwordNodes"
         @submit="onPasswordSubmit"
       />
     </div>
-  </section>
+  </div>
 </template>
 
 <style scoped>
-section {
+.user-setting {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.container {
+.user-setting__container {
   width: 30rem;
 }
 </style>
