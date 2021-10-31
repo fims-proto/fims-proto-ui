@@ -13,6 +13,7 @@ import SobDetail from '../components/SobDetail.vue';
 import SobCreation from '../components/SobCreation.vue';
 import VoucherMain from '../components/VoucherMain.vue';
 import VoucherCreation from '../components/VoucherCreation.vue';
+import JwtView from '../components/Jwt.vue';
 
 const routes: Array<RouteRecordRaw> = [
 	{
@@ -101,6 +102,11 @@ const routes: Array<RouteRecordRaw> = [
 				]
 			}
 		]
+	},
+	{
+		path: '/devops/jwt',
+		component: import.meta.env.MODE == 'dev' ? JwtView : NotFound,
+		meta: { requiresAuth: true }
 	},
 	{
 		path: '/:pathMatch(.*)*',
