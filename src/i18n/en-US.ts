@@ -25,7 +25,10 @@ export default {
   voucher: {
     main: {
       searchPlaceholder: 'Type to search',
-      sobMissingErr: 'Sob ID doesn not exist'
+      sobMissingErr: 'Sob ID doesn not exist',
+      numberLbl: 'Number',
+      debitLbl: 'Debit',
+      creditLbl: 'Credit'
     }
   }
 }

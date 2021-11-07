@@ -7,7 +7,7 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 // https://vitejs.dev/config/
 export default defineConfig({
   server: {
-    port: 5000
+    port: 5001
   },
   plugins: [
     vue(),
