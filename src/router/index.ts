@@ -1,39 +1,23 @@
 import { createRouter, createWebHistory, RouteRecordRaw, RouterView } from 'vue-router';
-import Auth from '../domain/Auth';
 import Layout from '../components/Layout.vue';
 import Home from '../components/Home.vue';
 import About from '../components/About.vue';
-import UserLogin from '../components/UserLogin.vue';
-import UserLoggedOut from '../components/UserLoggedOut.vue';
-import UserMain from '../components/UserMain.vue';
-import UserSetting from '../components/UserSetting.vue';
 import NotFound from '../components/NotFound.vue';
 import SobMain from '../components/SobMain.vue';
 import SobDetail from '../components/SobDetail.vue';
 import SobCreation from '../components/SobCreation.vue';
 import VoucherMain from '../components/VoucherMain.vue';
 import VoucherCreation from '../components/VoucherCreation.vue';
-import JwtView from '../components/Jwt.vue';
 
 const routes: Array<RouteRecordRaw> = [
 	{
-		path: '/login',
-		name: 'userLogin',
-		component: UserLogin,
-	},
-	{
-		path: '/loggedOut',
-		name: 'userLogout',
-		component: UserLoggedOut,
-	},
-	{
-		path: '/',
-		name: 'home',
+		path: '/ui/',
 		component: Layout,
 		meta: { requiresAuth: true },
 		children: [
 			{
 				path: '',
+				name: 'home',
 				component: Home
 			},
 			{
@@ -42,29 +26,12 @@ const routes: Array<RouteRecordRaw> = [
 				component: About
 			},
 			{
-				path: 'user',
-				name: 'user',
+				path: 'sobs/',
 				component: RouterView,
 				children: [
 					{
 						path: '',
-						name: 'userMain',
-						component: UserMain
-					},
-					{
-						path: 'settings',
-						name: 'userSettings',
-						component: UserSetting
-					}
-				]
-			},
-			{
-				path: 'sobs',
-				name: 'sobMain',
-				component: RouterView,
-				children: [
-					{
-						path: '',
+						name: 'sobMain',
 						component: SobMain
 					},
 					{
@@ -73,21 +40,21 @@ const routes: Array<RouteRecordRaw> = [
 						component: SobCreation
 					},
 					{
-						path: ':sobId',
-						name: 'sobDetail',
+						path: ':sobId/',
 						component: RouterView,
 						children: [
 							{
 								path: '',
+								name: 'sobDetail',
 								component: SobDetail
 							},
 							{
-								path: 'vouchers',
-								name: 'voucherMain',
+								path: 'vouchers/',
 								component: RouterView,
 								children: [
 									{
 										path: '',
+										name: 'voucherMain',
 										component: VoucherMain
 									},
 									{
@@ -104,11 +71,6 @@ const routes: Array<RouteRecordRaw> = [
 		]
 	},
 	{
-		path: '/devops/jwt',
-		component: import.meta.env.MODE == 'dev' ? JwtView : NotFound,
-		meta: { requiresAuth: true }
-	},
-	{
 		path: '/:pathMatch(.*)*',
 		component: NotFound
 	}
@@ -117,16 +79,6 @@ const routes: Array<RouteRecordRaw> = [
 const router = createRouter({
 	history: createWebHistory(),
 	routes,
-})
-
-router.beforeEach(async (to) => {
-	if (to.meta.requiresAuth && !await Auth.isLoggedIn()) {
-		return {
-			path: '/login',
-			// save the location we were at to come back later
-			query: { redirect: to.fullPath },
-		}
-	}
 })
 
 export default router

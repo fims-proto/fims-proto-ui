@@ -1,2 +1,2 @@
-// kratos public API
-export const KRATOS_URL = import.meta.env.VITE_KRATOS_PUBLIC_URL
+// from env param defined in .env file, e.g.:
+// export const XXX = import.meta.env.VITE_XXX
