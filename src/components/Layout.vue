@@ -1,6 +1,8 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { SwitchButton } from '@element-plus/icons';
+import Auth from '../domain/Auth';
 
 export default defineComponent({
   setup() {
@@ -11,9 +13,11 @@ export default defineComponent({
     }
 
     return {
+      SwitchButton,
       i18n,
       t: i18n.t,
-      handleLanguageCommand
+      handleLanguageCommand,
+      handleLogout: Auth.logout
     }
   }
 })
@@ -41,6 +45,9 @@ export default defineComponent({
               </el-dropdown-menu>
             </template>
           </el-dropdown>
+        </div>
+        <div class="header__menu__item">
+          <el-link :icon="SwitchButton" @click="handleLogout"></el-link>
         </div>
       </div>
     </el-header>

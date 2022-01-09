@@ -8,8 +8,8 @@ declare module '*.vue' {
 }
 
 interface ImportMetaEnv extends Readonly<Record<string, string>> {
-  // env param, e.g.:
-  // readonly VITE_XXX : string
+  readonly VITE_KRATOS_PUBLIC_URL: string
+  readonly VITE_FIMS_API_URL: string
 }
 
 interface ImportMeta {

@@ -1,4 +1,7 @@
 import { createRouter, createWebHistory, RouteRecordRaw, RouterView } from 'vue-router';
+import AuthenticationLogin from '../components/AuthenticationLogin.vue';
+import AuthenticationLogout from '../components/AuthenticationLogout.vue';
+import ProfileSetting from '../components/ProfileSetting.vue';
 import Layout from '../components/Layout.vue';
 import Home from '../components/Home.vue';
 import About from '../components/About.vue';
@@ -11,9 +14,8 @@ import VoucherCreation from '../components/VoucherCreation.vue';
 
 const routes: Array<RouteRecordRaw> = [
 	{
-		path: '/ui/',
+		path: '/ui',
 		component: Layout,
-		meta: { requiresAuth: true },
 		children: [
 			{
 				path: '',
@@ -26,7 +28,11 @@ const routes: Array<RouteRecordRaw> = [
 				component: About
 			},
 			{
-				path: 'sobs/',
+				path: 'profile/settings',
+				component: ProfileSetting,
+			},
+			{
+				path: 'sobs',
 				component: RouterView,
 				children: [
 					{
@@ -40,7 +46,7 @@ const routes: Array<RouteRecordRaw> = [
 						component: SobCreation
 					},
 					{
-						path: ':sobId/',
+						path: ':sobId',
 						component: RouterView,
 						children: [
 							{
@@ -49,7 +55,7 @@ const routes: Array<RouteRecordRaw> = [
 								component: SobDetail
 							},
 							{
-								path: 'vouchers/',
+								path: 'vouchers',
 								component: RouterView,
 								children: [
 									{
@@ -67,6 +73,20 @@ const routes: Array<RouteRecordRaw> = [
 						]
 					}
 				]
+			}
+		]
+	},
+	{
+		path: '/authentication',
+		component: RouterView,
+		children: [
+			{
+				path: 'login',
+				component: AuthenticationLogin
+			},
+			{
+				path: 'logout',
+				component: AuthenticationLogout
 			}
 		]
 	},
