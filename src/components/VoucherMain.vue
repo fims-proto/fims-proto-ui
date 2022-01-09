@@ -2,6 +2,7 @@
 import { defineComponent, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import { Search } from '@element-plus/icons';
 import Voucher from '../domain/Voucher';
 
 export default defineComponent({
@@ -15,6 +16,7 @@ export default defineComponent({
     })
 
     return {
+      Search,
       t,
       sobValid: !!sobId,
       vouchers
@@ -25,11 +27,7 @@ export default defineComponent({
 
 <template>
   <div v-if="sobValid">
-    <el-input :placeholder="t('voucher.main.searchPlaceholder')">
-      <template #prefix>
-        <i class="el-input__icon el-icon-search"></i>
-      </template>
-    </el-input>
+    <el-input :placeholder="t('voucher.main.searchPlaceholder')" :prefix-icon="Search" />
 
     <p v-if="!vouchers?.length">No voucher</p>
     <el-table :data="vouchers">

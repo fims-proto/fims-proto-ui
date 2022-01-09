@@ -1,4 +1,5 @@
 import { useUserStore } from '../store/user'
+import Kratos from './Kratos'
 
 class Auth {
 
@@ -6,7 +7,10 @@ class Auth {
   private userStore = useUserStore()
 
   public async logout() {
-    alert('not implemented yet')
+    const url = await Kratos.initLogoutFlow()
+    if (url) {
+      location.href = url
+    }
   }
 
   public getUserInfo() {
