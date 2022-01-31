@@ -7,7 +7,7 @@ function getLangFiles(modules: Record<string, { [key: string]: any }>) {
 
   for (let path in modules) {
     if (modules[path].default) {
-      const pathName = path.substr(path.lastIndexOf('/') + 1, 5) // e.g.: en-US
+      const pathName = path.substring(path.lastIndexOf('/') + 1, path.lastIndexOf('.')) // e.g.: en-US
 
       if (messages[pathName]) {
         messages[pathName] = {
@@ -24,8 +24,8 @@ function getLangFiles(modules: Record<string, { [key: string]: any }>) {
 }
 
 const i18n = createI18n({
-  locale: navigator.language,
-  fallbackLocale: 'en-US',
+  locale: 'zh',
+  fallbackLocale: 'zh',
   messages: getLangFiles(modules)
 })
 

@@ -5,7 +5,7 @@ import { createState } from './state';
 const state = createState()
 const action = createAction(state)
 
-export const useUserStore = () => ({
+export const useSobStore = () => ({
   state: readonly(state),
   action: readonly(action)
 })

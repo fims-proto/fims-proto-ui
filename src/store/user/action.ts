@@ -1,13 +1,21 @@
-import { IUserState } from "./state";
+import { User, UserService } from '../../domain';
+import { IUserState } from './state';
 
-function updateUser(state: IUserState) {
-  return (user: any) => {
+function setUser(state: IUserState) {
+  return (user: User) => {
     state.user = user
+  }
+}
+
+function loadUser(state: IUserState) {
+  return async () => {
+    state.user = await UserService.whoAmI()
   }
 }
 
 export function createAction(state: IUserState) {
   return {
-    updateUser: updateUser(state)
+    loadUser: loadUser(state),
+    setUser: setUser(state)
   }
 }

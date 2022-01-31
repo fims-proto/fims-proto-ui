@@ -1,13 +1,21 @@
 import { reactive } from "vue"
+import { User } from '../../domain'
 
 export interface IUserState {
-  user: any
+  user: User
 }
 
-export const UserStats: IUserState = {
-  user: {}
+export const UserState: IUserState = {
+  user: {
+    id: '',
+    name: {
+      first: '',
+      last: ''
+    },
+    email: ''
+  }
 }
 
 export function createState() {
-  return reactive(UserStats)
+  return reactive(UserState)
 }

@@ -1,3 +1,8 @@
+export interface SlugError {
+  slug: string,
+  message: string
+}
+
 export type UiText = {
   context?: object,
   id: number,
@@ -16,7 +21,7 @@ export type UiNode = {
     value?: any | null
   },
   group: string,
-  messages: Array<UiText>,
+  messages: UiText[],
   meta: {
     label?: UiText
   },
@@ -25,9 +30,9 @@ export type UiNode = {
 
 export type UiContainer = {
   action: string,
-  messages?: Array<UiText>,
+  messages?: UiText[],
   method: string,
-  nodes: Array<UiNode>,
+  nodes: UiNode[],
 }
 
 export type KratosFlow = {

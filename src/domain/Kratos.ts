@@ -2,7 +2,7 @@ import { JsonError, SelfServiceLoginFlow, SelfServiceSettingsFlow, Session, Subm
 import axios, { AxiosError } from 'axios'
 import { kratos } from '../lib/kratos'
 
-class Kratos {
+class KratosService {
   public async whoAmI(): Promise<Session | undefined> {
     try {
       const result = await kratos.toSession()
@@ -40,9 +40,12 @@ class Kratos {
   }
 
   public async submitSettingFlow(flowId: string, payload: SubmitSelfServiceSettingsFlowBody): Promise<SelfServiceSettingsFlow> {
-    const result = await kratos.submitSelfServiceSettingsFlow(flowId, undefined, payload)
-
-    return result.data
+    try {
+      const result = await kratos.submitSelfServiceSettingsFlow(flowId, undefined, payload)
+      return result.data
+    } catch (error) {
+      return (error as AxiosError).response?.data
+    }
   }
 
   public async initLogoutFlow(): Promise<string | undefined> {
@@ -51,4 +54,4 @@ class Kratos {
   }
 }
 
-export default new Kratos()
+export const KratosServiceInstance = new KratosService()

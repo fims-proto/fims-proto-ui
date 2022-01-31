@@ -2,14 +2,13 @@
 import { defineComponent, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { Search } from '@element-plus/icons';
 import Voucher from '../domain/Voucher';
 
 export default defineComponent({
   setup() {
     const { t } = useI18n()
     const { sobId } = useRoute().params
-    const vouchers = ref<Array<any>>()
+    const vouchers = ref<any[]>()
 
     onMounted(async () => {
       vouchers.value = await Voucher.getAllVouchersBySod(sobId as string)

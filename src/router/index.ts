@@ -12,7 +12,7 @@ import SobCreation from '../components/SobCreation.vue';
 import VoucherMain from '../components/VoucherMain.vue';
 import VoucherCreation from '../components/VoucherCreation.vue';
 
-const routes: Array<RouteRecordRaw> = [
+const routes: RouteRecordRaw[] = [
 	{
 		path: '/ui',
 		component: Layout,
