@@ -1,6 +1,5 @@
 <script lang="ts">
 import { JsonError, SelfServiceLoginFlow, SubmitSelfServiceLoginFlowWithPasswordMethodBody, UiNodeInputAttributes } from "@ory/kratos-client";
-import { NAlert, NButton, NForm, NFormItem, NH1, NInput, NSpace, NSpin, NText } from 'naive-ui';
 import { defineComponent, onMounted, ref } from "vue";
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
@@ -24,7 +23,6 @@ interface messageType {
 }
 
 export default defineComponent({
-  components: { NForm, NAlert, NFormItem, NInput, NButton, NSpin, NSpace, NH1, NText },
   setup() {
     const route = useRoute()
     const router = useRouter()
@@ -32,8 +30,6 @@ export default defineComponent({
     const userStore = useUserStore()
 
     const messages = ref<messageType[]>([])
-
-    const formRef = ref<any>(null)
     const formValue = ref<formValueType>({ flowId: '', method: '', user: { email: '', password: '', }, csrfToken: '' })
     const formBusy = ref(true)
 
@@ -77,32 +73,11 @@ export default defineComponent({
     }
 
     return {
-      formRef,
       formValue,
       formBusy,
       messages,
-      t: i18n.t,
-      rules: {
-        user: {
-          email: {
-            required: true,
-            message: i18n.t('user.emailValidateMessage'),
-            trigger: ['input', 'blur']
-          },
-          password: {
-            required: true,
-            message: i18n.t('user.passwordValidateMessage'),
-            trigger: ['input', 'blur']
-          }
-        }
-      },
-      onSubmitClick() {
-        formRef.value?.validate((errors: any) => {
-          if (!errors) {
-            handleSubmit()
-          }
-        })
-      }
+      handleSubmit,
+      t: i18n.t
     };
   },
 })
@@ -158,48 +133,52 @@ function buildMessages(flow: SelfServiceLoginFlow): messageType[] {
 <template>
   <section class="loggin">
     <div class="loggin__container">
-      <n-spin :show="formBusy">
-        <n-space vertical>
-          <n-h1 align-text>
-            <n-text type="primary">LOGIN</n-text>
-          </n-h1>
+      <a-spin :spinning="formBusy">
+        <a-space direction="vertical" style="width: 100%;">
+          <a-typography-title>LOGIN</a-typography-title>
 
           <div v-if="messages.length > 0">
-            <n-space vertical>
-              <n-alert
+            <a-space direction="vertical">
+              <a-alert
                 v-for="message in messages"
                 :type="message.type ?? 'error'"
-                :title="message.text"
-                :show-icon="false"
+                :message="message.text"
               />
-            </n-space>
+            </a-space>
           </div>
-          <n-form ref="formRef" :model="formValue" :rules="rules">
+          <a-form :model="formValue" layout="vertical" hideRequiredMark @finish="handleSubmit">
             <input type="hidden" v-model="formValue.csrfToken" />
-            <n-form-item :label="t('user.email')" path="user.email">
-              <n-input
+            <a-form-item
+              :label="t('user.email')"
+              :name="['user', 'email']"
+              :rules="[{ required: true, message: t('user.emailValidateMessage') }]"
+            >
+              <a-input
                 v-model:value="formValue.user.email"
                 :placeholder="t('user.emailInputPlaceholder')"
               />
-            </n-form-item>
-            <n-form-item :label="t('user.password')" path="user.password">
-              <n-input
+            </a-form-item>
+            <a-form-item
+              :label="t('user.password')"
+              :name="['user', 'password']"
+              :rules="[{ required: true, message: t('user.passwordValidateMessage') }]"
+            >
+              <a-input
                 type="password"
                 v-model:value="formValue.user.password"
                 :placeholder="t('user.passwordInputPlaceholder')"
               />
-            </n-form-item>
-            <n-form-item>
-              <n-button
+            </a-form-item>
+            <a-form-item>
+              <a-button
                 type="primary"
-                @click.prevent="onSubmitClick"
+                html-type="submit"
                 class="loggin__container__form-submit"
-                attr-type="button"
-              >{{ t('action.submit') }}</n-button>
-            </n-form-item>
-          </n-form>
-        </n-space>
-      </n-spin>
+              >{{ t('action.submit') }}</a-button>
+            </a-form-item>
+          </a-form>
+        </a-space>
+      </a-spin>
     </div>
   </section>
 </template>

@@ -1,6 +1,5 @@
 <script lang="ts">
 import { SelfServiceSettingsFlow, UiText } from "@ory/kratos-client";
-import { NForm, NAlert, NFormItem, NInput, NButton, NSpin, NSpace, NTabPane, NTabs } from 'naive-ui';
 import { defineComponent, onMounted } from "vue";
 import { ref } from "vue";
 import { useI18n } from 'vue-i18n';
@@ -24,13 +23,10 @@ interface messageType {
 }
 
 export default defineComponent({
-  components: { NForm, NAlert, NFormItem, NInput, NButton, NSpin, NSpace, NTabs, NTabPane },
   setup() {
     const i18n = useI18n()
     const messages = ref<messageType[]>([])
     const flow = ref<SelfServiceSettingsFlow | undefined>()
-    const profileFormRef = ref<any>(null)
-    const passwordFormRef = ref<any>(null)
     const formBusy = ref(true)
     const profileFormValue = ref<profileFormType>({ csrf_token: '', method: '', traits: { email: '', name: { first: '', last: '' } } })
     const passwordFormValue = ref<passwordFormType>({ csrf_token: '', method: '', password: '' })
@@ -58,42 +54,17 @@ export default defineComponent({
     }
 
     return {
-      profileFormRef,
-      passwordFormRef,
+      activeKey: ref('profile'),
       formBusy,
       messages,
       profileFormValue,
       passwordFormValue,
       t: i18n.t,
       onProfileSubmit() {
-        profileFormRef.value?.validate((errors: any) => {
-          if (!errors) {
-            handleSubmit(profileFormValue.value)
-          }
-        })
+        handleSubmit(profileFormValue.value)
       },
       onPasswordSubmit() {
-        passwordFormRef.value?.validate((errors: any) => {
-          if (!errors) {
-            handleSubmit(passwordFormValue.value)
-          }
-        })
-      },
-      profileFormRule: {
-        traits: {
-          email: {
-            required: true,
-            message: i18n.t('user.emailValidateMessage'),
-            trigger: ['input', 'blur']
-          }
-        }
-      },
-      passwordFormRule: {
-        password: {
-          required: true,
-          message: i18n.t('user.passwordValidateMessage'),
-          trigger: ['input', 'blur']
-        }
+        handleSubmit(passwordFormValue.value)
       }
     }
   }
@@ -156,74 +127,79 @@ function buildMessages(flow: SelfServiceSettingsFlow | undefined): messageType[]
 <template>
   <div class="profile-setting">
     <div class="profile-setting__container">
-      <n-spin :show="formBusy">
-        <n-space vertical>
+      <a-spin :spinning="formBusy">
+        <a-space>
           <div v-if="messages.length > 0">
-            <n-space vertical>
-              <n-alert
+            <a-space>
+              <a-alert
                 v-for="message in messages"
                 :type="message.type ?? 'error'"
-                :title="message.text"
-                :show-icon="false"
+                :message="message.text"
               />
-            </n-space>
+            </a-space>
           </div>
 
-          <n-tabs default-value="profile">
-            <n-tab-pane name="profile" :tab="t('user.updateProfile')">
-              <n-form ref="profileFormRef" :model="profileFormValue" :rules="profileFormRule">
+          <a-tabs v-model:activeKey="activeKey" @finish="onProfileSubmit">
+            <a-tab-pane key="profile" :tab="t('user.updateProfile')">
+              <a-form :model="profileFormValue">
                 <input type="hidden" v-model="profileFormValue.csrf_token" />
-                <n-form-item :label="t('user.email')" path="traits.email">
-                  <n-input
+                <a-form-item
+                  :label="t('user.email')"
+                  name="traits.email"
+                  :rules="[{ required: true, message: t('user.emailValidateMessage') }]"
+                >
+                  <a-input
                     v-model:value="profileFormValue.traits.email"
                     :placeholder="t('user.emailInputPlaceholder')"
                   />
-                </n-form-item>
-                <n-form-item :label="t('user.lastname')" path="traits.name.last">
-                  <n-input
+                </a-form-item>
+                <a-form-item :label="t('user.lastname')" name="traits.name.last">
+                  <a-input
                     v-model:value="profileFormValue.traits.name.last"
                     :placeholder="t('user.lastnameInputPlaceholder')"
                   />
-                </n-form-item>
-                <n-form-item :label="t('user.firstname')" path="traits.name.first">
-                  <n-input
+                </a-form-item>
+                <a-form-item :label="t('user.firstname')" name="traits.name.first">
+                  <a-input
                     v-model:value="profileFormValue.traits.name.first"
                     :placeholder="t('user.firstnameInputPlaceholder')"
                   />
-                </n-form-item>
-                <n-form-item>
-                  <n-button
+                </a-form-item>
+                <a-form-item>
+                  <a-button
                     type="primary"
-                    @click.prevent="onProfileSubmit"
+                    html-type="submit"
                     class="profile-setting__container__form-submit"
-                    attr-type="button"
-                  >{{ t('action.submit') }}</n-button>
-                </n-form-item>
-              </n-form>
-            </n-tab-pane>
-            <n-tab-pane name="password" :tab="t('user.updatePassword')">
-              <n-form ref="passwordFormRef" :model="passwordFormValue" :rules="passwordFormRule">
+                  >{{ t('action.submit') }}</a-button>
+                </a-form-item>
+              </a-form>
+            </a-tab-pane>
+            <a-tab-pane key="password" :tab="t('user.updatePassword')">
+              <a-form :model="passwordFormValue" @finish="onPasswordSubmit">
                 <input type="hidden" v-model="passwordFormValue.csrf_token" />
-                <n-form-item :label="t('user.password')" path="password">
-                  <n-input
+                <a-form-item
+                  :label="t('user.password')"
+                  name="password"
+                  :rules="[{ required: true, message: t('user.passwordValidateMessage') }]"
+                >
+                  <a-input
                     type="password"
                     v-model:value="passwordFormValue.password"
                     :placeholder="t('user.passwordInputPlaceholder')"
                   />
-                </n-form-item>
-                <n-form-item>
-                  <n-button
+                </a-form-item>
+                <a-form-item>
+                  <a-button
                     type="primary"
-                    @click.prevent="onPasswordSubmit"
+                    html-type="submit"
                     class="profile-setting__container__form-submit"
-                    attr-type="button"
-                  >{{ t('action.submit') }}</n-button>
-                </n-form-item>
-              </n-form>
-            </n-tab-pane>
-          </n-tabs>
-        </n-space>
-      </n-spin>
+                  >{{ t('action.submit') }}</a-button>
+                </a-form-item>
+              </a-form>
+            </a-tab-pane>
+          </a-tabs>
+        </a-space>
+      </a-spin>
     </div>
   </div>
 </template>
@@ -231,6 +207,10 @@ function buildMessages(flow: SelfServiceSettingsFlow | undefined): messageType[]
 <style scoped>
 .profile-setting__container {
   width: 30rem;
+}
+
+.profile-setting__container__form-submit {
+  width: 100%;
 }
 
 .profile-setting__container__form-submit {

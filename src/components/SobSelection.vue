@@ -1,17 +1,14 @@
 <script lang="ts">
-import { NButton, NList, NListItem, NTag } from 'naive-ui';
 import { defineComponent, toRefs } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRouter } from 'vue-router';
 import { useSobStore } from '../store/sob';
 import BaseLink from './BaseLink.vue';
 
 export default defineComponent({
-  components: { NList, NListItem, NButton, NTag, BaseLink },
+  components: { BaseLink },
   emits: ['selected'],
   setup(_, { emit }) {
     const t = useI18n().t
-    const router = useRouter()
     const sobStore = useSobStore()
     const { sobs, currentSob } = toRefs(sobStore.state)
 
@@ -19,12 +16,9 @@ export default defineComponent({
       t,
       sobs,
       currentSob,
+      emit,
       onSelectSob(sobId: string) {
         sobStore.action.setCurrentSob(sobId)
-        emit('selected')
-      },
-      onSelectManage() {
-        router.push({ name: 'sobMain' })
         emit('selected')
       }
     }
@@ -33,25 +27,18 @@ export default defineComponent({
 </script>
 
 <template>
-  <div class="sob-selection">
-    <n-list bordered>
-      <template #header>{{ t('sob.selectSob') }}</template>
-      <n-list-item v-for="sob in sobs" :key="sob.id">
-        <template v-if="sob.id === currentSob?.id" #prefix>
-          <n-tag type="success" size="small">{{ t('sob.current') }}</n-tag>
-        </template>
-        <n-button text @click="onSelectSob(sob.id)">{{ sob.name }}</n-button>
-      </n-list-item>
-      <n-list-item>
-        <n-button text @click="onSelectManage">{{ t('sob.manageSob') }}</n-button>
-      </n-list-item>
-    </n-list>
-  </div>
+  <a-list :data-source="sobs">
+    <template #header>{{ t('sob.selectSob') }}</template>
+    <template #renderItem="{ item }">
+      <a-list-item>
+        <a-space>
+          <a-button type="text" @click="onSelectSob(item.id)">{{ item.name }}</a-button>
+          <a-tag color="success" v-if="item.id === currentSob?.id">{{ t('sob.current') }}</a-tag>
+        </a-space>
+      </a-list-item>
+    </template>
+    <template #footer>
+      <base-link :to="{ name: 'sobMain' }" @click="emit('selected')">{{ t('sob.manageSob') }}</base-link>
+    </template>
+  </a-list>
 </template>
-
-<style scoped>
-.sob-selection {
-  background-color: var(--n-color);
-  width: 20rem;
-}
-</style>

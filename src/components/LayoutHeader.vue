@@ -1,27 +1,18 @@
 <script lang="ts">
-import { ChevronDown as ChevronDownIcon } from '@vicons/ionicons5'
-import { NText, NMenu, NPopover, NButton, NIcon, NSpace } from 'naive-ui'
 import { computed, defineComponent, ref, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { DownOutlined } from '@ant-design/icons-vue'
 import { useSobStore } from '../store/sob'
 import BaseLink from './BaseLink.vue'
-import SobSelection from './SobSelection.vue'
+import { useRouter } from 'vue-router'
 
 export default defineComponent({
-  components: { NText, NMenu, NPopover, NButton, NIcon, NSpace, ChevronDownIcon, BaseLink, SobSelection },
+  components: { BaseLink, DownOutlined },
   setup() {
     const t = useI18n().t
+    const router = useRouter()
     const sobStore = useSobStore()
-    const { currentSob, currentPeriod } = toRefs(sobStore.state)
-    const showSobSelection = ref(false)
-
-    const menuOptions = [{
-      label: t('voucher.title'),
-      key: 'voucher'
-    }, {
-      label: t('ledger.title'),
-      key: 'ledger'
-    }]
+    const { sobs, currentSob, currentPeriod } = toRefs(sobStore.state)
 
     const period = computed(() => {
       return currentPeriod.value ? `${currentPeriod.value.financialYear}-${currentPeriod.value.number}` : t('ledger.periodUnselected')
@@ -29,13 +20,16 @@ export default defineComponent({
 
     return {
       t,
-      menuOptions,
       activeMenuKey: ref(null),
+      sobs,
       currentSob,
       period,
-      showSobSelection,
-      toggleSobSelection() {
-        showSobSelection.value = !showSobSelection.value
+      onSelectSob(item: any) {
+        if (item.key === 'nav') {
+          router.push({ name: 'sobMain' })
+        } else {
+          sobStore.action.setCurrentSob(item.key)
+        }
       }
     }
   }
@@ -46,39 +40,43 @@ export default defineComponent({
   <div class="layout-header">
     <div class="layout-header__left">
       <div class="layout-header__logo">
-        <n-text type="primary">
+        <span type="primary">
           <base-link :to="{ name: 'home' }">fims</base-link>
-        </n-text>
+        </span>
       </div>
-      <n-popover
-        placement="bottom-start"
-        trigger="click"
-        :show-arrow="false"
-        :show="showSobSelection"
-        @clickoutside="toggleSobSelection"
-        raw
-      >
-        <template #trigger>
-          <n-button text class="layout-header__sob-selection" @click="toggleSobSelection">
-            <n-space>
-              <span
-                class="layout-header__sob-selection__sob"
-              >{{ currentSob ? currentSob.name : t('sob.selectSob') }}</span>
-              <span class="layout-header__sob-selection__period">{{ period }}</span>
-              <n-icon
-                :class="{ 'layout-header__sob-selection__indicator_active': showSobSelection }"
-              >
-                <chevron-down-icon />
-              </n-icon>
-            </n-space>
-          </n-button>
+
+      <a-dropdown :trigger="['click']" placement="bottomLeft">
+        <a-button type="text" class="sob-selection" @click.prevent>
+          <a-space>
+            <span class="sob-selection__sob">{{ currentSob ? currentSob.name : t('sob.selectSob') }}</span>
+            <span class="sob-selection__period">{{ period }}</span>
+            <down-outlined />
+          </a-space>
+        </a-button>
+        <template #overlay>
+          <a-menu @click="onSelectSob">
+            <a-menu-item-group :title="t('sob.selectSob')">
+              <a-menu-item v-for="sob in sobs" :key="sob.id">
+                <a-space>
+                  <span>{{ sob.name }}</span>
+                  <a-tag color="success" v-if="sob.id === currentSob?.id">{{ t('sob.current') }}</a-tag>
+                </a-space>
+              </a-menu-item>
+            </a-menu-item-group>
+            <a-menu-divider />
+            <a-menu-item key="nav">{{ t('sob.manageSob') }}</a-menu-item>
+          </a-menu>
         </template>
-        <sob-selection @selected="toggleSobSelection" />
-      </n-popover>
+      </a-dropdown>
+
       <div class="layout-header__menu">
-        <n-menu v-model:value="activeMenuKey" mode="horizontal" :options="menuOptions" />
+        <a-menu v-model:selectedKeys="activeMenuKey" mode="horizontal">
+          <a-menu-item key="voucher">{{ t('voucher.title') }}</a-menu-item>
+          <a-menu-item key="ledger">{{ t('ledger.title') }}</a-menu-item>
+        </a-menu>
       </div>
     </div>
+
     <div class="layout-header__right">
       <div>user</div>
     </div>
@@ -94,7 +92,7 @@ export default defineComponent({
 
 .layout-header__left {
   display: flex;
-  align-items: stretch;
+  align-items: center;
 }
 
 .layout-header__left > * {
@@ -124,20 +122,20 @@ export default defineComponent({
   padding-right: 0;
 }
 
-.layout-header__sob-selection {
-  cursor: pointer;
-}
-
 .layout-header__logo {
   font-weight: bolder;
   font-size: 2rem;
 }
 
-.layout-header__sob-selection__sob {
+.sob-selection {
+  cursor: pointer;
+}
+
+.sob-selection__sob {
   font-weight: bold;
 }
 
-.layout-header__sob-selection__indicator_active {
+.sob-selection__indicator_active {
   transform: rotate(180deg);
 }
 </style>

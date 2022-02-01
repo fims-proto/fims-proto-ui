@@ -1,21 +1,39 @@
 <script setup lang="ts">
-import { NLayout, NLayoutContent, NLayoutHeader } from "naive-ui";
 import LayoutHeader from './LayoutHeader.vue'
 </script>
 
 <template>
-  <n-layout>
-    <n-layout-header bordered>
+  <section class="layout">
+    <header class="layout__header">
       <layout-header />
-    </n-layout-header>
-    <n-layout-content content-style="padding: 1rem 3rem">
+    </header>
+    <main class="layout__content">
       <router-view />
-    </n-layout-content>
-  </n-layout>
+    </main>
+  </section>
 </template>
 
 <style scoped>
-.n-layout-header {
-  padding: 0 3rem;
+.layout {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.layout__header {
+  width: min(1440px, 100%);
+  height: 64px;
+  line-height: 64px;
+  align-self: center;
+  padding: 0 1rem;
+}
+
+.layout__content {
+  width: min(1440px, 100%);
+  height: calc(100vh - 64px);
+  align-self: center;
+  padding: 0 1rem;
 }
 </style>
