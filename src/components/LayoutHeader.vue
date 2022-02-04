@@ -3,16 +3,20 @@ import { computed, defineComponent, ref, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { DownOutlined } from '@ant-design/icons-vue'
 import { useSobStore } from '../store/sob'
-import BaseLink from './BaseLink.vue'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '../store/user'
+import { UserService } from '../domain'
 
 export default defineComponent({
-  components: { BaseLink, DownOutlined },
+  components: { DownOutlined },
   setup() {
     const t = useI18n().t
     const router = useRouter()
     const sobStore = useSobStore()
+    const userStore = useUserStore()
+
     const { sobs, currentSob, currentPeriod } = toRefs(sobStore.state)
+    const { traits } = toRefs(userStore.state)
 
     const period = computed(() => {
       return currentPeriod.value ? `${currentPeriod.value.financialYear}-${currentPeriod.value.number}` : t('ledger.periodUnselected')
@@ -20,7 +24,8 @@ export default defineComponent({
 
     return {
       t,
-      activeMenuKey: ref(null),
+      activeMenuKey: ref(undefined),
+      traits,
       sobs,
       currentSob,
       period,
@@ -30,6 +35,9 @@ export default defineComponent({
         } else {
           sobStore.action.setCurrentSob(item.key)
         }
+      },
+      onLogout() {
+        UserService.logout()
       }
     }
   }
@@ -78,7 +86,22 @@ export default defineComponent({
     </div>
 
     <div class="layout-header__right">
-      <div>user</div>
+      <div>
+        <a-dropdown :trigger="['click']" placement="bottomRight">
+          <a-avatar
+            style="background-color: #333; color: #fff; cursor: pointer;"
+          >{{ traits.name?.first }}</a-avatar>
+          <template #overlay>
+            <a-menu>
+              <a-menu-item>
+                <base-link :to="{ name: 'profile' }">{{ t('profile.updateProfile') }}</base-link>
+              </a-menu-item>
+              <a-menu-divider />
+              <a-menu-item @click="onLogout">{{ t('user.logout') }}</a-menu-item>
+            </a-menu>
+          </template>
+        </a-dropdown>
+      </div>
     </div>
   </div>
 </template>

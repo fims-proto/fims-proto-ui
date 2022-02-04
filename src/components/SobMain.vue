@@ -1,12 +1,10 @@
 <script lang="ts">
 import { defineComponent, toRefs } from 'vue';
 import { useI18n } from 'vue-i18n';
-import BasePage from './BasePage.vue'
 import { useRouter } from 'vue-router';
 import { useSobStore } from '../store/sob';
 
 export default defineComponent({
-  components: { BasePage },
   setup() {
     const router = useRouter()
     const t = useI18n().t

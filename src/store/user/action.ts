@@ -3,13 +3,21 @@ import { IUserState } from './state';
 
 function setUser(state: IUserState) {
   return (user: User) => {
-    state.user = user
+    mapUser(user, state)
   }
 }
 
 function loadUser(state: IUserState) {
   return async () => {
-    state.user = await UserService.whoAmI()
+    mapUser(await UserService.whoAmI(), state)
+  }
+}
+
+function mapUser(source: User, target: IUserState) {
+  target.userId = source.id
+  target.traits = {
+    name: source.name,
+    email: source.email
   }
 }
 

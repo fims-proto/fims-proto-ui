@@ -18,7 +18,7 @@ interface formValueType {
 }
 
 interface messageType {
-  type?: 'default' | 'error' | 'info' | 'success' | 'warning' | undefined,
+  type?: 'error' | 'info' | 'success' | 'warning' | undefined,
   text: string
 }
 
@@ -109,7 +109,6 @@ function buildSumitForm(formValue: formValueType) {
 function buildMessages(flow: SelfServiceLoginFlow): messageType[] {
   const convertMessageType = (type: string) => {
     switch (type) {
-      case 'default':
       case 'error':
       case 'info':
       case 'success':
@@ -156,6 +155,7 @@ function buildMessages(flow: SelfServiceLoginFlow): messageType[] {
               <a-input
                 v-model:value="formValue.user.email"
                 :placeholder="t('user.emailInputPlaceholder')"
+                autocomplete="username email"
               />
             </a-form-item>
             <a-form-item
@@ -167,6 +167,7 @@ function buildMessages(flow: SelfServiceLoginFlow): messageType[] {
                 type="password"
                 v-model:value="formValue.user.password"
                 :placeholder="t('user.passwordInputPlaceholder')"
+                autocomplete="current-password"
               />
             </a-form-item>
             <a-form-item>

@@ -1,7 +1,3 @@
-<script setup lang="ts">
-import LayoutHeader from './LayoutHeader.vue'
-</script>
-
 <template>
   <section class="layout">
     <header class="layout__header">

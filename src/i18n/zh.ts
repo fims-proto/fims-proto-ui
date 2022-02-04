@@ -26,9 +26,14 @@ export default {
     lastnameInputPlaceholder: '请输入姓氏',
     emailValidateMessage: 'E-Mail 地址是必填项',
     passwordValidateMessage: '密码是必填项',
+    logout: '登出',
+  },
+
+  profile: {
+    title: "更新资料",
+    subtitle: "支持用户资料和密码的更新",
     updateProfile: '更新资料',
     updatePassword: '更新密码',
-    logout: '登出'
   },
 
   sob: {

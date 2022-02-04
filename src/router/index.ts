@@ -29,6 +29,7 @@ const routes: RouteRecordRaw[] = [
 			},
 			{
 				path: 'profile/settings',
+				name: 'profile',
 				component: ProfileSetting,
 			},
 			{

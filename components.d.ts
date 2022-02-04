@@ -5,6 +5,7 @@
 declare module 'vue' {
   export interface GlobalComponents {
     AAlert: typeof import('ant-design-vue/es')['Alert']
+    AAvatar: typeof import('ant-design-vue/es')['Avatar']
     About: typeof import('./src/components/About.vue')['default']
     AButton: typeof import('ant-design-vue/es')['Button']
     ACard: typeof import('ant-design-vue/es')['Card']
@@ -13,16 +14,10 @@ declare module 'vue' {
     AForm: typeof import('ant-design-vue/es')['Form']
     AFormItem: typeof import('ant-design-vue/es')['FormItem']
     AInput: typeof import('ant-design-vue/es')['Input']
-    ALayout: typeof import('ant-design-vue/es')['Layout']
-    ALayoutContent: typeof import('ant-design-vue/es')['LayoutContent']
-    ALayoutHeader: typeof import('ant-design-vue/es')['LayoutHeader']
-    AList: typeof import('ant-design-vue/es')['List']
-    AListItem: typeof import('ant-design-vue/es')['ListItem']
     AMenu: typeof import('ant-design-vue/es')['Menu']
     AMenuDivider: typeof import('ant-design-vue/es')['MenuDivider']
     AMenuItem: typeof import('ant-design-vue/es')['MenuItem']
     AMenuItemGroup: typeof import('ant-design-vue/es')['MenuItemGroup']
-    APopover: typeof import('ant-design-vue/es')['Popover']
     AResult: typeof import('ant-design-vue/es')['Result']
     ASpace: typeof import('ant-design-vue/es')['Space']
     ASpin: typeof import('ant-design-vue/es')['Spin']
@@ -43,7 +38,6 @@ declare module 'vue' {
     SobCreation: typeof import('./src/components/SobCreation.vue')['default']
     SobDetail: typeof import('./src/components/SobDetail.vue')['default']
     SobMain: typeof import('./src/components/SobMain.vue')['default']
-    SobSelection: typeof import('./src/components/SobSelection.vue')['default']
     VoucherCreation: typeof import('./src/components/VoucherCreation.vue')['default']
     VoucherMain: typeof import('./src/components/VoucherMain.vue')['default']
   }

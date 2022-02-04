@@ -1,10 +1,8 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
-import BasePage from './BasePage.vue'
 
 export default defineComponent({
-  components: { BasePage },
   setup() {
     const t = useI18n().t
 

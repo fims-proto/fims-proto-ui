@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent, toRefs, watchEffect } from 'vue';
+import { defineComponent, toRefs, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { SobService } from './domain';
 import { useSobStore } from './store/sob';
@@ -10,7 +10,7 @@ export default defineComponent({
     const t = useI18n().t
     const sobStore = useSobStore()
     const userStore = useUserStore()
-    const { user } = toRefs(userStore.state)
+    const { userId } = toRefs(userStore.state)
 
     userStore.action.loadUser()
 
@@ -24,8 +24,8 @@ export default defineComponent({
       }
     }
 
-    watchEffect(() => {
-      if (user.value.id) {
+    watch(userId, () => {
+      if (userId.value) {
         initialize()
       }
     })
