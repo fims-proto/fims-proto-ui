@@ -1,7 +1,6 @@
 <script lang="ts">
 import { defineComponent, toRefs, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { SobService } from './domain';
 import { useSobStore } from './store/sob';
 import { useUserStore } from './store/user';
 
@@ -16,12 +15,7 @@ export default defineComponent({
 
     const initialize = async () => {
       console.log('start initialization')
-      try {
-        sobStore.action.setSobs(await SobService.getAllSods())
-        sobStore.action.loadCurrentSob()
-      } catch (error) {
-        console.error(t((error as Error).message))
-      }
+      sobStore.action.loadWorkingSob()
     }
 
     watch(userId, () => {

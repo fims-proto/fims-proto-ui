@@ -1,2 +1,2 @@
 export { SobServiceInstance as SobService } from './domain'
-export * from './type'
+export * from './types'

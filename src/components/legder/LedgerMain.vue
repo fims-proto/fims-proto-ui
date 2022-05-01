@@ -1,0 +1,64 @@
+<script lang="ts">
+import { defineComponent, onMounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router';
+import { LedgerService, Period } from '../../domain';
+import { useSobStore } from '../../store/sob';
+
+export default defineComponent({
+  setup() {
+    const t = useI18n().t
+    const route = useRoute()
+    const router = useRouter()
+    const sobStore = useSobStore()
+
+    const periods = ref<Period[]>()
+
+    onMounted(async () => {
+      if (!sobStore.state.workingSob) {
+        throw new Error('invalid-working-sob')
+      }
+      periods.value = await LedgerService.getAllPeriods(sobStore.state.workingSob.id)
+
+      if (route.name === 'ledgerMain') {
+        const openPeriod = periods.value?.find(period => !period.isClosed)
+        if (openPeriod) {
+          console.log('display default period')
+          router.replace({
+            name: 'ledgerList',
+            params: {
+              sobId: sobStore.state.workingSob?.id,
+              periodId: openPeriod.id
+            }
+          })
+        }
+      }
+    })
+
+    onBeforeRouteUpdate(async (to, from) => {
+      if (from.name === 'ledgerList' && to.name === 'ledgerMain') {
+        return false
+      }
+    })
+
+    return {
+      t,
+      periods
+    }
+  }
+})
+</script>
+
+<template>
+  <base-page>
+    <template #title>{{ t('ledger.title') }}</template>
+    <div class="flex gap-4">
+      <div class="flex-none w-80">
+        <period-list :periods="periods" />
+      </div>
+      <div class="flex-auto">
+        <router-view />
+      </div>
+    </div>
+  </base-page>
+</template>

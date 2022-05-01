@@ -23,10 +23,23 @@ function getLangFiles(modules: Record<string, { [key: string]: any }>) {
   return messages
 }
 
+const numberFormats = {
+  'zh': {
+    cur: {
+      style: 'currency', currency: 'CNY'
+    },
+    dec: {
+      style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2
+    }
+  }
+}
+
 const i18n = createI18n({
+  legacy: false,
   locale: 'zh',
   fallbackLocale: 'zh',
-  messages: getLangFiles(modules)
+  messages: getLangFiles(modules),
+  numberFormats
 })
 
 export default i18n

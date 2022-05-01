@@ -3,8 +3,8 @@ import { SelfServiceSettingsFlow, UiText } from "@ory/kratos-client";
 import { defineComponent, onMounted } from "vue";
 import { ref } from "vue";
 import { useI18n } from 'vue-i18n';
-import { KratosService } from '../domain';
-import { useUserStore } from '../store/user';
+import { KratosService } from '../../domain';
+import { useUserStore } from '../../store/user';
 
 interface profileFormType {
   csrf_token: string,
@@ -131,92 +131,84 @@ function buildMessages(flow: SelfServiceSettingsFlow | undefined): messageType[]
 <template>
   <base-page :subtitle="t('profile.subtitle')">
     <template #title>{{ t('profile.title') }}</template>
-    <a-spin :spinning="formBusy">
-      <a-space direction="vertical" style="width: 100%;">
-        <div v-if="messages.length > 0">
-          <a-space>
-            <a-alert
-              v-for="message in messages"
-              :type="message.type ?? 'error'"
-              :message="message.text"
-            />
-          </a-space>
-        </div>
+    <div class="flex flex-col gap-2">
+      <base-alert
+        v-for="message in messages"
+        :type="message.type ?? 'error'"
+        :message="message.text"
+      />
 
-        <a-tabs v-model:activeKey="activeKey">
-          <a-tab-pane key="profile" :tab="t('profile.updateProfile')">
-            <a-form
-              :model="profileFormValue"
-              :label-col="{ span: 8 }"
-              :wrapper-col="{ span: 16 }"
-              style="max-width: 40rem;"
-              @finish="onProfileSubmit"
-            >
+      <base-tabs>
+        <template #tabs>
+          <base-tab-item>{{ t('profile.updateProfile') }}</base-tab-item>
+          <base-tab-item>{{ t('profile.updatePassword') }}</base-tab-item>
+        </template>
+        <template #panels>
+          <!-- profile update -->
+          <base-tab-panel class="max-w-xl">
+            <base-form @submit="onProfileSubmit">
               <input type="hidden" v-model="profileFormValue.csrf_token" />
-              <a-form-item
+              <base-input
                 :label="t('user.email')"
-                :name="['traits', 'email']"
-                :rules="[{ required: true, message: t('user.emailValidateMessage') }]"
-              >
-                <a-input
-                  v-model:value="profileFormValue.traits.email"
-                  :placeholder="t('user.emailInputPlaceholder')"
-                />
-              </a-form-item>
-              <a-form-item :label="t('user.lastname')" :name="['traits', 'name', 'last']">
-                <a-input
-                  v-model:value="profileFormValue.traits.name.last"
-                  :placeholder="t('user.lastnameInputPlaceholder')"
-                />
-              </a-form-item>
-              <a-form-item :label="t('user.firstname')" :name="['traits', 'name', 'first']">
-                <a-input
-                  v-model:value="profileFormValue.traits.name.first"
-                  :placeholder="t('user.firstnameInputPlaceholder')"
-                />
-              </a-form-item>
-              <a-form-item :wrapper-col="{ offset: 8, span: 16 }">
-                <a-button type="primary" html-type="submit">{{ t('action.submit') }}</a-button>
-              </a-form-item>
-            </a-form>
-          </a-tab-pane>
+                :placeholder="t('user.emailInputPlaceholder')"
+                v-model="profileFormValue.traits.email"
+                html-type="email"
+                autocomplete="email"
+                required
+              />
+              <base-input
+                :label="t('user.lastname')"
+                :placeholder="t('user.lastnameInputPlaceholder')"
+                v-model="profileFormValue.traits.name.last"
+              />
+              <base-input
+                :label="t('user.lastname')"
+                :placeholder="t('user.firstnameInputPlaceholder')"
+                v-model="profileFormValue.traits.name.first"
+              />
+              <div>
+                <base-button html-type="submit" type="primary" class="w-full">
+                  <template #icon>
+                    <lock-closed-solid-icon />
+                  </template>
+                  <span>{{ t('action.submit') }}</span>
+                </base-button>
+              </div>
+            </base-form>
+          </base-tab-panel>
 
-          <a-tab-pane key="password" :tab="t('profile.updatePassword')">
-            <a-form
-              :model="passwordFormValue"
-              :label-col="{ span: 8 }"
-              :wrapper-col="{ span: 16 }"
-              style="max-width: 40rem;"
-              @finish="onPasswordSubmit"
-            >
+          <!-- password update -->
+          <base-tab-panel class="max-w-xl">
+            <base-form @submit="onPasswordSubmit">
               <input type="hidden" v-model="passwordFormValue.csrf_token" />
               <!-- hidden username field for browser autocomplete -->
               <input
                 type="text"
                 name="email"
                 v-model="profileFormValue.traits.email"
-                autocomplete="username email"
+                autocomplete="email"
                 style="display: none;"
               />
-              <a-form-item
+              <base-input
                 :label="t('user.password')"
-                name="password"
-                :rules="[{ required: true, message: t('user.passwordValidateMessage') }]"
-              >
-                <a-input
-                  type="password"
-                  v-model:value="passwordFormValue.password"
-                  :placeholder="t('user.passwordInputPlaceholder')"
-                  autocomplete="new-password"
-                />
-              </a-form-item>
-              <a-form-item :wrapper-col="{ offset: 8, span: 16 }">
-                <a-button type="primary" html-type="submit">{{ t('action.submit') }}</a-button>
-              </a-form-item>
-            </a-form>
-          </a-tab-pane>
-        </a-tabs>
-      </a-space>
-    </a-spin>
+                :placeholder="t('user.passwordInputPlaceholder')"
+                v-model="passwordFormValue.password"
+                html-type="password"
+                autocomplete="new-password"
+                required
+              />
+              <div>
+                <base-button html-type="submit" type="primary" class="w-full">
+                  <template #icon>
+                    <lock-closed-solid-icon />
+                  </template>
+                  <span>{{ t('action.submit') }}</span>
+                </base-button>
+              </div>
+            </base-form>
+          </base-tab-panel>
+        </template>
+      </base-tabs>
+    </div>
   </base-page>
 </template>

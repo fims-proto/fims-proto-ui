@@ -3,6 +3,7 @@ import { defineComponent } from 'vue';
 import { RouterLink } from 'vue-router'
 
 export default defineComponent({
+  inheritAttrs: false,
   props: {
     // @ts-ignore
     ...RouterLink.props
@@ -12,14 +13,8 @@ export default defineComponent({
 
 <template>
   <router-link v-bind="$props" custom v-slot="{ href, navigate }">
-    <a v-bind="$attrs" :href="href" @click="navigate" class="base-link">
+    <a v-bind="$attrs" :href="href" @click="navigate">
       <slot></slot>
     </a>
   </router-link>
 </template>
-
-<style scoped>
-.base-link {
-  text-decoration: none;
-}
-</style>

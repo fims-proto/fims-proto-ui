@@ -3,9 +3,9 @@ import { JsonError, SelfServiceLoginFlow, SubmitSelfServiceLoginFlowWithPassword
 import { defineComponent, onMounted, ref } from "vue";
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
-import { KratosService } from '../domain';
-import { useUserStore } from '../store/user';
-import { UiText } from '../types';
+import { KratosService } from '../../domain';
+import { useUserStore } from '../../store/user';
+import { UiText } from '../../types';
 
 interface formValueType {
   flowId: string,
@@ -60,9 +60,9 @@ export default defineComponent({
 
         const returnTo = route.query['return_to'] as string
         if (returnTo) {
-          location.href = returnTo
+          location.replace(returnTo)
         } else {
-          router.push({ name: 'home' })
+          router.replace({ name: 'home' })
         }
         return
       }
@@ -130,74 +130,56 @@ function buildMessages(flow: SelfServiceLoginFlow): messageType[] {
 </script>
 
 <template>
-  <section class="loggin">
-    <div class="loggin__container">
-      <a-spin :spinning="formBusy">
-        <a-space direction="vertical" style="width: 100%;">
-          <a-typography-title>LOGIN</a-typography-title>
+  <!-- container -->
+  <div class="w-full h-screen flex items-center justify-center bg-neutral-50">
+    <!-- wrapper -->
+    <div class="w-full max-w-md py-12 px-4 space-y-8">
+      <!-- header -->
+      <div>
+        <h1 class="text-center text-3xl font-extrabold text-primary-900">Login</h1>
+      </div>
 
-          <div v-if="messages.length > 0">
-            <a-space direction="vertical">
-              <a-alert
-                v-for="message in messages"
-                :type="message.type ?? 'error'"
-                :message="message.text"
-              />
-            </a-space>
-          </div>
-          <a-form :model="formValue" layout="vertical" hideRequiredMark @finish="handleSubmit">
-            <input type="hidden" v-model="formValue.csrfToken" />
-            <a-form-item
-              :label="t('user.email')"
-              :name="['user', 'email']"
-              :rules="[{ required: true, message: t('user.emailValidateMessage') }]"
-            >
-              <a-input
-                v-model:value="formValue.user.email"
-                :placeholder="t('user.emailInputPlaceholder')"
-                autocomplete="username email"
-              />
-            </a-form-item>
-            <a-form-item
-              :label="t('user.password')"
-              :name="['user', 'password']"
-              :rules="[{ required: true, message: t('user.passwordValidateMessage') }]"
-            >
-              <a-input
-                type="password"
-                v-model:value="formValue.user.password"
-                :placeholder="t('user.passwordInputPlaceholder')"
-                autocomplete="current-password"
-              />
-            </a-form-item>
-            <a-form-item>
-              <a-button
-                type="primary"
-                html-type="submit"
-                class="loggin__container__form-submit"
-              >{{ t('action.submit') }}</a-button>
-            </a-form-item>
-          </a-form>
-        </a-space>
-      </a-spin>
+      <!-- messages -->
+      <base-alert
+        v-for="message in messages"
+        :type="message.type ?? 'error'"
+        :message="message.text"
+        closable
+      />
+
+      <!-- form -->
+      <base-form
+        class="px-12 py-8 bg-white shadow-lg rounded-lg"
+        @submit="handleSubmit"
+        hideRequiredMark
+      >
+        <input type="hidden" v-model="formValue.csrfToken" />
+        <base-input
+          :label="t('user.email')"
+          :placeholder="t('user.emailInputPlaceholder')"
+          v-model="formValue.user.email"
+          html-type="email"
+          autocomplete="email"
+          required
+        />
+        <base-input
+          :label="t('user.password')"
+          :placeholder="t('user.passwordInputPlaceholder')"
+          v-model="formValue.user.password"
+          html-type="password"
+          autocomplete="current-password"
+          required
+        />
+
+        <div>
+          <base-button html-type="submit" type="primary" class="w-full">
+            <template #icon>
+              <lock-closed-solid-icon />
+            </template>
+            <span>{{ t('user.login') }}</span>
+          </base-button>
+        </div>
+      </base-form>
     </div>
-  </section>
+  </div>
 </template>
-
-<style scoped>
-.loggin {
-  height: 100vh;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.loggin__container {
-  width: 25rem;
-}
-
-.loggin__container__form-submit {
-  width: 100%;
-}
-</style>

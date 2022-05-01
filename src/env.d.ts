@@ -7,7 +7,7 @@ declare module '*.vue' {
   export default component
 }
 
-interface ImportMetaEnv extends Readonly<Record<string, string>> {
+interface ImportMetaEnv {
   readonly VITE_KRATOS_PUBLIC_URL: string
   readonly VITE_FIMS_API_URL: string
 }

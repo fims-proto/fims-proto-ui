@@ -1,164 +1,144 @@
 <script lang="ts">
-import { computed, defineComponent, ref, toRefs } from 'vue'
+import { computed, defineComponent, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { DownOutlined } from '@ant-design/icons-vue'
 import { useSobStore } from '../store/sob'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../store/user'
 import { UserService } from '../domain'
 
 export default defineComponent({
-  components: { DownOutlined },
   setup() {
     const t = useI18n().t
     const router = useRouter()
     const sobStore = useSobStore()
     const userStore = useUserStore()
 
-    const { sobs, currentSob, currentPeriod } = toRefs(sobStore.state)
-    const { traits } = toRefs(userStore.state)
+    const { sobs, workingSob, currentPeriod } = toRefs(sobStore.state)
+    const { traits: userInfo } = toRefs(userStore.state)
+
+    const navigation = computed(() => {
+      const items = [{
+        key: 'voucher',
+        label: t('voucher.title'),
+        to: { name: 'home', params: {} }
+      }]
+
+      if (workingSob.value?.id) {
+        items.push({
+          key: 'legder',
+          label: t('ledger.title'),
+          to: {
+            name: 'ledgerMain',
+            params: {
+              sobId: workingSob.value?.id
+            }
+          }
+        })
+      }
+
+      return items
+    })
 
     const period = computed(() => {
       return currentPeriod.value ? `${currentPeriod.value.financialYear}-${currentPeriod.value.number}` : t('ledger.periodUnselected')
     })
 
-    return {
-      t,
-      activeMenuKey: ref(undefined),
-      traits,
-      sobs,
-      currentSob,
-      period,
-      onSelectSob(item: any) {
-        if (item.key === 'nav') {
-          router.push({ name: 'sobMain' })
-        } else {
-          sobStore.action.setCurrentSob(item.key)
-        }
-      },
-      onLogout() {
+    const onUserMenuSelected = (key: string) => {
+      if (key === 'update-profile') {
+        router.push({ name: 'profile' })
+      } else if (key === 'logout') {
         UserService.logout()
       }
+    }
+
+    const onSobSelected = async (command: string) => {
+      if (command === 'nav') {
+        router.push({ name: 'sobMain' })
+      } else {
+        await sobStore.action.setWorkingSob(command)
+        router.push({ name: 'home' })
+      }
+    }
+
+    return {
+      t,
+      navigation,
+      userInfo,
+      sobs,
+      workingSob,
+      period,
+      onUserMenuSelected,
+      onSobSelected
     }
   }
 })
 </script>
 
 <template>
-  <div class="layout-header">
-    <div class="layout-header__left">
-      <div class="layout-header__logo">
-        <span type="primary">
-          <base-link :to="{ name: 'home' }">fims</base-link>
-        </span>
+  <!-- container -->
+  <div class="h-16 w-full flex justify-between">
+    <!-- left part -->
+    <div class="flex gap-4 items-center">
+      <!-- logo -->
+      <div>
+        <base-link :to="{ name: 'home' }"
+          class="px-3 py-2 pl-0 rounded-md text-xl font-serif italic font-extrabold text-primary-700">fims</base-link>
       </div>
 
-      <a-dropdown :trigger="['click']" placement="bottomLeft">
-        <a-button type="text" class="sob-selection" @click.prevent>
-          <a-space>
-            <span class="sob-selection__sob">{{ currentSob ? currentSob.name : t('sob.selectSob') }}</span>
-            <span class="sob-selection__period">{{ period }}</span>
-            <down-outlined />
-          </a-space>
-        </a-button>
-        <template #overlay>
-          <a-menu @click="onSelectSob">
-            <a-menu-item-group :title="t('sob.selectSob')">
-              <a-menu-item v-for="sob in sobs" :key="sob.id">
-                <a-space>
-                  <span>{{ sob.name }}</span>
-                  <a-tag color="success" v-if="sob.id === currentSob?.id">{{ t('sob.current') }}</a-tag>
-                </a-space>
-              </a-menu-item>
-            </a-menu-item-group>
-            <a-menu-divider />
-            <a-menu-item key="nav">{{ t('sob.manageSob') }}</a-menu-item>
-          </a-menu>
-        </template>
-      </a-dropdown>
-
-      <div class="layout-header__menu">
-        <a-menu v-model:selectedKeys="activeMenuKey" mode="horizontal">
-          <a-menu-item key="voucher">{{ t('voucher.title') }}</a-menu-item>
-          <a-menu-item key="ledger">{{ t('ledger.title') }}</a-menu-item>
-        </a-menu>
+      <!-- SoB selection -->
+      <div>
+        <base-dropdown @select="onSobSelected">
+          <base-dropdown-button as="a"
+            class="px-3 py-2 space-x-2 rounded-md whitespace-nowrap text-neutral-700 hover:text-neutral-900 hover:bg-black hover:bg-opacity-5"
+            v-slot="{ open }">
+            <span class="inline">{{ workingSob ? workingSob.name : t('sob.selectSob') }}</span>
+            <span class="inline">{{ period }}</span>
+            <chevron-down-outline-icon :class="['inline w-3 align-baseline', { 'rotate-180': open }]"
+              aria-hidden="true" />
+          </base-dropdown-button>
+          <template #overlay>
+            <base-dropdown-group :title="t('sob.selectSob')">
+              <base-dropdown-item v-for="sob in sobs" :key="sob.id" :command="sob.id">
+                <span>{{ sob.name }}</span>
+                <base-tag v-if="sob.id === workingSob?.id" color="success">{{ t('sob.current') }}</base-tag>
+              </base-dropdown-item>
+            </base-dropdown-group>
+            <base-dropdown-item command="nav">{{ t('sob.manageSob') }}</base-dropdown-item>
+          </template>
+        </base-dropdown>
       </div>
+
+      <!-- navigation -->
+      <nav class="space-x-2">
+        <base-link v-for="item in navigation" :to="item.to"
+          class="px-3 py-2 rounded-md text-neutral-700 hover:text-neutral-900 hover:bg-black hover:bg-opacity-5">{{
+              item.label
+          }}</base-link>
+      </nav>
     </div>
 
-    <div class="layout-header__right">
+    <!-- right part -->
+    <div class="flex gap-4 items-center">
       <div>
-        <a-dropdown :trigger="['click']" placement="bottomRight">
-          <a-avatar
-            style="background-color: #333; color: #fff; cursor: pointer;"
-          >{{ traits.name?.first }}</a-avatar>
+        <base-dropdown @select="onUserMenuSelected" placement="bottom-end">
+          <base-dropdown-button as="a">
+            <base-avatar custom-sizing class="h-8 w-8">{{ userInfo.name?.first }}</base-avatar>
+          </base-dropdown-button>
           <template #overlay>
-            <a-menu>
-              <a-menu-item>
-                <base-link :to="{ name: 'profile' }">{{ t('profile.updateProfile') }}</base-link>
-              </a-menu-item>
-              <a-menu-divider />
-              <a-menu-item @click="onLogout">{{ t('user.logout') }}</a-menu-item>
-            </a-menu>
+            <base-dropdown-group>
+              <base-dropdown-item command="update-profile">{{ t('profile.updateProfile') }}</base-dropdown-item>
+            </base-dropdown-group>
+            <base-dropdown-group>
+              <base-dropdown-item command="logout">
+                <template #icon>
+                  <logout-outline-icon />
+                </template>
+                {{ t('user.logout') }}
+              </base-dropdown-item>
+            </base-dropdown-group>
           </template>
-        </a-dropdown>
+        </base-dropdown>
       </div>
     </div>
   </div>
 </template>
-
-<style scoped>
-.layout-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: stretch;
-}
-
-.layout-header__left {
-  display: flex;
-  align-items: center;
-}
-
-.layout-header__left > * {
-  display: flex;
-  align-items: center;
-  padding: 0 2rem;
-  border-right: solid 1px var(--n-border-color);
-}
-
-.layout-header__left > *:first-child {
-  padding-left: 0;
-}
-
-.layout-header__right {
-  display: flex;
-  align-items: stretch;
-}
-
-.layout-header__right > * {
-  display: flex;
-  align-items: center;
-  padding: 0 2rem;
-  border-left: solid 1px var(--n-border-color);
-}
-
-.layout-header__right > *:last-child {
-  padding-right: 0;
-}
-
-.layout-header__logo {
-  font-weight: bolder;
-  font-size: 2rem;
-}
-
-.sob-selection {
-  cursor: pointer;
-}
-
-.sob-selection__sob {
-  font-weight: bold;
-}
-
-.sob-selection__indicator_active {
-  transform: rotate(180deg);
-}
-</style>
