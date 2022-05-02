@@ -11,11 +11,12 @@ import SobDetail from '../components/sob/SobDetail.vue';
 import SobCreation from '../components/sob/SobCreation.vue';
 import LedgerMain from '../components/legder/LedgerMain.vue';
 import LedgerList from '../components/legder/LedgerList.vue';
-import VoucherMain from '../components/VoucherMain.vue';
-import VoucherCreation from '../components/VoucherCreation.vue';
+import VoucherMain from '../components/voucher/VoucherMain.vue';
+import VoucherCreation from '../components/voucher/VoucherCreation.vue';
 import Exception from '../components/Exception.vue';
 import StyleTest from '../components/StyleTest.vue';
 import { useSobStore } from '../store/sob';
+import sobResolver from './sobResolver';
 
 const sobStore = useSobStore()
 
@@ -56,6 +57,8 @@ const routes: RouteRecordRaw[] = [
 					{
 						path: ':sobId',
 						component: RouterView,
+						props: sobResolver,
+						// to make sure when changing URL, working sob is changed accordingly
 						beforeEnter: async to => sobStore.action.setWorkingSob(to.params['sobId'] as string),
 						children: [
 							{
@@ -75,7 +78,8 @@ const routes: RouteRecordRaw[] = [
 											{
 												path: ':periodId',
 												name: 'ledgerList',
-												component: LedgerList
+												component: LedgerList,
+												props: sobResolver // why have to specify here???
 											}
 										]
 									}

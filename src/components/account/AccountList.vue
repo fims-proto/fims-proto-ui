@@ -1,20 +1,21 @@
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue';
+import { defineComponent, onMounted, PropType, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { Account, AccountService } from '../../domain';
-import { useSobStore } from '../../store/sob';
+import { Account, AccountService, Sob } from '../../domain';
 
 export default defineComponent({
-  setup() {
-    const t = useI18n().t
-    const sobStore = useSobStore()
+  props: {
+    sob: {
+      type: Object as PropType<Sob>,
+      required: true
+    }
+  },
+  setup({ sob }) {
+    const { t } = useI18n()
     const accounts = ref<Account[]>()
 
     onMounted(async () => {
-      if (!sobStore.state.workingSob) {
-        throw 'invalid-working-sob'
-      }
-      accounts.value = await AccountService.getAllAccounts(sobStore.state.workingSob.id)
+      accounts.value = await AccountService.getAllAccounts(sob.id)
     })
 
     return {

@@ -1,31 +1,30 @@
 <script lang="ts">
-import { computed, defineComponent, PropType, toRefs } from 'vue';
+import { defineComponent, PropType, toRefs } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { Period } from '../../domain';
 import { useSobStore } from '../../store/sob';
 
 export default defineComponent({
   props: {
     periods: {
-      type: Array as PropType<Period[]> | undefined,
-    }
+      type: Array as PropType<Period[]> | undefined
+    },
+    periodId: String
   },
-  setup() {
+  setup(props) {
     const t = useI18n().t
-    const route = useRoute()
     const router = useRouter()
     const sobStore = useSobStore()
 
     const { workingSob, currentPeriod } = toRefs(sobStore.state)
-    const selectedPeriodId = computed(() => route.params['periodId'])
 
     const isOpenPeriod = (periodId: string) => {
       return periodId === currentPeriod.value?.id
     }
 
     const isSelectedPeriod = (periodId: string) => {
-      return periodId === selectedPeriodId.value
+      return periodId === props.periodId
     }
 
     const onPeriodSelected = (periodId: string) => {

@@ -1,21 +1,26 @@
 <script lang="ts">
-import { defineComponent, ref, watchEffect } from 'vue';
+import { defineComponent, PropType, ref, watchEffect } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRoute } from 'vue-router';
-import { Ledger, LedgerService } from '../../domain';
+import { Ledger, LedgerService, Sob } from '../../domain';
 
 export default defineComponent({
-  setup() {
+  props: {
+    sob: {
+      type: Object as PropType<Sob>,
+      required: true
+    },
+    periodId: {
+      type: String,
+      required: true
+    }
+  },
+  setup({ sob, periodId }) {
     const { t, n } = useI18n()
-    const route = useRoute()
 
     const ledgers = ref<Ledger[]>([])
 
     watchEffect(async () => {
-      const { sobId, periodId } = route.params
-      if (sobId && periodId) {
-        ledgers.value = await LedgerService.getAllLedgersInPeriod(sobId as string, periodId as string)
-      }
+      ledgers.value = await LedgerService.getAllLedgersInPeriod(sob.id, periodId as string)
     })
 
     return {

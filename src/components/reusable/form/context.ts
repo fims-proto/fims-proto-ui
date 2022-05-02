@@ -13,7 +13,7 @@ export function provideForm(ctx: FormInterface) {
 }
 
 export function injectForm(): FormInterface | undefined {
-  return inject<FormInterface>('base-form')
+  return inject<FormInterface | undefined>('base-form', undefined)
 }
 
 export function provideInputGroup(ctx: InputGroupInterface) {

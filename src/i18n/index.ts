@@ -23,23 +23,31 @@ function getLangFiles(modules: Record<string, { [key: string]: any }>) {
   return messages
 }
 
-const numberFormats = {
-  'zh': {
-    cur: {
-      style: 'currency', currency: 'CNY'
-    },
-    dec: {
-      style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2
-    }
-  }
-}
-
 const i18n = createI18n({
   legacy: false,
   locale: 'zh',
   fallbackLocale: 'zh',
   messages: getLangFiles(modules),
-  numberFormats
+  datetimeFormats: {
+    'zh': {
+      date: {
+        year: 'numeric', month: 'short', day: 'numeric', timezone: 'Asia/Shanghai'
+      },
+      datetime: {
+        year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', timezone: 'Asia/Shanghai'
+      }
+    }
+  },
+  numberFormats: {
+    'zh': {
+      cur: {
+        style: 'currency', currency: 'CNY'
+      },
+      dec: {
+        style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2
+      }
+    }
+  }
 })
 
 export default i18n

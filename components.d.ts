@@ -57,8 +57,10 @@ declare module 'vue' {
     TabList: typeof import('@headlessui/vue')['TabList']
     TabPanel: typeof import('@headlessui/vue')['TabPanel']
     TabPanels: typeof import('@headlessui/vue')['TabPanels']
-    VoucherCreation: typeof import('./src/components/VoucherCreation.vue')['default']
-    VoucherMain: typeof import('./src/components/VoucherMain.vue')['default']
+    TabulatedInput: typeof import('./src/components/voucher/TabulatedInput.vue')['default']
+    TabulatedNumber: typeof import('./src/components/voucher/TabulatedNumber.vue')['default']
+    VoucherCreation: typeof import('./src/components/voucher/VoucherCreation.vue')['default']
+    VoucherMain: typeof import('./src/components/voucher/VoucherMain.vue')['default']
     XOutlineIcon: typeof import('@heroicons/vue/outline')['XIcon']
   }
 }

@@ -15,6 +15,8 @@ export default {
 
   action: {
     create: '新建',
+    saveAndNew: '保存并新增',
+    save: '保存',
     submit: '提交',
     close: '关闭',
   },
@@ -60,12 +62,18 @@ export default {
 
   voucher: {
     title: '凭证',
-    main: {
-      searchPlaceholder: '搜索',
-      sobMissingErr: '账套 ID 丢失',
-      numberLbl: '凭证号',
-      debitLbl: '借',
-      creditLbl: '贷'
+    summary: '摘要',
+    account: '会计科目',
+    debit: '借方金额',
+    credit: '贷方金额',
+    total: '合计',
+    type: '记账凭证',
+    attachmentQuantity: '附单据',
+    attachmentQuantityUnit: '张',
+    transactionTime: '交易日期: {0}',
+    creator: '制单人: {lastName}{firstName}',
+    creation: {
+      title: '新建凭证'
     }
   },
 
@@ -77,7 +85,7 @@ export default {
     accountNumber: '科目编号',
     openingBalance: '期初余额',
     endingBalance: '期末余额',
-    debit: '贷',
-    credit: '借'
+    debit: '借',
+    credit: '贷'
   }
 }

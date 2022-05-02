@@ -17,13 +17,19 @@ export default defineComponent({
     const { traits: userInfo } = toRefs(userStore.state)
 
     const navigation = computed(() => {
-      const items = [{
-        key: 'voucher',
-        label: t('voucher.title'),
-        to: { name: 'home', params: {} }
-      }]
+      const items = []
 
       if (workingSob.value?.id) {
+        items.push({
+          key: 'voucher',
+          label: t('voucher.title'),
+          to: {
+            name: 'voucherMain',
+            params: {
+              sobId: workingSob.value?.id
+            }
+          }
+        })
         items.push({
           key: 'legder',
           label: t('ledger.title'),

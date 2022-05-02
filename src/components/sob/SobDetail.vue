@@ -1,18 +1,21 @@
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue';
+import { defineComponent, onMounted, PropType, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRoute } from 'vue-router';
 import { Sob, SobService } from '../../domain';
 
 export default defineComponent({
-  setup() {
+  props: {
+    sob: {
+      type: Object as PropType<Sob>,
+      required: true
+    }
+  },
+  setup(props) {
     const t = useI18n().t
-    const route = useRoute()
-    const sobId = route.params['sobId']
     const sob = ref<Sob>()
 
     onMounted(async () => {
-      sob.value = await SobService.getSobById(sobId as string)
+      sob.value = await SobService.getSobById(props.sob.id)
     })
 
     return {
@@ -36,7 +39,7 @@ export default defineComponent({
         <base-tab-panel>basic yet empty</base-tab-panel>
         <!-- accounts tab -->
         <base-tab-panel>
-          <account-list />
+          <account-list :sob="sob" />
         </base-tab-panel>
       </template>
     </base-tabs>

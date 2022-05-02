@@ -1,24 +1,25 @@
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue';
+import { defineComponent, onMounted, PropType, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router';
-import { LedgerService, Period } from '../../domain';
-import { useSobStore } from '../../store/sob';
+import { LedgerService, Period, Sob } from '../../domain';
 
 export default defineComponent({
-  setup() {
+  props: {
+    sob: {
+      type: Object as PropType<Sob>,
+      required: true
+    }
+  },
+  setup({ sob }) {
     const t = useI18n().t
     const route = useRoute()
     const router = useRouter()
-    const sobStore = useSobStore()
 
     const periods = ref<Period[]>()
 
     onMounted(async () => {
-      if (!sobStore.state.workingSob) {
-        throw new Error('invalid-working-sob')
-      }
-      periods.value = await LedgerService.getAllPeriods(sobStore.state.workingSob.id)
+      periods.value = await LedgerService.getAllPeriods(sob.id)
 
       if (route.name === 'ledgerMain') {
         const openPeriod = periods.value?.find(period => !period.isClosed)
@@ -27,7 +28,7 @@ export default defineComponent({
           router.replace({
             name: 'ledgerList',
             params: {
-              sobId: sobStore.state.workingSob?.id,
+              sobId: sob.id,
               periodId: openPeriod.id
             }
           })
