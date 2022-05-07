@@ -3,5 +3,10 @@
     "editor.tabSize": 2,
     "typescript.tsdk": "node_modules/typescript/lib",
     "javascript.preferences.quoteStyle": "single",
-    "typescript.preferences.quoteStyle": "single"
+    "typescript.preferences.quoteStyle": "single",
+    "eslint.validate": [
+        "javascript",
+        "javascriptreact",
+        "vue"
+    ]
 }

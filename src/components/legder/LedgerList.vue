@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent, PropType, ref, watchEffect } from 'vue';
+import { defineComponent, PropType, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { Ledger, LedgerService, Sob } from '../../domain';
 
@@ -14,13 +14,13 @@ export default defineComponent({
       required: true
     }
   },
-  setup({ sob, periodId }) {
+  setup(props) {
     const { t, n } = useI18n()
 
     const ledgers = ref<Ledger[]>([])
 
-    watchEffect(async () => {
-      ledgers.value = await LedgerService.getAllLedgersInPeriod(sob.id, periodId as string)
+    watch([() => props.sob, () => props.periodId], async () => {
+      ledgers.value = await LedgerService.getAllLedgersInPeriod(props.sob.id, props.periodId as string)
     })
 
     return {

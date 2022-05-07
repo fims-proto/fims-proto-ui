@@ -1,7 +1,14 @@
+<script lang="ts" setup>
+import { ref } from 'vue'
+const inputDate = ref(new Date())
+</script>
+
 <!-- style test page for Tailwindcss -->
 <template>
   <div class="h-full w-full space-y-4 pt-8 pb-60 px-8 overflow-scroll bg-neutral-600">
-    <p class="text-neutral-50">Typograph:</p>
+    <p class="text-neutral-50">
+      Typograph:
+    </p>
     <div class="bg-white rounded-lg p-4">
       <h1>h1 标题</h1>
       <h2>h2 标题</h2>
@@ -10,35 +17,49 @@
       <h5>h5 往下就和普通一样了</h5>
     </div>
 
-    <p class="text-neutral-50">BaseButton:</p>
+    <p class="text-neutral-50">
+      BaseButton:
+    </p>
     <div class="bg-white rounded-lg p-4 space-y-4">
       <div class="flex gap-4">
-        <base-button>Default</base-button>
-        <base-button type="primary">Primary</base-button>
-        <base-button type="success">Success</base-button>
-        <base-button type="warning">Wanring</base-button>
-        <base-button type="error">Error</base-button>
+        <base-button>
+          Default
+        </base-button>
+        <base-button categoty="primary">
+          Primary
+        </base-button>
+        <base-button categoty="success">
+          Success
+        </base-button>
+        <base-button categoty="warning">
+          Wanring
+        </base-button>
+        <base-button categoty="error">
+          Error
+        </base-button>
         <base-button>
           <template #icon>
             <lock-closed-solid-icon />
-          </template>Default
+          </template>
+          Default
         </base-button>
-        <base-button type="primary">
+        <base-button categoty="primary">
           <template #icon>
             <lock-closed-solid-icon />
-          </template>Primary
+          </template>
+          Primary
         </base-button>
-        <base-button type="success">
+        <base-button categoty="success">
           <template #icon>
             <lock-closed-solid-icon />
           </template>Success
         </base-button>
-        <base-button type="warning">
+        <base-button categoty="warning">
           <template #icon>
             <lock-closed-solid-icon />
           </template>Wanring
         </base-button>
-        <base-button type="error">
+        <base-button categoty="error">
           <template #icon>
             <lock-closed-solid-icon />
           </template>Error
@@ -53,7 +74,7 @@
         </base-button-group>
       </div>
       <div>
-        <base-button type="primary" class="w-64">
+        <base-button categoty="primary" class="w-64">
           <template #icon>
             <lock-closed-solid-icon />
           </template>
@@ -67,7 +88,9 @@
       </p>
     </div>
 
-    <p class="text-neutral-50">BaseAlert:</p>
+    <p class="text-neutral-50">
+      BaseAlert:
+    </p>
     <div class="bg-white rounded-lg p-4 space-y-4">
       <base-alert type="error" closable message="丹麦的艾辛诺尔堡" />
       <base-alert type="info" message="在城墙的一平台上" />
@@ -75,7 +98,9 @@
       <base-alert type="warning" message="此时正是深夜, 一片漆黑中, 佛郎西斯哥在城墙上站岗, 而柏纳多来接他的班" />
     </div>
 
-    <p class="text-neutral-50">BaseAvatar:</p>
+    <p class="text-neutral-50">
+      BaseAvatar:
+    </p>
     <div class="bg-white rounded-lg p-4 space-y-4">
       <div class="flex gap-4">
         <base-avatar>张三</base-avatar>
@@ -100,9 +125,8 @@
     <p class="text-neutral-50">BaseDropdown:</p>
     <div class="bg-white rounded-lg p-4 space-x-4">
       <base-dropdown>
-        <base-dropdown-button
-          class="p-2 rounded-md shadow-md bg-primary-600 text-white hover:bg-primary-400"
-        >双节棍</base-dropdown-button>
+        <base-dropdown-button class="p-2 rounded-md shadow-md bg-primary-600 text-white hover:bg-primary-400">双节棍
+        </base-dropdown-button>
         <template #overlay>
           <base-dropdown-group>
             <base-dropdown-item>岩烧店的烟味弥漫</base-dropdown-item>
@@ -117,9 +141,8 @@
       </base-dropdown>
 
       <base-dropdown placement="bottom-end">
-        <base-dropdown-button
-          class="p-2 rounded-md shadow-md bg-primary-600 text-white hover:bg-primary-400"
-        >靠右</base-dropdown-button>
+        <base-dropdown-button class="p-2 rounded-md shadow-md bg-primary-600 text-white hover:bg-primary-400">靠右
+        </base-dropdown-button>
         <template #overlay>
           <base-dropdown-item>快使用双截棍 哼哼哈兮 哼哼哈兮 哼哼哈兮</base-dropdown-item>
           <base-dropdown-item>仁者无敌</base-dropdown-item>
@@ -127,9 +150,8 @@
       </base-dropdown>
 
       <base-dropdown>
-        <base-dropdown-button
-          class="p-2 rounded-md shadow-md bg-primary-600 text-white hover:bg-primary-400"
-        >带图标</base-dropdown-button>
+        <base-dropdown-button class="p-2 rounded-md shadow-md bg-primary-600 text-white hover:bg-primary-400">带图标
+        </base-dropdown-button>
         <template #overlay>
           <base-dropdown-item>没图标</base-dropdown-item>
           <base-dropdown-item>
@@ -159,7 +181,7 @@
           </template>
           <template #extra>
             <base-button>Some</base-button>
-            <base-button type="primary">Buttons</base-button>
+            <base-button categoty="primary">Buttons</base-button>
           </template>
           <base-tabs>
             <template #tabs>
@@ -185,25 +207,14 @@
     <p class="text-neutral-50">BaseForm:</p>
     <div class="bg-white rounded-lg p-4">
       <base-form class="max-w-lg">
-        <base-input
-          label="Email 地址"
-          placeholder="快输入..."
-          htmlType="email"
-          autocomplete="email"
-          required
-        />
-        <base-input
-          label="密码"
-          placeholder="快输入..."
-          htmlType="password"
-          autocomplete="current-password"
-          required
-        />
+        <base-input label="普通文本" placeholder="say something..." />
+        <base-input label="Email 地址" placeholder="快输入..." type="email" autocomplete="email" required />
+        <base-input label="密码" placeholder="快输入..." type="password" autocomplete="current-password" required />
 
         <base-input-group label="何年何月">
-          <base-input label="年" hide-label html-type="number" suffix="年" />
-          <base-input label="月" hide-label html-type="number" suffix="月" />
-          <base-input label="日" hide-label html-type="number" suffix="日" />
+          <base-input label="年" hide-label type="number" suffix="年" />
+          <base-input label="月" hide-label type="number" suffix="月" />
+          <base-input label="日" hide-label type="number" suffix="日" />
         </base-input-group>
 
         <base-input label="带前后缀" placeholder="0.00">
@@ -224,14 +235,19 @@
         <base-input label="带前后缀" placeholder="0.00" prefix="$" suffix="#" />
 
         <div>
-          <base-button html-type="submit" type="primary" class="w-full">
+          <base-button type="submit" categoty="primary" class="w-full">
             <template #icon>
               <lock-closed-solid-icon />
             </template>
-            <span class="-ml-4">登录</span>
+            <span>登录</span>
           </base-button>
         </div>
       </base-form>
+    </div>
+
+    <p class="text-neutral-50">Inputs:</p>
+    <div class="bg-white rounded-lg p-4">
+      <base-input type="date" v-model="inputDate" class="w-40" />
     </div>
 
     <!-- <p class="text-neutral-50">SomeOthers:</p>

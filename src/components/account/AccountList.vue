@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent, onMounted, PropType, ref } from 'vue';
+import { defineComponent, onMounted, PropType, ref, toRefs } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { Account, AccountService, Sob } from '../../domain';
 
@@ -10,12 +10,12 @@ export default defineComponent({
       required: true
     }
   },
-  setup({ sob }) {
+  setup(props) {
     const { t } = useI18n()
     const accounts = ref<Account[]>()
 
     onMounted(async () => {
-      accounts.value = await AccountService.getAllAccounts(sob.id)
+      accounts.value = await AccountService.getAllAccounts(props.sob.id)
     })
 
     return {
@@ -27,5 +27,5 @@ export default defineComponent({
 </script>
 
 <template>
-  <p v-for="account in accounts">{{ account.title }}</p>
+  <p v-for="account in accounts" :key="account.id">{{ account.title }}</p>
 </template>

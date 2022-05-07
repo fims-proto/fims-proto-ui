@@ -79,40 +79,16 @@ function getCurrentUTCTime() {
         <base-input :label="t('sob.baseCurrency')" v-model="newSob.baseCurrency" required />
 
         <base-input-group :label="t('sob.startingPeriod')" required>
-          <base-input
-            :label="t('common.year')"
-            hide-label
-            v-model="newSob.startingPeriodYear"
-            html-type="number"
-            required
-            :min="2020"
-            :max="3000"
-            :suffix="t('common.year')"
-          />
-          <base-input
-            :label="t('common.month')"
-            hide-label
-            v-model="newSob.startingPeriodMonth"
-            html-type="number"
-            required
-            :min="1"
-            :max="12"
-            :suffix="t('common.month')"
-          />
+          <base-input :label="t('common.year')" hide-label v-model="newSob.startingPeriodYear" type="number" required
+            :min="2020" :max="3000" :suffix="t('common.year')" />
+          <base-input :label="t('common.month')" hide-label v-model="newSob.startingPeriodMonth" type="number" required
+            :min="1" :max="12" :suffix="t('common.month')" />
         </base-input-group>
 
         <base-input-group :label="t('sob.accountCodeLength')" required>
-          <base-input
-            v-for="_, index in newSob.accountsCodeLength"
-            class="w-14"
-            :label="`${t('sob.accountCodeLength')}_${index}`"
-            hide-label
-            v-model="newSob.accountsCodeLength[index]"
-            html-type="number"
-            required
-            :min="1"
-            :max="6"
-          />
+          <base-input v-for="_, index in newSob.accountsCodeLength" :key="`sobCreation-accountsCodeLength-${index}`"
+            class="w-14" :label="`${t('sob.accountCodeLength')}_${index}`" hide-label
+            v-model="newSob.accountsCodeLength[index]" type="number" required :min="1" :max="6" />
           <template #suffix>
             <base-button-group>
               <base-button @click="handleShorten">-</base-button>
@@ -121,7 +97,7 @@ function getCurrentUTCTime() {
           </template>
         </base-input-group>
 
-        <base-button html-type="submit" type="primary" class="w-full">{{ t('action.submit') }}</base-button>
+        <base-button type="submit" categoty="primary" class="w-full">{{ t('action.submit') }}</base-button>
       </base-form>
     </div>
   </base-page>

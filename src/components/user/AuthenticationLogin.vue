@@ -140,39 +140,19 @@ function buildMessages(flow: SelfServiceLoginFlow): messageType[] {
       </div>
 
       <!-- messages -->
-      <base-alert
-        v-for="message in messages"
-        :type="message.type ?? 'error'"
-        :message="message.text"
-        closable
-      />
+      <base-alert v-for="(message, i) in messages" :key="`login-alert-${i}`" :type="message.type ?? 'error'"
+        :message="message.text" closable />
 
       <!-- form -->
-      <base-form
-        class="px-12 py-8 bg-white shadow-lg rounded-lg"
-        @submit="handleSubmit"
-        hideRequiredMark
-      >
+      <base-form class="px-12 py-8 bg-white shadow-lg rounded-lg" @submit="handleSubmit" hideRequiredMark>
         <input type="hidden" v-model="formValue.csrfToken" />
-        <base-input
-          :label="t('user.email')"
-          :placeholder="t('user.emailInputPlaceholder')"
-          v-model="formValue.user.email"
-          html-type="email"
-          autocomplete="email"
-          required
-        />
-        <base-input
-          :label="t('user.password')"
-          :placeholder="t('user.passwordInputPlaceholder')"
-          v-model="formValue.user.password"
-          html-type="password"
-          autocomplete="current-password"
-          required
-        />
+        <base-input :label="t('user.email')" :placeholder="t('user.emailInputPlaceholder')"
+          v-model="formValue.user.email" type="email" autocomplete="email" required />
+        <base-input :label="t('user.password')" :placeholder="t('user.passwordInputPlaceholder')"
+          v-model="formValue.user.password" type="password" autocomplete="current-password" required />
 
         <div>
-          <base-button html-type="submit" type="primary" class="w-full">
+          <base-button type="submit" categoty="primary" class="w-full">
             <template #icon>
               <lock-closed-solid-icon />
             </template>

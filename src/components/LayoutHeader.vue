@@ -116,7 +116,7 @@ export default defineComponent({
 
       <!-- navigation -->
       <nav class="space-x-2">
-        <base-link v-for="item in navigation" :to="item.to"
+        <base-link v-for="item in navigation" :key="item.key" :to="item.to"
           class="px-3 py-2 rounded-md text-neutral-700 hover:text-neutral-900 hover:bg-black hover:bg-opacity-5">{{
               item.label
           }}</base-link>

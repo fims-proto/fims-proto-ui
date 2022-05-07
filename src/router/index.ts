@@ -2,9 +2,9 @@ import { createRouter, createWebHistory, RouteRecordRaw, RouterView } from 'vue-
 import AuthenticationLogin from '../components/user/AuthenticationLogin.vue';
 import AuthenticationLogout from '../components/user/AuthenticationLogout.vue';
 import ProfileSetting from '../components/user/ProfileSetting.vue';
-import Layout from '../components/Layout.vue';
-import Home from '../components/Home.vue';
-import About from '../components/About.vue';
+import LayoutPage from '../components/LayoutPage.vue';
+import HomePage from '../components/HomePage.vue';
+import AboutUs from '../components/AboutUs.vue';
 import NotFound from '../components/NotFound.vue';
 import SobMain from '../components/sob/SobMain.vue';
 import SobDetail from '../components/sob/SobDetail.vue';
@@ -13,7 +13,7 @@ import LedgerMain from '../components/legder/LedgerMain.vue';
 import LedgerList from '../components/legder/LedgerList.vue';
 import VoucherMain from '../components/voucher/VoucherMain.vue';
 import VoucherCreation from '../components/voucher/VoucherCreation.vue';
-import Exception from '../components/Exception.vue';
+import ExceptionPage from '../components/ExceptionPage.vue';
 import StyleTest from '../components/StyleTest.vue';
 import { useSobStore } from '../store/sob';
 import sobResolver from './sobResolver';
@@ -23,17 +23,17 @@ const sobStore = useSobStore()
 const routes: RouteRecordRaw[] = [
 	{
 		path: '/ui',
-		component: Layout,
+		component: LayoutPage,
 		children: [
 			{
 				path: '',
 				name: 'home',
-				component: Home
+				component: HomePage
 			},
 			{
 				path: 'about',
 				name: 'about',
-				component: About
+				component: AboutUs
 			},
 			{
 				path: 'profile/settings',
@@ -128,7 +128,7 @@ const routes: RouteRecordRaw[] = [
 	{
 		path: '/error',
 		name: 'exception',
-		component: Exception
+		component: ExceptionPage
 	},
 	{
 		path: '/:pathMatch(.*)*',

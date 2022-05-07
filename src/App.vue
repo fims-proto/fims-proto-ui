@@ -1,12 +1,10 @@
 <script lang="ts">
 import { defineComponent, toRefs, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
 import { useSobStore } from './store/sob';
 import { useUserStore } from './store/user';
 
 export default defineComponent({
   setup() {
-    const t = useI18n().t
     const sobStore = useSobStore()
     const userStore = useUserStore()
     const { userId } = toRefs(userStore.state)
@@ -28,5 +26,5 @@ export default defineComponent({
 </script>
 
 <template>
-  <router-view></router-view>
+  <router-view />
 </template>

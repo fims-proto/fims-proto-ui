@@ -34,10 +34,6 @@ export default defineComponent({
       return res
     })
 
-    const onValueUpdate = (value: string) => {
-      emit('update:modelValue', Number(value))
-    }
-
     const changeEditMode = (value: boolean) => {
       editMode.value = value
       if (value) {
@@ -51,7 +47,7 @@ export default defineComponent({
       editMode,
       inputRef,
       changeEditMode,
-      onValueUpdate
+      onValueUpdated: (value: string) => emit('update:modelValue', Number(value))
     }
   }
 })
@@ -77,7 +73,7 @@ export default defineComponent({
       </div>
     </div>
     <div v-show="editMode" class="p-[1px]">
-      <tabulated-input ref="inputRef" html-type="number" :model-value="modelValue" @update:model-value="onValueUpdate"
+      <tabulated-input ref="inputRef" type="number" :model-value="modelValue" @update:model-value="onValueUpdated"
         @blur="changeEditMode(false)" />
     </div>
   </div>

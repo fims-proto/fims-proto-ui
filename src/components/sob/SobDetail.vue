@@ -12,23 +12,23 @@ export default defineComponent({
   },
   setup(props) {
     const t = useI18n().t
-    const sob = ref<Sob>()
+    const sobDetail = ref<Sob>()
 
     onMounted(async () => {
-      sob.value = await SobService.getSobById(props.sob.id)
+      sobDetail.value = await SobService.getSobById(props.sob.id)
     })
 
     return {
       t,
-      sob
+      sobDetail
     }
   }
 })
 </script>
 
 <template>
-  <base-page :subtitle="sob?.description">
-    <template #title>{{ sob?.name }}</template>
+  <base-page :subtitle="sobDetail?.description">
+    <template #title>{{ sobDetail?.name }}</template>
     <base-tabs>
       <template #tabs>
         <base-tab-item>{{ t('sob.detail.basic') }}</base-tab-item>

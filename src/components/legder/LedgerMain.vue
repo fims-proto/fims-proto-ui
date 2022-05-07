@@ -11,7 +11,7 @@ export default defineComponent({
       required: true
     }
   },
-  setup({ sob }) {
+  setup(props) {
     const t = useI18n().t
     const route = useRoute()
     const router = useRouter()
@@ -19,7 +19,7 @@ export default defineComponent({
     const periods = ref<Period[]>()
 
     onMounted(async () => {
-      periods.value = await LedgerService.getAllPeriods(sob.id)
+      periods.value = await LedgerService.getAllPeriods(props.sob.id)
 
       if (route.name === 'ledgerMain') {
         const openPeriod = periods.value?.find(period => !period.isClosed)
@@ -28,7 +28,7 @@ export default defineComponent({
           router.replace({
             name: 'ledgerList',
             params: {
-              sobId: sob.id,
+              sobId: props.sob.id,
               periodId: openPeriod.id
             }
           })

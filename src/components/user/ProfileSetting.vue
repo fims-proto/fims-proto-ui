@@ -132,11 +132,8 @@ function buildMessages(flow: SelfServiceSettingsFlow | undefined): messageType[]
   <base-page :subtitle="t('profile.subtitle')">
     <template #title>{{ t('profile.title') }}</template>
     <div class="flex flex-col gap-2">
-      <base-alert
-        v-for="message in messages"
-        :type="message.type ?? 'error'"
-        :message="message.text"
-      />
+      <base-alert v-for="(message, i) in messages" :key="`profileUpdate-alert-${i}`" :type="message.type ?? 'error'"
+        :message="message.text" />
 
       <base-tabs>
         <template #tabs>
@@ -148,26 +145,14 @@ function buildMessages(flow: SelfServiceSettingsFlow | undefined): messageType[]
           <base-tab-panel class="max-w-xl">
             <base-form @submit="onProfileSubmit">
               <input type="hidden" v-model="profileFormValue.csrf_token" />
-              <base-input
-                :label="t('user.email')"
-                :placeholder="t('user.emailInputPlaceholder')"
-                v-model="profileFormValue.traits.email"
-                html-type="email"
-                autocomplete="email"
-                required
-              />
-              <base-input
-                :label="t('user.lastname')"
-                :placeholder="t('user.lastnameInputPlaceholder')"
-                v-model="profileFormValue.traits.name.last"
-              />
-              <base-input
-                :label="t('user.lastname')"
-                :placeholder="t('user.firstnameInputPlaceholder')"
-                v-model="profileFormValue.traits.name.first"
-              />
+              <base-input :label="t('user.email')" :placeholder="t('user.emailInputPlaceholder')"
+                v-model="profileFormValue.traits.email" type="email" autocomplete="email" required />
+              <base-input :label="t('user.lastname')" :placeholder="t('user.lastnameInputPlaceholder')"
+                v-model="profileFormValue.traits.name.last" />
+              <base-input :label="t('user.lastname')" :placeholder="t('user.firstnameInputPlaceholder')"
+                v-model="profileFormValue.traits.name.first" />
               <div>
-                <base-button html-type="submit" type="primary" class="w-full">
+                <base-button type="submit" categoty="primary" class="w-full">
                   <template #icon>
                     <lock-closed-solid-icon />
                   </template>
@@ -182,23 +167,12 @@ function buildMessages(flow: SelfServiceSettingsFlow | undefined): messageType[]
             <base-form @submit="onPasswordSubmit">
               <input type="hidden" v-model="passwordFormValue.csrf_token" />
               <!-- hidden username field for browser autocomplete -->
-              <input
-                type="text"
-                name="email"
-                v-model="profileFormValue.traits.email"
-                autocomplete="email"
-                style="display: none;"
-              />
-              <base-input
-                :label="t('user.password')"
-                :placeholder="t('user.passwordInputPlaceholder')"
-                v-model="passwordFormValue.password"
-                html-type="password"
-                autocomplete="new-password"
-                required
-              />
+              <input type="text" name="email" v-model="profileFormValue.traits.email" autocomplete="email"
+                style="display: none;" />
+              <base-input :label="t('user.password')" :placeholder="t('user.passwordInputPlaceholder')"
+                v-model="passwordFormValue.password" type="password" autocomplete="new-password" required />
               <div>
-                <base-button html-type="submit" type="primary" class="w-full">
+                <base-button type="submit" categoty="primary" class="w-full">
                   <template #icon>
                     <lock-closed-solid-icon />
                   </template>

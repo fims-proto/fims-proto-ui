@@ -39,8 +39,12 @@ export default defineComponent({
     const totalCredit = computed(() => lineItems.value.reduce((sum, item) => sum + (item.credit ?? 0), 0))
     const period = computed(() => currentPeriod.value ? `${currentPeriod.value.financialYear}-${currentPeriod.value.number}` : t('ledger.periodUnselected'))
 
-    const onSave = () => { }
-    const onSaveAndNew = () => { }
+    const onSave = () => {
+      // TODO
+    }
+    const onSaveAndNew = () => {
+      // TODO
+    }
 
     return {
       t,
@@ -63,7 +67,7 @@ export default defineComponent({
   <base-page>
     <template #title>{{ t('voucher.creation.title') }}</template>
     <template #extra>
-      <base-button type="primary" @click="onSaveAndNew">{{ t('action.saveAndNew') }}</base-button>
+      <base-button categoty="primary" @click="onSaveAndNew">{{ t('action.saveAndNew') }}</base-button>
       <base-button @click="onSave">{{ t('action.save') }}</base-button>
     </template>
     <div class="w-full">
@@ -74,7 +78,7 @@ export default defineComponent({
           <span>{{ period }}</span>
         </div>
         <div>
-          <base-input class="w-36" v-model="attachmentQuantity" :lite="true" html-type="number"
+          <base-input class="w-36" v-model="attachmentQuantity" :lite="true" type="number"
             :label="t('voucher.attachmentQuantity')" :hide-label="true" :prefix="t('voucher.attachmentQuantity')"
             :suffix="t('voucher.attachmentQuantityUnit')" :min="0" />
         </div>

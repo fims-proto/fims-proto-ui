@@ -37,7 +37,9 @@ export default defineComponent({
       })
     }
 
-    const onCreatePeriod = () => { }
+    const onCreatePeriod = () => {
+      // TODO
+    }
 
     return {
       t,
