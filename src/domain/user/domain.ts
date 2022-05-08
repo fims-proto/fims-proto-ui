@@ -9,9 +9,9 @@ class UserService {
       id: session?.identity.id ?? '',
       name: {
         first: session?.identity.traits.name.first,
-        last: session?.identity.traits.name.last
+        last: session?.identity.traits.name.last,
       },
-      email: session?.identity.traits.email
+      email: session?.identity.traits.email,
     }
   }
 

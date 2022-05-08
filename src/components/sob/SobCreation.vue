@@ -1,9 +1,9 @@
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { useRouter } from 'vue-router';
-import { LedgerService, NewSob, SobService } from '../../domain';
-import { useSobStore } from '../../store/sob';
+import { defineComponent, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
+import { LedgerService, NewSob, SobService } from '../../domain'
+import { useSobStore } from '../../store/sob'
 
 export default defineComponent({
   setup() {
@@ -14,12 +14,12 @@ export default defineComponent({
     const { year, month } = getCurrentUTCTime()
 
     const newSob = ref<NewSob>({
-      name: "",
+      name: '',
       description: undefined,
-      baseCurrency: "CNY",
+      baseCurrency: 'CNY',
       startingPeriodYear: year,
       startingPeriodMonth: month,
-      accountsCodeLength: [4, 3, 3]
+      accountsCodeLength: [4, 3, 3],
     })
 
     const handleSubmit = async () => {
@@ -35,13 +35,13 @@ export default defineComponent({
       await LedgerService.createPeriod({
         sobId: createdSob.id,
         financialYear: createdSob.startingPeriodYear,
-        number: createdSob.startingPeriodMonth
+        number: createdSob.startingPeriodMonth,
       })
 
       sobStore.action.refreshSobs()
       router.replace({
         name: 'sobDetail',
-        params: { sobId: createdSob.id }
+        params: { sobId: createdSob.id },
       })
     }
 
@@ -54,19 +54,18 @@ export default defineComponent({
       handleShorten() {
         newSob.value.accountsCodeLength.pop()
       },
-      handleSubmit
+      handleSubmit,
     }
-  }
+  },
 })
 
 function getCurrentUTCTime() {
   const current = new Date()
   return {
     year: current.getUTCFullYear(),
-    month: current.getUTCMonth() + 1
+    month: current.getUTCMonth() + 1,
   }
 }
-
 </script>
 
 <template>
@@ -74,21 +73,46 @@ function getCurrentUTCTime() {
     <template #title>{{ t('sob.creation.title') }}</template>
     <div>
       <base-form class="w-full max-w-2xl" @submit="handleSubmit">
-        <base-input :label="t('sob.name')" v-model="newSob.name" required />
-        <base-input :label="t('common.description')" v-model="newSob.description" />
-        <base-input :label="t('sob.baseCurrency')" v-model="newSob.baseCurrency" required />
+        <base-input v-model="newSob.name" :label="t('sob.name')" required />
+        <base-input v-model="newSob.description" :label="t('common.description')" />
+        <base-input v-model="newSob.baseCurrency" :label="t('sob.baseCurrency')" required />
 
         <base-input-group :label="t('sob.startingPeriod')" required>
-          <base-input :label="t('common.year')" hide-label v-model="newSob.startingPeriodYear" type="number" required
-            :min="2020" :max="3000" :suffix="t('common.year')" />
-          <base-input :label="t('common.month')" hide-label v-model="newSob.startingPeriodMonth" type="number" required
-            :min="1" :max="12" :suffix="t('common.month')" />
+          <base-input
+            v-model="newSob.startingPeriodYear"
+            :label="t('common.year')"
+            hide-label
+            type="number"
+            required
+            :min="2020"
+            :max="3000"
+            :suffix="t('common.year')"
+          />
+          <base-input
+            v-model="newSob.startingPeriodMonth"
+            :label="t('common.month')"
+            hide-label
+            type="number"
+            required
+            :min="1"
+            :max="12"
+            :suffix="t('common.month')"
+          />
         </base-input-group>
 
         <base-input-group :label="t('sob.accountCodeLength')" required>
-          <base-input v-for="_, index in newSob.accountsCodeLength" :key="`sobCreation-accountsCodeLength-${index}`"
-            class="w-14" :label="`${t('sob.accountCodeLength')}_${index}`" hide-label
-            v-model="newSob.accountsCodeLength[index]" type="number" required :min="1" :max="6" />
+          <base-input
+            v-for="(_, index) in newSob.accountsCodeLength"
+            :key="`sobCreation-accountsCodeLength-${index}`"
+            v-model="newSob.accountsCodeLength[index]"
+            class="w-14"
+            :label="`${t('sob.accountCodeLength')}_${index}`"
+            hide-label
+            type="number"
+            required
+            :min="1"
+            :max="6"
+          />
           <template #suffix>
             <base-button-group>
               <base-button @click="handleShorten">-</base-button>

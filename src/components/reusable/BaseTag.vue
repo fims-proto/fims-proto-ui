@@ -1,12 +1,15 @@
 <script lang="ts">
-import { defineComponent, PropType, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { defineComponent, PropType, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 export default defineComponent({
   inheritAttrs: false,
   props: {
-    color: String as PropType<'error' | 'info' | 'success' | 'warning' | undefined>,
-    closable: Boolean
+    color: {
+      type: String as PropType<'error' | 'info' | 'success' | 'warning'>,
+      default: 'info',
+    },
+    closable: Boolean,
   },
   setup(props) {
     const t = useI18n().t
@@ -20,9 +23,9 @@ export default defineComponent({
       },
       handleClose() {
         closed.value = true
-      }
+      },
     }
-  }
+  },
 })
 </script>
 
@@ -34,7 +37,7 @@ export default defineComponent({
       'bg-error-200 text-error-900 ring-error-300': is('error'),
       'bg-warning-200 text-warning-900 ring-warning-300': is('warning'),
       'bg-success-200 text-success-900 ring-success-500': is('success'),
-      'bg-primary-50 text-primary-900 ring-primary-300': is('info') || is(undefined)
+      'bg-primary-50 text-primary-900 ring-primary-300': is('info'),
     }"
   >
     <slot></slot>
@@ -47,7 +50,7 @@ export default defineComponent({
         'hover:bg-error-300': is('error'),
         'hover:bg-warning-300': is('warning'),
         'hover:bg-success-300': is('success'),
-        'hover:bg-primary-300': is('info') || is(undefined)
+        'hover:bg-primary-300': is('info'),
       }"
       @click.prevent="handleClose"
     >

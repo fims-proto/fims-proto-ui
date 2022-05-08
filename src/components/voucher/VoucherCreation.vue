@@ -1,43 +1,51 @@
 <script lang="ts">
-import { computed, defineComponent, PropType, ref, toRefs } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { Sob } from '../../domain';
-import { useSobStore } from '../../store/sob';
-import { useUserStore } from '../../store/user';
+import { computed, defineComponent, PropType, ref, toRefs } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { Sob } from '../../domain'
+import { useSobStore } from '../../store/sob'
+import { useUserStore } from '../../store/user'
 
 interface LineItem {
   summary: string | undefined
-  accountNumber: string | undefined,
-  debit: number | undefined,
-  credit: number | undefined,
+  accountNumber: string | undefined
+  debit: number | undefined
+  credit: number | undefined
 }
 
 export default defineComponent({
   props: {
     sob: {
       type: Object as PropType<Sob>,
-      required: true
-    }
+      required: true,
+    },
   },
   setup() {
     const { t, d } = useI18n()
-    const { userId, traits } = toRefs(useUserStore().state)
+    const { traits } = toRefs(useUserStore().state)
     const { currentPeriod } = toRefs(useSobStore().state)
 
     // voucherType: 'GENERAL_VOUCHER'
 
     const transactionTime = ref<Date>(new Date())
     const attachmentQuantity = ref<number>(0)
-    const lineItems = ref<LineItem[]>(Array(4).fill(null).map(() => ({
-      summary: undefined,
-      accountNumber: undefined,
-      debit: undefined,
-      credit: undefined,
-    })))
+    const lineItems = ref<LineItem[]>(
+      Array(4)
+        .fill(null)
+        .map(() => ({
+          summary: undefined,
+          accountNumber: undefined,
+          debit: undefined,
+          credit: undefined,
+        }))
+    )
 
     const totalDebit = computed(() => lineItems.value.reduce((sum, item) => sum + (item.debit ?? 0), 0))
     const totalCredit = computed(() => lineItems.value.reduce((sum, item) => sum + (item.credit ?? 0), 0))
-    const period = computed(() => currentPeriod.value ? `${currentPeriod.value.financialYear}-${currentPeriod.value.number}` : t('ledger.periodUnselected'))
+    const period = computed(() =>
+      currentPeriod.value
+        ? `${currentPeriod.value.financialYear}-${currentPeriod.value.number}`
+        : t('ledger.periodUnselected')
+    )
 
     const onSave = () => {
       // TODO
@@ -57,9 +65,9 @@ export default defineComponent({
       totalCredit,
       traits,
       onSave,
-      onSaveAndNew
+      onSaveAndNew,
     }
-  }
+  },
 })
 </script>
 
@@ -78,9 +86,17 @@ export default defineComponent({
           <span>{{ period }}</span>
         </div>
         <div>
-          <base-input class="w-36" v-model="attachmentQuantity" :lite="true" type="number"
-            :label="t('voucher.attachmentQuantity')" :hide-label="true" :prefix="t('voucher.attachmentQuantity')"
-            :suffix="t('voucher.attachmentQuantityUnit')" :min="0" />
+          <base-input
+            v-model="attachmentQuantity"
+            class="w-36"
+            :lite="true"
+            type="number"
+            :label="t('voucher.attachmentQuantity')"
+            :hide-label="true"
+            :prefix="t('voucher.attachmentQuantity')"
+            :suffix="t('voucher.attachmentQuantityUnit')"
+            :min="0"
+          />
         </div>
       </div>
 
@@ -100,8 +116,11 @@ export default defineComponent({
           </div>
         </div>
         <!-- table body -->
-        <div v-for="(item, i) in lineItems" :key="`create-voucher-li-${i}`"
-          class="flex flex-row divide-x divide-neutral-400">
+        <div
+          v-for="(item, i) in lineItems"
+          :key="`create-voucher-li-${i}`"
+          class="flex flex-row divide-x divide-neutral-400"
+        >
           <div class="flex-1 p-[1px]">
             <tabulated-input v-model="item.summary" />
           </div>

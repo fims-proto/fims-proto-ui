@@ -1,15 +1,15 @@
 <script lang="ts">
-import { defineComponent, onMounted, PropType, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router';
-import { LedgerService, Period, Sob } from '../../domain';
+import { defineComponent, onMounted, PropType, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
+import { LedgerService, Period, Sob } from '../../domain'
 
 export default defineComponent({
   props: {
     sob: {
       type: Object as PropType<Sob>,
-      required: true
-    }
+      required: true,
+    },
   },
   setup(props) {
     const t = useI18n().t
@@ -22,15 +22,15 @@ export default defineComponent({
       periods.value = await LedgerService.getAllPeriods(props.sob.id)
 
       if (route.name === 'ledgerMain') {
-        const openPeriod = periods.value?.find(period => !period.isClosed)
+        const openPeriod = periods.value?.find((period) => !period.isClosed)
         if (openPeriod) {
           console.log('display default period')
           router.replace({
             name: 'ledgerList',
             params: {
               sobId: props.sob.id,
-              periodId: openPeriod.id
-            }
+              periodId: openPeriod.id,
+            },
           })
         }
       }
@@ -44,9 +44,9 @@ export default defineComponent({
 
     return {
       t,
-      periods
+      periods,
     }
-  }
+  },
 })
 </script>
 

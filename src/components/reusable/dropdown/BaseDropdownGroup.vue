@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { defineProps } from 'vue'
-defineProps({ title: String })
+defineProps({
+  title: { type: String, default: undefined },
+})
 </script>
 
 <template>

@@ -1,8 +1,8 @@
 export interface User {
-  id: string,
+  id: string
   name?: {
-    first?: string,
+    first?: string
     last?: string
-  },
+  }
   email: string
 }

@@ -26,9 +26,9 @@ export default defineComponent({
           to: {
             name: 'voucherMain',
             params: {
-              sobId: workingSob.value?.id
-            }
-          }
+              sobId: workingSob.value?.id,
+            },
+          },
         })
         items.push({
           key: 'legder',
@@ -36,9 +36,9 @@ export default defineComponent({
           to: {
             name: 'ledgerMain',
             params: {
-              sobId: workingSob.value?.id
-            }
-          }
+              sobId: workingSob.value?.id,
+            },
+          },
         })
       }
 
@@ -46,7 +46,9 @@ export default defineComponent({
     })
 
     const period = computed(() => {
-      return currentPeriod.value ? `${currentPeriod.value.financialYear}-${currentPeriod.value.number}` : t('ledger.periodUnselected')
+      return currentPeriod.value
+        ? `${currentPeriod.value.financialYear}-${currentPeriod.value.number}`
+        : t('ledger.periodUnselected')
     })
 
     const onUserMenuSelected = (key: string) => {
@@ -74,9 +76,9 @@ export default defineComponent({
       workingSob,
       period,
       onUserMenuSelected,
-      onSobSelected
+      onSobSelected,
     }
-  }
+  },
 })
 </script>
 
@@ -87,20 +89,27 @@ export default defineComponent({
     <div class="flex gap-4 items-center">
       <!-- logo -->
       <div>
-        <base-link :to="{ name: 'home' }"
-          class="px-3 py-2 pl-0 rounded-md text-xl font-serif italic font-extrabold text-primary-700">fims</base-link>
+        <base-link
+          :to="{ name: 'home' }"
+          class="px-3 py-2 pl-0 rounded-md text-xl font-serif italic font-extrabold text-primary-700"
+          >fims</base-link
+        >
       </div>
 
       <!-- SoB selection -->
       <div>
         <base-dropdown @select="onSobSelected">
-          <base-dropdown-button as="a"
+          <base-dropdown-button
+            v-slot="{ open }"
+            as="a"
             class="px-3 py-2 space-x-2 rounded-md whitespace-nowrap text-neutral-700 hover:text-neutral-900 hover:bg-black hover:bg-opacity-5"
-            v-slot="{ open }">
+          >
             <span class="inline">{{ workingSob ? workingSob.name : t('sob.selectSob') }}</span>
             <span class="inline">{{ period }}</span>
-            <chevron-down-outline-icon :class="['inline w-3 align-baseline', { 'rotate-180': open }]"
-              aria-hidden="true" />
+            <chevron-down-outline-icon
+              :class="['inline w-3 align-baseline', { 'rotate-180': open }]"
+              aria-hidden="true"
+            />
           </base-dropdown-button>
           <template #overlay>
             <base-dropdown-group :title="t('sob.selectSob')">
@@ -116,17 +125,20 @@ export default defineComponent({
 
       <!-- navigation -->
       <nav class="space-x-2">
-        <base-link v-for="item in navigation" :key="item.key" :to="item.to"
-          class="px-3 py-2 rounded-md text-neutral-700 hover:text-neutral-900 hover:bg-black hover:bg-opacity-5">{{
-              item.label
-          }}</base-link>
+        <base-link
+          v-for="item in navigation"
+          :key="item.key"
+          :to="item.to"
+          class="px-3 py-2 rounded-md text-neutral-700 hover:text-neutral-900 hover:bg-black hover:bg-opacity-5"
+          >{{ item.label }}</base-link
+        >
       </nav>
     </div>
 
     <!-- right part -->
     <div class="flex gap-4 items-center">
       <div>
-        <base-dropdown @select="onUserMenuSelected" placement="bottom-end">
+        <base-dropdown placement="bottom-end" @select="onUserMenuSelected">
           <base-dropdown-button as="a">
             <base-avatar custom-sizing class="h-8 w-8">{{ userInfo.name?.first }}</base-avatar>
           </base-dropdown-button>

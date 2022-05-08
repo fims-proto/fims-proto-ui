@@ -1,7 +1,7 @@
-import { inject, provide, ref, Ref } from 'vue';
+import { inject, provide, ref, Ref } from 'vue'
 
 export interface FormInterface {
-  hideRequiredMark: Ref<boolean>,
+  hideRequiredMark: Ref<boolean>
 }
 
 export interface InputGroupInterface {
@@ -22,6 +22,6 @@ export function provideInputGroup(ctx: InputGroupInterface) {
 
 export function injectInputGroup(): InputGroupInterface | undefined {
   return inject<InputGroupInterface>('base-input-group', {
-    insideGroup: ref(false)
+    insideGroup: ref(false),
   })
 }

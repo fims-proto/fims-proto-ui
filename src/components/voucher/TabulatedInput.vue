@@ -1,13 +1,16 @@
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref } from 'vue'
 
 export default defineComponent({
   props: {
     htmlType: {
       type: String,
-      default: 'text'
+      default: 'text',
     },
-    modelValue: [String, Number],
+    modelValue: {
+      type: [String, Number],
+      default: undefined,
+    },
   },
   emits: ['update:modelValue', 'blur'],
   setup(_, { expose }) {
@@ -21,9 +24,9 @@ export default defineComponent({
 
     return {
       inputId: generateInputId(),
-      inputRef
+      inputRef,
     }
-  }
+  },
 })
 
 function generateInputId() {
@@ -33,7 +36,13 @@ function generateInputId() {
 
 <template>
   <label class="sr-only" :for="inputId">{{ inputId }}</label>
-  <input ref="inputRef" :id="inputId" :type="htmlType" :value="modelValue"
-    @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)" @blur="$emit('blur')"
-    :class="['appearance-none w-full border-none', { 'text-right': htmlType === 'number' }]" />
+  <input
+    :id="inputId"
+    ref="inputRef"
+    :type="htmlType"
+    :value="modelValue"
+    :class="['appearance-none w-full border-none', { 'text-right': htmlType === 'number' }]"
+    @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
+    @blur="$emit('blur')"
+  />
 </template>

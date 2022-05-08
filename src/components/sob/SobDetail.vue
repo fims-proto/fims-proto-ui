@@ -1,14 +1,14 @@
 <script lang="ts">
-import { defineComponent, onMounted, PropType, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { Sob, SobService } from '../../domain';
+import { defineComponent, onMounted, PropType, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { Sob, SobService } from '../../domain'
 
 export default defineComponent({
   props: {
     sob: {
       type: Object as PropType<Sob>,
-      required: true
-    }
+      required: true,
+    },
   },
   setup(props) {
     const t = useI18n().t
@@ -20,9 +20,9 @@ export default defineComponent({
 
     return {
       t,
-      sobDetail
+      sobDetail,
     }
-  }
+  },
 })
 </script>
 

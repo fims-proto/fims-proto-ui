@@ -1,4 +1,12 @@
-import { JsonError, SelfServiceLoginFlow, SelfServiceSettingsFlow, Session, SubmitSelfServiceLoginFlowWithPasswordMethodBody, SubmitSelfServiceSettingsFlowBody, SuccessfulSelfServiceLoginWithoutBrowser } from '@ory/kratos-client'
+import {
+  JsonError,
+  SelfServiceLoginFlow,
+  SelfServiceSettingsFlow,
+  Session,
+  SubmitSelfServiceLoginFlowWithPasswordMethodBody,
+  SubmitSelfServiceSettingsFlowBody,
+  SuccessfulSelfServiceLoginWithoutBrowser,
+} from '@ory/kratos-client'
 import axios, { AxiosError } from 'axios'
 import { kratos } from '../lib/kratos'
 
@@ -24,7 +32,10 @@ class KratosService {
     }
   }
 
-  public async submitLoginFlow(flowId: string, payload: SubmitSelfServiceLoginFlowWithPasswordMethodBody): Promise<SuccessfulSelfServiceLoginWithoutBrowser | SelfServiceLoginFlow> {
+  public async submitLoginFlow(
+    flowId: string,
+    payload: SubmitSelfServiceLoginFlowWithPasswordMethodBody
+  ): Promise<SuccessfulSelfServiceLoginWithoutBrowser | SelfServiceLoginFlow> {
     try {
       const result = await kratos.submitSelfServiceLoginFlow(flowId, undefined, payload)
       return result.data
@@ -39,7 +50,10 @@ class KratosService {
     return result.data
   }
 
-  public async submitSettingFlow(flowId: string, payload: SubmitSelfServiceSettingsFlowBody): Promise<SelfServiceSettingsFlow> {
+  public async submitSettingFlow(
+    flowId: string,
+    payload: SubmitSelfServiceSettingsFlowBody
+  ): Promise<SelfServiceSettingsFlow> {
     try {
       const result = await kratos.submitSelfServiceSettingsFlow(flowId, undefined, payload)
       return result.data

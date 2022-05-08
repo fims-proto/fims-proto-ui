@@ -1,5 +1,5 @@
-import { LedgerService, Period, SobService, StorageService } from '../../domain';
-import { ISobState } from './state';
+import { LedgerService, Period, SobService, StorageService } from '../../domain'
+import { ISobState } from './state'
 
 const CURRENT_SOB_KEY = 'CURRENT_SOB'
 
@@ -16,7 +16,7 @@ function setWorkingSob(state: ISobState) {
 
       await refreshSobs(state)()
 
-      const foundSob = state.sobs.find(sob => sob.id === sobId)
+      const foundSob = state.sobs.find((sob) => sob.id === sobId)
       if (!foundSob) {
         throw new Error('sob-not-found')
       }
@@ -48,6 +48,6 @@ export function createAction(state: ISobState) {
     refreshSobs: refreshSobs(state),
     setWorkingSob: setWorkingSob(state),
     loadWorkingSob: loadWorkingSob(state),
-    setCurrentPeriod: setCurrentPeriod(state)
+    setCurrentPeriod: setCurrentPeriod(state),
   }
 }

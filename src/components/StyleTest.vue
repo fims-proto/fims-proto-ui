@@ -6,9 +6,7 @@ const inputDate = ref(new Date())
 <!-- style test page for Tailwindcss -->
 <template>
   <div class="h-full w-full space-y-4 pt-8 pb-60 px-8 overflow-scroll bg-neutral-600">
-    <p class="text-neutral-50">
-      Typograph:
-    </p>
+    <p class="text-neutral-50">Typograph:</p>
     <div class="bg-white rounded-lg p-4">
       <h1>h1 标题</h1>
       <h2>h2 标题</h2>
@@ -17,26 +15,14 @@ const inputDate = ref(new Date())
       <h5>h5 往下就和普通一样了</h5>
     </div>
 
-    <p class="text-neutral-50">
-      BaseButton:
-    </p>
+    <p class="text-neutral-50">BaseButton:</p>
     <div class="bg-white rounded-lg p-4 space-y-4">
       <div class="flex gap-4">
-        <base-button>
-          Default
-        </base-button>
-        <base-button categoty="primary">
-          Primary
-        </base-button>
-        <base-button categoty="success">
-          Success
-        </base-button>
-        <base-button categoty="warning">
-          Wanring
-        </base-button>
-        <base-button categoty="error">
-          Error
-        </base-button>
+        <base-button> Default </base-button>
+        <base-button categoty="primary"> Primary </base-button>
+        <base-button categoty="success"> Success </base-button>
+        <base-button categoty="warning"> Wanring </base-button>
+        <base-button categoty="error"> Error </base-button>
         <base-button>
           <template #icon>
             <lock-closed-solid-icon />
@@ -50,25 +36,17 @@ const inputDate = ref(new Date())
           Primary
         </base-button>
         <base-button categoty="success">
-          <template #icon>
-            <lock-closed-solid-icon />
-          </template>Success
+          <template #icon><lock-closed-solid-icon /></template>Success
         </base-button>
         <base-button categoty="warning">
-          <template #icon>
-            <lock-closed-solid-icon />
-          </template>Wanring
+          <template #icon><lock-closed-solid-icon /></template>Wanring
         </base-button>
         <base-button categoty="error">
-          <template #icon>
-            <lock-closed-solid-icon />
-          </template>Error
+          <template #icon><lock-closed-solid-icon /></template>Error
         </base-button>
         <base-button-group>
           <base-button>
-            <template #icon>
-              <lock-closed-solid-icon />
-            </template>Fisrt
+            <template #icon><lock-closed-solid-icon /></template>Fisrt
           </base-button>
           <base-button>Second</base-button>
         </base-button-group>
@@ -88,9 +66,7 @@ const inputDate = ref(new Date())
       </p>
     </div>
 
-    <p class="text-neutral-50">
-      BaseAlert:
-    </p>
+    <p class="text-neutral-50">BaseAlert:</p>
     <div class="bg-white rounded-lg p-4 space-y-4">
       <base-alert type="error" closable message="丹麦的艾辛诺尔堡" />
       <base-alert type="info" message="在城墙的一平台上" />
@@ -98,9 +74,7 @@ const inputDate = ref(new Date())
       <base-alert type="warning" message="此时正是深夜, 一片漆黑中, 佛郎西斯哥在城墙上站岗, 而柏纳多来接他的班" />
     </div>
 
-    <p class="text-neutral-50">
-      BaseAvatar:
-    </p>
+    <p class="text-neutral-50">BaseAvatar:</p>
     <div class="bg-white rounded-lg p-4 space-y-4">
       <div class="flex gap-4">
         <base-avatar>张三</base-avatar>
@@ -125,7 +99,8 @@ const inputDate = ref(new Date())
     <p class="text-neutral-50">BaseDropdown:</p>
     <div class="bg-white rounded-lg p-4 space-x-4">
       <base-dropdown>
-        <base-dropdown-button class="p-2 rounded-md shadow-md bg-primary-600 text-white hover:bg-primary-400">双节棍
+        <base-dropdown-button class="p-2 rounded-md shadow-md bg-primary-600 text-white hover:bg-primary-400"
+          >双节棍
         </base-dropdown-button>
         <template #overlay>
           <base-dropdown-group>
@@ -141,7 +116,8 @@ const inputDate = ref(new Date())
       </base-dropdown>
 
       <base-dropdown placement="bottom-end">
-        <base-dropdown-button class="p-2 rounded-md shadow-md bg-primary-600 text-white hover:bg-primary-400">靠右
+        <base-dropdown-button class="p-2 rounded-md shadow-md bg-primary-600 text-white hover:bg-primary-400"
+          >靠右
         </base-dropdown-button>
         <template #overlay>
           <base-dropdown-item>快使用双截棍 哼哼哈兮 哼哼哈兮 哼哼哈兮</base-dropdown-item>
@@ -150,14 +126,13 @@ const inputDate = ref(new Date())
       </base-dropdown>
 
       <base-dropdown>
-        <base-dropdown-button class="p-2 rounded-md shadow-md bg-primary-600 text-white hover:bg-primary-400">带图标
+        <base-dropdown-button class="p-2 rounded-md shadow-md bg-primary-600 text-white hover:bg-primary-400"
+          >带图标
         </base-dropdown-button>
         <template #overlay>
           <base-dropdown-item>没图标</base-dropdown-item>
           <base-dropdown-item>
-            <template #icon>
-              <lock-closed-solid-icon />
-            </template>锁住水分持久保鲜
+            <template #icon><lock-closed-solid-icon /></template>锁住水分持久保鲜
           </base-dropdown-item>
         </template>
       </base-dropdown>
@@ -247,7 +222,7 @@ const inputDate = ref(new Date())
 
     <p class="text-neutral-50">Inputs:</p>
     <div class="bg-white rounded-lg p-4">
-      <base-input type="date" v-model="inputDate" class="w-40" />
+      <base-input v-model="inputDate" type="date" class="w-40" />
     </div>
 
     <!-- <p class="text-neutral-50">SomeOthers:</p>

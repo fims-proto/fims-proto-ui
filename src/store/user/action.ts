@@ -1,5 +1,5 @@
-import { User, UserService } from '../../domain';
-import { IUserState } from './state';
+import { User, UserService } from '../../domain'
+import { IUserState } from './state'
 
 function setUser(state: IUserState) {
   return (user: User) => {
@@ -17,13 +17,13 @@ function mapUser(source: User, target: IUserState) {
   target.userId = source.id
   target.traits = {
     name: source.name,
-    email: source.email
+    email: source.email,
   }
 }
 
 export function createAction(state: IUserState) {
   return {
     loadUser: loadUser(state),
-    setUser: setUser(state)
+    setUser: setUser(state),
   }
 }

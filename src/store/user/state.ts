@@ -1,12 +1,12 @@
-import { reactive } from "vue"
+import { reactive } from 'vue'
 
 export interface IUserState {
-  userId: string,
+  userId: string
   traits: {
     name?: {
-      first?: string,
+      first?: string
       last?: string
-    },
+    }
     email: string
   }
 }
@@ -16,10 +16,10 @@ export const UserState: IUserState = {
   traits: {
     name: {
       first: '',
-      last: ''
+      last: '',
     },
-    email: ''
-  }
+    email: '',
+  },
 }
 
 export function createState() {

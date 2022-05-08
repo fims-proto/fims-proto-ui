@@ -1,25 +1,32 @@
 <script lang="ts">
-import { SelfServiceSettingsFlow, UiText } from "@ory/kratos-client";
-import { defineComponent, onMounted } from "vue";
-import { ref } from "vue";
-import { useI18n } from 'vue-i18n';
-import { KratosService } from '../../domain';
-import { useUserStore } from '../../store/user';
+import { SelfServiceSettingsFlow, SubmitSelfServiceSettingsFlowBody, UiText } from '@ory/kratos-client'
+import { defineComponent, onMounted } from 'vue'
+import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { KratosService } from '../../domain'
+import { useUserStore } from '../../store/user'
+import { UiNode } from '../../types'
 
 interface profileFormType {
-  csrf_token: string,
-  method: string,
-  traits: any
+  csrf_token: string
+  method: string
+  traits: {
+    email: string
+    name: {
+      first: string
+      last: string
+    }
+  }
 }
 
 interface passwordFormType {
-  csrf_token: string,
-  method: string,
+  csrf_token: string
+  method: string
   password: string
 }
 
 interface messageType {
-  type?: 'error' | 'info' | 'success' | 'warning' | undefined,
+  type?: 'error' | 'info' | 'success' | 'warning' | undefined
   text: string
 }
 
@@ -31,27 +38,31 @@ export default defineComponent({
     const messages = ref<messageType[]>([])
     const flow = ref<SelfServiceSettingsFlow | undefined>()
     const formBusy = ref(true)
-    const profileFormValue = ref<profileFormType>({ csrf_token: '', method: '', traits: { email: '', name: { first: '', last: '' } } })
+    const profileFormValue = ref<profileFormType>({
+      csrf_token: '',
+      method: '',
+      traits: { email: '', name: { first: '', last: '' } },
+    })
     const passwordFormValue = ref<passwordFormType>({ csrf_token: '', method: '', password: '' })
 
     onMounted(async () => {
       flow.value = await KratosService.initSettingFlow()
-      profileFormValue.value = buildProfileForm(filterNodes('profile', flow.value))
-      passwordFormValue.value = buildPasswordForm(filterNodes('password', flow.value))
+      profileFormValue.value = buildProfileForm(filterNodes('profile', flow.value) as UiNode[])
+      passwordFormValue.value = buildPasswordForm(filterNodes('password', flow.value) as UiNode[])
       messages.value = buildMessages(flow.value)
       formBusy.value = false
     })
 
-    const handleSubmit = async (formValue: any) => {
+    const handleSubmit = async (formValue: SubmitSelfServiceSettingsFlowBody) => {
       formBusy.value = true
       if (!flow.value) {
-        alert("should not happen: no flow id")
+        alert('should not happen: no flow id')
         return
       }
 
       flow.value = await KratosService.submitSettingFlow(flow.value?.id, formValue)
-      profileFormValue.value = buildProfileForm(filterNodes('profile', flow.value))
-      passwordFormValue.value = buildPasswordForm(filterNodes('password', flow.value))
+      profileFormValue.value = buildProfileForm(filterNodes('profile', flow.value) as UiNode[])
+      passwordFormValue.value = buildPasswordForm(filterNodes('password', flow.value) as UiNode[])
       messages.value = buildMessages(flow.value)
       formBusy.value = false
 
@@ -70,20 +81,20 @@ export default defineComponent({
       },
       onPasswordSubmit() {
         handleSubmit(passwordFormValue.value)
-      }
+      },
     }
-  }
+  },
 })
 
 function filterNodes(group: string, flow: SelfServiceSettingsFlow | undefined) {
-  return flow?.ui.nodes.filter(node => node.group == 'default' || node.group == group)
+  return flow?.ui.nodes.filter((node) => node.group == 'default' || node.group == group)
 }
 
-function getValue(attr: string, uiNodes: any[] | undefined) {
-  return uiNodes?.find(node => node.attributes.name == attr)?.attributes.value
+function getValue(attr: string, uiNodes: UiNode[] | undefined) {
+  return uiNodes?.find((node) => node.attributes.name == attr)?.attributes.value
 }
 
-function buildProfileForm(uiNodes: any[] | undefined) {
+function buildProfileForm(uiNodes: UiNode[] | undefined) {
   return {
     csrf_token: getValue('csrf_token', uiNodes),
     method: getValue('method', uiNodes),
@@ -92,16 +103,16 @@ function buildProfileForm(uiNodes: any[] | undefined) {
       name: {
         first: getValue('traits.name.first', uiNodes) ?? '',
         last: getValue('traits.name.last', uiNodes) ?? '',
-      }
-    }
+      },
+    },
   }
 }
 
-function buildPasswordForm(uiNodes: any[] | undefined) {
+function buildPasswordForm(uiNodes: UiNode[] | undefined) {
   return {
     csrf_token: getValue('csrf_token', uiNodes),
     method: getValue('method', uiNodes),
-    password: getValue('password', uiNodes) ?? ''
+    password: getValue('password', uiNodes) ?? '',
   }
 }
 
@@ -119,11 +130,11 @@ function buildMessages(flow: SelfServiceSettingsFlow | undefined): messageType[]
   }
   const createMessage = (message: UiText) => ({
     type: convertMessageType(message.type),
-    text: message.text
+    text: message.text,
   })
   return [
     flow?.ui.messages?.map(createMessage) ?? [],
-    flow?.ui.nodes.flatMap(node => node.messages).map(createMessage) ?? []
+    flow?.ui.nodes.flatMap((node) => node.messages).map(createMessage) ?? [],
   ].flat()
 }
 </script>
@@ -132,8 +143,12 @@ function buildMessages(flow: SelfServiceSettingsFlow | undefined): messageType[]
   <base-page :subtitle="t('profile.subtitle')">
     <template #title>{{ t('profile.title') }}</template>
     <div class="flex flex-col gap-2">
-      <base-alert v-for="(message, i) in messages" :key="`profileUpdate-alert-${i}`" :type="message.type ?? 'error'"
-        :message="message.text" />
+      <base-alert
+        v-for="(message, i) in messages"
+        :key="`profileUpdate-alert-${i}`"
+        :type="message.type ?? 'error'"
+        :message="message.text"
+      />
 
       <base-tabs>
         <template #tabs>
@@ -144,13 +159,25 @@ function buildMessages(flow: SelfServiceSettingsFlow | undefined): messageType[]
           <!-- profile update -->
           <base-tab-panel class="max-w-xl">
             <base-form @submit="onProfileSubmit">
-              <input type="hidden" v-model="profileFormValue.csrf_token" />
-              <base-input :label="t('user.email')" :placeholder="t('user.emailInputPlaceholder')"
-                v-model="profileFormValue.traits.email" type="email" autocomplete="email" required />
-              <base-input :label="t('user.lastname')" :placeholder="t('user.lastnameInputPlaceholder')"
-                v-model="profileFormValue.traits.name.last" />
-              <base-input :label="t('user.lastname')" :placeholder="t('user.firstnameInputPlaceholder')"
-                v-model="profileFormValue.traits.name.first" />
+              <input v-model="profileFormValue.csrf_token" type="hidden" />
+              <base-input
+                v-model="profileFormValue.traits.email"
+                :label="t('user.email')"
+                :placeholder="t('user.emailInputPlaceholder')"
+                type="email"
+                autocomplete="email"
+                required
+              />
+              <base-input
+                v-model="profileFormValue.traits.name.last"
+                :label="t('user.lastname')"
+                :placeholder="t('user.lastnameInputPlaceholder')"
+              />
+              <base-input
+                v-model="profileFormValue.traits.name.first"
+                :label="t('user.lastname')"
+                :placeholder="t('user.firstnameInputPlaceholder')"
+              />
               <div>
                 <base-button type="submit" categoty="primary" class="w-full">
                   <template #icon>
@@ -165,12 +192,23 @@ function buildMessages(flow: SelfServiceSettingsFlow | undefined): messageType[]
           <!-- password update -->
           <base-tab-panel class="max-w-xl">
             <base-form @submit="onPasswordSubmit">
-              <input type="hidden" v-model="passwordFormValue.csrf_token" />
+              <input v-model="passwordFormValue.csrf_token" type="hidden" />
               <!-- hidden username field for browser autocomplete -->
-              <input type="text" name="email" v-model="profileFormValue.traits.email" autocomplete="email"
-                style="display: none;" />
-              <base-input :label="t('user.password')" :placeholder="t('user.passwordInputPlaceholder')"
-                v-model="passwordFormValue.password" type="password" autocomplete="new-password" required />
+              <input
+                v-model="profileFormValue.traits.email"
+                type="text"
+                name="email"
+                autocomplete="email"
+                style="display: none"
+              />
+              <base-input
+                v-model="passwordFormValue.password"
+                :label="t('user.password')"
+                :placeholder="t('user.passwordInputPlaceholder')"
+                type="password"
+                autocomplete="new-password"
+                required
+              />
               <div>
                 <base-button type="submit" categoty="primary" class="w-full">
                   <template #icon>

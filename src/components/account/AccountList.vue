@@ -1,14 +1,14 @@
 <script lang="ts">
-import { defineComponent, onMounted, PropType, ref, toRefs } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { Account, AccountService, Sob } from '../../domain';
+import { defineComponent, onMounted, PropType, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { Account, AccountService, Sob } from '../../domain'
 
 export default defineComponent({
   props: {
     sob: {
       type: Object as PropType<Sob>,
-      required: true
-    }
+      required: true,
+    },
   },
   setup(props) {
     const { t } = useI18n()
@@ -20,9 +20,9 @@ export default defineComponent({
 
     return {
       t,
-      accounts
+      accounts,
     }
-  }
+  },
 })
 </script>
 

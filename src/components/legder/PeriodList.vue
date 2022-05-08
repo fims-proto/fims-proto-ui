@@ -1,16 +1,20 @@
 <script lang="ts">
-import { defineComponent, PropType, toRefs } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { useRouter } from 'vue-router';
-import { Period } from '../../domain';
-import { useSobStore } from '../../store/sob';
+import { defineComponent, PropType, toRefs } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
+import { Period } from '../../domain'
+import { useSobStore } from '../../store/sob'
 
 export default defineComponent({
   props: {
     periods: {
-      type: Array as PropType<Period[]> | undefined
+      type: Array as PropType<Period[]>,
+      required: true,
     },
-    periodId: String
+    periodId: {
+      type: String,
+      default: undefined,
+    },
   },
   setup(props) {
     const t = useI18n().t
@@ -32,8 +36,8 @@ export default defineComponent({
         name: 'ledgerList',
         params: {
           sobId: workingSob.value?.id,
-          periodId
-        }
+          periodId,
+        },
       })
     }
 
@@ -46,9 +50,9 @@ export default defineComponent({
       isOpenPeriod,
       isSelectedPeriod,
       onPeriodSelected,
-      onCreatePeriod
+      onCreatePeriod,
     }
-  }
+  },
 })
 </script>
 

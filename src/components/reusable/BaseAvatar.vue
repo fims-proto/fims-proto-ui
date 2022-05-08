@@ -1,10 +1,10 @@
 <script lang="ts">
-import { defineComponent, onMounted, onUpdated, ref } from 'vue';
+import { defineComponent, onMounted, onUpdated, ref } from 'vue'
 
 export default defineComponent({
   props: {
     customSizing: Boolean,
-    customColor: Boolean
+    customColor: Boolean,
   },
   setup() {
     const containerRef = ref<HTMLElement>()
@@ -37,9 +37,9 @@ export default defineComponent({
     return {
       containerRef,
       contentRef,
-      scale
+      scale,
     }
-  }
+  },
 })
 </script>
 

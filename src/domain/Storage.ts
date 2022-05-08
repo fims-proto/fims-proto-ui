@@ -1,7 +1,6 @@
 // Storage service. Right now: LocalStorage
 
 class StorageService {
-
   public set(key: string, value: string) {
     localStorage.setItem(key, value)
   }

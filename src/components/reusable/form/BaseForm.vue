@@ -1,22 +1,22 @@
 <script lang="ts">
-import { defineComponent, toRefs } from 'vue';
-import { provideForm } from './context';
+import { defineComponent, toRefs } from 'vue'
+import { provideForm } from './context'
 
 export default defineComponent({
   props: {
     hideRequiredMark: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   emits: ['submit'],
   setup(props) {
     const { hideRequiredMark } = toRefs(props)
 
     provideForm({
-      hideRequiredMark
+      hideRequiredMark,
     })
-  }
+  },
 })
 </script>
 

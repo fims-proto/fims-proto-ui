@@ -1,25 +1,25 @@
-import axios, { AxiosError } from 'axios'
+import axios from 'axios'
 import { Ledger, NewPeriod, Period } from './types'
 import { FIMS_URL } from '../../config'
-import { SlugError } from '../../types'
+import { invokeWithErrorHandler } from '../errorHandler'
 
 class LedgerService {
   public async getCurrentPeriod(sobId: string): Promise<Period> {
-    return this.invokeWithErrorHandler(async () => {
+    return invokeWithErrorHandler(async () => {
       const result = await axios.get(`${FIMS_URL}/api/v1/sob/${sobId}/period/current`)
       return result.data
     })
   }
 
   public async getAllPeriods(sobId: string): Promise<[Period]> {
-    return this.invokeWithErrorHandler(async () => {
+    return invokeWithErrorHandler(async () => {
       const result = await axios.get(`${FIMS_URL}/api/v1/sob/${sobId}/periods/`)
       return result.data
     })
   }
 
   public async getAllLedgersInPeriod(sobId: string, periodId: string): Promise<[Ledger]> {
-    return this.invokeWithErrorHandler(async () => {
+    return invokeWithErrorHandler(async () => {
       const result = await axios.get(`${FIMS_URL}/api/v1/sob/${sobId}/period/${periodId}/ledgers/`)
       return result.data
     })
@@ -29,19 +29,10 @@ class LedgerService {
     if (!newPeriod.openingTime) {
       newPeriod.openingTime = this.getStartTimeOfMonth(newPeriod.financialYear, newPeriod.number)
     }
-    return this.invokeWithErrorHandler(async () => {
+    return invokeWithErrorHandler(async () => {
       const result = await axios.post(`${FIMS_URL}/api/v1/sob/${newPeriod.sobId}/periods/`, newPeriod)
       return result.data
     })
-  }
-
-  private async invokeWithErrorHandler(invoker: { (): Promise<any>; (): any }) {
-    try {
-      return await invoker()
-    } catch (error) {
-      console.error(error)
-      throw new Error(((error as AxiosError).response?.data as SlugError).slug)
-    }
   }
 
   private getStartTimeOfMonth(year: number, month: number): Date {

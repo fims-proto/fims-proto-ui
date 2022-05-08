@@ -1,4 +1,4 @@
-import { inject, provide, ref, Ref } from 'vue';
+import { inject, provide, ref, Ref } from 'vue'
 
 export interface ButtonGroupInterface {
   insideGroup: Ref<boolean>
@@ -10,6 +10,6 @@ export function provideButtonGroup(ctx: ButtonGroupInterface) {
 
 export function injectButtonGroup(): ButtonGroupInterface | undefined {
   return inject<ButtonGroupInterface>('base-button-group', {
-    insideGroup: ref(false)
+    insideGroup: ref(false),
   })
 }

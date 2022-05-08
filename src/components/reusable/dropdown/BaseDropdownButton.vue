@@ -3,13 +3,13 @@ import { defineProps } from 'vue'
 defineProps({
   as: {
     type: String,
-    default: 'button'
-  }
+    default: 'button',
+  },
 })
 </script>
 
 <template>
-  <menu-button :as="as" @click.prevent :href="as === 'a' ? 'javascript:void(0);' : null" v-slot="{ open }">
+  <menu-button v-slot="{ open }" :as="as" :href="as === 'a' ? 'javascript:void(0);' : null" @click.prevent>
     <slot :open="open"></slot>
   </menu-button>
 </template>

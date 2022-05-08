@@ -1,10 +1,10 @@
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { computed, defineComponent, onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 export default defineComponent({
   props: {
-    modelValue: Date
+    modelValue: Date,
   },
   emits: ['update:modelValue'],
   setup(props, { emit }) {
@@ -14,7 +14,7 @@ export default defineComponent({
 
     const yearList = ref<number[]>(Array(12).fill(0))
     const monthList = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-    const dateList = ref<{ date: number, previousMonth: boolean, nextMonth: boolean }[]>()
+    const dateList = ref<{ date: number; previousMonth: boolean; nextMonth: boolean }[]>()
 
     const displayedYearRangeStartYear = ref<number>(getNearestDecadeStartYear(tmpDate.value.getFullYear()))
     const displayedYear = ref(tmpDate.value.getFullYear())
@@ -40,7 +40,7 @@ export default defineComponent({
         currentMonth.push({
           date: i + 1,
           previousMonth: false,
-          nextMonth: false
+          nextMonth: false,
         })
       }
 
@@ -49,7 +49,7 @@ export default defineComponent({
         previousMonth.push({
           date: lastDayInPreviousMonth.getDate() - padStartDays + i + 1,
           previousMonth: true,
-          nextMonth: false
+          nextMonth: false,
         })
       }
 
@@ -59,7 +59,7 @@ export default defineComponent({
         nextMonth.push({
           date: i + 1,
           previousMonth: false,
-          nextMonth: true
+          nextMonth: true,
         })
       }
 
@@ -82,20 +82,24 @@ export default defineComponent({
       return ''
     })
 
-    const onUpLevel = () => level.value = level.value === 2 ? 2 : ++level.value
-    const downLevel = () => level.value = level.value === 0 ? 0 : --level.value
+    const onUpLevel = () => (level.value = level.value === 2 ? 2 : ++level.value)
+    const downLevel = () => (level.value = level.value === 0 ? 0 : --level.value)
 
-    const moveDisplayedYearRange = (val: -10 | 10) => displayedYearRangeStartYear.value = displayedYearRangeStartYear.value + val
+    const moveDisplayedYearRange = (val: -10 | 10) =>
+      (displayedYearRangeStartYear.value = displayedYearRangeStartYear.value + val)
     const moveDisplayedYear = (val: -1 | 1) => {
       displayedYear.value = displayedYear.value + val
-      if (displayedYear.value < displayedYearRangeStartYear.value || displayedYear.value > displayedYearRangeStartYear.value + 10) {
-        moveDisplayedYearRange(val * 10 as -10 | 10)
+      if (
+        displayedYear.value < displayedYearRangeStartYear.value ||
+        displayedYear.value > displayedYearRangeStartYear.value + 10
+      ) {
+        moveDisplayedYearRange((val * 10) as -10 | 10)
       }
     }
     const moveDisplayedMonth = (val: -1 | 1) => {
-      displayedMonth.value = displayedMonth.value + val;
+      displayedMonth.value = displayedMonth.value + val
       if (displayedMonth.value < 0 || displayedMonth.value > 11) {
-        displayedMonth.value = (12 + displayedMonth.value) % 12;
+        displayedMonth.value = (12 + displayedMonth.value) % 12
         moveDisplayedYear(val)
       }
     }
@@ -110,10 +114,10 @@ export default defineComponent({
           moveDisplayedYear(val)
           break
         case 2:
-          moveDisplayedYearRange(val * 10 as -10 | 10)
-          break;
+          moveDisplayedYearRange((val * 10) as -10 | 10)
+          break
         default:
-          break;
+          break
       }
     }
 
@@ -126,7 +130,7 @@ export default defineComponent({
       displayedMonth.value = month
       downLevel()
     }
-    const onDateSelectd = (date: { date: number, previousMonth: boolean, nextMonth: boolean }) => {
+    const onDateSelectd = (date: { date: number; previousMonth: boolean; nextMonth: boolean }) => {
       if (date.previousMonth) {
         moveDisplayedMonth(-1)
       }
@@ -157,13 +161,16 @@ export default defineComponent({
       calculateDateList()
     })
 
-    watch(() => props.modelValue, () => {
-      if (props.modelValue) {
-        displayedYearRangeStartYear.value = getNearestDecadeStartYear(props.modelValue.getFullYear())
-        displayedYear.value = props.modelValue.getFullYear()
-        displayedMonth.value = props.modelValue.getMonth()
+    watch(
+      () => props.modelValue,
+      () => {
+        if (props.modelValue) {
+          displayedYearRangeStartYear.value = getNearestDecadeStartYear(props.modelValue.getFullYear())
+          displayedYear.value = props.modelValue.getFullYear()
+          displayedMonth.value = props.modelValue.getMonth()
+        }
       }
-    })
+    )
 
     return {
       t,
@@ -177,9 +184,9 @@ export default defineComponent({
       onYearSelected,
       onMonthSelected,
       onDateSelectd,
-      onTodaySelected
+      onTodaySelected,
     }
-  }
+  },
 })
 
 function getNearestDecadeStartYear(year: number) {
@@ -189,7 +196,8 @@ function getNearestDecadeStartYear(year: number) {
 
 <template>
   <div
-    class="w-80 h-80 bg-white my-2 flex flex-col shadow-lg rounded-md ring-1 ring-black ring-opacity-5 divide-y divide-neutral-300">
+    class="w-80 h-80 bg-white my-2 flex flex-col shadow-lg rounded-md ring-1 ring-black ring-opacity-5 divide-y divide-neutral-300"
+  >
     <div class="flex flex-row justify-between items-center px-4 py-2">
       <base-button text class="w-4" @click="onNav(-1)">
         <chevron-left-solid-icon />
@@ -200,20 +208,30 @@ function getNearestDecadeStartYear(year: number) {
       </base-button>
     </div>
 
-    <div class="h-full grid grid-cols-4 gap-2 px-4 py-2 content-around justify-items-stretch"
-      :class="[level === 0 ? 'grid-cols-7' : 'grid-cols-4']">
+    <div
+      class="h-full grid grid-cols-4 gap-2 px-4 py-2 content-around justify-items-stretch"
+      :class="[level === 0 ? 'grid-cols-7' : 'grid-cols-4']"
+    >
       <!-- year list -->
       <template v-if="level === 2">
-        <button v-for="year in yearList" :key="`datepicker-year-${year}`" @click="onYearSelected(year)"
-          class="py-2 rounded-md hover:bg-black hover:bg-opacity-5">
+        <button
+          v-for="year in yearList"
+          :key="`datepicker-year-${year}`"
+          class="py-2 rounded-md hover:bg-black hover:bg-opacity-5"
+          @click="onYearSelected(year)"
+        >
           {{ year }}
         </button>
       </template>
 
       <!-- month list -->
       <template v-if="level === 1">
-        <button v-for="month in monthList" :key="`datepicker-month-${month}`" @click="onMonthSelected(month)"
-          class="py-2 rounded-md hover:bg-black hover:bg-opacity-5">
+        <button
+          v-for="month in monthList"
+          :key="`datepicker-month-${month}`"
+          class="py-2 rounded-md hover:bg-black hover:bg-opacity-5"
+          @click="onMonthSelected(month)"
+        >
           {{ t(`base.datepicker.month[${month}]`) }}
         </button>
       </template>
@@ -223,9 +241,13 @@ function getNearestDecadeStartYear(year: number) {
         <div v-for="weekday in 7" :key="`datepicker-weekday-${weekday}`" class="text-center">
           {{ t(`base.datepicker.weekday[${weekday - 1}]`) }}
         </div>
-        <button v-for="(date, i) in dateList" :key="`datepicker-date-${i}`" @click="onDateSelectd(date)"
+        <button
+          v-for="(date, i) in dateList"
+          :key="`datepicker-date-${i}`"
           class="text-neutral-800 rounded-md hover:bg-black hover:bg-opacity-5"
-          :class="{ 'text-opacity-40': date.previousMonth || date.nextMonth }">
+          :class="{ 'text-opacity-40': date.previousMonth || date.nextMonth }"
+          @click="onDateSelectd(date)"
+        >
           {{ date.date }}
         </button>
       </template>

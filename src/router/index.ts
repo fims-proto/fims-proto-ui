@@ -1,148 +1,148 @@
-import { createRouter, createWebHistory, RouteRecordRaw, RouterView } from 'vue-router';
-import AuthenticationLogin from '../components/user/AuthenticationLogin.vue';
-import AuthenticationLogout from '../components/user/AuthenticationLogout.vue';
-import ProfileSetting from '../components/user/ProfileSetting.vue';
-import LayoutPage from '../components/LayoutPage.vue';
-import HomePage from '../components/HomePage.vue';
-import AboutUs from '../components/AboutUs.vue';
-import NotFound from '../components/NotFound.vue';
-import SobMain from '../components/sob/SobMain.vue';
-import SobDetail from '../components/sob/SobDetail.vue';
-import SobCreation from '../components/sob/SobCreation.vue';
-import LedgerMain from '../components/legder/LedgerMain.vue';
-import LedgerList from '../components/legder/LedgerList.vue';
-import VoucherMain from '../components/voucher/VoucherMain.vue';
-import VoucherCreation from '../components/voucher/VoucherCreation.vue';
-import ExceptionPage from '../components/ExceptionPage.vue';
-import StyleTest from '../components/StyleTest.vue';
-import { useSobStore } from '../store/sob';
-import sobResolver from './sobResolver';
+import { createRouter, createWebHistory, RouteRecordRaw, RouterView } from 'vue-router'
+import AuthenticationLogin from '../components/user/AuthenticationLogin.vue'
+import AuthenticationLogout from '../components/user/AuthenticationLogout.vue'
+import ProfileSetting from '../components/user/ProfileSetting.vue'
+import LayoutPage from '../components/LayoutPage.vue'
+import HomePage from '../components/HomePage.vue'
+import AboutUs from '../components/AboutUs.vue'
+import NotFound from '../components/NotFound.vue'
+import SobMain from '../components/sob/SobMain.vue'
+import SobDetail from '../components/sob/SobDetail.vue'
+import SobCreation from '../components/sob/SobCreation.vue'
+import LedgerMain from '../components/legder/LedgerMain.vue'
+import LedgerList from '../components/legder/LedgerList.vue'
+import VoucherMain from '../components/voucher/VoucherMain.vue'
+import VoucherCreation from '../components/voucher/VoucherCreation.vue'
+import ExceptionPage from '../components/ExceptionPage.vue'
+import StyleTest from '../components/StyleTest.vue'
+import { useSobStore } from '../store/sob'
+import sobResolver from './sobResolver'
 
 const sobStore = useSobStore()
 
 const routes: RouteRecordRaw[] = [
-	{
-		path: '/ui',
-		component: LayoutPage,
-		children: [
-			{
-				path: '',
-				name: 'home',
-				component: HomePage
-			},
-			{
-				path: 'about',
-				name: 'about',
-				component: AboutUs
-			},
-			{
-				path: 'profile/settings',
-				name: 'profile',
-				component: ProfileSetting,
-			},
-			{
-				path: 'sobs',
-				component: RouterView,
-				children: [
-					{
-						path: '',
-						name: 'sobMain',
-						component: SobMain
-					},
-					{
-						path: 'new',
-						name: 'sobCreation',
-						component: SobCreation
-					},
-					{
-						path: ':sobId',
-						component: RouterView,
-						props: sobResolver,
-						// to make sure when changing URL, working sob is changed accordingly
-						beforeEnter: async to => sobStore.action.setWorkingSob(to.params['sobId'] as string),
-						children: [
-							{
-								path: '',
-								name: 'sobDetail',
-								component: SobDetail
-							},
-							{
-								path: 'periods',
-								component: RouterView,
-								children: [
-									{
-										path: '',
-										name: 'ledgerMain',
-										component: LedgerMain,
-										children: [
-											{
-												path: ':periodId',
-												name: 'ledgerList',
-												component: LedgerList,
-												props: sobResolver // why have to specify here???
-											}
-										]
-									}
-								]
-							},
-							{
-								path: 'vouchers',
-								component: RouterView,
-								children: [
-									{
-										path: '',
-										name: 'voucherMain',
-										component: VoucherMain
-									},
-									{
-										path: 'new',
-										name: 'voucherCreation',
-										component: VoucherCreation
-									}
-								]
-							}
-						]
-					}
-				]
-			}
-		]
-	},
-	{
-		path: '/authentication',
-		component: RouterView,
-		children: [
-			{
-				path: 'login',
-				component: AuthenticationLogin
-			},
-			{
-				path: 'logout',
-				component: AuthenticationLogout
-			}
-		]
-	},
-	{
-		path: '/styleTest',
-		component: StyleTest
-	},
-	{
-		path: '/error',
-		name: 'exception',
-		component: ExceptionPage
-	},
-	{
-		path: '/:pathMatch(.*)*',
-		component: NotFound
-	}
+  {
+    path: '/ui',
+    component: LayoutPage,
+    children: [
+      {
+        path: '',
+        name: 'home',
+        component: HomePage,
+      },
+      {
+        path: 'about',
+        name: 'about',
+        component: AboutUs,
+      },
+      {
+        path: 'profile/settings',
+        name: 'profile',
+        component: ProfileSetting,
+      },
+      {
+        path: 'sobs',
+        component: RouterView,
+        children: [
+          {
+            path: '',
+            name: 'sobMain',
+            component: SobMain,
+          },
+          {
+            path: 'new',
+            name: 'sobCreation',
+            component: SobCreation,
+          },
+          {
+            path: ':sobId',
+            component: RouterView,
+            props: sobResolver,
+            // to make sure when changing URL, working sob is changed accordingly
+            beforeEnter: async (to) => sobStore.action.setWorkingSob(to.params['sobId'] as string),
+            children: [
+              {
+                path: '',
+                name: 'sobDetail',
+                component: SobDetail,
+              },
+              {
+                path: 'periods',
+                component: RouterView,
+                children: [
+                  {
+                    path: '',
+                    name: 'ledgerMain',
+                    component: LedgerMain,
+                    children: [
+                      {
+                        path: ':periodId',
+                        name: 'ledgerList',
+                        component: LedgerList,
+                        props: sobResolver, // why have to specify here???
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                path: 'vouchers',
+                component: RouterView,
+                children: [
+                  {
+                    path: '',
+                    name: 'voucherMain',
+                    component: VoucherMain,
+                  },
+                  {
+                    path: 'new',
+                    name: 'voucherCreation',
+                    component: VoucherCreation,
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    path: '/authentication',
+    component: RouterView,
+    children: [
+      {
+        path: 'login',
+        component: AuthenticationLogin,
+      },
+      {
+        path: 'logout',
+        component: AuthenticationLogout,
+      },
+    ],
+  },
+  {
+    path: '/styleTest',
+    component: StyleTest,
+  },
+  {
+    path: '/error',
+    name: 'exception',
+    component: ExceptionPage,
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    component: NotFound,
+  },
 ]
 
 const router = createRouter({
-	history: createWebHistory(),
-	routes,
+  history: createWebHistory(),
+  routes,
 })
 
-router.onError((error, to, from) => {
-	router.push({ name: 'exception' })
+router.onError(() => {
+  router.push({ name: 'exception' })
 })
 
 export default router

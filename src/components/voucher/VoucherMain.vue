@@ -1,15 +1,15 @@
 <script lang="ts">
-import { defineComponent, onMounted, PropType, ref, toRefs } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { useRouter } from 'vue-router';
-import { VoucherService, Sob, Voucher } from '../../domain';
+import { defineComponent, onMounted, PropType, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
+import { VoucherService, Sob, Voucher } from '../../domain'
 
 export default defineComponent({
   props: {
     sob: {
       type: Object as PropType<Sob>,
-      required: true
-    }
+      required: true,
+    },
   },
   setup(props) {
     const { t } = useI18n()
@@ -25,17 +25,17 @@ export default defineComponent({
       router.push({
         name: 'voucherCreation',
         params: {
-          sobId: props.sob.id
-        }
+          sobId: props.sob.id,
+        },
       })
     }
 
     return {
       t,
       vouchers,
-      onCreate
+      onCreate,
     }
-  }
+  },
 })
 </script>
 

@@ -5,7 +5,7 @@ export const kratos = new V0alpha2Api(
   new Configuration({
     basePath: KRATOS_URL,
     baseOptions: {
-      withCredentials: true
-    }
+      withCredentials: true,
+    },
   })
 )

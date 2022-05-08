@@ -6,7 +6,7 @@ import { HeadlessUiResolver } from 'unplugin-vue-components/resolvers'
 // https://vitejs.dev/config/
 export default defineConfig({
   server: {
-    port: 5001
+    port: 5001,
   },
   plugins: [
     vue(),
@@ -15,19 +15,19 @@ export default defineConfig({
         HeadlessUiResolver(),
         // for heroicons
         (name: string) => {
-          if (name.endsWith("SolidIcon")) {
+          if (name.endsWith('SolidIcon')) {
             return {
               importName: `${name.substring(0, name.length - 9)}Icon`,
               path: '@heroicons/vue/solid',
             }
-          } else if (name.endsWith("OutlineIcon")) {
+          } else if (name.endsWith('OutlineIcon')) {
             return {
               importName: `${name.substring(0, name.length - 11)}Icon`,
               path: '@heroicons/vue/outline',
             }
           }
-        }
-      ]
-    })
+        },
+      ],
+    }),
   ],
 })

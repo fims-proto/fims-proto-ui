@@ -1,18 +1,18 @@
 <script lang="ts">
-import { defineComponent, PropType, ref, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { Ledger, LedgerService, Sob } from '../../domain';
+import { defineComponent, PropType, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { Ledger, LedgerService, Sob } from '../../domain'
 
 export default defineComponent({
   props: {
     sob: {
       type: Object as PropType<Sob>,
-      required: true
+      required: true,
     },
     periodId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   setup(props) {
     const { t, n } = useI18n()
@@ -26,9 +26,9 @@ export default defineComponent({
     return {
       t,
       n,
-      ledgers
+      ledgers,
     }
-  }
+  },
 })
 </script>
 

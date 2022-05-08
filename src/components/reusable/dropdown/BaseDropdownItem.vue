@@ -1,11 +1,11 @@
 <script lang="ts">
-import { defineComponent } from 'vue';
-import { injectInterface } from './context';
+import { defineComponent } from 'vue'
+import { injectInterface } from './context'
 
 export default defineComponent({
   inheritAttrs: false,
   props: {
-    command: String
+    command: { type: String, default: undefined },
   },
   setup(props) {
     const Dropdown = injectInterface()
@@ -15,9 +15,9 @@ export default defineComponent({
     }
 
     return {
-      handleClick
+      handleClick,
     }
-  }
+  },
 })
 </script>
 
