@@ -4,6 +4,10 @@ import { provideForm } from './context'
 
 export default defineComponent({
   props: {
+    name: {
+      type: String,
+      default: undefined,
+    },
     hideRequiredMark: {
       type: Boolean,
       default: false,
@@ -11,9 +15,10 @@ export default defineComponent({
   },
   emits: ['submit'],
   setup(props) {
-    const { hideRequiredMark } = toRefs(props)
+    const { name, hideRequiredMark } = toRefs(props)
 
     provideForm({
+      name: name,
       hideRequiredMark,
     })
   },

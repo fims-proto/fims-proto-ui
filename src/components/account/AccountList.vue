@@ -27,5 +27,5 @@ export default defineComponent({
 </script>
 
 <template>
-  <p v-for="account in accounts" :key="account.id">{{ account.title }}</p>
+  <p v-for="account in accounts" :key="account.id">{{ account.accountNumber }} - {{ account.title }}</p>
 </template>

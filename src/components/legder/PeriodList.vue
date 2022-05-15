@@ -9,7 +9,7 @@ export default defineComponent({
   props: {
     periods: {
       type: Array as PropType<Period[]>,
-      required: true,
+      default: undefined,
     },
     periodId: {
       type: String,
@@ -17,7 +17,7 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const t = useI18n().t
+    const { t } = useI18n()
     const router = useRouter()
     const sobStore = useSobStore()
 

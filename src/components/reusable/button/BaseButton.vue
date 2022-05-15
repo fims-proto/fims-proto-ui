@@ -5,18 +5,17 @@ import { injectButtonGroup } from './context'
 export default defineComponent({
   inheritAttrs: false,
   props: {
-    categoty: {
-      type: String as PropType<'primary' | 'error' | 'success' | 'warning' | 'default'>,
+    category: {
+      type: String as PropType<'primary' | 'default' | 'text' | 'link'>,
       default: 'default',
     },
     busy: Boolean,
-    text: Boolean,
   },
   setup(props) {
     const ButtonGroup = injectButtonGroup()
 
     return {
-      is: (t: string) => props.categoty === t,
+      is: (t: string) => props.category === t,
       insideGroup: ButtonGroup?.insideGroup.value,
     }
   },
@@ -27,16 +26,15 @@ export default defineComponent({
   <button
     class="group"
     :class="[
-      insideGroup ? '-ml-[1px] first:m-0 first:rounded-l-md last:rounded-r-md hover:z-10' : 'rounded-md',
-      text
-        ? 'text-neutral-900 hover:text-primary-800'
+      insideGroup ? '-ml-[1px] first:m-0 first:rounded-l-sm last:rounded-r-sm hover:z-10' : 'rounded-sm',
+      is('text')
+        ? 'px-1 text-neutral-900 hover:text-primary-800'
+        : is('link')
+        ? 'px-1 text-primary-700 hover:text-primary-800'
         : [
-            'px-3 py-2 font-medium text-sm text-white shadow-sm',
+            'px-3 py-1.5 text-sm text-white shadow-sm',
             {
               'bg-primary-600 hover:bg-primary-800': is('primary'),
-              'bg-error-600 hover:bg-error-700': is('error'),
-              'bg-warning-500 hover:bg-warning-600': is('warning'),
-              'bg-success-500 hover:bg-success-600': is('success'),
               'bg-transparent text-neutral-900 border border-neutral-300 hover:text-primary-800 hover:border-primary-500':
                 is('default'),
             },
@@ -46,17 +44,12 @@ export default defineComponent({
   >
     <span v-if="busy">TODO</span>
     <span
-      v-if="!!$slots['icon'] && !text"
+      v-if="!!$slots['icon'] && !is('text')"
       :class="[
         'inline-block w-4 align-text-top mr-1',
-        text
-          ? 'text-neutral-900 group-hover:text-primary-800'
-          : {
-              'text-primary-500 group-hover:text-primary-400': is('primary'),
-              'text-error-400 group-hover:text-error-300': is('error'),
-              'text-warning-400 group-hover:text-warning-300': is('warning'),
-              'text-success-400 group-hover:text-success-300': is('success'),
-            },
+        {
+          'text-primary-300 group-hover:text-primary-200': is('primary'),
+        },
       ]"
       aria-hidden="true"
     >

@@ -19,9 +19,13 @@ export default defineComponent({
 
     const ledgers = ref<Ledger[]>([])
 
-    watch([() => props.sob, () => props.periodId], async () => {
-      ledgers.value = await LedgerService.getAllLedgersInPeriod(props.sob.id, props.periodId as string)
-    })
+    watch(
+      [() => props.sob, () => props.periodId],
+      async () => {
+        ledgers.value = await LedgerService.getAllLedgersInPeriod(props.sob.id, props.periodId as string)
+      },
+      { immediate: true }
+    )
 
     return {
       t,

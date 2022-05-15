@@ -12,7 +12,7 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const t = useI18n().t
+    const { t } = useI18n()
     const route = useRoute()
     const router = useRouter()
 

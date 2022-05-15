@@ -18,31 +18,19 @@ const inputDate = ref(new Date())
     <p class="text-neutral-50">BaseButton:</p>
     <div class="bg-white rounded-lg p-4 space-y-4">
       <div class="flex gap-4">
-        <base-button> Default </base-button>
-        <base-button categoty="primary"> Primary </base-button>
-        <base-button categoty="success"> Success </base-button>
-        <base-button categoty="warning"> Wanring </base-button>
-        <base-button categoty="error"> Error </base-button>
+        <base-button>Default</base-button>
+        <base-button category="primary"> Primary </base-button>
         <base-button>
           <template #icon>
             <lock-closed-solid-icon />
           </template>
           Default
         </base-button>
-        <base-button categoty="primary">
+        <base-button category="primary">
           <template #icon>
             <lock-closed-solid-icon />
           </template>
           Primary
-        </base-button>
-        <base-button categoty="success">
-          <template #icon><lock-closed-solid-icon /></template>Success
-        </base-button>
-        <base-button categoty="warning">
-          <template #icon><lock-closed-solid-icon /></template>Wanring
-        </base-button>
-        <base-button categoty="error">
-          <template #icon><lock-closed-solid-icon /></template>Error
         </base-button>
         <base-button-group>
           <base-button>
@@ -52,7 +40,7 @@ const inputDate = ref(new Date())
         </base-button-group>
       </div>
       <div>
-        <base-button categoty="primary" class="w-64">
+        <base-button category="primary" class="w-64">
           <template #icon>
             <lock-closed-solid-icon />
           </template>
@@ -60,8 +48,13 @@ const inputDate = ref(new Date())
         </base-button>
       </div>
       <p>
-        <span>在文字中的</span>
-        <base-button text>按钮</base-button>
+        <span>在文字中的 text 类型</span>
+        <base-button category="text">按钮</base-button>
+        <span>长这个样子</span>
+      </p>
+      <p>
+        <span>在文字中的 link 类型</span>
+        <base-button category="link">按钮</base-button>
         <span>长这个样子</span>
       </p>
     </div>
@@ -99,7 +92,7 @@ const inputDate = ref(new Date())
     <p class="text-neutral-50">BaseDropdown:</p>
     <div class="bg-white rounded-lg p-4 space-x-4">
       <base-dropdown>
-        <base-dropdown-button class="p-2 rounded-md shadow-md bg-primary-600 text-white hover:bg-primary-400"
+        <base-dropdown-button class="p-2 rounded-sm shadow-md bg-primary-600 text-white hover:bg-primary-400"
           >双节棍
         </base-dropdown-button>
         <template #overlay>
@@ -116,7 +109,7 @@ const inputDate = ref(new Date())
       </base-dropdown>
 
       <base-dropdown placement="bottom-end">
-        <base-dropdown-button class="p-2 rounded-md shadow-md bg-primary-600 text-white hover:bg-primary-400"
+        <base-dropdown-button class="p-2 rounded-sm shadow-md bg-primary-600 text-white hover:bg-primary-400"
           >靠右
         </base-dropdown-button>
         <template #overlay>
@@ -126,7 +119,7 @@ const inputDate = ref(new Date())
       </base-dropdown>
 
       <base-dropdown>
-        <base-dropdown-button class="p-2 rounded-md shadow-md bg-primary-600 text-white hover:bg-primary-400"
+        <base-dropdown-button class="p-2 rounded-sm shadow-md bg-primary-600 text-white hover:bg-primary-400"
           >带图标
         </base-dropdown-button>
         <template #overlay>
@@ -156,7 +149,7 @@ const inputDate = ref(new Date())
           </template>
           <template #extra>
             <base-button>Some</base-button>
-            <base-button categoty="primary">Buttons</base-button>
+            <base-button category="primary">Buttons</base-button>
           </template>
           <base-tabs>
             <template #tabs>
@@ -182,35 +175,49 @@ const inputDate = ref(new Date())
     <p class="text-neutral-50">BaseForm:</p>
     <div class="bg-white rounded-lg p-4">
       <base-form class="max-w-lg">
-        <base-input label="普通文本" placeholder="say something..." />
-        <base-input label="Email 地址" placeholder="快输入..." type="email" autocomplete="email" required />
-        <base-input label="密码" placeholder="快输入..." type="password" autocomplete="current-password" required />
+        <base-form-item label="普通文本">
+          <base-input placeholder="say something..." />
+        </base-form-item>
 
-        <base-input-group label="何年何月">
-          <base-input label="年" hide-label type="number" suffix="年" />
-          <base-input label="月" hide-label type="number" suffix="月" />
-          <base-input label="日" hide-label type="number" suffix="日" />
-        </base-input-group>
+        <base-form-item label="Email 地址">
+          <base-input placeholder="快输入..." type="email" autocomplete="email" required />
+        </base-form-item>
 
-        <base-input label="带前后缀" placeholder="0.00">
-          <template #prefix>
-            <select class="border-transparent rounded-md text-sm">
-              <option>Income</option>
-              <option>Outcome</option>
-            </select>
-          </template>
-          <template #suffix>
-            <select class="appearance-none border-transparent rounded-md text-sm">
-              <option>USD</option>
-              <option>CNY</option>
-            </select>
-          </template>
-        </base-input>
+        <base-form-item label="密码">
+          <base-input placeholder="快输入..." type="password" autocomplete="current-password" required />
+        </base-form-item>
 
-        <base-input label="带前后缀" placeholder="0.00" prefix="$" suffix="#" />
+        <base-form-item label="何年何月">
+          <base-input-group>
+            <base-input hide-label type="number" suffix="年" />
+            <base-input hide-label type="number" suffix="月" />
+            <base-input hide-label type="number" suffix="日" />
+          </base-input-group>
+        </base-form-item>
+
+        <base-form-item label="文本前后缀">
+          <base-input placeholder="fims" prefix="https://" suffix=".com" />
+        </base-form-item>
+
+        <base-form-item label="控件前后缀_未完成">
+          <base-input placeholder="0.00">
+            <template #prefix>
+              <select class="border-transparent rounded-md text-sm">
+                <option>Income</option>
+                <option>Outcome</option>
+              </select>
+            </template>
+            <template #suffix>
+              <select class="appearance-none border-transparent rounded-md text-sm">
+                <option>USD</option>
+                <option>CNY</option>
+              </select>
+            </template>
+          </base-input>
+        </base-form-item>
 
         <div>
-          <base-button type="submit" categoty="primary" class="w-full">
+          <base-button type="submit" category="primary" class="w-full">
             <template #icon>
               <lock-closed-solid-icon />
             </template>
@@ -222,7 +229,9 @@ const inputDate = ref(new Date())
 
     <p class="text-neutral-50">Inputs:</p>
     <div class="bg-white rounded-lg p-4">
-      <base-input v-model="inputDate" type="date" class="w-40" />
+      <base-form-item label="日期: ">
+        <base-input v-model="inputDate" type="date" class="w-40" />
+      </base-form-item>
     </div>
 
     <!-- <p class="text-neutral-50">SomeOthers:</p>

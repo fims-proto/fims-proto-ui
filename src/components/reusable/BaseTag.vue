@@ -45,7 +45,7 @@ export default defineComponent({
     <button
       v-if="closable"
       type="button"
-      class="h-4 w-auto rounded-md ml-1"
+      class="h-4 w-auto rounded-sm ml-1"
       :class="{
         'hover:bg-error-300': is('error'),
         'hover:bg-warning-300': is('warning'),

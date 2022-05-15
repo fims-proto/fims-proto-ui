@@ -19,9 +19,25 @@ export interface Voucher {
 }
 
 export interface LineItem {
+  id: string
+  summary: string
   accountId: string
   credit: number
   debit: number
-  id: string
+}
+
+export interface NewVoucher {
+  attachmentQuantity: number
+  creator: string
+  transactionTime: Date
+  voucherType: string
+  lineItems: NewLineItem[]
+}
+
+export interface NewLineItem {
+  id?: string
   summary: string
+  accountNumber: string
+  credit: number
+  debit: number
 }

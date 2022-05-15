@@ -6,8 +6,29 @@
   "base": {
     "datepicker": {
       "today": "今天",
-      "weekday": ["日", "一", "二", "三", "四", "五", "六"],
-      "month": ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"]
+      "weekday": [
+        "日",
+        "一",
+        "二",
+        "三",
+        "四",
+        "五",
+        "六"
+      ],
+      "month": [
+        "一月",
+        "二月",
+        "三月",
+        "四月",
+        "五月",
+        "六月",
+        "七月",
+        "八月",
+        "九月",
+        "十月",
+        "十一月",
+        "十二月"
+      ]
     }
   },
   "common": {
@@ -70,7 +91,7 @@
     "type": "记账凭证",
     "attachmentQuantity": "附单据",
     "attachmentQuantityUnit": "张",
-    "transactionTime": "交易日期: {0}",
+    "transactionTime": "交易日期",
     "creator": "制单人: {lastName}{firstName}",
     "creation": {
       "title": "新建凭证"

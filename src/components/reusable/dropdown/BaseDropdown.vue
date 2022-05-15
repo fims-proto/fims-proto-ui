@@ -44,7 +44,7 @@ export default defineComponent({
           leave-to-class="scale-95 -translate-y-2 opacity-0"
         >
           <menu-items
-            class="rounded-md my-2 shadow-lg bg-white divide-y divide-neutral-200 ring-1 ring-black ring-opacity-5 focus:outline-none"
+            class="rounded-sm my-2 shadow-lg bg-white divide-y divide-neutral-200 ring-1 ring-black ring-opacity-5 focus:outline-none"
           >
             <slot name="overlay"></slot>
           </menu-items>

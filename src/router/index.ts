@@ -98,7 +98,15 @@ const routes: RouteRecordRaw[] = [
                     path: 'new',
                     name: 'voucherCreation',
                     component: VoucherCreation,
+                    props: {
+                      createMode: true,
+                    },
                   },
+                  // {
+                  //   path: ':voucherId',
+                  //   name: 'voucherDetail',
+                  //   component: VoucherDetail,
+                  // },
                 ],
               },
             ],

@@ -121,7 +121,7 @@ function getCurrentUTCTime() {
           </template>
         </base-input-group>
 
-        <base-button type="submit" categoty="primary" class="w-full">{{ t('action.submit') }}</base-button>
+        <base-button type="submit" category="primary" class="w-full">{{ t('action.submit') }}</base-button>
       </base-form>
     </div>
   </base-page>

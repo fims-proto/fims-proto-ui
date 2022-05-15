@@ -5,6 +5,7 @@ import TabulatedInput from './TabulatedInput.vue'
 const NUMBER_UNITS = '亿千百十万千百十元角分'
 
 export default defineComponent({
+  inheritAttrs: false,
   props: {
     header: Boolean,
     disabled: Boolean,

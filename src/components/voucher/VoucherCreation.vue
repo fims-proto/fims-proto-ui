@@ -1,16 +1,9 @@
 <script lang="ts">
 import { computed, defineComponent, PropType, ref, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Sob } from '../../domain'
+import { NewLineItem, Sob, VoucherService } from '../../domain'
 import { useSobStore } from '../../store/sob'
 import { useUserStore } from '../../store/user'
-
-interface LineItem {
-  summary: string | undefined
-  accountNumber: string | undefined
-  debit: number | undefined
-  credit: number | undefined
-}
 
 export default defineComponent({
   props: {
@@ -21,21 +14,19 @@ export default defineComponent({
   },
   setup() {
     const { t, d } = useI18n()
-    const { traits } = toRefs(useUserStore().state)
-    const { currentPeriod } = toRefs(useSobStore().state)
-
-    // voucherType: 'GENERAL_VOUCHER'
+    const { userId, traits } = toRefs(useUserStore().state)
+    const { workingSob, currentPeriod } = toRefs(useSobStore().state)
 
     const transactionTime = ref<Date>(new Date())
     const attachmentQuantity = ref<number>(0)
-    const lineItems = ref<LineItem[]>(
+    const lineItems = ref<NewLineItem[]>(
       Array(4)
         .fill(null)
         .map(() => ({
-          summary: undefined,
-          accountNumber: undefined,
-          debit: undefined,
-          credit: undefined,
+          summary: '',
+          accountNumber: '',
+          debit: 0,
+          credit: 0,
         }))
     )
 
@@ -47,11 +38,41 @@ export default defineComponent({
         : t('ledger.periodUnselected')
     )
 
-    const onSave = () => {
-      // TODO
+    const saveVoucher = async () => {
+      if (!workingSob.value) {
+        alert('invalid working sob')
+        return
+      }
+
+      if (totalDebit.value !== totalCredit.value) {
+        alert('not balance')
+        return
+      }
+
+      const filteredItems = lineItems.value.filter(
+        (item) => item.summary.trim() && item.accountNumber.trim() && item.debit.toString() && item.credit.toString()
+      )
+
+      if (!filteredItems.length) {
+        alert('nothing input')
+        return
+      }
+
+      return await VoucherService.createVoucher(workingSob.value.id, {
+        attachmentQuantity: attachmentQuantity.value,
+        creator: userId.value,
+        transactionTime: transactionTime.value,
+        voucherType: 'GENERAL_VOUCHER',
+        lineItems: filteredItems,
+      })
     }
-    const onSaveAndNew = () => {
-      // TODO
+
+    const onSave = async () => {
+      const createdVoucher = await saveVoucher()
+    }
+
+    const onSaveAndNew = async () => {
+      const createdVoucher = await saveVoucher()
     }
 
     return {
@@ -75,29 +96,28 @@ export default defineComponent({
   <base-page>
     <template #title>{{ t('voucher.creation.title') }}</template>
     <template #extra>
-      <base-button categoty="primary" @click="onSaveAndNew">{{ t('action.saveAndNew') }}</base-button>
+      <base-button category="primary" @click="onSaveAndNew">{{ t('action.saveAndNew') }}</base-button>
       <base-button @click="onSave">{{ t('action.save') }}</base-button>
     </template>
     <div class="w-full">
       <div class="flex flex-row justify-between items-baseline">
-        <div>{{ t('voucher.transactionTime', [d(transactionTime, 'date')]) }}</div>
+        <base-form-item :label="t('voucher.transactionTime')" hide-label>
+          <base-input v-model="transactionTime" type="date" :prefix="t('voucher.transactionTime')" />
+        </base-form-item>
         <div class="flex flex-row gap-4 items-baseline">
           <h1>{{ t('voucher.type') }}</h1>
           <span>{{ period }}</span>
         </div>
-        <div>
+        <base-form-item :label="t('voucher.attachmentQuantity')" hide-label>
           <base-input
             v-model="attachmentQuantity"
             class="w-36"
-            :lite="true"
             type="number"
-            :label="t('voucher.attachmentQuantity')"
-            :hide-label="true"
             :prefix="t('voucher.attachmentQuantity')"
             :suffix="t('voucher.attachmentQuantityUnit')"
             :min="0"
           />
-        </div>
+        </base-form-item>
       </div>
 
       <!-- table -->

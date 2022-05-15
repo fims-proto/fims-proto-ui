@@ -12,15 +12,18 @@ declare module 'vue' {
     BaseAvatar: typeof import('./src/components/reusable/BaseAvatar.vue')['default']
     BaseButton: typeof import('./src/components/reusable/button/BaseButton.vue')['default']
     BaseButtonGroup: typeof import('./src/components/reusable/button/BaseButtonGroup.vue')['default']
+    BaseDateInput: typeof import('./src/components/reusable/datepicker/BaseDateInput.vue')['default']
     BaseDatepicker: typeof import('./src/components/reusable/datepicker/BaseDatepicker.vue')['default']
     BaseDropdown: typeof import('./src/components/reusable/dropdown/BaseDropdown.vue')['default']
     BaseDropdownButton: typeof import('./src/components/reusable/dropdown/BaseDropdownButton.vue')['default']
     BaseDropdownGroup: typeof import('./src/components/reusable/dropdown/BaseDropdownGroup.vue')['default']
     BaseDropdownItem: typeof import('./src/components/reusable/dropdown/BaseDropdownItem.vue')['default']
     BaseForm: typeof import('./src/components/reusable/form/BaseForm.vue')['default']
+    BaseFormItem: typeof import('./src/components/reusable/form/BaseFormItem.vue')['default']
     BaseInlineDatepicker: typeof import('./src/components/reusable/datepicker/BaseInlineDatepicker.vue')['default']
     BaseInput: typeof import('./src/components/reusable/form/BaseInput.vue')['default']
     BaseInputGroup: typeof import('./src/components/reusable/form/BaseInputGroup.vue')['default']
+    BaseInputLabel: typeof import('./src/components/reusable/form/BaseInputLabel.vue')['default']
     BaseLink: typeof import('./src/components/reusable/BaseLink.vue')['default']
     BasePage: typeof import('./src/components/reusable/BasePage.vue')['default']
     BaseTabItem: typeof import('./src/components/reusable/tab/BaseTabItem.vue')['default']
@@ -37,8 +40,8 @@ declare module 'vue' {
     ExclamationSolidIcon: typeof import('@heroicons/vue/solid')['ExclamationIcon']
     HomePage: typeof import('./src/components/HomePage.vue')['default']
     InformationCircleSolidIcon: typeof import('@heroicons/vue/solid')['InformationCircleIcon']
-    LayoutPage: typeof import('./src/components/LayoutPage.vue')['default']
     LayoutHeader: typeof import('./src/components/LayoutHeader.vue')['default']
+    LayoutPage: typeof import('./src/components/LayoutPage.vue')['default']
     LedgerList: typeof import('./src/components/legder/LedgerList.vue')['default']
     LedgerMain: typeof import('./src/components/legder/LedgerMain.vue')['default']
     LockClosedSolidIcon: typeof import('@heroicons/vue/solid')['LockClosedIcon']
@@ -63,9 +66,10 @@ declare module 'vue' {
     TabulatedInput: typeof import('./src/components/voucher/TabulatedInput.vue')['default']
     TabulatedNumber: typeof import('./src/components/voucher/TabulatedNumber.vue')['default']
     VoucherCreation: typeof import('./src/components/voucher/VoucherCreation.vue')['default']
+    VoucherDetail: typeof import('./src/components/voucher/VoucherDetail.vue')['default']
     VoucherMain: typeof import('./src/components/voucher/VoucherMain.vue')['default']
     XOutlineIcon: typeof import('@heroicons/vue/outline')['XIcon']
   }
 }
 
-export {}
+export { }

@@ -25,7 +25,7 @@ export default defineComponent({
   <base-page :subtitle="t('sob.subtitle')">
     <template #title>{{ t('sob.title') }}</template>
     <template #extra>
-      <base-button categoty="primary" @click="onCreate">{{ t('action.create') }}</base-button>
+      <base-button category="primary" @click="onCreate">{{ t('action.create') }}</base-button>
     </template>
     <div v-if="sobs.length > 0" class="flex flex-wrap gap-8">
       <base-link

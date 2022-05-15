@@ -1,27 +1,53 @@
 <script lang="ts">
-import { defineComponent } from 'vue'
-import { injectForm, injectInputGroup } from './context'
+import { computed, defineComponent } from 'vue'
+import { injectForm, injectFormItem } from './context'
 
 export default defineComponent({
   inheritAttrs: false,
   props: {
     modelValue: { type: [String, Number, Date], default: undefined },
-    label: { type: String, default: undefined },
-    hideLabel: Boolean,
-    required: Boolean,
-    lite: Boolean,
     prefix: { type: String, default: undefined },
     suffix: { type: String, default: undefined },
   },
   emits: ['update:modelValue'],
-  setup(props, { slots }) {
+  setup(props, { attrs, slots, emit }) {
     const Form = injectForm()
-    const InputGroup = injectInputGroup()
+    const FormItem = injectFormItem()
+    const attrClass = attrs['class']
+    const attrExceptClass = Object.assign({}, attrs) // attrs is a proxy, use assign to deep copy it
+
+    // remove class from attrs
+    if (attrExceptClass['class']) {
+      attrExceptClass['class'] = undefined
+    }
+
+    const inputValue = computed(() => {
+      if (!props.modelValue || attrExceptClass['type'] !== 'date') {
+        return props.modelValue
+      }
+      const inputDate = props.modelValue as Date
+      const year = inputDate.getFullYear()
+      const month = (inputDate.getMonth() + 1).toString().padStart(2, '0')
+      const date = inputDate.getDate().toString().padStart(2, '0')
+      return `${year}-${month}-${date}`
+    })
+
+    const onValueUpdate = (event: Event) => {
+      let val = (event.target as HTMLInputElement).value
+      if (attrExceptClass['type'] === 'date') {
+        emit('update:modelValue', new Date(val))
+      } else {
+        emit('update:modelValue', val)
+      }
+    }
 
     return {
-      inputId: generateInputId(),
+      inputId: FormItem?.inputId.value,
+      attrClass,
+      attrExceptClass,
+      inputValue,
+      onValueUpdate,
       hideRequiredMark: Form?.hideRequiredMark.value,
-      insideGroup: InputGroup?.insideGroup.value,
       hasPrefix() {
         return !!props.prefix || !!slots['prefix']
       },
@@ -31,50 +57,39 @@ export default defineComponent({
     }
   },
 })
-
-function generateInputId() {
-  return `base-input-${Math.random().toString(36).slice(-8)}`
-}
 </script>
 
 <template>
-  <div class="group" :class="$attrs.class">
-    <label v-if="!!label" :for="inputId" :class="[{ 'sr-only': hideLabel }, 'block text-sm text-neutral-900 mb-2']">
-      <span>{{ label }}</span>
-      <span v-if="required && !hideRequiredMark" class="ml-0.5 text-error-700 select-none">*</span>
-    </label>
+  <span class="group flex items-stretch bg-white" :class="attrClass">
     <span
-      class="flex items-center bg-white"
+      v-if="hasPrefix()"
       :class="[
-        insideGroup ? 'border-r-0 group-last:border group-first:rounded-l-md group-last:rounded-r-md' : 'rounded-md',
-        lite ? 'border-none' : 'border-neutral-300 border',
+        'text-sm text-neutral-700 bg-neutral-100 border-y border-neutral-300 whitespace-nowrap flex items-center group-first-of-type:border-l group-first-of-type:rounded-l-sm',
+        { 'px-2': !$slots['prefix'] },
       ]"
     >
-      <span
-        v-if="hasPrefix()"
-        :class="['text-sm text-neutral-500 whitespace-nowrap', { 'pl-2 pr-1': !$slots['prefix'] }]"
-      >
-        <slot name="prefix">{{ prefix }}</slot>
-      </span>
-      <input
-        :id="inputId"
-        class="appearance-none w-full text-sm placeholder-neutral-500 border-none"
-        :class="[
-          { 'ml-1': hasPrefix() },
-          { 'mr-1': hasSuffix() },
-          insideGroup ? 'group-first:rounded-l-md group-last:rounded-r-md' : 'rounded-md',
-        ]"
-        :value="modelValue"
-        :type="$attrs.type as string ?? 'text'"
-        v-bind="$attrs"
-        @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
-      />
-      <span
-        v-if="hasSuffix()"
-        :class="['text-sm text-neutral-500 whitespace-nowrap', { 'pl-1 pr-2': !$slots['prefix'] }]"
-      >
-        <slot name="suffix">{{ suffix }}</slot>
-      </span>
+      <slot name="prefix">{{ prefix }}</slot>
     </span>
-  </div>
+    <input
+      :id="inputId"
+      class="appearance-none w-full text-sm placeholder-neutral-500 border border-neutral-300 focus:z-10"
+      :class="[
+        { 'group-first-of-type:rounded-l-sm': !hasPrefix() },
+        { 'group-last-of-type:rounded-r-sm': !hasSuffix() },
+      ]"
+      :value="inputValue"
+      :type="attrExceptClass.type as string ?? 'text'"
+      v-bind="attrExceptClass"
+      @input="onValueUpdate"
+    />
+    <span
+      v-if="hasSuffix()"
+      :class="[
+        'text-sm text-neutral-700 bg-neutral-100 border-y border-neutral-300 whitespace-nowrap flex items-center group-last-of-type:border-r group-last-of-type:rounded-r-sm',
+        { 'px-2': !$slots['prefix'] },
+      ]"
+    >
+      <slot name="suffix">{{ suffix }}</slot>
+    </span>
+  </span>
 </template>

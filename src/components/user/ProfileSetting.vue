@@ -96,8 +96,8 @@ function getValue(attr: string, uiNodes: UiNode[] | undefined) {
 
 function buildProfileForm(uiNodes: UiNode[] | undefined) {
   return {
-    csrf_token: getValue('csrf_token', uiNodes),
-    method: getValue('method', uiNodes),
+    csrf_token: getValue('csrf_token', uiNodes) ?? '',
+    method: getValue('method', uiNodes) ?? '',
     traits: {
       email: getValue('traits.email', uiNodes) ?? '',
       name: {
@@ -110,8 +110,8 @@ function buildProfileForm(uiNodes: UiNode[] | undefined) {
 
 function buildPasswordForm(uiNodes: UiNode[] | undefined) {
   return {
-    csrf_token: getValue('csrf_token', uiNodes),
-    method: getValue('method', uiNodes),
+    csrf_token: getValue('csrf_token', uiNodes) ?? '',
+    method: getValue('method', uiNodes) ?? '',
     password: getValue('password', uiNodes) ?? '',
   }
 }
@@ -160,26 +160,29 @@ function buildMessages(flow: SelfServiceSettingsFlow | undefined): messageType[]
           <base-tab-panel class="max-w-xl">
             <base-form @submit="onProfileSubmit">
               <input v-model="profileFormValue.csrf_token" type="hidden" />
-              <base-input
-                v-model="profileFormValue.traits.email"
-                :label="t('user.email')"
-                :placeholder="t('user.emailInputPlaceholder')"
-                type="email"
-                autocomplete="email"
-                required
-              />
-              <base-input
-                v-model="profileFormValue.traits.name.last"
-                :label="t('user.lastname')"
-                :placeholder="t('user.lastnameInputPlaceholder')"
-              />
-              <base-input
-                v-model="profileFormValue.traits.name.first"
-                :label="t('user.lastname')"
-                :placeholder="t('user.firstnameInputPlaceholder')"
-              />
+              <base-form-item :label="t('user.email')" required>
+                <base-input
+                  v-model="profileFormValue.traits.email"
+                  :placeholder="t('user.emailInputPlaceholder')"
+                  type="email"
+                  autocomplete="email"
+                  required
+                />
+              </base-form-item>
+              <base-form-item :label="t('user.lastname')">
+                <base-input
+                  v-model="profileFormValue.traits.name.last"
+                  :placeholder="t('user.lastnameInputPlaceholder')"
+                />
+              </base-form-item>
+              <base-form-item :label="t('user.lastname')">
+                <base-input
+                  v-model="profileFormValue.traits.name.first"
+                  :placeholder="t('user.firstnameInputPlaceholder')"
+                />
+              </base-form-item>
               <div>
-                <base-button type="submit" categoty="primary" class="w-full">
+                <base-button type="submit" category="primary" class="w-full">
                   <template #icon>
                     <lock-closed-solid-icon />
                   </template>
@@ -201,16 +204,17 @@ function buildMessages(flow: SelfServiceSettingsFlow | undefined): messageType[]
                 autocomplete="email"
                 style="display: none"
               />
-              <base-input
-                v-model="passwordFormValue.password"
-                :label="t('user.password')"
-                :placeholder="t('user.passwordInputPlaceholder')"
-                type="password"
-                autocomplete="new-password"
-                required
-              />
+              <base-form-item :label="t('user.password')" required>
+                <base-input
+                  v-model="passwordFormValue.password"
+                  :placeholder="t('user.passwordInputPlaceholder')"
+                  type="password"
+                  autocomplete="new-password"
+                  required
+                />
+              </base-form-item>
               <div>
-                <base-button type="submit" categoty="primary" class="w-full">
+                <base-button type="submit" category="primary" class="w-full">
                   <template #icon>
                     <lock-closed-solid-icon />
                   </template>

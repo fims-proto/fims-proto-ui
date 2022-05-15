@@ -161,25 +161,28 @@ function buildMessages(flow: SelfServiceLoginFlow): messageType[] {
       <!-- form -->
       <base-form class="px-12 py-8 bg-white shadow-lg rounded-lg" hide-required-mark @submit="handleSubmit">
         <input v-model="formValue.csrfToken" type="hidden" />
-        <base-input
-          v-model="formValue.user.email"
-          :label="t('user.email')"
-          :placeholder="t('user.emailInputPlaceholder')"
-          type="email"
-          autocomplete="email"
-          required
-        />
-        <base-input
-          v-model="formValue.user.password"
-          :label="t('user.password')"
-          :placeholder="t('user.passwordInputPlaceholder')"
-          type="password"
-          autocomplete="current-password"
-          required
-        />
+        <base-form-item :label="t('user.email')" required>
+          <base-input
+            v-model="formValue.user.email"
+            :placeholder="t('user.emailInputPlaceholder')"
+            type="email"
+            autocomplete="email"
+            required
+          />
+        </base-form-item>
+
+        <base-form-item :label="t('user.password')" required>
+          <base-input
+            v-model="formValue.user.password"
+            :placeholder="t('user.passwordInputPlaceholder')"
+            type="password"
+            autocomplete="current-password"
+            required
+          />
+        </base-form-item>
 
         <div>
-          <base-button type="submit" categoty="primary" class="w-full">
+          <base-button type="submit" category="primary" class="w-full">
             <template #icon>
               <lock-closed-solid-icon />
             </template>

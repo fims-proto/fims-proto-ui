@@ -41,7 +41,7 @@ export default defineComponent({
 <template>
   <div
     v-if="!closed"
-    class="w-full flex gap-2 items-strech p-2 border-none rounded-md shadow-sm"
+    class="w-full flex gap-2 items-strech p-2 border-none rounded-sm shadow-sm"
     :class="{
       'bg-error-200 text-error-900': is('error'),
       'bg-warning-200 text-warning-900': is('warning'),
@@ -64,7 +64,7 @@ export default defineComponent({
     <button
       v-if="closable"
       type="button"
-      class="h-6 w-auto p-1 rounded-md ml-auto"
+      class="h-6 w-auto p-1 rounded-sm ml-auto"
       :class="{
         'hover:bg-error-300': is('error'),
         'hover:bg-warning-300': is('warning'),

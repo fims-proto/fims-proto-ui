@@ -1,5 +1,5 @@
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref, watch } from 'vue'
+import { computed, defineComponent, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 export default defineComponent({
@@ -151,15 +151,14 @@ export default defineComponent({
       emit('update:modelValue', tmpDate.value.toString())
     }
 
-    onMounted(() => {
-      calculateYearList()
-      calculateDateList()
-    })
-
-    watch([displayedYearRangeStartYear, displayedYear, displayedMonth], () => {
-      calculateYearList()
-      calculateDateList()
-    })
+    watch(
+      [displayedYearRangeStartYear, displayedYear, displayedMonth],
+      () => {
+        calculateYearList()
+        calculateDateList()
+      },
+      { immediate: true }
+    )
 
     watch(
       () => props.modelValue,
@@ -196,14 +195,14 @@ function getNearestDecadeStartYear(year: number) {
 
 <template>
   <div
-    class="w-80 h-80 bg-white my-2 flex flex-col shadow-lg rounded-md ring-1 ring-black ring-opacity-5 divide-y divide-neutral-300"
+    class="w-80 h-80 bg-white my-2 flex flex-col shadow-lg rounded-sm ring-1 ring-black ring-opacity-5 divide-y divide-neutral-300"
   >
     <div class="flex flex-row justify-between items-center px-4 py-2">
-      <base-button text class="w-4" @click="onNav(-1)">
+      <base-button category="text" class="w-4" @click="onNav(-1)">
         <chevron-left-solid-icon />
       </base-button>
-      <base-button text @click="onUpLevel">{{ title }}</base-button>
-      <base-button text class="w-4" @click="onNav(1)">
+      <base-button category="text" @click="onUpLevel">{{ title }}</base-button>
+      <base-button category="text" class="w-4" @click="onNav(1)">
         <chevron-right-solid-icon />
       </base-button>
     </div>
@@ -217,7 +216,7 @@ function getNearestDecadeStartYear(year: number) {
         <button
           v-for="year in yearList"
           :key="`datepicker-year-${year}`"
-          class="py-2 rounded-md hover:bg-black hover:bg-opacity-5"
+          class="py-2 rounded-sm hover:bg-black hover:bg-opacity-5"
           @click="onYearSelected(year)"
         >
           {{ year }}
@@ -229,7 +228,7 @@ function getNearestDecadeStartYear(year: number) {
         <button
           v-for="month in monthList"
           :key="`datepicker-month-${month}`"
-          class="py-2 rounded-md hover:bg-black hover:bg-opacity-5"
+          class="py-2 rounded-sm hover:bg-black hover:bg-opacity-5"
           @click="onMonthSelected(month)"
         >
           {{ t(`base.datepicker.month[${month}]`) }}
@@ -244,7 +243,7 @@ function getNearestDecadeStartYear(year: number) {
         <button
           v-for="(date, i) in dateList"
           :key="`datepicker-date-${i}`"
-          class="text-neutral-800 rounded-md hover:bg-black hover:bg-opacity-5"
+          class="text-neutral-800 rounded-sm hover:bg-black hover:bg-opacity-5"
           :class="{ 'text-opacity-40': date.previousMonth || date.nextMonth }"
           @click="onDateSelectd(date)"
         >
@@ -253,7 +252,9 @@ function getNearestDecadeStartYear(year: number) {
       </template>
     </div>
     <div class="px-4 py-2">
-      <base-button text class="w-full" @click="onTodaySelected">{{ t('base.datepicker.today') }}</base-button>
+      <base-button category="text" class="w-full" @click="onTodaySelected">{{
+        t('base.datepicker.today')
+      }}</base-button>
     </div>
   </div>
 </template>

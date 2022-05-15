@@ -43,7 +43,7 @@ export default defineComponent({
   <base-page subtitle="##当前账套下全部凭证">
     <template #title>{{ t('voucher.title') }}</template>
     <template #extra>
-      <base-button categoty="primary" @click="onCreate">{{ t('action.create') }}</base-button>
+      <base-button category="primary" @click="onCreate">{{ t('action.create') }}</base-button>
     </template>
     <div>
       <div v-if="vouchers.length">

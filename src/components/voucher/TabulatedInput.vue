@@ -2,17 +2,14 @@
 import { defineComponent, ref } from 'vue'
 
 export default defineComponent({
+  inheritAttrs: false,
   props: {
-    htmlType: {
-      type: String,
-      default: 'text',
-    },
     modelValue: {
       type: [String, Number],
       default: undefined,
     },
   },
-  emits: ['update:modelValue', 'blur'],
+  emits: ['update:modelValue'],
   setup(_, { expose }) {
     const inputRef = ref<HTMLInputElement>()
 
@@ -39,10 +36,10 @@ function generateInputId() {
   <input
     :id="inputId"
     ref="inputRef"
-    :type="htmlType"
     :value="modelValue"
-    :class="['appearance-none w-full border-none', { 'text-right': htmlType === 'number' }]"
+    :type="$attrs.type as string ?? 'text'"
+    v-bind="$attrs"
+    :class="['appearance-none w-full border-none', { 'text-right': $attrs.type === 'number' }]"
     @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
-    @blur="$emit('blur')"
   />
 </template>
