@@ -15,10 +15,7 @@ function loadUser(state: IUserState) {
 
 function mapUser(source: User, target: IUserState) {
   target.userId = source.id
-  target.traits = {
-    name: source.name,
-    email: source.email,
-  }
+  target.traits = source.traits
 }
 
 export function createAction(state: IUserState) {

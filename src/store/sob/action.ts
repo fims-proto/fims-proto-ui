@@ -11,7 +11,7 @@ function refreshSobs(state: ISobState) {
 
 function setWorkingSob(state: ISobState) {
   return async (sobId: string) => {
-    if (state.workingSob?.id !== sobId) {
+    if (state.workingSob?.id !== sobId && sobId) {
       console.log('update working sob')
 
       await refreshSobs(state)()

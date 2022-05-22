@@ -1,7 +1,7 @@
 export interface Voucher {
   attachmentQuantity: number
   auditor: string
-  createdAt: string
+  createdAt: Date
   creator: string
   credit: number
   debit: number
@@ -12,18 +12,10 @@ export interface Voucher {
   number: string
   reviewer: string
   sobId: string
-  transactionTime: string
+  transactionTime: Date
   type: string
-  updatedAt: string
+  updatedAt: Date
   lineItems: LineItem[]
-}
-
-export interface LineItem {
-  id: string
-  summary: string
-  accountId: string
-  credit: number
-  debit: number
 }
 
 export interface NewVoucher {
@@ -31,12 +23,13 @@ export interface NewVoucher {
   creator: string
   transactionTime: Date
   voucherType: string
-  lineItems: NewLineItem[]
+  lineItems: LineItem[]
 }
 
-export interface NewLineItem {
+export interface LineItem {
   id?: string
   summary: string
+  accountId?: string
   accountNumber: string
   credit: number
   debit: number

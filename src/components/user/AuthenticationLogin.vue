@@ -100,7 +100,7 @@ function buildFormValue(flow: SelfServiceLoginFlow): formValueType {
     flowId: flow.id,
     method: getValue('method'),
     user: {
-      email: getValue('password_identifier') ?? '',
+      email: getValue('identifier') ?? '',
       password: getValue('password') ?? '',
     },
     csrfToken: getValue('csrf_token'),

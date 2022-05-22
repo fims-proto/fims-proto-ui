@@ -43,7 +43,8 @@
     "saveAndNew": "保存并新增",
     "save": "保存",
     "submit": "提交",
-    "close": "关闭"
+    "close": "关闭",
+    "edit": "编辑"
   },
   "user": {
     "email": "E-Mail",

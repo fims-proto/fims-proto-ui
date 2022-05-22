@@ -1,12 +1,12 @@
 <script lang="ts">
-import { defineComponent, onMounted, PropType, ref } from 'vue'
+import { defineComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Account, AccountService, Sob } from '../../domain'
+import { Account, AccountService } from '../../domain'
 
 export default defineComponent({
   props: {
-    sob: {
-      type: Object as PropType<Sob>,
+    sobId: {
+      type: String,
       required: true,
     },
   },
@@ -15,7 +15,7 @@ export default defineComponent({
     const accounts = ref<Account[]>()
 
     onMounted(async () => {
-      accounts.value = await AccountService.getAllAccounts(props.sob.id)
+      accounts.value = await AccountService.getAllAccounts(props.sobId)
     })
 
     return {

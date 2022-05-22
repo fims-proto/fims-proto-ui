@@ -1,5 +1,4 @@
 import {
-  JsonError,
   SelfServiceLoginFlow,
   SelfServiceSettingsFlow,
   Session,
@@ -8,7 +7,7 @@ import {
   SuccessfulSelfServiceLoginWithoutBrowser,
 } from '@ory/kratos-client'
 import axios, { AxiosError } from 'axios'
-import { kratos } from '../lib/kratos'
+import { kratos } from '../../lib/kratos'
 
 class KratosService {
   public async whoAmI(): Promise<Session | undefined> {
@@ -17,18 +16,18 @@ class KratosService {
 
       return result.data
     } catch (error) {
-      if (!axios.isAxiosError(error) || error.response?.data.error.code != '401') {
+      if (!axios.isAxiosError(error)) {
         console.error(error)
       }
     }
   }
 
-  public async initLoginFlow(): Promise<SelfServiceLoginFlow | JsonError> {
+  public async initLoginFlow(): Promise<SelfServiceLoginFlow> {
     try {
       const result = await kratos.initializeSelfServiceLoginFlowForBrowsers()
       return result.data
     } catch (error) {
-      return (error as AxiosError).response?.data
+      return (error as AxiosError).response?.data as SelfServiceLoginFlow
     }
   }
 
@@ -40,7 +39,7 @@ class KratosService {
       const result = await kratos.submitSelfServiceLoginFlow(flowId, undefined, payload)
       return result.data
     } catch (error) {
-      return (error as AxiosError).response?.data
+      return (error as AxiosError).response?.data as SelfServiceLoginFlow
     }
   }
 
@@ -58,7 +57,7 @@ class KratosService {
       const result = await kratos.submitSelfServiceSettingsFlow(flowId, undefined, payload)
       return result.data
     } catch (error) {
-      return (error as AxiosError).response?.data
+      return (error as AxiosError).response?.data as SelfServiceSettingsFlow
     }
   }
 

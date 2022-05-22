@@ -1,13 +1,13 @@
 <script lang="ts">
-import { defineComponent, onMounted, PropType, ref } from 'vue'
+import { defineComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
-import { LedgerService, Period, Sob } from '../../domain'
+import { LedgerService, Period } from '../../domain'
 
 export default defineComponent({
   props: {
-    sob: {
-      type: Object as PropType<Sob>,
+    sobId: {
+      type: String,
       required: true,
     },
   },
@@ -19,7 +19,7 @@ export default defineComponent({
     const periods = ref<Period[]>()
 
     onMounted(async () => {
-      periods.value = await LedgerService.getAllPeriods(props.sob.id)
+      periods.value = await LedgerService.getAllPeriods(props.sobId)
 
       if (route.name === 'ledgerMain') {
         const openPeriod = periods.value?.find((period) => !period.isClosed)
@@ -28,7 +28,7 @@ export default defineComponent({
           router.replace({
             name: 'ledgerList',
             params: {
-              sobId: props.sob.id,
+              sobId: props.sobId,
               periodId: openPeriod.id,
             },
           })

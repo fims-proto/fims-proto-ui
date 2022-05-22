@@ -1,12 +1,12 @@
 <script lang="ts">
-import { defineComponent, PropType, ref, watch } from 'vue'
+import { defineComponent, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Ledger, LedgerService, Sob } from '../../domain'
+import { Ledger, LedgerService } from '../../domain'
 
 export default defineComponent({
   props: {
-    sob: {
-      type: Object as PropType<Sob>,
+    sobId: {
+      type: String,
       required: true,
     },
     periodId: {
@@ -20,9 +20,9 @@ export default defineComponent({
     const ledgers = ref<Ledger[]>([])
 
     watch(
-      [() => props.sob, () => props.periodId],
+      [() => props.sobId, () => props.periodId],
       async () => {
-        ledgers.value = await LedgerService.getAllLedgersInPeriod(props.sob.id, props.periodId as string)
+        ledgers.value = await LedgerService.getAllLedgersInPeriod(props.sobId, props.periodId as string)
       },
       { immediate: true }
     )

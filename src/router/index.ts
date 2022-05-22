@@ -13,10 +13,10 @@ import LedgerMain from '../components/legder/LedgerMain.vue'
 import LedgerList from '../components/legder/LedgerList.vue'
 import VoucherMain from '../components/voucher/VoucherMain.vue'
 import VoucherCreation from '../components/voucher/VoucherCreation.vue'
+import VoucherDetail from '../components/voucher/VoucherDetail.vue'
 import ExceptionPage from '../components/ExceptionPage.vue'
 import StyleTest from '../components/StyleTest.vue'
 import { useSobStore } from '../store/sob'
-import sobResolver from './sobResolver'
 
 const sobStore = useSobStore()
 
@@ -25,21 +25,25 @@ const routes: RouteRecordRaw[] = [
     path: '/ui',
     component: LayoutPage,
     children: [
+      // home
       {
         path: '',
         name: 'home',
         component: HomePage,
       },
+      // about
       {
         path: 'about',
         name: 'about',
         component: AboutUs,
       },
+      // profile
       {
         path: 'profile/settings',
         name: 'profile',
         component: ProfileSetting,
       },
+      // sobs
       {
         path: 'sobs',
         component: RouterView,
@@ -56,60 +60,55 @@ const routes: RouteRecordRaw[] = [
           },
           {
             path: ':sobId',
-            component: RouterView,
-            props: sobResolver,
-            // to make sure when changing URL, working sob is changed accordingly
-            beforeEnter: async (to) => sobStore.action.setWorkingSob(to.params['sobId'] as string),
+            name: 'sobDetail',
+            component: SobDetail,
+            props: true,
+          },
+        ],
+      },
+      // ledgers
+      {
+        path: 'sobs/:sobId/periods',
+        component: RouterView,
+        props: true,
+        beforeEnter: async (to) => sobStore.action.setWorkingSob(to.params['sobId'] as string),
+        children: [
+          {
+            path: '',
+            name: 'ledgerMain',
+            component: LedgerMain,
             children: [
               {
-                path: '',
-                name: 'sobDetail',
-                component: SobDetail,
-              },
-              {
-                path: 'periods',
-                component: RouterView,
-                children: [
-                  {
-                    path: '',
-                    name: 'ledgerMain',
-                    component: LedgerMain,
-                    children: [
-                      {
-                        path: ':periodId',
-                        name: 'ledgerList',
-                        component: LedgerList,
-                        props: sobResolver, // why have to specify here???
-                      },
-                    ],
-                  },
-                ],
-              },
-              {
-                path: 'vouchers',
-                component: RouterView,
-                children: [
-                  {
-                    path: '',
-                    name: 'voucherMain',
-                    component: VoucherMain,
-                  },
-                  {
-                    path: 'new',
-                    name: 'voucherCreation',
-                    component: VoucherCreation,
-                    props: {
-                      createMode: true,
-                    },
-                  },
-                  // {
-                  //   path: ':voucherId',
-                  //   name: 'voucherDetail',
-                  //   component: VoucherDetail,
-                  // },
-                ],
+                path: ':periodId',
+                name: 'ledgerList',
+                component: LedgerList,
+                props: true,
               },
             ],
+          },
+        ],
+      },
+      // vouchers
+      {
+        path: 'sobs/:sobId/vouchers',
+        component: RouterView,
+        props: true,
+        beforeEnter: async (to) => sobStore.action.setWorkingSob(to.params['sobId'] as string),
+        children: [
+          {
+            path: '',
+            name: 'voucherMain',
+            component: VoucherMain,
+          },
+          {
+            path: 'new',
+            name: 'voucherCreation',
+            component: VoucherCreation,
+          },
+          {
+            path: ':voucherId',
+            name: 'voucherDetail',
+            component: VoucherDetail,
           },
         ],
       },

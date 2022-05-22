@@ -4,8 +4,8 @@ export interface Period {
   sobId: string
   financialYear: number
   number: number
-  openingTime: string
-  endingTime?: string
+  openingTime: Date
+  endingTime?: Date
   isClosed: boolean
   createdAt: Date
   updatedAt: Date

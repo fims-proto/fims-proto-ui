@@ -2,26 +2,39 @@ import axios from 'axios'
 import { Ledger, NewPeriod, Period } from './types'
 import { FIMS_URL } from '../../config'
 import { invokeWithErrorHandler } from '../errorHandler'
+import { convertFieldsFromString } from '../dateTypeConverter'
+
+const PERIOD_FIELDS_CONVERSION: Record<string, 'number' | 'date'> = {
+  financialYear: 'number',
+  number: 'number',
+  openingTime: 'date',
+  endingTime: 'date',
+  createdAt: 'date',
+  updatedAt: 'date',
+}
+
+const LEDGER_FIELDS_CONVERSION: Record<string, 'number' | 'date'> = {
+  'account.level': 'number',
+  credit: 'number',
+  debit: 'number',
+  openingBalance: 'number',
+  endingBalance: 'number',
+  createdAt: 'date',
+  updatedAt: 'date',
+}
 
 class LedgerService {
   public async getCurrentPeriod(sobId: string): Promise<Period> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(`${FIMS_URL}/api/v1/sob/${sobId}/period/current`)
-      return result.data
+      return convertFieldsFromString(result.data, PERIOD_FIELDS_CONVERSION)
     })
   }
 
-  public async getAllPeriods(sobId: string): Promise<[Period]> {
+  public async getAllPeriods(sobId: string): Promise<Period[]> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(`${FIMS_URL}/api/v1/sob/${sobId}/periods/`)
-      return result.data
-    })
-  }
-
-  public async getAllLedgersInPeriod(sobId: string, periodId: string): Promise<[Ledger]> {
-    return invokeWithErrorHandler(async () => {
-      const result = await axios.get(`${FIMS_URL}/api/v1/sob/${sobId}/period/${periodId}/ledgers/`)
-      return result.data
+      return convertFieldsFromString(result.data, PERIOD_FIELDS_CONVERSION)
     })
   }
 
@@ -31,7 +44,14 @@ class LedgerService {
     }
     return invokeWithErrorHandler(async () => {
       const result = await axios.post(`${FIMS_URL}/api/v1/sob/${newPeriod.sobId}/periods/`, newPeriod)
-      return result.data
+      return convertFieldsFromString(result.data, PERIOD_FIELDS_CONVERSION)
+    })
+  }
+
+  public async getAllLedgersInPeriod(sobId: string, periodId: string): Promise<Ledger[]> {
+    return invokeWithErrorHandler(async () => {
+      const result = await axios.get(`${FIMS_URL}/api/v1/sob/${sobId}/period/${periodId}/ledgers/`)
+      return convertFieldsFromString(result.data, LEDGER_FIELDS_CONVERSION)
     })
   }
 
