@@ -12,11 +12,13 @@ const inputDate = ref(new Date())
       <h2>h2 标题</h2>
       <h3>h3 标题</h3>
       <h4>h4 标题</h4>
-      <h5>h5 往下就和普通一样了</h5>
+      <h5>h5 及以下就和普通一样了</h5>
+      <p>普通人民群众 - &lt;p&gt;</p>
     </div>
 
     <p class="text-neutral-50">BaseButton:</p>
     <div class="bg-white rounded-lg p-4 space-y-4">
+      <!-- normal buttons -->
       <div class="flex gap-4">
         <base-button>Default</base-button>
         <base-button category="primary"> Primary </base-button>
@@ -32,31 +34,81 @@ const inputDate = ref(new Date())
           </template>
           Primary
         </base-button>
+        <!-- disabled -->
+        <base-button disabled>Default</base-button>
+        <base-button disabled category="primary"> Primary </base-button>
+        <base-button disabled>
+          <template #icon>
+            <lock-closed-solid-icon />
+          </template>
+          Default
+        </base-button>
+        <base-button disabled category="primary">
+          <template #icon>
+            <lock-closed-solid-icon />
+          </template>
+          Primary
+        </base-button>
+      </div>
+      <!-- grouped button -->
+      <div class="flex gap-4">
         <base-button-group>
           <base-button>
             <template #icon><lock-closed-solid-icon /></template>Fisrt
           </base-button>
           <base-button>Second</base-button>
+          <base-button>Third</base-button>
+        </base-button-group>
+
+        <base-button-group>
+          <base-button disabled>
+            <template #icon><lock-closed-solid-icon /></template>Fisrt
+          </base-button>
+          <base-button disabled>Second</base-button>
         </base-button-group>
       </div>
-      <div>
+      <!-- with style class -->
+      <div class="flex gap-4">
         <base-button category="primary" class="w-64">
           <template #icon>
             <lock-closed-solid-icon />
           </template>
           <span>固定宽度居中</span>
         </base-button>
+
+        <base-button disabled category="primary" class="w-64">
+          <template #icon>
+            <lock-closed-solid-icon />
+          </template>
+          <span>固定宽度但禁止</span>
+        </base-button>
       </div>
-      <p>
-        <span>在文字中的 text 类型</span>
-        <base-button category="text">按钮</base-button>
-        <span>长这个样子</span>
-      </p>
-      <p>
-        <span>在文字中的 link 类型</span>
-        <base-button category="link">按钮</base-button>
-        <span>长这个样子</span>
-      </p>
+      <!-- text type -->
+      <div>
+        <p>
+          <span>在文字中的 text 类型</span>
+          <base-button category="text">按钮</base-button>
+          <span>长这个样子</span>
+        </p>
+        <p>
+          <span>在文字中的 disabled text 类型</span>
+          <base-button disabled category="text">按钮</base-button>
+          <span>长这个样子</span>
+        </p>
+      </div>
+      <!-- link type -->
+      <div>
+        <p>
+          <span>在文字中的 link 类型</span>
+          <base-button category="link">按钮</base-button>
+          <span>长这个样子</span>
+        </p>
+        <p>
+          <span>在文字中的 disabled link 类型</span>
+          <base-button disabled category="link">按钮</base-button>
+          <span>长这个样子</span>
+        </p>
+      </div>
     </div>
 
     <p class="text-neutral-50">BaseAlert:</p>

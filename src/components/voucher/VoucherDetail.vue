@@ -39,8 +39,8 @@ export default defineComponent({
   <base-page>
     <template #title>{{ voucher?.number }}</template>
     <template #extra>
-      <base-button @click="editMode = true">{{ t('action.edit') }}</base-button>
-      <base-button @click="editMode = false">{{ t('action.save') }}</base-button>
+      <base-button :disabled="editMode" @click="editMode = true">{{ t('action.edit') }}</base-button>
+      <base-button v-if="editMode" category="primary" @click="editMode = false">{{ t('action.save') }}</base-button>
     </template>
     <voucher-form
       v-if="voucher && creator"
