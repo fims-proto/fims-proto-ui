@@ -80,3 +80,13 @@ export type LoginResult = {
   flow?: KratosFlow
   error?: Error
 }
+
+export type Page<T> = {
+  content: T[]
+  page: number
+  size: number
+  total: number
+  numberOfElements: number
+  isFirst: boolean
+  isLast: boolean
+}

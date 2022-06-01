@@ -73,18 +73,22 @@ export default defineComponent({
 
     const onSave = async () => {
       const createdVoucher = await saveVoucher()
-      router.push({
-        name: 'voucherDetail',
-        params: {
-          sobId: props.sobId,
-          voucherId: createdVoucher?.id,
-        },
-      })
+      if (createdVoucher) {
+        router.push({
+          name: 'voucherDetail',
+          params: {
+            sobId: props.sobId,
+            voucherId: createdVoucher?.id,
+          },
+        })
+      }
     }
 
     const onSaveAndNew = async () => {
-      await saveVoucher()
-      newVoucher.value = initVoucher()
+      const createdVoucher = await saveVoucher()
+      if (createdVoucher) {
+        newVoucher.value = initVoucher()
+      }
     }
 
     return {

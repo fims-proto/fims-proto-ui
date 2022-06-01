@@ -1,6 +1,6 @@
 <template>
-  <tab-group>
-    <tab-list class="flex gap-6">
+  <tab-group manual>
+    <tab-list class="flex gap-1">
       <slot name="tabs"></slot>
     </tab-list>
     <tab-panels>

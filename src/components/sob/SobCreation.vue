@@ -73,53 +73,60 @@ function getCurrentUTCTime() {
     <template #title>{{ t('sob.creation.title') }}</template>
     <div>
       <base-form class="w-full max-w-2xl" @submit="handleSubmit">
-        <base-input v-model="newSob.name" :label="t('sob.name')" required />
-        <base-input v-model="newSob.description" :label="t('common.description')" />
-        <base-input v-model="newSob.baseCurrency" :label="t('sob.baseCurrency')" required />
+        <base-form-item :label="t('sob.name')" required>
+          <base-input v-model="newSob.name" required />
+        </base-form-item>
 
-        <base-input-group :label="t('sob.startingPeriod')" required>
-          <base-input
-            v-model="newSob.startingPeriodYear"
-            :label="t('common.year')"
-            hide-label
-            type="number"
-            required
-            :min="2020"
-            :max="3000"
-            :suffix="t('common.year')"
-          />
-          <base-input
-            v-model="newSob.startingPeriodMonth"
-            :label="t('common.month')"
-            hide-label
-            type="number"
-            required
-            :min="1"
-            :max="12"
-            :suffix="t('common.month')"
-          />
-        </base-input-group>
+        <base-form-item :label="t('common.description')">
+          <base-input v-model="newSob.description" />
+        </base-form-item>
 
-        <base-input-group :label="t('sob.accountCodeLength')" required>
-          <base-input
-            v-for="(_, index) in newSob.accountsCodeLength"
-            :key="`sobCreation-accountsCodeLength-${index}`"
-            v-model="newSob.accountsCodeLength[index]"
-            class="w-14"
-            :label="`${t('sob.accountCodeLength')}_${index}`"
-            hide-label
-            type="number"
-            required
-            :min="1"
-            :max="6"
-          />
-          <template #suffix>
+        <base-form-item :label="t('sob.baseCurrency')" required>
+          <base-input v-model="newSob.baseCurrency" />
+        </base-form-item>
+
+        <base-form-item :label="t('sob.startingPeriod')" required>
+          <base-input-group>
+            <base-input
+              v-model="newSob.startingPeriodYear"
+              type="number"
+              required
+              :min="2020"
+              :max="3000"
+              :suffix="t('common.year')"
+            />
+            <base-input
+              v-model="newSob.startingPeriodMonth"
+              type="number"
+              required
+              :min="1"
+              :max="12"
+              :suffix="t('common.month')"
+            />
+          </base-input-group>
+        </base-form-item>
+
+        <base-form-item :label="t('sob.accountCodeLength')" required>
+          <div class="flex gap-2">
+            <base-input-group>
+              <base-input
+                v-for="(_, index) in newSob.accountsCodeLength"
+                :key="`sobCreation-accountsCodeLength-${index}`"
+                v-model="newSob.accountsCodeLength[index]"
+                class="w-14"
+                type="number"
+                required
+                :min="1"
+                :max="6"
+              />
+            </base-input-group>
+
             <base-button-group>
-              <base-button @click="handleShorten">-</base-button>
-              <base-button @click="handleExtend">+</base-button>
+              <base-button @click.prevent="handleShorten">-</base-button>
+              <base-button @click.prevent="handleExtend">+</base-button>
             </base-button-group>
-          </template>
-        </base-input-group>
+          </div>
+        </base-form-item>
 
         <base-button type="submit" category="primary" class="w-full">{{ t('action.submit') }}</base-button>
       </base-form>

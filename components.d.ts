@@ -6,6 +6,7 @@ import '@vue/runtime-core'
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     AboutUs: typeof import('./src/components/AboutUs.vue')['default']
+    AccountInput: typeof import('./src/components/voucher/AccountInput.vue')['default']
     AccountList: typeof import('./src/components/account/AccountList.vue')['default']
     AuthenticationLogin: typeof import('./src/components/user/AuthenticationLogin.vue')['default']
     AuthenticationLogout: typeof import('./src/components/user/AuthenticationLogout.vue')['default']
@@ -35,6 +36,10 @@ declare module '@vue/runtime-core' {
     ChevronDownOutlineIcon: typeof import('@heroicons/vue/outline')['ChevronDownIcon']
     ChevronLeftSolidIcon: typeof import('@heroicons/vue/solid')['ChevronLeftIcon']
     ChevronRightSolidIcon: typeof import('@heroicons/vue/solid')['ChevronRightIcon']
+    Combobox: typeof import('@headlessui/vue')['Combobox']
+    ComboboxInput: typeof import('@headlessui/vue')['ComboboxInput']
+    ComboboxOption: typeof import('@headlessui/vue')['ComboboxOption']
+    ComboboxOptions: typeof import('@headlessui/vue')['ComboboxOptions']
     EmojiHappyOutlineIcon: typeof import('@heroicons/vue/outline')['EmojiHappyIcon']
     ExceptionPage: typeof import('./src/components/ExceptionPage.vue')['default']
     ExclamationCircleSolidIcon: typeof import('@heroicons/vue/solid')['ExclamationCircleIcon']

@@ -13,9 +13,9 @@ defineProps({
 
     <header class="flex justify-between items-center">
       <div class="flex gap-4 items-center">
-        <button class="block w-8 text-neutral-900 hover:text-primary-700" @click="$router.go(-1)">
+        <base-button category="text" class="w-8" @click="$router.go(-1)">
           <chevron-left-solid-icon />
-        </button>
+        </base-button>
         <h1 class="font-medium text-neutral-800">
           <slot name="title"></slot>
         </h1>

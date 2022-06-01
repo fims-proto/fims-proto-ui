@@ -1,5 +1,5 @@
 import { AxiosError } from 'axios'
-import { SlugError } from '../types'
+import { SlugError } from './types'
 
 export async function invokeWithErrorHandler<T>(invoker: () => Promise<T>): Promise<T> {
   try {

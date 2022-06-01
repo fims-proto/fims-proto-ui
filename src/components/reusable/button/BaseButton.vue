@@ -25,17 +25,19 @@ export default defineComponent({
 
 <template>
   <button
-    class="group"
     :class="[
-      insideGroup ? '-ml-[1px] first:m-0 first:rounded-l-sm last:rounded-r-sm hover:z-10' : 'rounded-sm',
+      'group',
+      'focus:z-10 focus:outline-none focus:ring-offset-2 focus:ring focus:ring-primary-500',
+
+      insideGroup ? '-ml-[1px] first:m-0 first:rounded-l-md last:rounded-r-md hover:z-10' : 'rounded-md',
 
       is('link') && [
-        'px-1 py-0',
+        'px-1 py-0 bg-transparent',
         disabled ? 'text-neutral-400 bg-transparent' : 'text-primary-700 hover:text-primary-800',
       ],
 
       is('text') && [
-        'px-2 py-1 mx-1 bg-transparent',
+        'px-1 py-0 bg-transparent',
         disabled ? 'text-neutral-400 bg-transparent' : 'hover:bg-neutral-500 hover:bg-opacity-5',
       ],
 

@@ -64,13 +64,15 @@ export default defineComponent({
     <button
       v-if="closable"
       type="button"
-      class="h-6 w-auto p-1 rounded-sm ml-auto"
-      :class="{
-        'hover:bg-error-300': is('error'),
-        'hover:bg-warning-300': is('warning'),
-        'hover:bg-success-300': is('success'),
-        'hover:bg-primary-300': is('info'),
-      }"
+      :class="[
+        'h-6 w-auto p-1 rounded-sm ml-auto',
+        {
+          'hover:bg-error-300': is('error'),
+          'hover:bg-warning-300': is('warning'),
+          'hover:bg-success-300': is('success'),
+          'hover:bg-primary-300': is('info'),
+        },
+      ]"
       @click.prevent="handleClose"
     >
       <span class="sr-only">{{ t('action.close') }}</span>

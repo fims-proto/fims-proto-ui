@@ -148,7 +148,8 @@ const router = createRouter({
   routes,
 })
 
-router.onError(() => {
+router.onError((...args) => {
+  console.log(args)
   router.push({ name: 'exception' })
 })
 

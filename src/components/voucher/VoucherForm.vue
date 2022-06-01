@@ -38,6 +38,12 @@ export default defineComponent({
     const totalDebit = computed(() => internalLineItems.value.reduce((sum, item) => sum + (item.debit ?? 0), 0))
     const totalCredit = computed(() => internalLineItems.value.reduce((sum, item) => sum + (item.credit ?? 0), 0))
 
+    const onSummaryFocus = (index: number) => {
+      if (index > 0 && !internalLineItems.value[index].summary) {
+        internalLineItems.value[index].summary = internalLineItems.value[index - 1].summary
+      }
+    }
+
     return {
       t,
       d,
@@ -47,6 +53,7 @@ export default defineComponent({
       internalLineItems,
       totalDebit,
       totalCredit,
+      onSummaryFocus,
     }
   },
 })
@@ -85,16 +92,16 @@ export default defineComponent({
     </div>
 
     <!-- table -->
-    <div class="flex flex-col mt-4 divide-y divide-neutral-400 border border-neutral-400 rounded-md shadow-md">
+    <div class="flex flex-col bg-white mt-4 divide-y divide-neutral-300 border border-neutral-300 rounded-md shadow-lg">
       <!-- table header -->
-      <div class="flex flex-row divide-x divide-neutral-400">
+      <div class="flex flex-row divide-x divide-neutral-300">
         <div class="flex-1 font-bold flex justify-center items-center">{{ t('voucher.summary') }}</div>
         <div class="flex-1 font-bold flex justify-center items-center">{{ t('voucher.account') }}</div>
-        <div class="w-72 flex flex-col divide-y divide-neutral-400">
+        <div class="w-72 flex flex-col divide-y divide-neutral-300">
           <div class="text-center font-bold py-2">{{ t('voucher.debit') }}</div>
           <tabulated-number :disabled="true" :header="true" />
         </div>
-        <div class="w-72 flex flex-col divide-y divide-neutral-400">
+        <div class="w-72 flex flex-col divide-y divide-neutral-300">
           <div class="text-center font-bold py-2">{{ t('voucher.credit') }}</div>
           <tabulated-number :disabled="true" :header="true" />
         </div>
@@ -103,13 +110,13 @@ export default defineComponent({
       <div
         v-for="(item, i) in internalLineItems"
         :key="`create-voucher-li-${i}`"
-        class="flex flex-row divide-x divide-neutral-400"
+        class="flex flex-row divide-x divide-neutral-300"
       >
         <div class="flex-1 p-[1px]">
-          <tabulated-input v-model="item.summary" :disabled="disabled" />
+          <tabulated-input v-model="item.summary" :disabled="disabled" @focus="onSummaryFocus(i)" />
         </div>
         <div class="flex-1 p-[1px]">
-          <tabulated-input v-model="item.accountNumber" :disabled="disabled" />
+          <account-input v-model="item.accountNumber" :disabled="disabled" />
         </div>
         <div class="w-72">
           <tabulated-number v-model="item.debit" :disabled="disabled" />
@@ -119,7 +126,7 @@ export default defineComponent({
         </div>
       </div>
       <!-- total -->
-      <div class="flex flex-row divide-x divide-neutral-400">
+      <div class="flex flex-row divide-x divide-neutral-300">
         <div class="flex-1 font-bold px-3 py-2">{{ t('voucher.total') }}</div>
         <div class="w-72">
           <tabulated-number :disabled="true" :model-value="totalDebit" />

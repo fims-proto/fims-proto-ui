@@ -1,7 +1,7 @@
 <script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Account, AccountService } from '../../domain'
+import { Account, AccountService, Page } from '../../domain'
 
 export default defineComponent({
   props: {
@@ -12,7 +12,7 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useI18n()
-    const accounts = ref<Account[]>()
+    const accounts = ref<Page<Account>>()
 
     onMounted(async () => {
       accounts.value = await AccountService.getAllAccounts(props.sobId)
@@ -27,5 +27,5 @@ export default defineComponent({
 </script>
 
 <template>
-  <p v-for="account in accounts" :key="account.id">{{ account.accountNumber }} - {{ account.title }}</p>
+  <p v-for="account in accounts?.content" :key="account.id">{{ account.accountNumber }} - {{ account.title }}</p>
 </template>

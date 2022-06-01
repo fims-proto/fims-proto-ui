@@ -10,7 +10,7 @@ export default defineComponent({
       default: undefined,
     },
   },
-  emits: ['update:modelValue'],
+  emits: ['update:modelValue', 'focus'],
   setup(_, { expose }) {
     const inputRef = ref<HTMLInputElement>()
 
@@ -44,5 +44,6 @@ function generateInputId() {
     v-bind="$attrs"
     :class="['appearance-none w-full border-none px-3 py-2', { 'text-right': $attrs.type === 'number' }]"
     @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
+    @focus="$emit('focus')"
   />
 </template>

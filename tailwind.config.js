@@ -11,12 +11,16 @@ module.exports = {
       white: colors.white,
       black: colors.black,
       primary: colors.indigo,
-      neutral: colors.gray,
+      neutral: colors.slate,
       success: colors.teal,
       warning: colors.amber,
       error: colors.rose,
     },
     extend: {},
   },
-  plugins: [require('@tailwindcss/forms')],
+  plugins: [
+    require('@tailwindcss/forms')({
+      strategy: 'base', // only generate global styles
+    }),
+  ],
 }

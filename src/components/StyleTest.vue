@@ -5,9 +5,9 @@ const inputDate = ref(new Date())
 
 <!-- style test page for Tailwindcss -->
 <template>
-  <div class="h-full w-full space-y-4 pt-8 pb-60 px-8 overflow-scroll bg-neutral-600">
-    <p class="text-neutral-50">Typograph:</p>
-    <div class="bg-white rounded-lg p-4">
+  <div class="h-full w-full space-y-4 pt-8 pb-60 px-8 overflow-scroll">
+    <h1 class="text-neutral-900">Typograph:</h1>
+    <div class="rounded-lg p-4">
       <h1>h1 标题</h1>
       <h2>h2 标题</h2>
       <h3>h3 标题</h3>
@@ -16,8 +16,8 @@ const inputDate = ref(new Date())
       <p>普通人民群众 - &lt;p&gt;</p>
     </div>
 
-    <p class="text-neutral-50">BaseButton:</p>
-    <div class="bg-white rounded-lg p-4 space-y-4">
+    <h1 class="text-neutral-900">BaseButton:</h1>
+    <div class="rounded-lg p-4 space-y-4">
       <!-- normal buttons -->
       <div class="flex gap-4">
         <base-button>Default</base-button>
@@ -111,16 +111,16 @@ const inputDate = ref(new Date())
       </div>
     </div>
 
-    <p class="text-neutral-50">BaseAlert:</p>
-    <div class="bg-white rounded-lg p-4 space-y-4">
+    <h1 class="text-neutral-900">BaseAlert:</h1>
+    <div class="rounded-lg p-4 space-y-4">
       <base-alert type="error" closable message="丹麦的艾辛诺尔堡" />
       <base-alert type="info" message="在城墙的一平台上" />
       <base-alert type="success" closable :show-icon="false" message="守卫柏纳多与佛郎西斯哥入" />
       <base-alert type="warning" message="此时正是深夜, 一片漆黑中, 佛郎西斯哥在城墙上站岗, 而柏纳多来接他的班" />
     </div>
 
-    <p class="text-neutral-50">BaseAvatar:</p>
-    <div class="bg-white rounded-lg p-4 space-y-4">
+    <h1 class="text-neutral-900">BaseAvatar:</h1>
+    <div class="rounded-lg p-4 space-y-4">
       <div class="flex gap-4">
         <base-avatar>张三</base-avatar>
         <base-avatar>张三</base-avatar>
@@ -141,8 +141,8 @@ const inputDate = ref(new Date())
       </div>
     </div>
 
-    <p class="text-neutral-50">BaseDropdown:</p>
-    <div class="bg-white rounded-lg p-4 space-x-4">
+    <h1 class="text-neutral-900">BaseDropdown:</h1>
+    <div class="rounded-lg p-4 space-x-4">
       <base-dropdown>
         <base-dropdown-button class="p-2 rounded-sm shadow-md bg-primary-600 text-white hover:bg-primary-400"
           >双节棍
@@ -183,16 +183,16 @@ const inputDate = ref(new Date())
       </base-dropdown>
     </div>
 
-    <p class="text-neutral-50">BaseTag:</p>
-    <div class="bg-white rounded-lg p-4 space-x-4">
+    <h1 class="text-neutral-900">BaseTag:</h1>
+    <div class="rounded-lg p-4 space-x-4">
       <base-tag color="error" closable>气球</base-tag>
       <base-tag color="info">修狗</base-tag>
       <base-tag color="success" closable>汪汪队</base-tag>
       <base-tag color="warning">此时正是深夜, 一片漆黑中</base-tag>
     </div>
 
-    <p class="text-neutral-50">BasePage:</p>
-    <div class="bg-white rounded-lg p-4 space-x-4">
+    <h1 class="text-neutral-900">BasePage:</h1>
+    <div class="rounded-lg p-4 space-x-4">
       <div class="w-full max-w-screen-lg">
         <base-page subtitle="副标题, 描述性质文本">
           <template #breadcrumb>一级 / 二级 / 三级 / 当前</template>
@@ -210,22 +210,22 @@ const inputDate = ref(new Date())
               <base-tab-item>再来</base-tab-item>
             </template>
             <template #panels>
-              <base-tab-panel>一些随意的内容</base-tab-panel>
-              <base-tab-panel>
+              <base-tab-panel class="h-20">一些随意的内容</base-tab-panel>
+              <base-tab-panel class="h-20">
                 <div class="flex items-center gap-2">
                   <span>另一些随意的内容</span>
                   <base-button>还有按钮</base-button>
                 </div>
               </base-tab-panel>
-              <base-tab-panel>别过来</base-tab-panel>
+              <base-tab-panel class="h-20">别过来</base-tab-panel>
             </template>
           </base-tabs>
         </base-page>
       </div>
     </div>
 
-    <p class="text-neutral-50">BaseForm:</p>
-    <div class="bg-white rounded-lg p-4">
+    <h1 class="text-neutral-900">BaseForm:</h1>
+    <div class="rounded-lg p-4">
       <base-form class="max-w-lg">
         <base-form-item label="普通文本">
           <base-input placeholder="say something..." />
@@ -237,6 +237,14 @@ const inputDate = ref(new Date())
 
         <base-form-item label="密码">
           <base-input placeholder="快输入..." type="password" autocomplete="current-password" required />
+        </base-form-item>
+
+        <base-form-item label="长宽高">
+          <base-input-group>
+            <base-input hide-label type="number" />
+            <base-input hide-label type="number" />
+            <base-input hide-label type="number" />
+          </base-input-group>
         </base-form-item>
 
         <base-form-item label="何年何月">
@@ -279,14 +287,14 @@ const inputDate = ref(new Date())
       </base-form>
     </div>
 
-    <p class="text-neutral-50">Inputs:</p>
-    <div class="bg-white rounded-lg p-4">
+    <h1 class="text-neutral-900">Inputs:</h1>
+    <div class="rounded-lg p-4">
       <base-form-item label="日期: ">
         <base-input v-model="inputDate" type="date" class="w-40" />
       </base-form-item>
     </div>
 
-    <!-- <p class="text-neutral-50">SomeOthers:</p>
-    <div class="bg-white rounded-lg p-4"></div>-->
+    <!-- <h1 class="text-neutral-900">SomeOthers:</h1>
+    <div class="rounded-lg p-4"></div>-->
   </div>
 </template>

@@ -1,10 +1,11 @@
 export interface Account {
   id: string
   sobId: string
-  accountNumber: string
   title: string
-  accountType: string
-  balanceDirection: string
+  accountNumber: string
+  numberHierarchy: number[]
   level: number
   superiorAccountId: string
+  accountType: string
+  balanceDirection: string
 }

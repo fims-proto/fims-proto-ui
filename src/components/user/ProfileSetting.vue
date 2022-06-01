@@ -3,9 +3,8 @@ import { SelfServiceSettingsFlow, SubmitSelfServiceSettingsFlowBody, UiText } fr
 import { defineComponent, onMounted } from 'vue'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { KratosService } from '../../domain'
+import { KratosService, UiNode } from '../../domain'
 import { useUserStore } from '../../store/user'
-import { UiNode } from '../../types'
 
 interface profileFormType {
   csrf_token: string

@@ -8,9 +8,8 @@ import {
 import { defineComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
-import { KratosService } from '../../domain'
+import { KratosService, UiText } from '../../domain'
 import { useUserStore } from '../../store/user'
-import { UiText } from '../../types'
 
 interface formValueType {
   flowId: string
