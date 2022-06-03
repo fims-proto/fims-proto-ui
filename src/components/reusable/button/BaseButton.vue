@@ -26,23 +26,26 @@ export default defineComponent({
 <template>
   <button
     :class="[
-      'group',
-      'focus:z-10 focus:outline-none focus:ring-offset-2 focus:ring focus:ring-primary-500',
+      'group flex gap-1 items-center justify-center',
 
       insideGroup ? '-ml-[1px] first:m-0 first:rounded-l-md last:rounded-r-md hover:z-10' : 'rounded-md',
 
       is('link') && [
         'px-1 py-0 bg-transparent',
+        'focus:z-10 focus:outline-none focus:underline focus:underline-offset-2 focus:decoration-primary-700 focus:decoration-2',
         disabled ? 'text-neutral-400 bg-transparent' : 'text-primary-700 hover:text-primary-800',
       ],
 
       is('text') && [
         'px-1 py-0 bg-transparent',
+        'focus:z-10 focus:outline-none focus:underline focus:underline-offset-2',
+        'focus:z-10 focus:outline-none focus:underline focus:underline-offset-2 focus:decoration-primary-700 focus:decoration-2',
         disabled ? 'text-neutral-400 bg-transparent' : 'hover:bg-neutral-500 hover:bg-opacity-5',
       ],
 
       is('primary') && [
         'px-3 py-1.5 text-sm shadow-sm',
+        'focus:z-10 focus:outline-none focus:ring-offset-2 focus:ring focus:ring-primary-500',
         disabled
           ? 'text-neutral-400 bg-transparent border border-neutral-300'
           : 'text-white bg-primary-600 hover:bg-primary-800',
@@ -50,6 +53,7 @@ export default defineComponent({
 
       is('default') && [
         'px-3 py-1.5 text-sm shadow-sm',
+        'focus:z-10 focus:outline-none focus:ring-offset-2 focus:ring focus:ring-primary-500',
         disabled
           ? 'text-neutral-400 bg-transparent border border-neutral-300'
           : 'text-neutral-900 bg-transparent border border-neutral-400 hover:text-primary-800 hover:border-primary-500',
@@ -66,7 +70,7 @@ export default defineComponent({
     <span
       v-if="!!$slots['icon'] && !is('text')"
       :class="[
-        'inline-block w-4 align-text-top mr-1',
+        'inline-block w-4 align-text-top',
         is('primary') && (disabled ? 'text-neutral-400' : 'text-primary-300 group-hover:text-primary-200'),
       ]"
       aria-hidden="true"

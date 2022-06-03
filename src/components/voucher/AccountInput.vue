@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent, onMounted, ref, toRefs, watch } from 'vue'
+import { defineComponent, ref, toRefs, watch } from 'vue'
 import { VBinder, VTarget, VFollower } from 'vueuc'
 import { Account, AccountService } from '../../domain'
 import { useSobStore } from '../../store/sob'
@@ -22,19 +22,23 @@ export default defineComponent({
     const filteredAccounts = ref<Account[]>([])
     const selectedAccount = ref<Account>()
 
-    onMounted(async () => {
-      if (!workingSob.value || !props.modelValue) {
-        return
-      }
-      selectedAccount.value = await AccountService.getAccountByNumber(workingSob.value.id, props.modelValue)
-    })
+    watch(
+      () => props.modelValue,
+      async () => {
+        if (!workingSob.value || !props.modelValue) {
+          selectedAccount.value = undefined
+          return
+        }
+        selectedAccount.value = await AccountService.getAccountByNumber(workingSob.value.id, props.modelValue)
+      },
+      { immediate: true }
+    )
 
     watch(query, async () => {
       if (!workingSob.value || !query.value.trim()) {
         filteredAccounts.value = []
         return
       }
-
       const result = await AccountService.getAccountsStartsWithNumber(workingSob.value.id, query.value)
       filteredAccounts.value = result.content
     })

@@ -5,8 +5,10 @@ import { useRouter } from 'vue-router'
 import { NewVoucher, VoucherService } from '../../domain'
 import { useSobStore } from '../../store/sob'
 import { useUserStore } from '../../store/user'
+import VoucherForm from './VoucherForm.vue'
 
 export default defineComponent({
+  components: { VoucherForm },
   props: {
     sobId: {
       type: String,
@@ -18,6 +20,8 @@ export default defineComponent({
     const router = useRouter()
     const { userId, traits } = toRefs(useUserStore().state)
     const { workingSob, currentPeriod } = toRefs(useSobStore().state)
+
+    const formRef = ref<InstanceType<typeof VoucherForm>>()
 
     const initVoucher = () => ({
       transactionTime: new Date(),
@@ -36,8 +40,6 @@ export default defineComponent({
 
     const newVoucher = ref<NewVoucher>(initVoucher())
 
-    const totalDebit = computed(() => newVoucher.value.lineItems.reduce((sum, item) => sum + (item.debit ?? 0), 0))
-    const totalCredit = computed(() => newVoucher.value.lineItems.reduce((sum, item) => sum + (item.credit ?? 0), 0))
     const period = computed(() =>
       currentPeriod.value
         ? `${currentPeriod.value.financialYear}-${currentPeriod.value.number}`
@@ -50,16 +52,16 @@ export default defineComponent({
         return
       }
 
-      if (totalDebit.value !== totalCredit.value) {
+      // collect form
+      const toBeCreated = Object.assign({}, newVoucher.value, formRef.value.collect())
+
+      if (toBeCreated.totalDebit !== toBeCreated.totalCredit) {
         alert('not balance')
         return
       }
 
-      // deep copy
-      const toBeCreated = Object.assign({}, newVoucher.value)
-
       toBeCreated.creator = userId.value
-      toBeCreated.lineItems = newVoucher.value.lineItems.filter(
+      toBeCreated.lineItems = toBeCreated.lineItems.filter(
         (item) => item.summary.trim() && item.accountNumber.trim() && item.debit.toString() && item.credit.toString()
       )
 
@@ -94,10 +96,9 @@ export default defineComponent({
     return {
       t,
       d,
+      formRef,
       newVoucher,
       period,
-      totalDebit,
-      totalCredit,
       traits,
       onSave,
       onSaveAndNew,
@@ -114,6 +115,7 @@ export default defineComponent({
       <base-button @click="onSave">{{ t('action.save') }}</base-button>
     </template>
     <voucher-form
+      ref="formRef"
       :attachment-quantity="newVoucher.attachmentQuantity"
       :transaction-time="newVoucher.transactionTime"
       :line-items="newVoucher.lineItems"

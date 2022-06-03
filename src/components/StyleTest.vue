@@ -34,6 +34,11 @@ const inputDate = ref(new Date())
           </template>
           Primary
         </base-button>
+        <base-button>
+          <template #icon>
+            <lock-closed-solid-icon />
+          </template>
+        </base-button>
         <!-- disabled -->
         <base-button disabled>Default</base-button>
         <base-button disabled category="primary"> Primary </base-button>

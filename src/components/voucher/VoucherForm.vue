@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent, PropType, computed, ref } from 'vue'
+import { defineComponent, PropType, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { LineItem, Traits } from '../../domain'
 
@@ -27,14 +27,13 @@ export default defineComponent({
       required: true,
     },
   },
-  setup(props) {
+  setup(props, { expose }) {
     const { t, d } = useI18n()
 
-    const internalTransactionTime = ref(props.transactionTime)
-    const internalPeriod = ref(props.period)
-    const internalAttachmentQuantity = ref(props.attachmentQuantity)
-    const internalLineItems = ref(props.lineItems)
-
+    const internalTransactionTime = computed(() => props.transactionTime)
+    const internalPeriod = computed(() => props.period)
+    const internalAttachmentQuantity = computed(() => props.attachmentQuantity)
+    const internalLineItems = computed(() => props.lineItems)
     const totalDebit = computed(() => internalLineItems.value.reduce((sum, item) => sum + (item.debit ?? 0), 0))
     const totalCredit = computed(() => internalLineItems.value.reduce((sum, item) => sum + (item.credit ?? 0), 0))
 
@@ -43,6 +42,30 @@ export default defineComponent({
         internalLineItems.value[index].summary = internalLineItems.value[index - 1].summary
       }
     }
+
+    const emptyItem = () => ({
+      summary: '',
+      accountNumber: '',
+      credit: 0,
+      debit: 0,
+    })
+
+    const onClearLineItem = (index: number) => (internalLineItems.value[index] = emptyItem())
+
+    const onNewLineItem = () => internalLineItems.value.push(emptyItem())
+
+    const collect = () => ({
+      transactionTime: internalTransactionTime.value,
+      period: internalPeriod.value,
+      attachmentQuantity: internalAttachmentQuantity.value,
+      lineItems: internalLineItems.value,
+      totalDebit: totalDebit.value,
+      totalCredit: totalCredit.value,
+    })
+
+    expose({
+      collect,
+    })
 
     return {
       t,
@@ -54,6 +77,8 @@ export default defineComponent({
       totalDebit,
       totalCredit,
       onSummaryFocus,
+      onClearLineItem,
+      onNewLineItem,
     }
   },
 })
@@ -106,13 +131,21 @@ export default defineComponent({
           <tabulated-number :disabled="true" :header="true" />
         </div>
       </div>
+
       <!-- table body -->
       <div
         v-for="(item, i) in internalLineItems"
         :key="`create-voucher-li-${i}`"
         class="flex flex-row divide-x divide-neutral-300"
       >
-        <div class="flex-1 p-[1px]">
+        <div class="flex-1 p-[1px] flex">
+          <button
+            v-if="!disabled"
+            class="w-8 flex items-center justify-center text-neutral-300 hover:text-primary-800 focus:z-10"
+            @click.prevent="onClearLineItem(i)"
+          >
+            <minus-circle-outline-icon class="w-4" />
+          </button>
           <tabulated-input v-model="item.summary" :disabled="disabled" @focus="onSummaryFocus(i)" />
         </div>
         <div class="flex-1 p-[1px]">
@@ -125,6 +158,18 @@ export default defineComponent({
           <tabulated-number v-model="item.credit" :disabled="disabled" />
         </div>
       </div>
+
+      <!-- new line -->
+      <div v-if="!disabled">
+        <button
+          class="w-full flex gap-2 items-center px-2 py-1 text-sm text-neutral-400 shadow-inner hover:text-primary-800 hover:bg-primary-200/50 focus:z-10"
+          @click.prevent="onNewLineItem"
+        >
+          <plus-circle-outline-icon class="w-4" />
+          <span>{{ t('voucher.newLineItem') }}</span>
+        </button>
+      </div>
+
       <!-- total -->
       <div class="flex flex-row divide-x divide-neutral-300">
         <div class="flex-1 font-bold px-3 py-2">{{ t('voucher.total') }}</div>

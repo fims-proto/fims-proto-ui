@@ -60,7 +60,7 @@ export default defineComponent({
     <div
       v-for="(c, i) in content"
       :key="`tabulated-number-${i}`"
-      class="min-w-[1.5rem] w-[1.5rem] max-w-[1.5rem] flex-auto flex items-center justify-center border-r"
+      class="min-w-[1.5rem] w-[1.5rem] max-w-[1.5rem] flex-auto flex items-center justify-center border-r last:border-r-0"
       :class="[i === 8 ? 'border-error-800' : (i + 1) % 3 === 0 ? 'border-neutral-400' : 'border-neutral-200']"
     >
       {{ c }}
@@ -77,7 +77,7 @@ export default defineComponent({
       <div
         v-for="(c, i) in content"
         :key="`tabulated-number-${i}`"
-        class="min-w-[1.5rem] w-[1.5rem] max-w-[1.5rem] flex-auto flex items-center justify-center border-r"
+        class="min-w-[1.5rem] w-[1.5rem] max-w-[1.5rem] flex-auto flex items-center justify-center border-r last:border-r-0"
         :class="[i === 8 ? 'border-error-800' : (i + 1) % 3 === 0 ? 'border-neutral-400' : 'border-neutral-200']"
       >
         {{ c }}

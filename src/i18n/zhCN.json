@@ -73,6 +73,7 @@
     "attachmentQuantityUnit": "张",
     "transactionTime": "交易日期",
     "creator": "制单人: {lastName}{firstName}",
+    "newLineItem": "新增",
     "creation": {
       "title": "新建凭证"
     }
