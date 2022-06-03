@@ -1,35 +1,26 @@
+<script setup lang="ts">
+import { ref, defineComponent } from 'vue'
+
+defineProps<{
+  modelValue?: string | number
+  disabled?: boolean
+}>()
+
+defineEmits<{
+  (event: 'update:modelValue', value: string): void
+  (event: 'focus'): void
+}>()
+
+const inputRef = ref<HTMLInputElement>()
+const inputId = `tabulated-input-${Math.random().toString(36).slice(-8)}`
+
+const focus = () => inputRef.value?.focus()
+
+defineExpose({ focus })
+</script>
+
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
-
-export default defineComponent({
-  inheritAttrs: false,
-  props: {
-    disabled: Boolean,
-    modelValue: {
-      type: [String, Number],
-      default: undefined,
-    },
-  },
-  emits: ['update:modelValue', 'focus'],
-  setup(_, { expose }) {
-    const inputRef = ref<HTMLInputElement>()
-
-    const focus = () => {
-      inputRef.value?.focus()
-    }
-
-    expose({ focus })
-
-    return {
-      inputId: generateInputId(),
-      inputRef,
-    }
-  },
-})
-
-function generateInputId() {
-  return `tabulated-input-${Math.random().toString(36).slice(-8)}`
-}
+export default defineComponent({ inheritAttrs: false })
 </script>
 
 <template>

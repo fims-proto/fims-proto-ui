@@ -1,196 +1,179 @@
-<script lang="ts">
-import { computed, defineComponent, ref, watch } from 'vue'
+<script setup lang="ts">
+import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-export default defineComponent({
-  props: {
-    modelValue: Date,
-  },
-  emits: ['update:modelValue'],
-  setup(props, { emit }) {
-    const { t } = useI18n()
-    const tmpDate = ref(props.modelValue ?? new Date())
-    const level = ref(0) // 0 day, 1 month, 2 year
+const props = defineProps<{
+  modelValue?: Date
+}>()
 
-    const yearList = ref<number[]>(Array(12).fill(0))
-    const monthList = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-    const dateList = ref<{ date: number; previousMonth: boolean; nextMonth: boolean }[]>()
+const emit = defineEmits<{
+  (event: 'update:modelValue', value: string): void
+}>()
 
-    const displayedYearRangeStartYear = ref<number>(getNearestDecadeStartYear(tmpDate.value.getFullYear()))
-    const displayedYear = ref(tmpDate.value.getFullYear())
-    const displayedMonth = ref(tmpDate.value.getMonth())
+const { t } = useI18n()
+const tmpDate = ref(props.modelValue ?? new Date())
+const level = ref(0) // 0 day, 1 month, 2 year
 
-    const calculateYearList = () => {
-      for (let i = 0; i < 12; i++) {
-        yearList.value[i] = displayedYearRangeStartYear.value - 1 + i
-      }
-    }
+const yearList = ref<number[]>(Array(12).fill(0))
+const monthList = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+const dateList = ref<{ date: number; previousMonth: boolean; nextMonth: boolean }[]>()
 
-    const calculateDateList = () => {
-      const currentMonth = []
-      const previousMonth = []
-      const nextMonth = []
+const getNearestDecadeStartYear = (year: number) => year - (year % 10)
 
-      const firstDayInCurrentMonth = new Date(displayedYear.value, displayedMonth.value, 1)
-      const lastDayInCurrentMonth = new Date(displayedYear.value, displayedMonth.value + 1, 0)
-      const lastDayInPreviousMonth = new Date(displayedYear.value, displayedMonth.value, 0)
+const displayedYearRangeStartYear = ref<number>(getNearestDecadeStartYear(tmpDate.value.getFullYear()))
+const displayedYear = ref(tmpDate.value.getFullYear())
+const displayedMonth = ref(tmpDate.value.getMonth())
 
-      const daysInMonth = lastDayInCurrentMonth.getDate()
-      for (let i = 0; i < daysInMonth; i++) {
-        currentMonth.push({
-          date: i + 1,
-          previousMonth: false,
-          nextMonth: false,
-        })
-      }
+const calculateYearList = () => {
+  for (let i = 0; i < 12; i++) {
+    yearList.value[i] = displayedYearRangeStartYear.value - 1 + i
+  }
+}
 
-      const padStartDays = firstDayInCurrentMonth.getDay()
-      for (let i = 0; i < padStartDays; i++) {
-        previousMonth.push({
-          date: lastDayInPreviousMonth.getDate() - padStartDays + i + 1,
-          previousMonth: true,
-          nextMonth: false,
-        })
-      }
+const calculateDateList = () => {
+  const currentMonth = []
+  const previousMonth = []
+  const nextMonth = []
 
-      // make sure date list has 42 dates (6 lines)
-      const padEndDays = 42 - previousMonth.length - currentMonth.length
-      for (let i = 0; i < padEndDays; i++) {
-        nextMonth.push({
-          date: i + 1,
-          previousMonth: false,
-          nextMonth: true,
-        })
-      }
+  const firstDayInCurrentMonth = new Date(displayedYear.value, displayedMonth.value, 1)
+  const lastDayInCurrentMonth = new Date(displayedYear.value, displayedMonth.value + 1, 0)
+  const lastDayInPreviousMonth = new Date(displayedYear.value, displayedMonth.value, 0)
 
-      dateList.value = [...previousMonth, ...currentMonth, ...nextMonth]
-    }
-
-    const title = computed(() => {
-      if (level.value === 0) {
-        // for date, display month
-        return `${displayedYear.value} ${t(`base.datepicker.month[${displayedMonth.value}]`)}`
-      }
-      if (level.value === 1) {
-        // for month, display yaer
-        return displayedYear.value
-      }
-      if (level.value === 2) {
-        // for year, display start year - end year
-        return `${yearList.value[1]} - ${yearList.value[10]}`
-      }
-      return ''
+  const daysInMonth = lastDayInCurrentMonth.getDate()
+  for (let i = 0; i < daysInMonth; i++) {
+    currentMonth.push({
+      date: i + 1,
+      previousMonth: false,
+      nextMonth: false,
     })
+  }
 
-    const onUpLevel = () => (level.value = level.value === 2 ? 2 : ++level.value)
-    const downLevel = () => (level.value = level.value === 0 ? 0 : --level.value)
+  const padStartDays = firstDayInCurrentMonth.getDay()
+  for (let i = 0; i < padStartDays; i++) {
+    previousMonth.push({
+      date: lastDayInPreviousMonth.getDate() - padStartDays + i + 1,
+      previousMonth: true,
+      nextMonth: false,
+    })
+  }
 
-    const moveDisplayedYearRange = (val: -10 | 10) =>
-      (displayedYearRangeStartYear.value = displayedYearRangeStartYear.value + val)
-    const moveDisplayedYear = (val: -1 | 1) => {
-      displayedYear.value = displayedYear.value + val
-      if (
-        displayedYear.value < displayedYearRangeStartYear.value ||
-        displayedYear.value > displayedYearRangeStartYear.value + 10
-      ) {
-        moveDisplayedYearRange((val * 10) as -10 | 10)
-      }
-    }
-    const moveDisplayedMonth = (val: -1 | 1) => {
-      displayedMonth.value = displayedMonth.value + val
-      if (displayedMonth.value < 0 || displayedMonth.value > 11) {
-        displayedMonth.value = (12 + displayedMonth.value) % 12
-        moveDisplayedYear(val)
-      }
-    }
+  // make sure date list has 42 dates (6 lines)
+  const padEndDays = 42 - previousMonth.length - currentMonth.length
+  for (let i = 0; i < padEndDays; i++) {
+    nextMonth.push({
+      date: i + 1,
+      previousMonth: false,
+      nextMonth: true,
+    })
+  }
 
-    const onNav = (val: -1 | 1) => {
-      switch (level.value) {
-        case 0:
-          // nav on month
-          moveDisplayedMonth(val)
-          break
-        case 1:
-          moveDisplayedYear(val)
-          break
-        case 2:
-          moveDisplayedYearRange((val * 10) as -10 | 10)
-          break
-        default:
-          break
-      }
-    }
+  dateList.value = [...previousMonth, ...currentMonth, ...nextMonth]
+}
 
-    const onYearSelected = (year: number) => {
-      displayedYear.value = year
-      displayedYearRangeStartYear.value = getNearestDecadeStartYear(year)
-      downLevel()
-    }
-    const onMonthSelected = (month: number) => {
-      displayedMonth.value = month
-      downLevel()
-    }
-    const onDateSelectd = (date: { date: number; previousMonth: boolean; nextMonth: boolean }) => {
-      if (date.previousMonth) {
-        moveDisplayedMonth(-1)
-      }
-      if (date.nextMonth) {
-        moveDisplayedMonth(1)
-      }
-      tmpDate.value.setTime(new Date(displayedYear.value, displayedMonth.value, date.date).getTime())
-      emit('update:modelValue', tmpDate.value.toString())
-    }
-
-    const onTodaySelected = () => {
-      const today = new Date()
-      displayedYearRangeStartYear.value = getNearestDecadeStartYear(today.getFullYear())
-      displayedYear.value = today.getFullYear()
-      displayedMonth.value = today.getMonth()
-      tmpDate.value.setTime(today.getTime())
-      level.value = 0
-      emit('update:modelValue', tmpDate.value.toString())
-    }
-
-    watch(
-      [displayedYearRangeStartYear, displayedYear, displayedMonth],
-      () => {
-        calculateYearList()
-        calculateDateList()
-      },
-      { immediate: true }
-    )
-
-    watch(
-      () => props.modelValue,
-      () => {
-        if (props.modelValue) {
-          displayedYearRangeStartYear.value = getNearestDecadeStartYear(props.modelValue.getFullYear())
-          displayedYear.value = props.modelValue.getFullYear()
-          displayedMonth.value = props.modelValue.getMonth()
-        }
-      }
-    )
-
-    return {
-      t,
-      level,
-      title,
-      yearList,
-      monthList,
-      dateList,
-      onUpLevel,
-      onNav,
-      onYearSelected,
-      onMonthSelected,
-      onDateSelectd,
-      onTodaySelected,
-    }
-  },
+const title = computed(() => {
+  if (level.value === 0) {
+    // for date, display month
+    return `${displayedYear.value} ${t(`base.datepicker.month[${displayedMonth.value}]`)}`
+  }
+  if (level.value === 1) {
+    // for month, display yaer
+    return displayedYear.value
+  }
+  if (level.value === 2) {
+    // for year, display start year - end year
+    return `${yearList.value[1]} - ${yearList.value[10]}`
+  }
+  return ''
 })
 
-function getNearestDecadeStartYear(year: number) {
-  return year - (year % 10)
+const onUpLevel = () => (level.value = level.value === 2 ? 2 : ++level.value)
+const downLevel = () => (level.value = level.value === 0 ? 0 : --level.value)
+
+const moveDisplayedYearRange = (val: -10 | 10) =>
+  (displayedYearRangeStartYear.value = displayedYearRangeStartYear.value + val)
+const moveDisplayedYear = (val: -1 | 1) => {
+  displayedYear.value = displayedYear.value + val
+  if (
+    displayedYear.value < displayedYearRangeStartYear.value ||
+    displayedYear.value > displayedYearRangeStartYear.value + 10
+  ) {
+    moveDisplayedYearRange((val * 10) as -10 | 10)
+  }
 }
+const moveDisplayedMonth = (val: -1 | 1) => {
+  displayedMonth.value = displayedMonth.value + val
+  if (displayedMonth.value < 0 || displayedMonth.value > 11) {
+    displayedMonth.value = (12 + displayedMonth.value) % 12
+    moveDisplayedYear(val)
+  }
+}
+
+const onNav = (val: -1 | 1) => {
+  switch (level.value) {
+    case 0:
+      // nav on month
+      moveDisplayedMonth(val)
+      break
+    case 1:
+      moveDisplayedYear(val)
+      break
+    case 2:
+      moveDisplayedYearRange((val * 10) as -10 | 10)
+      break
+    default:
+      break
+  }
+}
+
+const onYearSelected = (year: number) => {
+  displayedYear.value = year
+  displayedYearRangeStartYear.value = getNearestDecadeStartYear(year)
+  downLevel()
+}
+const onMonthSelected = (month: number) => {
+  displayedMonth.value = month
+  downLevel()
+}
+const onDateSelectd = (date: { date: number; previousMonth: boolean; nextMonth: boolean }) => {
+  if (date.previousMonth) {
+    moveDisplayedMonth(-1)
+  }
+  if (date.nextMonth) {
+    moveDisplayedMonth(1)
+  }
+  tmpDate.value.setTime(new Date(displayedYear.value, displayedMonth.value, date.date).getTime())
+  emit('update:modelValue', tmpDate.value.toString())
+}
+
+const onTodaySelected = () => {
+  const today = new Date()
+  displayedYearRangeStartYear.value = getNearestDecadeStartYear(today.getFullYear())
+  displayedYear.value = today.getFullYear()
+  displayedMonth.value = today.getMonth()
+  tmpDate.value.setTime(today.getTime())
+  level.value = 0
+  emit('update:modelValue', tmpDate.value.toString())
+}
+
+watch(
+  [displayedYearRangeStartYear, displayedYear, displayedMonth],
+  () => {
+    calculateYearList()
+    calculateDateList()
+  },
+  { immediate: true }
+)
+
+watch(
+  () => props.modelValue,
+  () => {
+    if (props.modelValue) {
+      displayedYearRangeStartYear.value = getNearestDecadeStartYear(props.modelValue.getFullYear())
+      displayedYear.value = props.modelValue.getFullYear()
+      displayedMonth.value = props.modelValue.getMonth()
+    }
+  }
+)
 </script>
 
 <template>

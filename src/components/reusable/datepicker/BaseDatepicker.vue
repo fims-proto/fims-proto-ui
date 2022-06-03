@@ -1,47 +1,35 @@
-<script lang="ts">
-import { computed, defineComponent, PropType, ref, toRefs } from 'vue'
+<script setup lang="ts">
+import { PropType, ref, computed } from 'vue'
 import { VBinder, VFollower, VTarget } from 'vueuc'
 
-export default defineComponent({
-  components: { VBinder, VTarget, VFollower },
-  props: {
-    modelValue: Date,
-    placement: {
-      type: String as PropType<'bottom-start' | 'bottom-end'>,
-      default: 'bottom-start',
-    },
-  },
-  emits: ['update:modelValue'],
-  setup(props, { emit }) {
-    const { modelValue } = toRefs(props)
-    const show = ref(false)
-
-    const formattedInputDate = computed(() => {
-      if (!modelValue.value) {
-        return ''
-      }
-      const year = modelValue.value.getFullYear()
-      const month = (modelValue.value.getMonth() + 1).toString().padStart(2, '0')
-      const date = modelValue.value.getDate().toString().padStart(2, '0')
-      return `${year}-${month}-${date}`
-    })
-
-    const open = () => (show.value = true)
-    const close = () => (show.value = false)
-    const onValueUpdated = (value: string) => {
-      emit('update:modelValue', new Date(value))
-      close()
-    }
-
-    return {
-      show,
-      formattedInputDate,
-      open,
-      close,
-      onValueUpdated,
-    }
+const props = defineProps({
+  modelValue: Date,
+  placement: {
+    type: String as PropType<'bottom-start' | 'bottom-end'>,
+    default: 'bottom-start',
   },
 })
+
+const emit = defineEmits<{
+  (event: 'update:modelValue', value: Date): void
+}>()
+
+const show = ref(false)
+
+const formattedInputDate = computed(() => {
+  if (!props.modelValue) {
+    return ''
+  }
+  const year = props.modelValue.getFullYear()
+  const month = (props.modelValue.getMonth() + 1).toString().padStart(2, '0')
+  const date = props.modelValue.getDate().toString().padStart(2, '0')
+  return `${year}-${month}-${date}`
+})
+
+const onValueUpdated = (value: string) => {
+  emit('update:modelValue', new Date(value))
+  show.value = false
+}
 </script>
 
 <template>
@@ -53,7 +41,7 @@ export default defineComponent({
           :hide-label="true"
           :model-value="formattedInputDate"
           autocomplete="off"
-          @focus="open"
+          @focus="show = true"
           @update:model-value="onValueUpdated"
         />
       </v-target>

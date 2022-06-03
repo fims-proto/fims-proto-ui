@@ -1,52 +1,41 @@
-<script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue'
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
-import { LedgerService, Period } from '../../domain'
+import { useRoute, useRouter, onBeforeRouteUpdate } from 'vue-router'
+import { Period, LedgerService } from '../../domain'
 
-export default defineComponent({
-  props: {
-    sobId: {
-      type: String,
-      required: true,
-    },
-  },
-  setup(props) {
-    const { t } = useI18n()
-    const route = useRoute()
-    const router = useRouter()
+const props = defineProps<{
+  sobId: string
+}>()
 
-    const periods = ref<Period[]>()
+const { t } = useI18n()
+const route = useRoute()
+const router = useRouter()
 
-    onMounted(async () => {
-      periods.value = await LedgerService.getAllPeriods(props.sobId)
+const periods = ref<Period[]>()
 
-      if (route.name === 'ledgerMain') {
-        const openPeriod = periods.value?.find((period) => !period.isClosed)
-        if (openPeriod) {
-          console.log('display default period')
-          router.replace({
-            name: 'ledgerList',
-            params: {
-              sobId: props.sobId,
-              periodId: openPeriod.id,
-            },
-          })
-        }
-      }
-    })
+onMounted(async () => {
+  periods.value = await LedgerService.getAllPeriods(props.sobId)
 
-    onBeforeRouteUpdate(async (to, from) => {
-      if (from.name === 'ledgerList' && to.name === 'ledgerMain') {
-        return false
-      }
-    })
-
-    return {
-      t,
-      periods,
+  if (route.name === 'ledgerMain') {
+    const openPeriod = periods.value?.find((period) => !period.isClosed)
+    if (openPeriod) {
+      console.log('display default period')
+      router.replace({
+        name: 'ledgerList',
+        params: {
+          sobId: props.sobId,
+          periodId: openPeriod.id,
+        },
+      })
     }
-  },
+  }
+})
+
+onBeforeRouteUpdate(async (to, from) => {
+  if (from.name === 'ledgerList' && to.name === 'ledgerMain') {
+    return false
+  }
 })
 </script>
 

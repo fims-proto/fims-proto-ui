@@ -1,63 +1,46 @@
 <script lang="ts">
-import { computed, defineComponent } from 'vue'
-import { injectForm, injectFormItem } from './context'
+export default defineComponent({ inheritAttrs: false })
+</script>
 
-export default defineComponent({
-  inheritAttrs: false,
-  props: {
-    modelValue: { type: [String, Number, Date], default: undefined },
-    prefix: { type: String, default: undefined },
-    suffix: { type: String, default: undefined },
-  },
-  emits: ['update:modelValue'],
-  setup(props, { attrs, slots, emit }) {
-    const Form = injectForm()
-    const FormItem = injectFormItem()
-    const attrClass = attrs['class']
-    const attrExceptClass = Object.assign({}, attrs) // attrs is a proxy, use assign to deep copy it
+<script setup lang="ts">
+import { computed, defineComponent, useAttrs, useSlots } from 'vue'
 
-    // remove class from attrs
-    if (attrExceptClass['class']) {
-      attrExceptClass['class'] = undefined
-    }
+const props = defineProps<{
+  modelValue?: string | number | Date
+  prefix?: string
+  suffix?: string
+}>()
 
-    const inputValue = computed(() => {
-      if (!props.modelValue || attrExceptClass['type'] !== 'date') {
-        return props.modelValue
-      }
-      // html date input only accepts string "YYYY-mm-dd"
-      const inputDate = props.modelValue as Date
-      const year = inputDate.getFullYear()
-      const month = (inputDate.getMonth() + 1).toString().padStart(2, '0')
-      const date = inputDate.getDate().toString().padStart(2, '0')
-      return `${year}-${month}-${date}`
-    })
+const emit = defineEmits<{
+  (event: 'update:modelValue', value: Date | string): void
+}>()
 
-    const onValueUpdate = (event: Event) => {
-      let val = (event.target as HTMLInputElement).value
-      if (attrExceptClass['type'] === 'date') {
-        emit('update:modelValue', new Date(val))
-      } else {
-        emit('update:modelValue', val)
-      }
-    }
+const attrClass = useAttrs()['class']
+const attrExceptClass = Object.assign({}, useAttrs(), { class: undefined }) // remove class from attrs
 
-    return {
-      inputId: FormItem?.inputId.value,
-      attrClass,
-      attrExceptClass,
-      inputValue,
-      onValueUpdate,
-      hideRequiredMark: Form?.hideRequiredMark.value,
-      hasPrefix() {
-        return !!props.prefix || !!slots['prefix']
-      },
-      hasSuffix() {
-        return !!props.suffix || !!slots['suffix']
-      },
-    }
-  },
+const inputValue = computed(() => {
+  if (!props.modelValue || attrExceptClass['type'] !== 'date') {
+    return props.modelValue
+  }
+  // html date input only accepts string "YYYY-mm-dd"
+  const inputDate = props.modelValue as Date
+  const year = inputDate.getFullYear()
+  const month = (inputDate.getMonth() + 1).toString().padStart(2, '0')
+  const date = inputDate.getDate().toString().padStart(2, '0')
+  return `${year}-${month}-${date}`
 })
+
+const onValueUpdate = (event: Event) => {
+  const val = (event.target as HTMLInputElement).value
+  if (attrExceptClass['type'] === 'date') {
+    emit('update:modelValue', new Date(val))
+  } else {
+    emit('update:modelValue', val)
+  }
+}
+
+const hasPrefix = () => !!props.prefix || !!useSlots()['prefix']
+const hasSuffix = () => !!props.suffix || !!useSlots()['suffix']
 </script>
 
 <template>
@@ -72,7 +55,6 @@ export default defineComponent({
       <slot name="prefix">{{ prefix }}</slot>
     </span>
     <input
-      :id="inputId"
       :class="[
         'appearance-none w-full text-sm placeholder-neutral-500 border-0 border-y border-l border-neutral-300',
         'focus:z-10 focus:outline-none focus:border-transparent focus:ring-offset-2 focus:ring focus:ring-primary-500',

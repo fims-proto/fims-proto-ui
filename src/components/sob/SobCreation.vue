@@ -1,64 +1,53 @@
-<script lang="ts">
-import { defineComponent, ref } from 'vue'
+<script setup lang="ts">
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { LedgerService, NewSob, SobService } from '../../domain'
+import { NewSob, SobService, LedgerService } from '../../domain'
 import { useSobStore } from '../../store/sob'
 
-export default defineComponent({
-  setup() {
-    const t = useI18n().t
-    const router = useRouter()
-    const sobStore = useSobStore()
+const t = useI18n().t
+const router = useRouter()
+const sobStore = useSobStore()
 
-    const { year, month } = getCurrentUTCTime()
+const { year, month } = getCurrentUTCTime()
 
-    const newSob = ref<NewSob>({
-      name: '',
-      description: undefined,
-      baseCurrency: 'CNY',
-      startingPeriodYear: year,
-      startingPeriodMonth: month,
-      accountsCodeLength: [4, 3, 3],
-    })
-
-    const handleSubmit = async () => {
-      // parse number
-      newSob.value.startingPeriodYear = Number(newSob.value.startingPeriodYear)
-      newSob.value.startingPeriodMonth = Number(newSob.value.startingPeriodMonth)
-      for (const i in newSob.value.accountsCodeLength) {
-        newSob.value.accountsCodeLength[i] = Number(newSob.value.accountsCodeLength[i])
-      }
-      const createdSob = await SobService.createSob(newSob.value)
-
-      // create accounting period as well
-      await LedgerService.createPeriod({
-        sobId: createdSob.id,
-        financialYear: createdSob.startingPeriodYear,
-        number: createdSob.startingPeriodMonth,
-      })
-
-      sobStore.action.refreshSobs()
-      router.replace({
-        name: 'sobDetail',
-        params: { sobId: createdSob.id },
-      })
-    }
-
-    return {
-      t,
-      newSob,
-      handleExtend() {
-        newSob.value.accountsCodeLength.push(2)
-      },
-      handleShorten() {
-        newSob.value.accountsCodeLength.pop()
-      },
-      handleSubmit,
-    }
-  },
+const newSob = ref<NewSob>({
+  name: '',
+  description: undefined,
+  baseCurrency: 'CNY',
+  startingPeriodYear: year,
+  startingPeriodMonth: month,
+  accountsCodeLength: [4, 3, 3],
 })
 
+const handleSubmit = async () => {
+  // parse number
+  newSob.value.startingPeriodYear = Number(newSob.value.startingPeriodYear)
+  newSob.value.startingPeriodMonth = Number(newSob.value.startingPeriodMonth)
+  for (const i in newSob.value.accountsCodeLength) {
+    newSob.value.accountsCodeLength[i] = Number(newSob.value.accountsCodeLength[i])
+  }
+  const createdSob = await SobService.createSob(newSob.value)
+
+  // create accounting period as well
+  await LedgerService.createPeriod({
+    sobId: createdSob.id,
+    financialYear: createdSob.startingPeriodYear,
+    number: createdSob.startingPeriodMonth,
+  })
+
+  sobStore.action.refreshSobs()
+  router.replace({
+    name: 'sobDetail',
+    params: { sobId: createdSob.id },
+  })
+}
+
+const onExtend = () => newSob.value.accountsCodeLength.push(2)
+const onShorten = () => newSob.value.accountsCodeLength.pop()
+</script>
+
+<script lang="ts">
 function getCurrentUTCTime() {
   const current = new Date()
   return {
@@ -122,8 +111,8 @@ function getCurrentUTCTime() {
             </base-input-group>
 
             <base-button-group>
-              <base-button @click.prevent="handleShorten">-</base-button>
-              <base-button @click.prevent="handleExtend">+</base-button>
+              <base-button @click.prevent="onShorten">-</base-button>
+              <base-button @click.prevent="onExtend">+</base-button>
             </base-button-group>
           </div>
         </base-form-item>

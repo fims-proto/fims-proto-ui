@@ -1,26 +1,25 @@
 <script lang="ts">
+export default defineComponent({ inheritAttrs: false })
+</script>
+
+<script setup lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { injectButtonGroup } from './context'
 
-export default defineComponent({
-  inheritAttrs: false,
-  props: {
-    category: {
-      type: String as PropType<'primary' | 'default' | 'text' | 'link'>,
-      default: 'default',
-    },
-    disabled: Boolean,
-    busy: Boolean,
+const props = defineProps({
+  category: {
+    type: String as PropType<'primary' | 'default' | 'text' | 'link'>,
+    default: 'default',
   },
-  setup(props) {
-    const ButtonGroup = injectButtonGroup()
-
-    return {
-      is: (t: string) => props.category === t,
-      insideGroup: ButtonGroup?.insideGroup.value,
-    }
-  },
+  disabled: Boolean,
+  busy: Boolean,
 })
+
+const ButtonGroup = injectButtonGroup()
+
+const is = (t: string) => props.category === t
+
+const insideGroup = ButtonGroup?.insideGroup.value
 </script>
 
 <template>

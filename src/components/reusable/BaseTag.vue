@@ -1,32 +1,19 @@
-<script lang="ts">
-import { defineComponent, PropType, ref } from 'vue'
+<script setup lang="ts">
+import { PropType, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-export default defineComponent({
-  inheritAttrs: false,
-  props: {
-    color: {
-      type: String as PropType<'error' | 'info' | 'success' | 'warning'>,
-      default: 'info',
-    },
-    closable: Boolean,
+const props = defineProps({
+  color: {
+    type: String as PropType<'error' | 'info' | 'success' | 'warning'>,
+    default: 'info',
   },
-  setup(props) {
-    const t = useI18n().t
-    const closed = ref(false)
-
-    return {
-      t,
-      closed,
-      is(t: string | undefined) {
-        return props.color === t
-      },
-      handleClose() {
-        closed.value = true
-      },
-    }
-  },
+  closable: Boolean,
 })
+
+const { t } = useI18n()
+const closed = ref(false)
+
+const is = (t: string | undefined) => props.color === t
 </script>
 
 <template>
@@ -52,7 +39,7 @@ export default defineComponent({
         'hover:bg-success-300': is('success'),
         'hover:bg-primary-300': is('info'),
       }"
-      @click.prevent="handleClose"
+      @click.prevent="closed = true"
     >
       <span class="sr-only">{{ t('action.close') }}</span>
       <x-outline-icon class="h-3 w-3" aria-hidden="true" />

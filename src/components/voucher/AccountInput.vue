@@ -1,62 +1,48 @@
-<script lang="ts">
-import { defineComponent, ref, toRefs, watch } from 'vue'
+<script setup lang="ts">
+import { toRefs, ref, watch } from 'vue'
 import { VBinder, VTarget, VFollower } from 'vueuc'
 import { Account, AccountService } from '../../domain'
 import { useSobStore } from '../../store/sob'
 
-export default defineComponent({
-  components: { VBinder, VTarget, VFollower },
-  inheritAttrs: false,
-  props: {
-    disabled: Boolean,
-    modelValue: {
-      type: String,
-      required: true,
-    },
-  },
-  emits: ['update:modelValue'],
-  setup(props, { emit }) {
-    const { workingSob } = toRefs(useSobStore().state)
+const props = defineProps<{
+  modelValue: string
+  disabled?: boolean
+}>()
 
-    const query = ref('')
-    const filteredAccounts = ref<Account[]>([])
-    const selectedAccount = ref<Account>()
+const emit = defineEmits<{
+  (event: 'update:modelValue', value: string): void
+}>()
 
-    watch(
-      () => props.modelValue,
-      async () => {
-        if (!workingSob.value || !props.modelValue) {
-          selectedAccount.value = undefined
-          return
-        }
-        selectedAccount.value = await AccountService.getAccountByNumber(workingSob.value.id, props.modelValue)
-      },
-      { immediate: true }
-    )
+const { workingSob } = toRefs(useSobStore().state)
+const query = ref('')
+const filteredAccounts = ref<Account[]>([])
+const selectedAccount = ref<Account>()
 
-    watch(query, async () => {
-      if (!workingSob.value || !query.value.trim()) {
-        filteredAccounts.value = []
-        return
-      }
-      const result = await AccountService.getAccountsStartsWithNumber(workingSob.value.id, query.value)
-      filteredAccounts.value = result.content
-    })
-
-    const onUpdate = (account: Account) => {
-      selectedAccount.value = account
-      emit('update:modelValue', account ? account.accountNumber : '')
+watch(
+  () => props.modelValue,
+  async () => {
+    if (!workingSob.value || !props.modelValue) {
+      selectedAccount.value = undefined
+      return
     }
-
-    return {
-      query,
-      selectedAccount,
-      filteredAccounts,
-      onUpdate,
-      displayAccountNumber: (account: unknown) => (account ? (account as Account).accountNumber : ''),
-    }
+    selectedAccount.value = await AccountService.getAccountByNumber(workingSob.value.id, props.modelValue)
   },
+  { immediate: true }
+)
+
+watch(query, async () => {
+  if (!workingSob.value || !query.value.trim()) {
+    filteredAccounts.value = []
+    return
+  }
+  const result = await AccountService.getAccountsStartsWithNumber(workingSob.value.id, query.value)
+  filteredAccounts.value = result.content
 })
+
+const onUpdate = (account: Account) => {
+  selectedAccount.value = account
+  emit('update:modelValue', account ? account.accountNumber : '')
+}
 </script>
 
 <template>
@@ -66,7 +52,7 @@ export default defineComponent({
         <v-target>
           <combobox-input
             :disabled="disabled"
-            :display-value="displayAccountNumber"
+            :display-value="(account: unknown) => (account ? (account as Account).accountNumber : '')"
             class="appearance-none w-full border-none px-3 py-2"
             @change="query = $event.target.value"
           />

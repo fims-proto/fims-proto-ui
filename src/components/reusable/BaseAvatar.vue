@@ -1,45 +1,34 @@
-<script lang="ts">
-import { defineComponent, onMounted, onUpdated, ref } from 'vue'
+<script setup lang="ts">
+import { ref, onUpdated } from 'vue'
 
-export default defineComponent({
-  props: {
-    customSizing: Boolean,
-    customColor: Boolean,
-  },
-  setup() {
-    const containerRef = ref<HTMLElement>()
-    const contentRef = ref<HTMLElement>()
-    const scale = ref(1)
+defineProps<{
+  customSizing?: boolean
+  customColor?: boolean
+}>()
 
-    const setScaleStyle = () => {
-      const gap = 8
-      if (!containerRef.value || !contentRef.value) {
-        return
-      }
+const containerRef = ref<HTMLElement>()
+const contentRef = ref<HTMLElement>()
+const scale = ref(1)
 
-      const containerWidth = containerRef.value.offsetWidth
-      const contentWidth = contentRef.value.offsetWidth
-      if (containerWidth !== 0 && contentWidth !== 0 && contentWidth + gap >= containerWidth) {
-        scale.value = (containerWidth - gap) / contentWidth
-      } else {
-        scale.value = 1
-      }
-    }
+const setScaleStyle = () => {
+  const gap = 8
+  if (!containerRef.value || !contentRef.value) {
+    return
+  }
 
-    onMounted(() => {
-      setScaleStyle()
-    })
+  const containerWidth = containerRef.value.offsetWidth
+  const contentWidth = contentRef.value.offsetWidth
+  if (containerWidth !== 0 && contentWidth !== 0 && contentWidth + gap >= containerWidth) {
+    scale.value = (containerWidth - gap) / contentWidth
+  } else {
+    scale.value = 1
+  }
+}
 
-    onUpdated(() => {
-      setScaleStyle()
-    })
+setScaleStyle()
 
-    return {
-      containerRef,
-      contentRef,
-      scale,
-    }
-  },
+onUpdated(() => {
+  setScaleStyle()
 })
 </script>
 

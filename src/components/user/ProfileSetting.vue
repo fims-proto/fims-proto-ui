@@ -1,11 +1,50 @@
-<script lang="ts">
-import { SelfServiceSettingsFlow, SubmitSelfServiceSettingsFlowBody, UiText } from '@ory/kratos-client'
-import { defineComponent, onMounted } from 'vue'
-import { ref } from 'vue'
+<script setup lang="ts">
+import { SelfServiceSettingsFlow, UiNode, UiText, SubmitSelfServiceSettingsFlowBody } from '@ory/kratos-client'
+import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { KratosService, UiNode } from '../../domain'
+import { KratosService } from '../../domain'
 import { useUserStore } from '../../store/user'
 
+const { t } = useI18n()
+const userStore = useUserStore()
+
+const formBusy = ref(true)
+const messages = ref<messageType[]>([])
+
+const flow = ref<SelfServiceSettingsFlow | undefined>()
+const profileFormValue = ref<profileFormType>({
+  csrf_token: '',
+  method: '',
+  traits: { email: '', name: { first: '', last: '' } },
+})
+const passwordFormValue = ref<passwordFormType>({ csrf_token: '', method: '', password: '' })
+
+onMounted(async () => {
+  flow.value = await KratosService.initSettingFlow()
+  profileFormValue.value = buildProfileForm(filterNodes('profile', flow.value) as UiNode[])
+  passwordFormValue.value = buildPasswordForm(filterNodes('password', flow.value) as UiNode[])
+  messages.value = buildMessages(flow.value)
+  formBusy.value = false
+})
+
+const handleSubmit = async (formValue: SubmitSelfServiceSettingsFlowBody) => {
+  formBusy.value = true
+  if (!flow.value) {
+    alert('should not happen: no flow id')
+    return
+  }
+
+  flow.value = await KratosService.submitSettingFlow(flow.value?.id, formValue)
+  profileFormValue.value = buildProfileForm(filterNodes('profile', flow.value) as UiNode[])
+  passwordFormValue.value = buildPasswordForm(filterNodes('password', flow.value) as UiNode[])
+  messages.value = buildMessages(flow.value)
+  formBusy.value = false
+
+  userStore.action.loadUser()
+}
+</script>
+
+<script lang="ts">
 interface profileFormType {
   csrf_token: string
   method: string
@@ -28,62 +67,6 @@ interface messageType {
   type?: 'error' | 'info' | 'success' | 'warning' | undefined
   text: string
 }
-
-export default defineComponent({
-  setup() {
-    const t = useI18n().t
-    const userStore = useUserStore()
-
-    const messages = ref<messageType[]>([])
-    const flow = ref<SelfServiceSettingsFlow | undefined>()
-    const formBusy = ref(true)
-    const profileFormValue = ref<profileFormType>({
-      csrf_token: '',
-      method: '',
-      traits: { email: '', name: { first: '', last: '' } },
-    })
-    const passwordFormValue = ref<passwordFormType>({ csrf_token: '', method: '', password: '' })
-
-    onMounted(async () => {
-      flow.value = await KratosService.initSettingFlow()
-      profileFormValue.value = buildProfileForm(filterNodes('profile', flow.value) as UiNode[])
-      passwordFormValue.value = buildPasswordForm(filterNodes('password', flow.value) as UiNode[])
-      messages.value = buildMessages(flow.value)
-      formBusy.value = false
-    })
-
-    const handleSubmit = async (formValue: SubmitSelfServiceSettingsFlowBody) => {
-      formBusy.value = true
-      if (!flow.value) {
-        alert('should not happen: no flow id')
-        return
-      }
-
-      flow.value = await KratosService.submitSettingFlow(flow.value?.id, formValue)
-      profileFormValue.value = buildProfileForm(filterNodes('profile', flow.value) as UiNode[])
-      passwordFormValue.value = buildPasswordForm(filterNodes('password', flow.value) as UiNode[])
-      messages.value = buildMessages(flow.value)
-      formBusy.value = false
-
-      userStore.action.loadUser()
-    }
-
-    return {
-      t,
-      activeKey: ref('profile'),
-      formBusy,
-      messages,
-      profileFormValue,
-      passwordFormValue,
-      onProfileSubmit() {
-        handleSubmit(profileFormValue.value)
-      },
-      onPasswordSubmit() {
-        handleSubmit(passwordFormValue.value)
-      },
-    }
-  },
-})
 
 function filterNodes(group: string, flow: SelfServiceSettingsFlow | undefined) {
   return flow?.ui.nodes.filter((node) => node.group == 'default' || node.group == group)
@@ -157,7 +140,7 @@ function buildMessages(flow: SelfServiceSettingsFlow | undefined): messageType[]
         <template #panels>
           <!-- profile update -->
           <base-tab-panel class="max-w-xl">
-            <base-form @submit="onProfileSubmit">
+            <base-form @submit="handleSubmit(profileFormValue)">
               <input v-model="profileFormValue.csrf_token" type="hidden" />
               <base-form-item :label="t('user.email')" required>
                 <base-input
@@ -193,7 +176,7 @@ function buildMessages(flow: SelfServiceSettingsFlow | undefined): messageType[]
 
           <!-- password update -->
           <base-tab-panel class="max-w-xl">
-            <base-form @submit="onPasswordSubmit">
+            <base-form @submit="handleSubmit(passwordFormValue)">
               <input v-model="passwordFormValue.csrf_token" type="hidden" />
               <!-- hidden username field for browser autocomplete -->
               <input

@@ -1,85 +1,70 @@
-<script lang="ts">
-import { computed, defineComponent, toRefs } from 'vue'
+<script setup lang="ts">
+import { toRefs, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useSobStore } from '../store/sob'
 import { useRouter } from 'vue-router'
-import { useUserStore } from '../store/user'
 import { UserService } from '../domain'
+import { useSobStore } from '../store/sob'
+import { useUserStore } from '../store/user'
 
-export default defineComponent({
-  setup() {
-    const t = useI18n().t
-    const router = useRouter()
-    const sobStore = useSobStore()
-    const userStore = useUserStore()
+const { t } = useI18n()
+const router = useRouter()
+const sobStore = useSobStore()
+const userStore = useUserStore()
 
-    const { sobs, workingSob, currentPeriod } = toRefs(sobStore.state)
-    const { traits: userInfo } = toRefs(userStore.state)
+const { sobs, workingSob, currentPeriod } = toRefs(sobStore.state)
+const { traits: userInfo } = toRefs(userStore.state)
 
-    const navigation = computed(() => {
-      const items = []
+const navigation = computed(() => {
+  const items = []
 
-      if (workingSob.value?.id) {
-        items.push({
-          key: 'voucher',
-          label: t('voucher.title'),
-          to: {
-            name: 'voucherMain',
-            params: {
-              sobId: workingSob.value?.id,
-            },
-          },
-        })
-        items.push({
-          key: 'legder',
-          label: t('ledger.title'),
-          to: {
-            name: 'ledgerMain',
-            params: {
-              sobId: workingSob.value?.id,
-            },
-          },
-        })
-      }
-
-      return items
+  if (workingSob.value?.id) {
+    items.push({
+      key: 'voucher',
+      label: t('voucher.title'),
+      to: {
+        name: 'voucherMain',
+        params: {
+          sobId: workingSob.value?.id,
+        },
+      },
     })
-
-    const period = computed(() => {
-      return currentPeriod.value
-        ? `${currentPeriod.value.financialYear}-${currentPeriod.value.number}`
-        : t('ledger.periodUnselected')
+    items.push({
+      key: 'legder',
+      label: t('ledger.title'),
+      to: {
+        name: 'ledgerMain',
+        params: {
+          sobId: workingSob.value?.id,
+        },
+      },
     })
+  }
 
-    const onUserMenuSelected = (key: string) => {
-      if (key === 'update-profile') {
-        router.push({ name: 'profile' })
-      } else if (key === 'logout') {
-        UserService.logout()
-      }
-    }
-
-    const onSobSelected = async (command: string) => {
-      if (command === 'nav') {
-        router.push({ name: 'sobMain' })
-      } else {
-        await sobStore.action.setWorkingSob(command)
-        router.push({ name: 'home' })
-      }
-    }
-
-    return {
-      t,
-      navigation,
-      userInfo,
-      sobs,
-      workingSob,
-      period,
-      onUserMenuSelected,
-      onSobSelected,
-    }
-  },
+  return items
 })
+
+const period = computed(() => {
+  return currentPeriod.value
+    ? `${currentPeriod.value.financialYear}-${currentPeriod.value.number}`
+    : t('ledger.periodUnselected')
+})
+
+const onUserMenuSelected = (key: string) => {
+  if (key === 'update-profile') {
+    router.push({ name: 'profile' })
+  } else if (key === 'logout') {
+    UserService.logout()
+  }
+}
+
+const onSobSelected = async (command: string) => {
+  if (command === 'nav') {
+    router.push({ name: 'sobMain' })
+  } else {
+    await sobStore.action.setWorkingSob(command)
+    router.push({ name: 'home' })
+  }
+}
 </script>
 
 <template>

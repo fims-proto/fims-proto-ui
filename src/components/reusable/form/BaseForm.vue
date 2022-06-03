@@ -1,27 +1,19 @@
-<script lang="ts">
-import { defineComponent, toRefs } from 'vue'
+<script setup lang="ts">
+import { computed } from 'vue'
 import { provideForm } from './context'
 
-export default defineComponent({
-  props: {
-    name: {
-      type: String,
-      default: undefined,
-    },
-    hideRequiredMark: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  emits: ['submit'],
-  setup(props) {
-    const { name, hideRequiredMark } = toRefs(props)
+const props = defineProps<{
+  name?: string
+  hideRequiredMark?: boolean
+}>()
 
-    provideForm({
-      name: name,
-      hideRequiredMark,
-    })
-  },
+defineEmits<{
+  (e: 'submit'): void
+}>()
+
+provideForm({
+  name: computed(() => props.name),
+  hideRequiredMark: computed(() => props.hideRequiredMark ?? false),
 })
 </script>
 

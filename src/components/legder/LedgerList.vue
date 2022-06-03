@@ -1,39 +1,24 @@
-<script lang="ts">
-import { defineComponent, ref, watch } from 'vue'
+<script setup lang="ts">
+import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Ledger, LedgerService } from '../../domain'
 
-export default defineComponent({
-  props: {
-    sobId: {
-      type: String,
-      required: true,
-    },
-    periodId: {
-      type: String,
-      required: true,
-    },
+const props = defineProps<{
+  sobId: string
+  periodId: string
+}>()
+
+const { t, n } = useI18n()
+
+const ledgers = ref<Ledger[]>([])
+
+watch(
+  [() => props.sobId, () => props.periodId],
+  async () => {
+    ledgers.value = await LedgerService.getAllLedgersInPeriod(props.sobId, props.periodId as string)
   },
-  setup(props) {
-    const { t, n } = useI18n()
-
-    const ledgers = ref<Ledger[]>([])
-
-    watch(
-      [() => props.sobId, () => props.periodId],
-      async () => {
-        ledgers.value = await LedgerService.getAllLedgersInPeriod(props.sobId, props.periodId as string)
-      },
-      { immediate: true }
-    )
-
-    return {
-      t,
-      n,
-      ledgers,
-    }
-  },
-})
+  { immediate: true }
+)
 </script>
 
 <template>

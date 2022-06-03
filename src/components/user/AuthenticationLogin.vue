@@ -1,16 +1,4 @@
 <script lang="ts">
-import {
-  JsonError,
-  SelfServiceLoginFlow,
-  SubmitSelfServiceLoginFlowWithPasswordMethodBody,
-  UiNodeInputAttributes,
-} from '@ory/kratos-client'
-import { defineComponent, onMounted, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useRoute, useRouter } from 'vue-router'
-import { KratosService, UiText } from '../../domain'
-import { useUserStore } from '../../store/user'
-
 interface formValueType {
   flowId: string
   method: string
@@ -25,68 +13,6 @@ interface messageType {
   type?: 'error' | 'info' | 'success' | 'warning' | undefined
   text: string
 }
-
-export default defineComponent({
-  setup() {
-    const route = useRoute()
-    const router = useRouter()
-    const i18n = useI18n()
-    const userStore = useUserStore()
-
-    const messages = ref<messageType[]>([])
-    const formValue = ref<formValueType>({ flowId: '', method: '', user: { email: '', password: '' }, csrfToken: '' })
-    const formBusy = ref(true)
-
-    onMounted(async () => {
-      const result = await KratosService.initLoginFlow()
-      if ('error' in result) {
-        messages.value = [
-          {
-            type: 'error',
-            text: (result as JsonError).error.message,
-          },
-        ]
-      } else {
-        formValue.value = buildFormValue(result)
-        messages.value = buildMessages(result)
-      }
-      formBusy.value = false
-    })
-
-    const handleSubmit = async () => {
-      formBusy.value = true
-      if (!formValue.value.flowId) {
-        alert('should not happen: no flow id')
-        return
-      }
-
-      const result = await KratosService.submitLoginFlow(formValue.value.flowId, buildSumitForm(formValue.value))
-      if ('session' in result) {
-        userStore.action.loadUser()
-
-        const returnTo = route.query['return_to'] as string
-        if (returnTo) {
-          location.replace(returnTo)
-        } else {
-          router.replace({ name: 'home' })
-        }
-        return
-      }
-      // otherwise, flow is retured
-      formValue.value = buildFormValue(result)
-      messages.value = buildMessages(result)
-      formBusy.value = false
-    }
-
-    return {
-      formValue,
-      formBusy,
-      messages,
-      handleSubmit,
-      t: i18n.t,
-    }
-  },
-})
 
 function buildFormValue(flow: SelfServiceLoginFlow): formValueType {
   const getValue = (attr: string) =>
@@ -135,6 +61,71 @@ function buildMessages(flow: SelfServiceLoginFlow): messageType[] {
     flow.ui.messages?.map(createMessage) ?? [],
     flow.ui.nodes.flatMap((node) => node.messages).map(createMessage) ?? [],
   ].flat()
+}
+</script>
+
+<script setup lang="ts">
+import {
+  SelfServiceLoginFlow,
+  UiNodeInputAttributes,
+  SubmitSelfServiceLoginFlowWithPasswordMethodBody,
+  UiText,
+  JsonError,
+} from '@ory/kratos-client'
+import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRoute, useRouter } from 'vue-router'
+import { KratosService } from '../../domain'
+import { useUserStore } from '../../store/user'
+
+const { t } = useI18n()
+const route = useRoute()
+const router = useRouter()
+const userStore = useUserStore()
+
+const messages = ref<messageType[]>([])
+const formValue = ref<formValueType>({ flowId: '', method: '', user: { email: '', password: '' }, csrfToken: '' })
+const formBusy = ref(true)
+
+onMounted(async () => {
+  const result = await KratosService.initLoginFlow()
+  if ('error' in result) {
+    messages.value = [
+      {
+        type: 'error',
+        text: (result as unknown as JsonError).error.message,
+      },
+    ]
+  } else {
+    formValue.value = buildFormValue(result)
+    messages.value = buildMessages(result)
+  }
+  formBusy.value = false
+})
+
+const handleSubmit = async () => {
+  formBusy.value = true
+  if (!formValue.value.flowId) {
+    alert('should not happen: no flow id')
+    return
+  }
+
+  const result = await KratosService.submitLoginFlow(formValue.value.flowId, buildSumitForm(formValue.value))
+  if ('session' in result) {
+    userStore.action.loadUser()
+
+    const returnTo = route.query['return_to'] as string
+    if (returnTo) {
+      location.replace(returnTo)
+    } else {
+      router.replace({ name: 'home' })
+    }
+    return
+  }
+  // otherwise, flow is retured
+  formValue.value = buildFormValue(result)
+  messages.value = buildMessages(result)
+  formBusy.value = false
 }
 </script>
 

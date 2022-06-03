@@ -1,41 +1,28 @@
-<script lang="ts">
-import { defineComponent, PropType, ref } from 'vue'
+<script setup lang="ts">
+import { PropType, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-export default defineComponent({
-  inheritAttrs: false,
-  props: {
-    type: {
-      type: String as PropType<'error' | 'info' | 'success' | 'warning'>,
-      default: 'info',
-    },
-    message: {
-      type: String,
-      default: '',
-    },
-    showIcon: {
-      type: Boolean,
-      default: true,
-    },
-    closable: Boolean,
-    banner: Boolean,
+const props = defineProps({
+  type: {
+    type: String as PropType<'error' | 'info' | 'success' | 'warning'>,
+    default: 'info',
   },
-  setup(props) {
-    const t = useI18n().t
-    const closed = ref(false)
-
-    return {
-      t,
-      closed,
-      is(t: string) {
-        return props.type === t
-      },
-      handleClose() {
-        closed.value = true
-      },
-    }
+  message: {
+    type: String,
+    default: '',
   },
+  showIcon: {
+    type: Boolean,
+    default: true,
+  },
+  closable: Boolean,
+  banner: Boolean,
 })
+
+const { t } = useI18n()
+const closed = ref(false)
+
+const is = (t: string) => props.type === t
 </script>
 
 <template>
@@ -73,7 +60,7 @@ export default defineComponent({
           'hover:bg-primary-300': is('info'),
         },
       ]"
-      @click.prevent="handleClose"
+      @click.prevent="closed = true"
     >
       <span class="sr-only">{{ t('action.close') }}</span>
       <x-outline-icon class="h-4 w-4" aria-hidden="true" />

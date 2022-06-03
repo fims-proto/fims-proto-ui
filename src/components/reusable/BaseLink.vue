@@ -1,14 +1,15 @@
 <script lang="ts">
+export default defineComponent({ inheritAttrs: false })
+</script>
+
+<script setup lang="ts">
 import { defineComponent } from 'vue'
 import { RouterLink } from 'vue-router'
 
-export default defineComponent({
-  inheritAttrs: false,
-  props: {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    ...RouterLink.props,
-  },
+defineProps({
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  ...RouterLink.props,
 })
 </script>
 

@@ -1,42 +1,30 @@
-<script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue'
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { VoucherService, Voucher } from '../../domain'
 
-export default defineComponent({
-  props: {
-    sobId: {
-      type: String,
-      required: true,
-    },
-  },
-  setup(props) {
-    const { t } = useI18n()
-    const router = useRouter()
+const props = defineProps<{
+  sobId: string
+}>()
 
-    const vouchers = ref<Voucher[]>([])
+const { t } = useI18n()
+const router = useRouter()
 
-    onMounted(async () => {
-      vouchers.value = await VoucherService.getAllVouchersBySod(props.sobId)
-    })
+const vouchers = ref<Voucher[]>([])
 
-    const onCreate = () => {
-      router.push({
-        name: 'voucherCreation',
-        params: {
-          sobId: props.sobId,
-        },
-      })
-    }
-
-    return {
-      t,
-      vouchers,
-      onCreate,
-    }
-  },
+onMounted(async () => {
+  vouchers.value = await VoucherService.getAllVouchersBySod(props.sobId)
 })
+
+const onCreate = () => {
+  router.push({
+    name: 'voucherCreation',
+    params: {
+      sobId: props.sobId,
+    },
+  })
+}
 </script>
 
 <template>

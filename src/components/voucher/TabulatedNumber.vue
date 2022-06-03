@@ -1,57 +1,52 @@
 <script lang="ts">
-import { computed, defineComponent, nextTick, ref, toRefs } from 'vue'
+const NUMBER_UNITS = '亿千百十万千百十元角分'
+export default defineComponent({ inheritAttrs: false })
+</script>
+
+<script setup lang="ts">
+import { ref, computed, nextTick, defineComponent } from 'vue'
 import TabulatedInput from './TabulatedInput.vue'
 
-const NUMBER_UNITS = '亿千百十万千百十元角分'
+const props = defineProps<{
+  modelValue?: number
+  disabled?: boolean
+  header?: boolean
+}>()
 
-export default defineComponent({
-  inheritAttrs: false,
-  props: {
-    header: Boolean,
-    disabled: Boolean,
-    modelValue: { type: Number, default: undefined },
-  },
-  emits: ['update:modelValue'],
-  setup(props, { emit }) {
-    const { header, modelValue } = toRefs(props)
-    const editMode = ref<boolean>(false)
-    const inputRef = ref<typeof TabulatedInput>()
+const emit = defineEmits<{
+  (event: 'update:modelValue', value: number): void
+}>()
 
-    const content = computed(() => {
-      const res = Array(11).fill('')
-      let contentString
+const editMode = ref<boolean>(false)
+const inputRef = ref<InstanceType<typeof TabulatedInput>>()
 
-      if (header.value) {
-        contentString = NUMBER_UNITS
-      } else {
-        const x100content = Math.round((modelValue.value ?? 0) * 100)
-        contentString = (x100content ? x100content.toString() : '').padStart(11, ' ')
-      }
+const content = computed(() => {
+  const res = Array(11).fill('')
+  let contentString
 
-      for (let i = 0; i < 11; i++) {
-        res[i] = contentString[i]
-      }
+  if (props.header) {
+    contentString = NUMBER_UNITS
+  } else {
+    const x100content = Math.round((props.modelValue ?? 0) * 100)
+    contentString = (x100content ? x100content.toString() : '').padStart(11, ' ')
+  }
 
-      return res
-    })
+  for (let i = 0; i < 11; i++) {
+    res[i] = contentString[i]
+  }
 
-    const changeEditMode = (value: boolean) => {
-      editMode.value = value
-      if (value) {
-        // after edit mode is enbaled, focus on the input field at once
-        nextTick(() => inputRef.value?.focus())
-      }
-    }
-
-    return {
-      content,
-      editMode,
-      inputRef,
-      changeEditMode,
-      onValueUpdated: (value: string) => emit('update:modelValue', Number(value)),
-    }
-  },
+  return res
 })
+
+const changeEditMode = (value: boolean) => {
+  editMode.value = value
+  if (value) {
+    // after edit mode is enbaled, focus on the input field at once
+    nextTick(() => inputRef.value?.focus())
+  }
+}
+
+const onValueUpdated = (value: unknown) => emit('update:modelValue', Number(value))
 </script>
 
 <template>

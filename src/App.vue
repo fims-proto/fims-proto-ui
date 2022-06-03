@@ -1,30 +1,26 @@
-<script lang="ts">
-import { defineComponent, watch } from 'vue'
+<script setup lang="ts">
+import { watch } from 'vue'
 import { useSobStore } from './store/sob'
 import { useUserStore } from './store/user'
 
-export default defineComponent({
-  setup() {
-    const sobStore = useSobStore()
-    const userStore = useUserStore()
+const sobStore = useSobStore()
+const userStore = useUserStore()
 
-    userStore.action.loadUser()
+userStore.action.loadUser()
 
-    const initialize = async () => {
-      console.log('start initialization')
-      sobStore.action.loadWorkingSob()
+const initialize = async () => {
+  console.log('start initialization')
+  sobStore.action.loadWorkingSob()
+}
+
+watch(
+  () => userStore.state.userId,
+  (newUserId) => {
+    if (newUserId) {
+      initialize()
     }
-
-    watch(
-      () => userStore.state.userId,
-      (newUserId) => {
-        if (newUserId) {
-          initialize()
-        }
-      }
-    )
-  },
-})
+  }
+)
 </script>
 
 <template>

@@ -1,86 +1,54 @@
-<script lang="ts">
-import { defineComponent, PropType, computed } from 'vue'
+<script setup lang="ts">
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { LineItem, Traits } from '../../domain'
 
-export default defineComponent({
-  props: {
-    disabled: Boolean,
-    transactionTime: {
-      type: Date,
-      required: true,
-    },
-    period: {
-      type: String,
-      required: true,
-    },
-    attachmentQuantity: {
-      type: Number,
-      required: true,
-    },
-    lineItems: {
-      type: Array as PropType<LineItem[]>,
-      required: true,
-    },
-    creator: {
-      type: Object as PropType<Traits>,
-      required: true,
-    },
-  },
-  setup(props, { expose }) {
-    const { t, d } = useI18n()
+const props = defineProps<{
+  transactionTime: Date
+  attachmentQuantity: number
+  lineItems: LineItem[]
+  period: string
+  creator: Traits
+  disabled?: boolean
+}>()
 
-    const internalTransactionTime = computed(() => props.transactionTime)
-    const internalPeriod = computed(() => props.period)
-    const internalAttachmentQuantity = computed(() => props.attachmentQuantity)
-    const internalLineItems = computed(() => props.lineItems)
-    const totalDebit = computed(() => internalLineItems.value.reduce((sum, item) => sum + (item.debit ?? 0), 0))
-    const totalCredit = computed(() => internalLineItems.value.reduce((sum, item) => sum + (item.credit ?? 0), 0))
+const { t, d } = useI18n()
 
-    const onSummaryFocus = (index: number) => {
-      if (index > 0 && !internalLineItems.value[index].summary) {
-        internalLineItems.value[index].summary = internalLineItems.value[index - 1].summary
-      }
-    }
+const internalTransactionTime = computed(() => props.transactionTime)
+const internalPeriod = computed(() => props.period)
+const internalAttachmentQuantity = computed(() => props.attachmentQuantity)
+const internalLineItems = computed(() => props.lineItems)
+const totalDebit = computed(() => internalLineItems.value.reduce((sum, item) => sum + (item.debit ?? 0), 0))
+const totalCredit = computed(() => internalLineItems.value.reduce((sum, item) => sum + (item.credit ?? 0), 0))
 
-    const emptyItem = () => ({
-      summary: '',
-      accountNumber: '',
-      credit: 0,
-      debit: 0,
-    })
+const onSummaryFocus = (index: number) => {
+  if (index > 0 && !internalLineItems.value[index].summary) {
+    internalLineItems.value[index].summary = internalLineItems.value[index - 1].summary
+  }
+}
 
-    const onClearLineItem = (index: number) => (internalLineItems.value[index] = emptyItem())
+const emptyItem = () => ({
+  summary: '',
+  accountNumber: '',
+  credit: 0,
+  debit: 0,
+})
 
-    const onNewLineItem = () => internalLineItems.value.push(emptyItem())
+const onClearLineItem = (index: number) => (internalLineItems.value[index] = emptyItem())
 
-    const collect = () => ({
-      transactionTime: internalTransactionTime.value,
-      period: internalPeriod.value,
-      attachmentQuantity: internalAttachmentQuantity.value,
-      lineItems: internalLineItems.value,
-      totalDebit: totalDebit.value,
-      totalCredit: totalCredit.value,
-    })
+const onNewLineItem = () => internalLineItems.value.push(emptyItem())
 
-    expose({
-      collect,
-    })
+const collect = () => ({
+  transactionTime: internalTransactionTime.value,
+  period: internalPeriod.value,
+  attachmentQuantity: internalAttachmentQuantity.value,
+  lineItems: internalLineItems.value,
+  totalDebit: totalDebit.value,
+  totalCredit: totalCredit.value,
+})
 
-    return {
-      t,
-      d,
-      internalTransactionTime,
-      internalPeriod,
-      internalAttachmentQuantity,
-      internalLineItems,
-      totalDebit,
-      totalCredit,
-      onSummaryFocus,
-      onClearLineItem,
-      onNewLineItem,
-    }
-  },
+defineExpose({
+  collect,
 })
 </script>
 

@@ -1,28 +1,15 @@
-<script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { Account, AccountService, Page } from '../../domain'
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { Page, Account, AccountService } from '../../domain'
 
-export default defineComponent({
-  props: {
-    sobId: {
-      type: String,
-      required: true,
-    },
-  },
-  setup(props) {
-    const { t } = useI18n()
-    const accounts = ref<Page<Account>>()
+const props = defineProps<{
+  sobId: string
+}>()
 
-    onMounted(async () => {
-      accounts.value = await AccountService.getAllAccounts(props.sobId)
-    })
+const accounts = ref<Page<Account>>()
 
-    return {
-      t,
-      accounts,
-    }
-  },
+onMounted(async () => {
+  accounts.value = await AccountService.getAllAccounts(props.sobId)
 })
 </script>
 

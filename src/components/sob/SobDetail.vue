@@ -1,28 +1,17 @@
-<script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue'
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Sob, SobService } from '../../domain'
 
-export default defineComponent({
-  props: {
-    sobId: {
-      type: String,
-      required: true,
-    },
-  },
-  setup(props) {
-    const { t } = useI18n()
-    const sobDetail = ref<Sob>()
+const props = defineProps<{
+  sobId: string
+}>()
 
-    onMounted(async () => {
-      sobDetail.value = await SobService.getSobById(props.sobId)
-    })
+const { t } = useI18n()
+const sobDetail = ref<Sob>()
 
-    return {
-      t,
-      sobDetail,
-    }
-  },
+onMounted(async () => {
+  sobDetail.value = await SobService.getSobById(props.sobId)
 })
 </script>
 

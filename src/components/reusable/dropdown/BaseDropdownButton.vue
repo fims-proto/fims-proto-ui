@@ -8,7 +8,7 @@ defineProps({
 </script>
 
 <template>
-  <menu-button v-slot="{ open }" :as="as" :href="as === 'a' ? 'javascript:void(0);' : null" @click.prevent>
+  <menu-button v-slot="{ open }" :as="as" class="cursor-pointer" @click.prevent>
     <slot :open="open"></slot>
   </menu-button>
 </template>

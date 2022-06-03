@@ -1,24 +1,15 @@
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script setup lang="ts">
 import { injectInterface } from './context'
 
-export default defineComponent({
-  inheritAttrs: false,
-  props: {
-    command: { type: String, default: undefined },
-  },
-  setup(props) {
-    const Dropdown = injectInterface()
+const props = defineProps<{
+  command?: string
+}>()
 
-    const handleClick = () => {
-      Dropdown?.handleItemSelect(props.command)
-    }
+const Dropdown = injectInterface()
 
-    return {
-      handleClick,
-    }
-  },
-})
+const handleClick = () => {
+  Dropdown?.handleItemSelect(props.command)
+}
 </script>
 
 <template>

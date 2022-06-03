@@ -1,7 +1,7 @@
 <script setup lang="ts">
-defineProps({
-  subtitle: { type: String, default: '' },
-})
+defineProps<{
+  subtitle?: string
+}>()
 </script>
 
 <template>

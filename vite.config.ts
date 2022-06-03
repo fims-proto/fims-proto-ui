@@ -17,13 +17,13 @@ export default defineConfig({
         (name: string) => {
           if (name.endsWith('SolidIcon')) {
             return {
-              importName: `${name.substring(0, name.length - 9)}Icon`,
-              path: '@heroicons/vue/solid',
+              name: `${name.substring(0, name.length - 9)}Icon`,
+              from: '@heroicons/vue/solid',
             }
           } else if (name.endsWith('OutlineIcon')) {
             return {
-              importName: `${name.substring(0, name.length - 11)}Icon`,
-              path: '@heroicons/vue/outline',
+              name: `${name.substring(0, name.length - 11)}Icon`,
+              from: '@heroicons/vue/outline',
             }
           }
         },

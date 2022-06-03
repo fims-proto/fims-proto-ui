@@ -1,28 +1,23 @@
-<script lang="ts">
-import { defineComponent, PropType } from 'vue'
+<script setup lang="ts">
+import { PropType } from 'vue'
 import { VBinder, VTarget, VFollower } from 'vueuc'
 import { provideInterface } from './context'
 
-export default defineComponent({
-  components: { VBinder, VTarget, VFollower },
-  props: {
-    placement: {
-      type: String as PropType<'bottom-start' | 'bottom-end'>,
-      default: 'bottom-start',
-    },
+defineProps({
+  placement: {
+    type: String as PropType<'bottom-start' | 'bottom-end'>,
+    default: 'bottom-start',
   },
-  emits: ['select'],
-  setup(_, { emit }) {
-    const handleItemSelect = (command: string | undefined) => {
-      if (command) {
-        emit('select', command)
-      }
-    }
+})
 
-    provideInterface({
-      handleItemSelect,
-    })
-  },
+const emit = defineEmits<{
+  (e: 'select', command: string): void
+}>()
+
+const handleItemSelect = (command: string | undefined) => command && emit('select', command)
+
+provideInterface({
+  handleItemSelect,
 })
 </script>
 
@@ -44,7 +39,7 @@ export default defineComponent({
           leave-to-class="scale-95 -translate-y-2 opacity-0"
         >
           <menu-items
-            class="rounded-sm my-2 shadow-lg bg-white divide-y divide-neutral-200 ring-1 ring-black ring-opacity-5 focus:outline-none"
+            class="rounded-md my-2 shadow-lg bg-white divide-y divide-neutral-200 ring-1 ring-black ring-opacity-5 focus:outline-none"
           >
             <slot name="overlay"></slot>
           </menu-items>

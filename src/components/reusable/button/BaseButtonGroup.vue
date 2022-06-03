@@ -1,13 +1,9 @@
-<script lang="ts">
-import { defineComponent, ref } from 'vue'
+<script setup lang="ts">
+import { ref } from 'vue'
 import { provideButtonGroup } from './context'
 
-export default defineComponent({
-  setup() {
-    provideButtonGroup({
-      insideGroup: ref(true),
-    })
-  },
+provideButtonGroup({
+  insideGroup: ref(true),
 })
 </script>
 

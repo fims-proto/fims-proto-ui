@@ -1,65 +1,52 @@
-<script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue'
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { User, UserService, Voucher, VoucherService } from '../../domain'
+import { Voucher, User, VoucherService, UserService } from '../../domain'
 import VoucherForm from './VoucherForm.vue'
 
-export default defineComponent({
-  props: {
-    sobId: {
-      type: String,
-      required: true,
-    },
-    voucherId: {
-      type: String,
-      required: true,
-    },
-  },
-  setup(props) {
-    const { t } = useI18n()
-    const voucher = ref<Voucher>()
-    const creator = ref<User>()
-    const formRef = ref<InstanceType<typeof VoucherForm>>()
-    const editMode = ref(false)
+const props = defineProps<{
+  sobId: string
+  voucherId: string
+}>()
 
-    onMounted(async () => {
-      voucher.value = await VoucherService.getVoucherById(props.sobId, props.voucherId)
-      creator.value = await UserService.whoIs(voucher.value.creator)
-    })
+const { t } = useI18n()
+const voucher = ref<Voucher>()
+const creator = ref<User>()
+const formRef = ref<InstanceType<typeof VoucherForm>>()
+const editMode = ref(false)
 
-    const onSave = () => {
-      // collect form
-      const toBeUpdated = formRef.value.collect()
-
-      if (toBeUpdated.totalDebit !== toBeUpdated.totalCredit) {
-        alert('not balance')
-        return
-      }
-
-      toBeUpdated.lineItems = toBeUpdated.lineItems.filter(
-        (item) => item.summary.trim() && item.accountNumber.trim() && item.debit.toString() && item.credit.toString()
-      )
-
-      if (!toBeUpdated.lineItems.length) {
-        alert('nothing input')
-        return
-      }
-
-      console.log(toBeUpdated)
-
-      editMode.value = false
-    }
-
-    return {
-      t,
-      formRef,
-      editMode,
-      voucher,
-      creator,
-      onSave,
-    }
-  },
+onMounted(async () => {
+  voucher.value = await VoucherService.getVoucherById(props.sobId, props.voucherId)
+  creator.value = await UserService.whoIs(voucher.value.creator)
 })
+
+const onSave = () => {
+  // collect form
+  const toBeUpdated = formRef.value?.collect()
+
+  if (!toBeUpdated) {
+    alert('empty data')
+    return
+  }
+
+  if (toBeUpdated.totalDebit !== toBeUpdated.totalCredit) {
+    alert('not balance')
+    return
+  }
+
+  toBeUpdated.lineItems = toBeUpdated.lineItems.filter(
+    (item) => item.summary.trim() && item.accountNumber.trim() && item.debit.toString() && item.credit.toString()
+  )
+
+  if (!toBeUpdated.lineItems.length) {
+    alert('nothing input')
+    return
+  }
+
+  console.log(toBeUpdated)
+
+  editMode.value = false
+}
 </script>
 
 <template>

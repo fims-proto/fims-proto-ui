@@ -1,24 +1,15 @@
-<script lang="ts">
-import { defineComponent, toRefs } from 'vue'
+<script setup lang="ts">
+import { toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useSobStore } from '../../store/sob'
 
-export default defineComponent({
-  setup() {
-    const t = useI18n().t
-    const router = useRouter()
-    const sobStore = useSobStore()
-    const { sobs } = toRefs(sobStore.state)
-    return {
-      t,
-      sobs,
-      onCreate() {
-        router.push({ name: 'sobCreation' })
-      },
-    }
-  },
-})
+const { t } = useI18n()
+const router = useRouter()
+const sobStore = useSobStore()
+const { sobs } = toRefs(sobStore.state)
+
+const onCreate = () => router.push({ name: 'sobCreation' })
 </script>
 
 <template>
