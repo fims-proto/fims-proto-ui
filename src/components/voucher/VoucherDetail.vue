@@ -20,7 +20,7 @@ onMounted(async () => {
   creator.value = await UserService.whoIs(voucher.value.creator)
 })
 
-const onSave = () => {
+const onSave = async () => {
   // collect form
   const toBeUpdated = formRef.value?.collect()
 
@@ -43,7 +43,12 @@ const onSave = () => {
     return
   }
 
-  console.log(toBeUpdated)
+  voucher.value = await VoucherService.updateVoucher(
+    props.sobId,
+    props.voucherId,
+    toBeUpdated.transactionTime,
+    toBeUpdated.lineItems
+  )
 
   editMode.value = false
 }
