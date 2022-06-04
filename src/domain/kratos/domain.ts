@@ -36,7 +36,7 @@ class KratosService {
     payload: SubmitSelfServiceLoginFlowWithPasswordMethodBody
   ): Promise<SuccessfulSelfServiceLoginWithoutBrowser | SelfServiceLoginFlow> {
     try {
-      const result = await kratos.submitSelfServiceLoginFlow(flowId, undefined, payload)
+      const result = await kratos.submitSelfServiceLoginFlow(flowId, payload)
       return result.data
     } catch (error) {
       return (error as AxiosError).response?.data as SelfServiceLoginFlow
@@ -54,7 +54,7 @@ class KratosService {
     payload: SubmitSelfServiceSettingsFlowBody
   ): Promise<SelfServiceSettingsFlow> {
     try {
-      const result = await kratos.submitSelfServiceSettingsFlow(flowId, undefined, payload)
+      const result = await kratos.submitSelfServiceSettingsFlow(flowId, payload)
       return result.data
     } catch (error) {
       return (error as AxiosError).response?.data as SelfServiceSettingsFlow

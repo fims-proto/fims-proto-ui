@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { SelfServiceSettingsFlow, UiNode, UiText, SubmitSelfServiceSettingsFlowBody } from '@ory/kratos-client'
+import { SelfServiceSettingsFlow, SubmitSelfServiceSettingsFlowBody } from '@ory/kratos-client'
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { KratosService } from '../../domain'
+import { KratosService, UiNode, UiText } from '../../domain'
 import { useUserStore } from '../../store/user'
 
 const { t } = useI18n()
