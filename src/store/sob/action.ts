@@ -4,9 +4,7 @@ import { ISobState } from './state'
 const CURRENT_SOB_KEY = 'CURRENT_SOB'
 
 function refreshSobs(state: ISobState) {
-  return async () => {
-    state.sobs = await SobService.getAllSods()
-  }
+  return async () => (state.sobs = await SobService.getAllSods())
 }
 
 function setWorkingSob(state: ISobState) {
@@ -38,9 +36,7 @@ function loadWorkingSob(state: ISobState) {
 }
 
 function setCurrentPeriod(state: ISobState) {
-  return (period: Period) => {
-    state.currentPeriod = period
-  }
+  return (period: Period) => (state.currentPeriod = period)
 }
 
 export function createAction(state: ISobState) {

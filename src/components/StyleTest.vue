@@ -1,6 +1,18 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useNotificationStore } from '../store/notification'
+import { AppNotification } from '../domain'
+
 const inputDate = ref(new Date())
+const notificationStore = useNotificationStore()
+const onNewNotification = () => {
+  const index = Math.floor(Math.random() * 4)
+  notificationStore.action.push({
+    type: ['error', 'info', 'success', 'warning'][index] as AppNotification['type'],
+    message: ['打雷啦', '下雨啦', '收衣服啦', '衣服掉地上啦'][index],
+    duration: Math.floor(Math.random() * 4),
+  })
+}
 </script>
 
 <!-- style test page for Tailwindcss -->
@@ -116,12 +128,16 @@ const inputDate = ref(new Date())
       </div>
     </div>
 
-    <h1 class="text-neutral-900">BaseAlert:</h1>
+    <h1 class="text-neutral-900">BaseNotification:</h1>
     <div class="rounded-lg p-4 space-y-4">
-      <base-alert type="error" closable message="丹麦的艾辛诺尔堡" />
-      <base-alert type="info" message="在城墙的一平台上" />
-      <base-alert type="success" closable :show-icon="false" message="守卫柏纳多与佛郎西斯哥入" />
-      <base-alert type="warning" message="此时正是深夜, 一片漆黑中, 佛郎西斯哥在城墙上站岗, 而柏纳多来接他的班" />
+      <base-notification type="error" closable message="丹麦的艾辛诺尔堡" />
+      <base-notification type="info" message="在城墙的一平台上" />
+      <base-notification type="success" closable :show-icon="false" message="守卫柏纳多与佛郎西斯哥入" />
+      <base-notification
+        type="warning"
+        message="此时正是深夜, 一片漆黑中, 佛郎西斯哥在城墙上站岗, 而柏纳多来接他的班"
+      />
+      <base-button @click.prevent="onNewNotification">弹出式通知</base-button>
     </div>
 
     <h1 class="text-neutral-900">BaseAvatar:</h1>

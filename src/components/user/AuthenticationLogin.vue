@@ -76,12 +76,14 @@ import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { KratosService } from '../../domain'
+import { useNotificationStore } from '../../store/notification'
 import { useUserStore } from '../../store/user'
 
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
+const notificationStore = useNotificationStore()
 
 const messages = ref<messageType[]>([])
 const formValue = ref<formValueType>({ flowId: '', method: '', user: { email: '', password: '' }, csrfToken: '' })
@@ -106,7 +108,11 @@ onMounted(async () => {
 const handleSubmit = async () => {
   formBusy.value = true
   if (!formValue.value.flowId) {
-    alert('should not happen: no flow id')
+    notificationStore.action.push({
+      type: 'error',
+      message: 'should not happen: no flow id',
+      duration: 0,
+    })
     return
   }
 
@@ -140,7 +146,7 @@ const handleSubmit = async () => {
       </div>
 
       <!-- messages -->
-      <base-alert
+      <base-notification
         v-for="(message, i) in messages"
         :key="`login-alert-${i}`"
         :type="message.type ?? 'error'"

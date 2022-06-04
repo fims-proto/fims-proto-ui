@@ -90,3 +90,11 @@ export type Page<T> = {
   isFirst: boolean
   isLast: boolean
 }
+
+export interface AppNotification {
+  id?: string
+  type?: 'error' | 'info' | 'success' | 'warning'
+  duration?: number
+  closable?: boolean
+  message: string
+}

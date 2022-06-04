@@ -12,11 +12,10 @@ defineEmits<{
 }>()
 
 const inputRef = ref<HTMLInputElement>()
-const inputId = `tabulated-input-${Math.random().toString(36).slice(-8)}`
 
-const focus = () => inputRef.value?.focus()
-
-defineExpose({ focus })
+defineExpose({
+  focus: () => inputRef.value?.focus(),
+})
 </script>
 
 <script lang="ts">
@@ -24,11 +23,9 @@ export default defineComponent({ inheritAttrs: false })
 </script>
 
 <template>
-  <label class="sr-only" :for="inputId">{{ inputId }}</label>
   <span v-if="disabled" class="block px-3 py-2">{{ modelValue }}</span>
   <input
     v-else
-    :id="inputId"
     ref="inputRef"
     :value="modelValue"
     :type="$attrs.type as string ?? 'text'"

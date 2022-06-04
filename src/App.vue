@@ -25,4 +25,5 @@ watch(
 
 <template>
   <router-view />
+  <the-notification-panel />
 </template>

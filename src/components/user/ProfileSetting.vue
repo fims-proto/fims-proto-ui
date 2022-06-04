@@ -3,10 +3,12 @@ import { SelfServiceSettingsFlow, SubmitSelfServiceSettingsFlowBody } from '@ory
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { KratosService, UiNode, UiText } from '../../domain'
+import { useNotificationStore } from '../../store/notification'
 import { useUserStore } from '../../store/user'
 
 const { t } = useI18n()
 const userStore = useUserStore()
+const notificationStore = useNotificationStore()
 
 const formBusy = ref(true)
 const messages = ref<messageType[]>([])
@@ -30,7 +32,11 @@ onMounted(async () => {
 const handleSubmit = async (formValue: SubmitSelfServiceSettingsFlowBody) => {
   formBusy.value = true
   if (!flow.value) {
-    alert('should not happen: no flow id')
+    notificationStore.action.push({
+      type: 'error',
+      message: 'should not happen: no flow id',
+      duration: 0,
+    })
     return
   }
 
@@ -125,7 +131,7 @@ function buildMessages(flow: SelfServiceSettingsFlow | undefined): messageType[]
   <base-page :subtitle="t('profile.subtitle')">
     <template #title>{{ t('profile.title') }}</template>
     <div class="flex flex-col gap-2">
-      <base-alert
+      <base-notification
         v-for="(message, i) in messages"
         :key="`profileUpdate-alert-${i}`"
         :type="message.type ?? 'error'"

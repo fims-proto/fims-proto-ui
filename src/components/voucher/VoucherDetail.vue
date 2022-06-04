@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Voucher, User, VoucherService, UserService } from '../../domain'
+import { useNotificationStore } from '../../store/notification'
 import VoucherForm from './VoucherForm.vue'
 
 const props = defineProps<{
@@ -10,6 +11,8 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
+const notificationStore = useNotificationStore()
+
 const voucher = ref<Voucher>()
 const creator = ref<User>()
 const formRef = ref<InstanceType<typeof VoucherForm>>()
@@ -25,12 +28,16 @@ const onSave = async () => {
   const toBeUpdated = formRef.value?.collect()
 
   if (!toBeUpdated) {
-    alert('empty data')
+    alert('should not happen: empty data')
     return
   }
 
   if (toBeUpdated.totalDebit !== toBeUpdated.totalCredit) {
-    alert('not balance')
+    notificationStore.action.push({
+      type: 'error',
+      message: t('voucher.save.notBalanced'),
+      duration: 5,
+    })
     return
   }
 
@@ -39,7 +46,11 @@ const onSave = async () => {
   )
 
   if (!toBeUpdated.lineItems.length) {
-    alert('nothing input')
+    notificationStore.action.push({
+      type: 'warning',
+      message: t('voucher.save.emptyItems'),
+      duration: 5,
+    })
     return
   }
 

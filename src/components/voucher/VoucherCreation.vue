@@ -3,6 +3,7 @@ import { toRefs, ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { NewVoucher, VoucherService } from '../../domain'
+import { useNotificationStore } from '../../store/notification'
 import { useSobStore } from '../../store/sob'
 import { useUserStore } from '../../store/user'
 import VoucherForm from './VoucherForm.vue'
@@ -13,6 +14,7 @@ const props = defineProps<{
 
 const { t } = useI18n()
 const router = useRouter()
+const notificationStore = useNotificationStore()
 const { userId, traits } = toRefs(useUserStore().state)
 const { workingSob, currentPeriod } = toRefs(useSobStore().state)
 
@@ -43,7 +45,7 @@ const period = computed(() =>
 
 const saveVoucher = async () => {
   if (!workingSob.value) {
-    alert('invalid working sob')
+    alert('should not happen: invalid working sob')
     return
   }
 
@@ -51,7 +53,11 @@ const saveVoucher = async () => {
   const toBeCreated = Object.assign({}, newVoucher.value, formRef.value?.collect())
 
   if (toBeCreated.totalDebit !== toBeCreated.totalCredit) {
-    alert('not balance')
+    notificationStore.action.push({
+      type: 'error',
+      message: t('voucher.save.notBalanced'),
+      duration: 5,
+    })
     return
   }
 
@@ -61,7 +67,11 @@ const saveVoucher = async () => {
   )
 
   if (!toBeCreated.lineItems.length) {
-    alert('nothing input')
+    notificationStore.action.push({
+      type: 'warning',
+      message: t('voucher.save.emptyItems'),
+      duration: 5,
+    })
     return
   }
 
