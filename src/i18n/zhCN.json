@@ -36,7 +36,8 @@
     "emptyContent": "什么也没有",
     "description": "描述",
     "year": "年",
-    "month": "月"
+    "month": "月",
+    "userName": "{lastName}{firstName}"
   },
   "action": {
     "create": "新建",
@@ -84,8 +85,10 @@
   },
   "voucher": {
     "title": "凭证",
+    "number": "编号",
     "summary": "摘要",
     "account": "会计科目",
+    "amount": "发生金额",
     "debit": "借方金额",
     "credit": "贷方金额",
     "total": "合计",
@@ -93,7 +96,7 @@
     "attachmentQuantity": "附单据",
     "attachmentQuantityUnit": "张",
     "transactionTime": "交易日期",
-    "creator": "制单人: {lastName}{firstName}",
+    "creator": "制单人",
     "newLineItem": "新增",
     "save": {
       "notBalanced": "借贷不平衡",

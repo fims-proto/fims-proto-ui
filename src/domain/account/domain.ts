@@ -34,7 +34,7 @@ class AccountService {
   public async getAccountsStartsWithNumber(sobId: string, serachNumber: string): Promise<Page<Account>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(
-        `${FIMS_URL}/api/v1/sob/${sobId}/accounts/?$filter=accountNumber startsWith ${serachNumber}`
+        `${FIMS_URL}/api/v1/sob/${sobId}/accounts/?$filter=accountNumber startsWith ${serachNumber}&$sort=accountNumber`
       )
       return convertFieldsFromString(result.data, FIELDS_CONVERSION)
     })

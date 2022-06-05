@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toRefs, ref, computed } from 'vue'
+import { toRefs, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { NewVoucher, VoucherService } from '../../domain'
@@ -16,7 +16,7 @@ const { t } = useI18n()
 const router = useRouter()
 const notificationStore = useNotificationStore()
 const { userId, traits } = toRefs(useUserStore().state)
-const { workingSob, currentPeriod } = toRefs(useSobStore().state)
+const { workingSob } = toRefs(useSobStore().state)
 
 const formRef = ref<InstanceType<typeof VoucherForm>>()
 
@@ -36,12 +36,6 @@ const initVoucher = () => ({
 })
 
 const newVoucher = ref<NewVoucher>(initVoucher())
-
-const period = computed(() =>
-  currentPeriod.value
-    ? `${currentPeriod.value.financialYear}-${currentPeriod.value.number}`
-    : t('ledger.periodUnselected')
-)
 
 const saveVoucher = async () => {
   if (!workingSob.value) {
@@ -111,7 +105,6 @@ const onSaveAndNew = async () => {
       :attachment-quantity="newVoucher.attachmentQuantity"
       :transaction-time="newVoucher.transactionTime"
       :line-items="newVoucher.lineItems"
-      :period="period"
       :creator="traits"
     />
   </base-page>

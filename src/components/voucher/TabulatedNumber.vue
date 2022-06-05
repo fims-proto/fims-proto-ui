@@ -28,7 +28,10 @@ const content = computed(() => {
     contentString = NUMBER_UNITS
   } else {
     const x100content = Math.round((props.modelValue ?? 0) * 100)
-    contentString = (x100content ? x100content.toString() : '').padStart(11, ' ')
+    // number to string, or empty string
+    contentString = x100content ? x100content.toString() : ''
+    // pad 3 zeros then 11 space (to handle number lesser than 1), or 11 space empty string
+    contentString = (contentString ? contentString.padStart(3, '0') : contentString).padStart(11, ' ')
   }
 
   for (let i = 0; i < 11; i++) {

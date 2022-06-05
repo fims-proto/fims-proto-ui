@@ -7,7 +7,6 @@ const props = defineProps<{
   transactionTime: Date
   attachmentQuantity: number
   lineItems: LineItem[]
-  period: string
   creator: Traits
   disabled?: boolean
 }>()
@@ -15,7 +14,6 @@ const props = defineProps<{
 const { t, d } = useI18n()
 
 const internalTransactionTime = computed(() => props.transactionTime)
-const internalPeriod = computed(() => props.period)
 const internalAttachmentQuantity = computed(() => props.attachmentQuantity)
 const internalLineItems = computed(() => props.lineItems)
 const totalDebit = computed(() => internalLineItems.value.reduce((sum, item) => sum + (item.debit ?? 0), 0))
@@ -40,7 +38,6 @@ const onNewLineItem = () => internalLineItems.value.push(emptyItem())
 
 const collect = () => ({
   transactionTime: internalTransactionTime.value,
-  period: internalPeriod.value,
   attachmentQuantity: internalAttachmentQuantity.value,
   lineItems: internalLineItems.value,
   totalDebit: totalDebit.value,
@@ -64,7 +61,6 @@ defineExpose({
       </div>
       <div class="flex-1 flex flex-row gap-4 justify-center items-baseline">
         <h1>{{ t('voucher.type') }}</h1>
-        <span>{{ internalPeriod }}</span>
       </div>
       <div class="flex-1 flex justify-end">
         <p v-if="disabled">
@@ -151,7 +147,8 @@ defineExpose({
     </div>
 
     <p class="mt-4">
-      {{ t('voucher.creator', { lastName: creator.name?.last, firstName: creator.name?.first }) }}
+      {{ t('voucher.creator') }}:
+      {{ t('common.userName', { lastName: creator.name?.last, firstName: creator.name?.first }) }}
     </p>
   </div>
 </template>

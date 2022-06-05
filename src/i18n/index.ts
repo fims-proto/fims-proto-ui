@@ -30,11 +30,11 @@ const i18n = createI18n<MessageSchema[], 'zh-CN'>({
   },
   numberFormats: {
     'zh-CN': {
-      cur: {
+      currency: {
         style: 'currency',
         currency: 'CNY',
       },
-      dec: {
+      decimal: {
         style: 'decimal',
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,

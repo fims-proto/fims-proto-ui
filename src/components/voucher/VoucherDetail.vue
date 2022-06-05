@@ -66,7 +66,7 @@ const onSave = async () => {
 </script>
 
 <template>
-  <base-page>
+  <base-page :subtitle="voucher?.lineItems[0].summary">
     <template #title>{{ voucher?.number }}</template>
     <template #extra>
       <base-button :disabled="editMode" @click="editMode = true">{{ t('action.edit') }}</base-button>
@@ -79,7 +79,6 @@ const onSave = async () => {
       :attachment-quantity="voucher.attachmentQuantity"
       :transaction-time="voucher.transactionTime"
       :line-items="voucher.lineItems"
-      period="period 暂定"
       :creator="creator.traits"
     />
   </base-page>

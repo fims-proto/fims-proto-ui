@@ -35,10 +35,10 @@ watch(
       <tr v-for="ledger in ledgers" :key="ledger.id">
         <td class="border-t border-neutral-200 py-2 px-4 text-left">{{ ledger.account.accountNumber }}</td>
         <td class="border-t border-neutral-200 py-2 px-4 text-left">{{ ledger.account.title }}</td>
-        <td class="border-t border-neutral-200 py-2 px-4 text-right">{{ n(Number(ledger.openingBalance), 'dec') }}</td>
-        <td class="border-t border-neutral-200 py-2 px-4 text-right">{{ n(Number(ledger.debit), 'dec') }}</td>
-        <td class="border-t border-neutral-200 py-2 px-4 text-right">{{ n(Number(ledger.credit), 'dec') }}</td>
-        <td class="border-t border-neutral-200 py-2 px-4 text-right">{{ n(Number(ledger.endingBalance), 'dec') }}</td>
+        <td class="border-t border-neutral-200 py-2 px-4 text-right">{{ n(ledger.openingBalance, 'decimal') }}</td>
+        <td class="border-t border-neutral-200 py-2 px-4 text-right">{{ n(ledger.debit, 'decimal') }}</td>
+        <td class="border-t border-neutral-200 py-2 px-4 text-right">{{ n(ledger.credit, 'decimal') }}</td>
+        <td class="border-t border-neutral-200 py-2 px-4 text-right">{{ n(ledger.endingBalance, 'decimal') }}</td>
       </tr>
     </table>
   </div>
