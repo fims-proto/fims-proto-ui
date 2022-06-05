@@ -1,7 +1,9 @@
 import axios from 'axios'
 import { User } from '.'
 import { FIMS_URL } from '../../config'
+import { invokeWithErrorHandler } from '../errorHandler'
 import { KratosService } from '../kratos'
+import { Traits } from './type'
 
 class UserService {
   public async whoAmI(): Promise<User> {
@@ -27,11 +29,24 @@ class UserService {
   }
 
   public async whoIs(userId: string): Promise<User> {
-    const result = await axios.get(`${FIMS_URL}/api/v1/user/${userId}`)
-    return {
-      id: result.data.id,
-      traits: result.data.traits,
-    }
+    return invokeWithErrorHandler(async () => {
+      const result = await axios.get(`${FIMS_URL}/api/v1/user/${userId}`)
+      return {
+        id: result.data.id,
+        traits: result.data.traits,
+      }
+    })
+  }
+
+  public async updateUser(userId: string, traits: Traits): Promise<User> {
+    return invokeWithErrorHandler(async () => {
+      // update
+      await axios.patch(`${FIMS_URL}/api/v1/user/${userId}`, {
+        traits: JSON.stringify(traits),
+      })
+
+      return this.whoIs(userId)
+    })
   }
 }
 

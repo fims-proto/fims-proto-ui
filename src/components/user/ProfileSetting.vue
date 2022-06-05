@@ -2,7 +2,7 @@
 import { SelfServiceSettingsFlow, SubmitSelfServiceSettingsFlowBody } from '@ory/kratos-client'
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { KratosService, UiNode, UiText } from '../../domain'
+import { KratosService, UiNode, UiText, UserService } from '../../domain'
 import { useNotificationStore } from '../../store/notification'
 import { useUserStore } from '../../store/user'
 
@@ -46,7 +46,12 @@ const handleSubmit = async (formValue: SubmitSelfServiceSettingsFlowBody) => {
   messages.value = buildMessages(flow.value)
   formBusy.value = false
 
-  userStore.action.loadUser()
+  await userStore.action.loadUser()
+}
+
+const onProfileUpdate = async () => {
+  await handleSubmit(profileFormValue.value)
+  UserService.updateUser(userStore.state.userId, userStore.state.traits)
 }
 </script>
 
@@ -146,7 +151,7 @@ function buildMessages(flow: SelfServiceSettingsFlow | undefined): messageType[]
         <template #panels>
           <!-- profile update -->
           <base-tab-panel class="max-w-xl">
-            <base-form @submit="handleSubmit(profileFormValue)">
+            <base-form @submit="onProfileUpdate">
               <input v-model="profileFormValue.csrf_token" type="hidden" />
               <base-form-item :label="t('user.email')" required>
                 <base-input
@@ -163,7 +168,7 @@ function buildMessages(flow: SelfServiceSettingsFlow | undefined): messageType[]
                   :placeholder="t('user.lastnameInputPlaceholder')"
                 />
               </base-form-item>
-              <base-form-item :label="t('user.lastname')">
+              <base-form-item :label="t('user.firstname')">
                 <base-input
                   v-model="profileFormValue.traits.name.first"
                   :placeholder="t('user.firstnameInputPlaceholder')"
