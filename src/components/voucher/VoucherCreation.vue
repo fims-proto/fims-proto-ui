@@ -69,7 +69,15 @@ const saveVoucher = async () => {
     return
   }
 
-  return await VoucherService.createVoucher(workingSob.value.id, toBeCreated)
+  const createdVoucher = await VoucherService.createVoucher(workingSob.value.id, toBeCreated)
+
+  notificationStore.action.push({
+    type: 'success',
+    message: t('voucher.save.success'),
+    duration: 3,
+  })
+
+  return createdVoucher
 }
 
 const onSave = async () => {

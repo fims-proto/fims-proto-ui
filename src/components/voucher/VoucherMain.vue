@@ -18,6 +18,8 @@ onMounted(async () => {
   vouchers.value = await VoucherService.getAllVouchersBySod(props.sobId)
   for (const voucher of vouchers.value) {
     voucher.creator = await whoIs(voucher.creator)
+    voucher.auditor = await whoIs(voucher.auditor)
+    voucher.reviewer = await whoIs(voucher.reviewer)
   }
 })
 
@@ -41,6 +43,9 @@ const onNav = (voucherId: string) => {
 }
 
 const whoIs = async (userId: string) => {
+  if (!userId) {
+    return ''
+  }
   let traits = undefined
   if (!users[userId]) {
     users[userId] = await UserService.whoIs(userId)
@@ -64,6 +69,7 @@ const whoIs = async (userId: string) => {
           <th class="border-b border-neutral-200 py-2 px-4 text-left w-32">{{ t('voucher.number') }}</th>
           <th class="border-b border-neutral-200 py-2 px-4 text-left">{{ t('voucher.summary') }}</th>
           <th class="border-b border-neutral-200 py-2 px-4 text-left w-32">{{ t('voucher.creator') }}</th>
+          <th class="border-b border-neutral-200 py-2 px-4 text-left w-32">{{ t('voucher.auditor') }}</th>
           <th class="border-b border-neutral-200 py-2 px-4 text-right w-48">{{ t('voucher.amount') }}</th>
         </tr>
         <tr
@@ -78,6 +84,7 @@ const whoIs = async (userId: string) => {
           <td class="border-t border-neutral-200 py-2 px-4 text-left w-32">{{ voucher.number }}</td>
           <td class="border-t border-neutral-200 py-2 px-4 text-left">{{ voucher.lineItems[0].summary }}</td>
           <td class="border-t border-neutral-200 py-2 px-4 text-left w-32">{{ voucher.creator }}</td>
+          <td class="border-t border-neutral-200 py-2 px-4 text-left w-32">{{ voucher.auditor }}</td>
           <td class="border-t border-neutral-200 py-2 px-4 text-right w-48">{{ n(voucher.debit, 'decimal') }}</td>
         </tr>
       </table>

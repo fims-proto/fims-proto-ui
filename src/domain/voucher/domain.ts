@@ -54,6 +54,22 @@ class VoucherService {
       return this.getVoucherById(sobId, voucherId)
     })
   }
+
+  public async auditVoucher(sobId: string, voucherId: string, auditor: string): Promise<void> {
+    return invokeWithErrorHandler(async () => {
+      await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/voucher/${voucherId}/audit`, {
+        auditor,
+      })
+    })
+  }
+
+  public async cancelAuditVoucher(sobId: string, voucherId: string, auditor: string): Promise<void> {
+    return invokeWithErrorHandler(async () => {
+      await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/voucher/${voucherId}/cancel-audit`, {
+        auditor,
+      })
+    })
+  }
 }
 
 export const VoucherServiceInstance = new VoucherService()

@@ -77,9 +77,13 @@
     "transactionTime": "交易日期",
     "creator": "制单人",
     "newLineItem": "新增",
+    "auditor": "审核人",
+    "audit": "审核",
+    "cancelAudit": "撤销审核",
     "save": {
       "notBalanced": "借贷不平衡",
-      "emptyItems": "行项目不能为空"
+      "emptyItems": "行项目不能为空",
+      "success": "凭证保存成功"
     },
     "creation": {
       "title": "新建凭证"
