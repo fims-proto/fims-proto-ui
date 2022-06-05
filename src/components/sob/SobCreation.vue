@@ -21,12 +21,6 @@ const newSob = ref<NewSob>({
 })
 
 const handleSubmit = async () => {
-  // parse number
-  newSob.value.startingPeriodYear = Number(newSob.value.startingPeriodYear)
-  newSob.value.startingPeriodMonth = Number(newSob.value.startingPeriodMonth)
-  for (const i in newSob.value.accountsCodeLength) {
-    newSob.value.accountsCodeLength[i] = Number(newSob.value.accountsCodeLength[i])
-  }
   const createdSob = await SobService.createSob(newSob.value)
 
   // create accounting period as well

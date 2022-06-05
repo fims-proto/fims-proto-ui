@@ -5,8 +5,9 @@ import { invokeWithErrorHandler } from '../errorHandler'
 import { convertFieldsFromString } from '../dateTypeConverter'
 
 const FIELDS_CONVERSION: Record<string, 'number' | 'date'> = {
-  startingPeriodMonth: 'number',
   startingPeriodYear: 'number',
+  startingPeriodMonth: 'number',
+  accountsCodeLength: 'number',
   createdAt: 'date',
   updatedAt: 'date',
 }
@@ -21,7 +22,7 @@ class SobService {
 
   public async createSob(newSob: NewSob): Promise<Sob> {
     return invokeWithErrorHandler(async () => {
-      const result = await axios.post(`${FIMS_URL}/api/v1/sobs/`, newSob)
+      const result = await axios.post(`${FIMS_URL}/api/v1/sobs/`, convertFieldsFromString(newSob, FIELDS_CONVERSION))
       return convertFieldsFromString(result.data, FIELDS_CONVERSION)
     })
   }

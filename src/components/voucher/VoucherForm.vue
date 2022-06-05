@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Big from 'big.js'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { LineItem, Traits } from '../../domain'
@@ -16,8 +17,12 @@ const { t, d } = useI18n()
 const internalTransactionTime = computed(() => props.transactionTime)
 const internalAttachmentQuantity = computed(() => props.attachmentQuantity)
 const internalLineItems = computed(() => props.lineItems)
-const totalDebit = computed(() => internalLineItems.value.reduce((sum, item) => sum + (item.debit ?? 0), 0))
-const totalCredit = computed(() => internalLineItems.value.reduce((sum, item) => sum + (item.credit ?? 0), 0))
+const totalDebit = computed(() =>
+  internalLineItems.value.reduce((sum, item) => sum.add(Big(item.debit ?? 0)), Big(0)).toNumber()
+)
+const totalCredit = computed(() =>
+  internalLineItems.value.reduce((sum, item) => sum.add(Big(item.credit ?? 0)), Big(0)).toNumber()
+)
 
 const onSummaryFocus = (index: number) => {
   if (index > 0 && !internalLineItems.value[index].summary) {

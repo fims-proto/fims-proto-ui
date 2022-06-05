@@ -26,7 +26,17 @@ function convertObjectPropertiesFromString(context: string, data: any, options: 
 
     if (Array.isArray(data[key])) {
       for (let i = 0; i < data[key].length; i++) {
-        convertObjectPropertiesFromString(path, data[key][i], options)
+        if (options[path] && typeof data[key][i] === 'string') {
+          // need conversion
+          if (options[path] === 'number') {
+            data[key][i] = Number(data[key][i])
+          }
+          if (options[path] === 'date') {
+            data[key][i] = new Date(data[key][i])
+          }
+        } else {
+          convertObjectPropertiesFromString(path, data[key][i], options)
+        }
       }
     }
   }

@@ -16,7 +16,8 @@ const emit = defineEmits<{
 }>()
 
 const attrClass = useAttrs()['class']
-const attrExceptClass = Object.assign({}, useAttrs(), { class: undefined }) // remove class from attrs
+const attrExceptClass = Object.assign({}, useAttrs())
+delete attrExceptClass['class'] // remove class from attrs
 
 const inputValue = computed(() => {
   if (!props.modelValue || attrExceptClass['type'] !== 'date') {
@@ -55,6 +56,7 @@ const hasSuffix = () => !!props.suffix || !!useSlots()['suffix']
       <slot name="prefix">{{ prefix }}</slot>
     </span>
     <input
+      v-bind="attrExceptClass"
       :class="[
         'appearance-none w-full text-sm placeholder-neutral-500 border-0 border-y border-l border-neutral-300',
         'focus:z-10 focus:outline-none focus:border-transparent focus:ring-offset-2 focus:ring focus:ring-primary-500',
@@ -63,7 +65,6 @@ const hasSuffix = () => !!props.suffix || !!useSlots()['suffix']
       ]"
       :value="inputValue"
       :type="attrExceptClass.type as string ?? 'text'"
-      v-bind="attrExceptClass"
       @input="onValueUpdate"
     />
     <span
