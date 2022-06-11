@@ -72,7 +72,7 @@ function getCurrentUTCTime() {
           <base-input-group>
             <base-input
               v-model="newSob.startingPeriodYear"
-              type="number"
+              html-type="number"
               required
               :min="2020"
               :max="3000"
@@ -80,7 +80,7 @@ function getCurrentUTCTime() {
             />
             <base-input
               v-model="newSob.startingPeriodMonth"
-              type="number"
+              html-type="number"
               required
               :min="1"
               :max="12"
@@ -97,7 +97,7 @@ function getCurrentUTCTime() {
                 :key="`sobCreation-accountsCodeLength-${index}`"
                 v-model="newSob.accountsCodeLength[index]"
                 class="w-14"
-                type="number"
+                html-type="number"
                 required
                 :min="1"
                 :max="6"
@@ -105,8 +105,8 @@ function getCurrentUTCTime() {
             </base-input-group>
 
             <base-button-group>
-              <base-button @click.prevent="onShorten">-</base-button>
-              <base-button @click.prevent="onExtend">+</base-button>
+              <base-button @click="onShorten">-</base-button>
+              <base-button @click="onExtend">+</base-button>
             </base-button-group>
           </div>
         </base-form-item>

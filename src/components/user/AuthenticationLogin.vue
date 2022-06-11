@@ -161,7 +161,7 @@ const handleSubmit = async () => {
           <base-input
             v-model="formValue.user.email"
             :placeholder="t('user.emailInputPlaceholder')"
-            type="email"
+            html-type="email"
             autocomplete="email"
             required
           />
@@ -171,7 +171,7 @@ const handleSubmit = async () => {
           <base-input
             v-model="formValue.user.password"
             :placeholder="t('user.passwordInputPlaceholder')"
-            type="password"
+            html-type="password"
             autocomplete="current-password"
             required
           />

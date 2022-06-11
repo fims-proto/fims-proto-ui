@@ -76,7 +76,7 @@ defineExpose({
           <base-input
             v-model="internalAttachmentQuantity"
             class="w-36"
-            type="number"
+            html-type="number"
             :prefix="t('voucher.attachmentQuantity')"
             :suffix="t('voucher.attachmentQuantityUnit')"
             :min="0"

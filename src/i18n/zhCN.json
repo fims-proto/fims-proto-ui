@@ -16,7 +16,9 @@
     "description": "描述",
     "year": "年",
     "month": "月",
-    "userName": "{lastName}{firstName}"
+    "userName": "{lastName}{firstName}",
+    "confirm": "确认",
+    "confirmationText": "再次确认"
   },
   "action": {
     "create": "新建",

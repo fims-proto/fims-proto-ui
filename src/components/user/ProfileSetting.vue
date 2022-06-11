@@ -157,7 +157,7 @@ function buildMessages(flow: SelfServiceSettingsFlow | undefined): messageType[]
                 <base-input
                   v-model="profileFormValue.traits.email"
                   :placeholder="t('user.emailInputPlaceholder')"
-                  type="email"
+                  html-type="email"
                   autocomplete="email"
                   required
                 />
@@ -201,7 +201,7 @@ function buildMessages(flow: SelfServiceSettingsFlow | undefined): messageType[]
                 <base-input
                   v-model="passwordFormValue.password"
                   :placeholder="t('user.passwordInputPlaceholder')"
-                  type="password"
+                  html-type="password"
                   autocomplete="new-password"
                   required
                 />

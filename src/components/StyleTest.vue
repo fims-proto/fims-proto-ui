@@ -5,11 +5,11 @@ import { AppNotification } from '../domain'
 
 const inputDate = ref(new Date())
 const notificationStore = useNotificationStore()
-const onNewNotification = () => {
+const onNewNotification = (text: string) => {
   const index = Math.floor(Math.random() * 4)
   notificationStore.action.push({
     type: ['error', 'info', 'success', 'warning'][index] as AppNotification['type'],
-    message: ['打雷啦', '下雨啦', '收衣服啦', '衣服掉地上啦'][index],
+    message: text ?? ['打雷啦', '下雨啦', '收衣服啦', '衣服掉地上啦'][index],
     duration: Math.floor(Math.random() * 4),
   })
 }
@@ -100,6 +100,10 @@ const onNewNotification = () => {
           <span>固定宽度但禁止</span>
         </base-button>
       </div>
+      <!-- double confirm -->
+      <div class="flex gap-4">
+        <base-button type="primary" confirm @click="onNewNotification('Ta-da!!')">重要事件</base-button>
+      </div>
       <!-- text type -->
       <div>
         <p>
@@ -137,7 +141,7 @@ const onNewNotification = () => {
         type="warning"
         message="此时正是深夜, 一片漆黑中, 佛郎西斯哥在城墙上站岗, 而柏纳多来接他的班"
       />
-      <base-button @click.prevent="onNewNotification">弹出式通知</base-button>
+      <base-button @click="onNewNotification">弹出式通知</base-button>
     </div>
 
     <h1 class="text-neutral-900">BaseAvatar:</h1>
@@ -252,11 +256,11 @@ const onNewNotification = () => {
           <base-input placeholder="say something..." />
         </base-form-item>
 
-        <base-form-item label="Email 地址">
+        <base-form-item label="Email 地址" required>
           <base-input placeholder="快输入..." html-type="email" autocomplete="email" required />
         </base-form-item>
 
-        <base-form-item label="密码">
+        <base-form-item label="密码" required>
           <base-input placeholder="快输入..." html-type="password" autocomplete="current-password" required />
         </base-form-item>
 

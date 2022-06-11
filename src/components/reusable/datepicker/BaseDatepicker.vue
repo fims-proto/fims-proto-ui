@@ -37,7 +37,7 @@ const onValueUpdated = (value: string) => {
     <v-binder>
       <v-target>
         <base-input
-          type="date"
+          html-type="date"
           :hide-label="true"
           :model-value="formattedInputDate"
           autocomplete="off"
