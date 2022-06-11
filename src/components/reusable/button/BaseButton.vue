@@ -7,9 +7,13 @@ import { defineComponent, PropType } from 'vue'
 import { injectButtonGroup } from './context'
 
 const props = defineProps({
-  category: {
+  type: {
     type: String as PropType<'primary' | 'default' | 'text' | 'link'>,
     default: 'default',
+  },
+  htmlType: {
+    type: String as PropType<'submit' | 'reset' | 'button'>,
+    default: 'button',
   },
   disabled: Boolean,
   busy: Boolean,
@@ -17,7 +21,7 @@ const props = defineProps({
 
 const ButtonGroup = injectButtonGroup()
 
-const is = (t: string) => props.category === t
+const is = (t: string) => props.type === t
 
 const insideGroup = ButtonGroup?.insideGroup.value
 </script>
@@ -30,13 +34,13 @@ const insideGroup = ButtonGroup?.insideGroup.value
       insideGroup ? '-ml-[1px] first:m-0 first:rounded-l-md last:rounded-r-md hover:z-10' : 'rounded-md',
 
       is('link') && [
-        'px-1 py-0 bg-transparent',
+        'inline-flex px-1 py-0 bg-transparent',
         'focus:z-10 focus:outline-none focus:underline focus:underline-offset-2 focus:decoration-primary-700 focus:decoration-2',
         disabled ? 'text-neutral-400 bg-transparent' : 'text-primary-700 hover:text-primary-800',
       ],
 
       is('text') && [
-        'px-1 py-0 bg-transparent',
+        'inline-flex px-1 py-0 bg-transparent',
         'focus:z-10 focus:outline-none focus:underline focus:underline-offset-2',
         'focus:z-10 focus:outline-none focus:underline focus:underline-offset-2 focus:decoration-primary-700 focus:decoration-2',
         disabled ? 'text-neutral-400 bg-transparent' : 'hover:bg-neutral-500 hover:bg-opacity-5',
@@ -63,6 +67,7 @@ const insideGroup = ButtonGroup?.insideGroup.value
       },
     ]"
     v-bind="$attrs"
+    :type="htmlType"
     :disabled="disabled"
   >
     <span v-if="busy">TODO</span>

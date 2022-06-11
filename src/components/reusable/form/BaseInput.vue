@@ -5,11 +5,24 @@ export default defineComponent({ inheritAttrs: false })
 <script setup lang="ts">
 import { computed, defineComponent, useAttrs, useSlots } from 'vue'
 
-const props = defineProps<{
-  modelValue?: string | number | Date
-  prefix?: string
-  suffix?: string
-}>()
+const props = defineProps({
+  modelValue: {
+    type: [String, Number, Date],
+    default: undefined,
+  },
+  htmlType: {
+    type: String,
+    default: 'text',
+  },
+  prefix: {
+    type: String,
+    default: undefined,
+  },
+  suffix: {
+    type: String,
+    default: undefined,
+  },
+})
 
 const emit = defineEmits<{
   (event: 'update:modelValue', value: Date | string): void
@@ -64,7 +77,7 @@ const hasSuffix = () => !!props.suffix || !!useSlots()['suffix']
         { 'group-last-of-type:rounded-r-md group-last-of-type:border-r': !hasSuffix() },
       ]"
       :value="inputValue"
-      :type="attrExceptClass.type as string ?? 'text'"
+      :type="htmlType"
       @input="onValueUpdate"
     />
     <span

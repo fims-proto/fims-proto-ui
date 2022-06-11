@@ -59,7 +59,7 @@ const whoIs = async (userId: string) => {
   <base-page>
     <template #title>{{ t('voucher.title') }}</template>
     <template #extra>
-      <base-button category="primary" @click="onCreate">{{ t('action.create') }}</base-button>
+      <base-button type="primary" @click="onCreate">{{ t('action.create') }}</base-button>
     </template>
 
     <div v-if="vouchers.length" class="w-full overflow-clip border border-neutral-300 shadow-lg rounded-md">

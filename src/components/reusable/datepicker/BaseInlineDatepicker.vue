@@ -181,11 +181,11 @@ watch(
     class="w-80 h-80 bg-white my-2 flex flex-col shadow-lg rounded-sm ring-1 ring-black ring-opacity-5 divide-y divide-neutral-300"
   >
     <div class="flex flex-row justify-between items-center px-4 py-2">
-      <base-button category="text" class="w-4" @click="onNav(-1)">
+      <base-button type="text" class="w-4" @click="onNav(-1)">
         <chevron-left-solid-icon />
       </base-button>
-      <base-button category="text" @click="onUpLevel">{{ title }}</base-button>
-      <base-button category="text" class="w-4" @click="onNav(1)">
+      <base-button type="text" @click="onUpLevel">{{ title }}</base-button>
+      <base-button type="text" class="w-4" @click="onNav(1)">
         <chevron-right-solid-icon />
       </base-button>
     </div>
@@ -235,9 +235,7 @@ watch(
       </template>
     </div>
     <div class="px-4 py-2">
-      <base-button category="text" class="w-full" @click="onTodaySelected">{{
-        t('base.datepicker.today')
-      }}</base-button>
+      <base-button type="text" class="w-full" @click="onTodaySelected">{{ t('base.datepicker.today') }}</base-button>
     </div>
   </div>
 </template>

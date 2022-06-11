@@ -33,14 +33,14 @@ const onNewNotification = () => {
       <!-- normal buttons -->
       <div class="flex gap-4">
         <base-button>Default</base-button>
-        <base-button category="primary"> Primary </base-button>
+        <base-button type="primary"> Primary </base-button>
         <base-button>
           <template #icon>
             <lock-closed-solid-icon />
           </template>
           Default
         </base-button>
-        <base-button category="primary">
+        <base-button type="primary">
           <template #icon>
             <lock-closed-solid-icon />
           </template>
@@ -53,14 +53,14 @@ const onNewNotification = () => {
         </base-button>
         <!-- disabled -->
         <base-button disabled>Default</base-button>
-        <base-button disabled category="primary"> Primary </base-button>
+        <base-button disabled type="primary"> Primary </base-button>
         <base-button disabled>
           <template #icon>
             <lock-closed-solid-icon />
           </template>
           Default
         </base-button>
-        <base-button disabled category="primary">
+        <base-button disabled type="primary">
           <template #icon>
             <lock-closed-solid-icon />
           </template>
@@ -86,14 +86,14 @@ const onNewNotification = () => {
       </div>
       <!-- with style class -->
       <div class="flex gap-4">
-        <base-button category="primary" class="w-64">
+        <base-button type="primary" class="w-64">
           <template #icon>
             <lock-closed-solid-icon />
           </template>
           <span>固定宽度居中</span>
         </base-button>
 
-        <base-button disabled category="primary" class="w-64">
+        <base-button disabled type="primary" class="w-64">
           <template #icon>
             <lock-closed-solid-icon />
           </template>
@@ -104,12 +104,12 @@ const onNewNotification = () => {
       <div>
         <p>
           <span>在文字中的 text 类型</span>
-          <base-button category="text">按钮</base-button>
+          <base-button type="text">按钮</base-button>
           <span>长这个样子</span>
         </p>
         <p>
           <span>在文字中的 disabled text 类型</span>
-          <base-button disabled category="text">按钮</base-button>
+          <base-button disabled type="text">按钮</base-button>
           <span>长这个样子</span>
         </p>
       </div>
@@ -117,12 +117,12 @@ const onNewNotification = () => {
       <div>
         <p>
           <span>在文字中的 link 类型</span>
-          <base-button category="link">按钮</base-button>
+          <base-button type="link">按钮</base-button>
           <span>长这个样子</span>
         </p>
         <p>
           <span>在文字中的 disabled link 类型</span>
-          <base-button disabled category="link">按钮</base-button>
+          <base-button disabled type="link">按钮</base-button>
           <span>长这个样子</span>
         </p>
       </div>
@@ -222,7 +222,7 @@ const onNewNotification = () => {
           </template>
           <template #extra>
             <base-button>Some</base-button>
-            <base-button category="primary">Buttons</base-button>
+            <base-button type="primary">Buttons</base-button>
           </template>
           <base-tabs>
             <template #tabs>
@@ -253,26 +253,26 @@ const onNewNotification = () => {
         </base-form-item>
 
         <base-form-item label="Email 地址">
-          <base-input placeholder="快输入..." type="email" autocomplete="email" required />
+          <base-input placeholder="快输入..." html-type="email" autocomplete="email" required />
         </base-form-item>
 
         <base-form-item label="密码">
-          <base-input placeholder="快输入..." type="password" autocomplete="current-password" required />
+          <base-input placeholder="快输入..." html-type="password" autocomplete="current-password" required />
         </base-form-item>
 
         <base-form-item label="长宽高">
           <base-input-group>
-            <base-input hide-label type="number" />
-            <base-input hide-label type="number" />
-            <base-input hide-label type="number" />
+            <base-input hide-label html-type="number" />
+            <base-input hide-label html-type="number" />
+            <base-input hide-label html-type="number" />
           </base-input-group>
         </base-form-item>
 
         <base-form-item label="何年何月">
           <base-input-group>
-            <base-input hide-label type="number" suffix="年" />
-            <base-input hide-label type="number" suffix="月" />
-            <base-input hide-label type="number" suffix="日" />
+            <base-input hide-label html-type="number" suffix="年" />
+            <base-input hide-label html-type="number" suffix="月" />
+            <base-input hide-label html-type="number" suffix="日" />
           </base-input-group>
         </base-form-item>
 
@@ -298,7 +298,7 @@ const onNewNotification = () => {
         </base-form-item>
 
         <div>
-          <base-button type="submit" category="primary" class="w-full">
+          <base-button html-type="submit" type="primary" class="w-full">
             <template #icon>
               <lock-closed-solid-icon />
             </template>
@@ -311,7 +311,7 @@ const onNewNotification = () => {
     <h1 class="text-neutral-900">Inputs:</h1>
     <div class="rounded-lg p-4">
       <base-form-item label="日期: ">
-        <base-input v-model="inputDate" type="date" class="w-40" />
+        <base-input v-model="inputDate" html-type="date" class="w-40" />
       </base-form-item>
     </div>
 

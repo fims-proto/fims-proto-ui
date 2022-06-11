@@ -61,7 +61,7 @@ defineExpose({
       <div class="flex-1 flex justify-start">
         <p v-if="disabled">{{ t('voucher.transactionTime') }} {{ d(internalTransactionTime, 'date') }}</p>
         <base-form-item v-else :label="t('voucher.transactionTime')" hide-label>
-          <base-input v-model="internalTransactionTime" type="date" :prefix="t('voucher.transactionTime')" />
+          <base-input v-model="internalTransactionTime" html-type="date" :prefix="t('voucher.transactionTime')" />
         </base-form-item>
       </div>
       <div class="flex-1 flex flex-row gap-4 justify-center items-baseline">

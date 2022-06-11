@@ -105,7 +105,7 @@ const onSaveAndNew = async () => {
   <base-page>
     <template #title>{{ t('voucher.creation.title') }}</template>
     <template #extra>
-      <base-button category="primary" @click="onSaveAndNew">{{ t('action.saveAndNew') }}</base-button>
+      <base-button type="primary" @click="onSaveAndNew">{{ t('action.saveAndNew') }}</base-button>
       <base-button @click="onSave">{{ t('action.save') }}</base-button>
     </template>
     <voucher-form

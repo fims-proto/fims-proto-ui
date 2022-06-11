@@ -91,7 +91,7 @@ const onCancelAudit = async () => {
       <base-button :disabled="editMode || voucher?.isAudited || voucher?.isReviewed" @click="editMode = true">
         {{ t('action.edit') }}
       </base-button>
-      <base-button v-if="editMode" category="primary" @click="onSave">{{ t('action.save') }}</base-button>
+      <base-button v-if="editMode" type="primary" @click="onSave">{{ t('action.save') }}</base-button>
       <base-button v-if="!voucher?.isAudited" :disabled="editMode" @click="onAudit">
         {{ t('voucher.audit') }}
       </base-button>

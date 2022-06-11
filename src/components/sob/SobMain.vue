@@ -16,7 +16,7 @@ const onCreate = () => router.push({ name: 'sobCreation' })
   <base-page :subtitle="t('sob.subtitle')">
     <template #title>{{ t('sob.title') }}</template>
     <template #extra>
-      <base-button category="primary" @click="onCreate">{{ t('action.create') }}</base-button>
+      <base-button type="primary" @click="onCreate">{{ t('action.create') }}</base-button>
     </template>
     <div v-if="sobs.length > 0" class="flex flex-wrap gap-8">
       <base-link
