@@ -1,5 +1,5 @@
 <template>
-  <tab-panel class="mt-4">
+  <TabPanel class="mt-4">
     <slot></slot>
-  </tab-panel>
+  </TabPanel>
 </template>

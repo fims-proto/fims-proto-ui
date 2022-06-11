@@ -85,21 +85,21 @@ const onCancelAudit = async () => {
 </script>
 
 <template>
-  <base-page :subtitle="voucher?.lineItems[0].summary">
+  <BasePage :subtitle="voucher?.lineItems[0].summary">
     <template #title>{{ voucher?.number }}</template>
     <template #extra>
-      <base-button :disabled="editMode || voucher?.isAudited || voucher?.isReviewed" @click="editMode = true">
+      <BaseButton :disabled="editMode || voucher?.isAudited || voucher?.isReviewed" @click="editMode = true">
         {{ t('action.edit') }}
-      </base-button>
-      <base-button v-if="editMode" type="primary" @click="onSave">{{ t('action.save') }}</base-button>
-      <base-button v-if="!voucher?.isAudited" :disabled="editMode" @click="onAudit">
+      </BaseButton>
+      <BaseButton v-if="editMode" type="primary" @click="onSave">{{ t('action.save') }}</BaseButton>
+      <BaseButton v-if="!voucher?.isAudited" :disabled="editMode" @click="onAudit">
         {{ t('voucher.audit') }}
-      </base-button>
-      <base-button v-if="voucher?.isAudited" :disabled="editMode" @click="onCancelAudit">
+      </BaseButton>
+      <BaseButton v-if="voucher?.isAudited" :disabled="editMode" @click="onCancelAudit">
         {{ t('voucher.cancelAudit') }}
-      </base-button>
+      </BaseButton>
     </template>
-    <voucher-form
+    <VoucherForm
       v-if="voucher && creator"
       ref="formRef"
       :disabled="!editMode"
@@ -108,5 +108,5 @@ const onCancelAudit = async () => {
       :line-items="voucher.lineItems"
       :creator="creator.traits"
     />
-  </base-page>
+  </BasePage>
 </template>

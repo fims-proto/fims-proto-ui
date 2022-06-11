@@ -47,21 +47,21 @@ const onUpdate = (account: Account) => {
 
 <template>
   <div class="relative">
-    <combobox :model-value="selectedAccount" :disabled="disabled" nullable @update:model-value="onUpdate">
-      <v-binder>
-        <v-target>
-          <combobox-input
+    <Combobox :model-value="selectedAccount" :disabled="disabled" nullable @update:model-value="onUpdate">
+      <VBinder>
+        <VTarget>
+          <ComboboxInput
             :disabled="disabled"
             :display-value="(account: unknown) => (account ? (account as Account).accountNumber : '')"
             class="appearance-none w-full border-none px-3 py-2"
             @change="query = $event.target.value"
           />
-        </v-target>
+        </VTarget>
         <span class="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-neutral-800/50">{{
           selectedAccount?.title
         }}</span>
 
-        <v-follower :show="!disabled" placement="bottom-start">
+        <VFollower :show="!disabled" placement="bottom-start">
           <transition
             enter-active-class="transition duration-100 ease-out"
             enter-from-class="scale-95 -translate-y-2 opacity-0"
@@ -70,11 +70,11 @@ const onUpdate = (account: Account) => {
             leave-from-class="scale-100 translate-y-0 opacity-100"
             leave-to-class="scale-95 -translate-y-2 opacity-0"
           >
-            <combobox-options
+            <ComboboxOptions
               v-show="filteredAccounts.length"
               class="max-h-60 min-w-[12rem] bg-white mt-1 border border-neutral-300 rounded-md shadow-lg overflow-auto"
             >
-              <combobox-option
+              <ComboboxOption
                 v-for="account in filteredAccounts"
                 v-slot="{ active }"
                 :key="account.id"
@@ -91,11 +91,11 @@ const onUpdate = (account: Account) => {
                 >
                   {{ account.accountNumber }} - {{ account.title }}
                 </li>
-              </combobox-option>
-            </combobox-options>
+              </ComboboxOption>
+            </ComboboxOptions>
           </transition>
-        </v-follower>
-      </v-binder>
-    </combobox>
+        </VFollower>
+      </VBinder>
+    </Combobox>
   </div>
 </template>

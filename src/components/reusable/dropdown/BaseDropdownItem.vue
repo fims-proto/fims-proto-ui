@@ -13,7 +13,7 @@ const handleClick = () => {
 </script>
 
 <template>
-  <menu-item v-slot="{ active }">
+  <MenuItem v-slot="{ active }">
     <button
       class="group w-full flex items-center gap-2 px-4 py-2 text-left text-sm whitespace-nowrap"
       :class="[active ? 'bg-neutral-200 text-neutral-900' : 'text-neutral-700']"
@@ -29,5 +29,5 @@ const handleClick = () => {
 
       <slot></slot>
     </button>
-  </menu-item>
+  </MenuItem>
 </template>

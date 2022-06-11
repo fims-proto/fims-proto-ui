@@ -34,9 +34,9 @@ const onValueUpdated = (value: string) => {
 
 <template>
   <div>
-    <v-binder>
-      <v-target>
-        <base-input
+    <VBinder>
+      <VTarget>
+        <BaseInput
           html-type="date"
           :hide-label="true"
           :model-value="formattedInputDate"
@@ -44,9 +44,9 @@ const onValueUpdated = (value: string) => {
           @focus="show = true"
           @update:model-value="onValueUpdated"
         />
-      </v-target>
+      </VTarget>
 
-      <v-follower :show="show" :placement="placement">
+      <VFollower :show="show" :placement="placement">
         <transition
           :appear="show"
           enter-active-class="transition duration-100 ease-out"
@@ -56,9 +56,9 @@ const onValueUpdated = (value: string) => {
           leave-from-class="scale-100 translate-y-0 opacity-100"
           leave-to-class="scale-95 -translate-y-2 opacity-0"
         >
-          <base-inline-datepicker v-show="show" :model-value="modelValue" @update:model-value="onValueUpdated" />
+          <BaseInlineDatepicker v-show="show" :model-value="modelValue" @update:model-value="onValueUpdated" />
         </transition>
-      </v-follower>
-    </v-binder>
+      </VFollower>
+    </VBinder>
   </div>
 </template>

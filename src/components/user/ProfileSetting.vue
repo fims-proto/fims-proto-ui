@@ -133,61 +133,61 @@ function buildMessages(flow: SelfServiceSettingsFlow | undefined): messageType[]
 </script>
 
 <template>
-  <base-page :subtitle="t('profile.subtitle')">
+  <BasePage :subtitle="t('profile.subtitle')">
     <template #title>{{ t('profile.title') }}</template>
     <div class="flex flex-col gap-2">
-      <base-notification
+      <BaseNotification
         v-for="(message, i) in messages"
         :key="`profileUpdate-alert-${i}`"
         :type="message.type ?? 'error'"
         :message="message.text"
       />
 
-      <base-tabs>
+      <BaseTabs>
         <template #tabs>
-          <base-tab-item>{{ t('profile.updateProfile') }}</base-tab-item>
-          <base-tab-item>{{ t('profile.updatePassword') }}</base-tab-item>
+          <BaseTabItem>{{ t('profile.updateProfile') }}</BaseTabItem>
+          <BaseTabItem>{{ t('profile.updatePassword') }}</BaseTabItem>
         </template>
         <template #panels>
           <!-- profile update -->
-          <base-tab-panel class="max-w-xl">
-            <base-form @submit="onProfileUpdate">
+          <BaseTabPanel class="max-w-xl">
+            <BaseForm @submit="onProfileUpdate">
               <input v-model="profileFormValue.csrf_token" type="hidden" />
-              <base-form-item :label="t('user.email')" required>
-                <base-input
+              <BaseFormItem :label="t('user.email')" required>
+                <BaseInput
                   v-model="profileFormValue.traits.email"
                   :placeholder="t('user.emailInputPlaceholder')"
                   html-type="email"
                   autocomplete="email"
                   required
                 />
-              </base-form-item>
-              <base-form-item :label="t('user.lastname')">
-                <base-input
+              </BaseFormItem>
+              <BaseFormItem :label="t('user.lastname')">
+                <BaseInput
                   v-model="profileFormValue.traits.name.last"
                   :placeholder="t('user.lastnameInputPlaceholder')"
                 />
-              </base-form-item>
-              <base-form-item :label="t('user.firstname')">
-                <base-input
+              </BaseFormItem>
+              <BaseFormItem :label="t('user.firstname')">
+                <BaseInput
                   v-model="profileFormValue.traits.name.first"
                   :placeholder="t('user.firstnameInputPlaceholder')"
                 />
-              </base-form-item>
+              </BaseFormItem>
               <div>
-                <base-button html-type="submit" type="primary" class="w-full">
+                <BaseButton html-type="submit" type="primary" class="w-full">
                   <template #icon>
-                    <lock-closed-solid-icon />
+                    <LockClosedSolidIcon />
                   </template>
                   <span>{{ t('action.submit') }}</span>
-                </base-button>
+                </BaseButton>
               </div>
-            </base-form>
-          </base-tab-panel>
+            </BaseForm>
+          </BaseTabPanel>
 
           <!-- password update -->
-          <base-tab-panel class="max-w-xl">
-            <base-form @submit="handleSubmit(passwordFormValue)">
+          <BaseTabPanel class="max-w-xl">
+            <BaseForm @submit="handleSubmit(passwordFormValue)">
               <input v-model="passwordFormValue.csrf_token" type="hidden" />
               <!-- hidden username field for browser autocomplete -->
               <input
@@ -197,27 +197,27 @@ function buildMessages(flow: SelfServiceSettingsFlow | undefined): messageType[]
                 autocomplete="email"
                 style="display: none"
               />
-              <base-form-item :label="t('user.password')" required>
-                <base-input
+              <BaseFormItem :label="t('user.password')" required>
+                <BaseInput
                   v-model="passwordFormValue.password"
                   :placeholder="t('user.passwordInputPlaceholder')"
                   html-type="password"
                   autocomplete="new-password"
                   required
                 />
-              </base-form-item>
+              </BaseFormItem>
               <div>
-                <base-button html-type="submit" type="primary" class="w-full">
+                <BaseButton html-type="submit" type="primary" class="w-full">
                   <template #icon>
-                    <lock-closed-solid-icon />
+                    <LockClosedSolidIcon />
                   </template>
                   <span>{{ t('action.submit') }}</span>
-                </base-button>
+                </BaseButton>
               </div>
-            </base-form>
-          </base-tab-panel>
+            </BaseForm>
+          </BaseTabPanel>
         </template>
-      </base-tabs>
+      </BaseTabs>
     </div>
-  </base-page>
+  </BasePage>
 </template>

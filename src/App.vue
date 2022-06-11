@@ -24,6 +24,6 @@ watch(
 </script>
 
 <template>
-  <router-view />
-  <the-notification-panel />
+  <RouterView />
+  <TheNotificationPanel />
 </template>

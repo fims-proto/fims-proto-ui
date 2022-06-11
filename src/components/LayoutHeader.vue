@@ -74,48 +74,45 @@ const onSobSelected = async (command: string) => {
     <div class="flex gap-4 items-center">
       <!-- logo -->
       <div>
-        <base-link
+        <BaseLink
           :to="{ name: 'home' }"
           class="px-3 py-2 pl-0 rounded-md text-xl font-serif italic font-extrabold text-primary-700"
-          >fims</base-link
+          >fims</BaseLink
         >
       </div>
 
       <!-- SoB selection -->
       <div>
-        <base-dropdown @select="onSobSelected">
-          <base-dropdown-button
+        <BaseDropdown @select="onSobSelected">
+          <BaseDropdownButton
             v-slot="{ open }"
             as="a"
             class="px-3 py-2 space-x-2 rounded-md whitespace-nowrap text-neutral-700 hover:text-neutral-900 hover:bg-black hover:bg-opacity-5"
           >
             <span class="inline">{{ workingSob ? workingSob.name : t('sob.selectSob') }}</span>
             <span class="inline">{{ period }}</span>
-            <chevron-down-outline-icon
-              :class="['inline w-3 align-baseline', { 'rotate-180': open }]"
-              aria-hidden="true"
-            />
-          </base-dropdown-button>
+            <ChevronDownOutlineIcon :class="['inline w-3 align-baseline', { 'rotate-180': open }]" aria-hidden="true" />
+          </BaseDropdownButton>
           <template #overlay>
-            <base-dropdown-group :title="t('sob.selectSob')">
-              <base-dropdown-item v-for="sob in sobs" :key="sob.id" :command="sob.id">
+            <BaseDropdownGroup :title="t('sob.selectSob')">
+              <BaseDropdownItem v-for="sob in sobs" :key="sob.id" :command="sob.id">
                 <span>{{ sob.name }}</span>
-                <base-tag v-if="sob.id === workingSob?.id" color="success">{{ t('sob.current') }}</base-tag>
-              </base-dropdown-item>
-            </base-dropdown-group>
-            <base-dropdown-item command="nav">{{ t('sob.manageSob') }}</base-dropdown-item>
+                <BaseTag v-if="sob.id === workingSob?.id" color="success">{{ t('sob.current') }}</BaseTag>
+              </BaseDropdownItem>
+            </BaseDropdownGroup>
+            <BaseDropdownItem command="nav">{{ t('sob.manageSob') }}</BaseDropdownItem>
           </template>
-        </base-dropdown>
+        </BaseDropdown>
       </div>
 
       <!-- navigation -->
       <nav class="space-x-2">
-        <base-link
+        <BaseLink
           v-for="item in navigation"
           :key="item.key"
           :to="item.to"
           class="px-3 py-2 rounded-md text-neutral-700 hover:text-neutral-900 hover:bg-black hover:bg-opacity-5"
-          >{{ item.label }}</base-link
+          >{{ item.label }}</BaseLink
         >
       </nav>
     </div>
@@ -123,24 +120,24 @@ const onSobSelected = async (command: string) => {
     <!-- right part -->
     <div class="flex gap-4 items-center">
       <div>
-        <base-dropdown placement="bottom-end" @select="onUserMenuSelected">
-          <base-dropdown-button as="a">
-            <base-avatar custom-sizing class="h-8 w-8">{{ userInfo.name?.first }}</base-avatar>
-          </base-dropdown-button>
+        <BaseDropdown placement="bottom-end" @select="onUserMenuSelected">
+          <BaseDropdownButton as="a">
+            <BaseAvatar custom-sizing class="h-8 w-8">{{ userInfo.name?.first }}</BaseAvatar>
+          </BaseDropdownButton>
           <template #overlay>
-            <base-dropdown-group>
-              <base-dropdown-item command="update-profile">{{ t('profile.updateProfile') }}</base-dropdown-item>
-            </base-dropdown-group>
-            <base-dropdown-group>
-              <base-dropdown-item command="logout">
+            <BaseDropdownGroup>
+              <BaseDropdownItem command="update-profile">{{ t('profile.updateProfile') }}</BaseDropdownItem>
+            </BaseDropdownGroup>
+            <BaseDropdownGroup>
+              <BaseDropdownItem command="logout">
                 <template #icon>
-                  <logout-outline-icon />
+                  <LogoutOutlineIcon />
                 </template>
                 {{ t('user.logout') }}
-              </base-dropdown-item>
-            </base-dropdown-group>
+              </BaseDropdownItem>
+            </BaseDropdownGroup>
           </template>
-        </base-dropdown>
+        </BaseDropdown>
       </div>
     </div>
   </div>

@@ -146,7 +146,7 @@ const handleSubmit = async () => {
       </div>
 
       <!-- messages -->
-      <base-notification
+      <BaseNotification
         v-for="(message, i) in messages"
         :key="`login-alert-${i}`"
         :type="message.type ?? 'error'"
@@ -155,37 +155,37 @@ const handleSubmit = async () => {
       />
 
       <!-- form -->
-      <base-form class="px-12 py-8 bg-white shadow-lg rounded-lg" hide-required-mark @submit="handleSubmit">
+      <BaseForm class="px-12 py-8 bg-white shadow-lg rounded-lg" hide-required-mark @submit="handleSubmit">
         <input v-model="formValue.csrfToken" type="hidden" />
-        <base-form-item :label="t('user.email')" required>
-          <base-input
+        <BaseFormItem :label="t('user.email')" required>
+          <BaseInput
             v-model="formValue.user.email"
             :placeholder="t('user.emailInputPlaceholder')"
             html-type="email"
             autocomplete="email"
             required
           />
-        </base-form-item>
+        </BaseFormItem>
 
-        <base-form-item :label="t('user.password')" required>
-          <base-input
+        <BaseFormItem :label="t('user.password')" required>
+          <BaseInput
             v-model="formValue.user.password"
             :placeholder="t('user.passwordInputPlaceholder')"
             html-type="password"
             autocomplete="current-password"
             required
           />
-        </base-form-item>
+        </BaseFormItem>
 
         <div>
-          <base-button html-type="submit" type="primary" class="w-full">
+          <BaseButton html-type="submit" type="primary" class="w-full">
             <template #icon>
-              <lock-closed-solid-icon />
+              <LockClosedSolidIcon />
             </template>
             <span>{{ t('user.login') }}</span>
-          </base-button>
+          </BaseButton>
         </div>
-      </base-form>
+      </BaseForm>
     </div>
   </div>
 </template>

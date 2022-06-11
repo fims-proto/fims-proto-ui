@@ -32,88 +32,88 @@ const onNewNotification = (text: string) => {
     <div class="rounded-lg p-4 space-y-4">
       <!-- normal buttons -->
       <div class="flex gap-4">
-        <base-button>Default</base-button>
-        <base-button type="primary"> Primary </base-button>
-        <base-button>
+        <BaseButton>Default</BaseButton>
+        <BaseButton type="primary"> Primary </BaseButton>
+        <BaseButton>
           <template #icon>
-            <lock-closed-solid-icon />
+            <LockClosedSolidIcon />
           </template>
           Default
-        </base-button>
-        <base-button type="primary">
+        </BaseButton>
+        <BaseButton type="primary">
           <template #icon>
-            <lock-closed-solid-icon />
+            <LockClosedSolidIcon />
           </template>
           Primary
-        </base-button>
-        <base-button>
+        </BaseButton>
+        <BaseButton>
           <template #icon>
-            <lock-closed-solid-icon />
+            <LockClosedSolidIcon />
           </template>
-        </base-button>
+        </BaseButton>
         <!-- disabled -->
-        <base-button disabled>Default</base-button>
-        <base-button disabled type="primary"> Primary </base-button>
-        <base-button disabled>
+        <BaseButton disabled>Default</BaseButton>
+        <BaseButton disabled type="primary"> Primary </BaseButton>
+        <BaseButton disabled>
           <template #icon>
-            <lock-closed-solid-icon />
+            <LockClosedSolidIcon />
           </template>
           Default
-        </base-button>
-        <base-button disabled type="primary">
+        </BaseButton>
+        <BaseButton disabled type="primary">
           <template #icon>
-            <lock-closed-solid-icon />
+            <LockClosedSolidIcon />
           </template>
           Primary
-        </base-button>
+        </BaseButton>
       </div>
       <!-- grouped button -->
       <div class="flex gap-4">
-        <base-button-group>
-          <base-button>
-            <template #icon><lock-closed-solid-icon /></template>Fisrt
-          </base-button>
-          <base-button>Second</base-button>
-          <base-button>Third</base-button>
-        </base-button-group>
+        <BaseButtonGroup>
+          <BaseButton>
+            <template #icon><LockClosedSolidIcon /></template>Fisrt
+          </BaseButton>
+          <BaseButton>Second</BaseButton>
+          <BaseButton>Third</BaseButton>
+        </BaseButtonGroup>
 
-        <base-button-group>
-          <base-button disabled>
-            <template #icon><lock-closed-solid-icon /></template>Fisrt
-          </base-button>
-          <base-button disabled>Second</base-button>
-        </base-button-group>
+        <BaseButtonGroup>
+          <BaseButton disabled>
+            <template #icon><LockClosedSolidIcon /></template>Fisrt
+          </BaseButton>
+          <BaseButton disabled>Second</BaseButton>
+        </BaseButtonGroup>
       </div>
       <!-- with style class -->
       <div class="flex gap-4">
-        <base-button type="primary" class="w-64">
+        <BaseButton type="primary" class="w-64">
           <template #icon>
-            <lock-closed-solid-icon />
+            <LockClosedSolidIcon />
           </template>
           <span>固定宽度居中</span>
-        </base-button>
+        </BaseButton>
 
-        <base-button disabled type="primary" class="w-64">
+        <BaseButton disabled type="primary" class="w-64">
           <template #icon>
-            <lock-closed-solid-icon />
+            <LockClosedSolidIcon />
           </template>
           <span>固定宽度但禁止</span>
-        </base-button>
+        </BaseButton>
       </div>
       <!-- double confirm -->
       <div class="flex gap-4">
-        <base-button type="primary" confirm @click="onNewNotification('Ta-da!!')">重要事件</base-button>
+        <BaseButton type="primary" confirm @click="onNewNotification('Ta-da!!')">重要事件</BaseButton>
       </div>
       <!-- text type -->
       <div>
         <p>
           <span>在文字中的 text 类型</span>
-          <base-button type="text">按钮</base-button>
+          <BaseButton type="text">按钮</BaseButton>
           <span>长这个样子</span>
         </p>
         <p>
           <span>在文字中的 disabled text 类型</span>
-          <base-button disabled type="text">按钮</base-button>
+          <BaseButton disabled type="text">按钮</BaseButton>
           <span>长这个样子</span>
         </p>
       </div>
@@ -121,12 +121,12 @@ const onNewNotification = (text: string) => {
       <div>
         <p>
           <span>在文字中的 link 类型</span>
-          <base-button type="link">按钮</base-button>
+          <BaseButton type="link">按钮</BaseButton>
           <span>长这个样子</span>
         </p>
         <p>
           <span>在文字中的 disabled link 类型</span>
-          <base-button disabled type="link">按钮</base-button>
+          <BaseButton disabled type="link">按钮</BaseButton>
           <span>长这个样子</span>
         </p>
       </div>
@@ -134,158 +134,155 @@ const onNewNotification = (text: string) => {
 
     <h1 class="text-neutral-900">BaseNotification:</h1>
     <div class="rounded-lg p-4 space-y-4">
-      <base-notification type="error" closable message="丹麦的艾辛诺尔堡" />
-      <base-notification type="info" message="在城墙的一平台上" />
-      <base-notification type="success" closable :show-icon="false" message="守卫柏纳多与佛郎西斯哥入" />
-      <base-notification
-        type="warning"
-        message="此时正是深夜, 一片漆黑中, 佛郎西斯哥在城墙上站岗, 而柏纳多来接他的班"
-      />
-      <base-button @click="onNewNotification">弹出式通知</base-button>
+      <BaseNotification type="error" closable message="丹麦的艾辛诺尔堡" />
+      <BaseNotification type="info" message="在城墙的一平台上" />
+      <BaseNotification type="success" closable :show-icon="false" message="守卫柏纳多与佛郎西斯哥入" />
+      <BaseNotification type="warning" message="此时正是深夜, 一片漆黑中, 佛郎西斯哥在城墙上站岗, 而柏纳多来接他的班" />
+      <BaseButton @click="onNewNotification">弹出式通知</BaseButton>
     </div>
 
     <h1 class="text-neutral-900">BaseAvatar:</h1>
     <div class="rounded-lg p-4 space-y-4">
       <div class="flex gap-4">
-        <base-avatar>张三</base-avatar>
-        <base-avatar>张三</base-avatar>
-        <base-avatar>长一点</base-avatar>
-        <base-avatar class="h-12 w-12" custom-sizing>大一号</base-avatar>
-        <base-avatar class="h-8 w-8" custom-sizing>张三</base-avatar>
-        <base-avatar>
+        <BaseAvatar>张三</BaseAvatar>
+        <BaseAvatar>张三</BaseAvatar>
+        <BaseAvatar>长一点</BaseAvatar>
+        <BaseAvatar class="h-12 w-12" custom-sizing>大一号</BaseAvatar>
+        <BaseAvatar class="h-8 w-8" custom-sizing>张三</BaseAvatar>
+        <BaseAvatar>
           <template #icon>
-            <emoji-happy-outline-icon />
+            <EmojiHappyOutlineIcon />
           </template>
           Should not display
-        </base-avatar>
-        <base-avatar class="bg-warning-600 text-warning-100" custom-color>
+        </BaseAvatar>
+        <BaseAvatar class="bg-warning-600 text-warning-100" custom-color>
           <template #icon>
-            <emoji-happy-outline-icon />
+            <EmojiHappyOutlineIcon />
           </template>
-        </base-avatar>
+        </BaseAvatar>
       </div>
     </div>
 
     <h1 class="text-neutral-900">BaseDropdown:</h1>
     <div class="rounded-lg p-4 space-x-4">
-      <base-dropdown>
-        <base-dropdown-button class="p-2 rounded-sm shadow-md bg-primary-600 text-white hover:bg-primary-400"
+      <BaseDropdown>
+        <BaseDropdownButton class="p-2 rounded-sm shadow-md bg-primary-600 text-white hover:bg-primary-400"
           >双节棍
-        </base-dropdown-button>
+        </BaseDropdownButton>
         <template #overlay>
-          <base-dropdown-group>
-            <base-dropdown-item>岩烧店的烟味弥漫</base-dropdown-item>
-            <base-dropdown-item>隔壁是国术馆</base-dropdown-item>
-          </base-dropdown-group>
-          <base-dropdown-group title="一起唱">
-            <base-dropdown-item>快使用双截棍 哼哼哈兮</base-dropdown-item>
-            <base-dropdown-item>习武之人切记 仁者无敌</base-dropdown-item>
-          </base-dropdown-group>
-          <base-dropdown-item>漂亮的回旋踢</base-dropdown-item>
+          <BaseDropdownGroup>
+            <BaseDropdownItem>岩烧店的烟味弥漫</BaseDropdownItem>
+            <BaseDropdownItem>隔壁是国术馆</BaseDropdownItem>
+          </BaseDropdownGroup>
+          <BaseDropdownGroup title="一起唱">
+            <BaseDropdownItem>快使用双截棍 哼哼哈兮</BaseDropdownItem>
+            <BaseDropdownItem>习武之人切记 仁者无敌</BaseDropdownItem>
+          </BaseDropdownGroup>
+          <BaseDropdownItem>漂亮的回旋踢</BaseDropdownItem>
         </template>
-      </base-dropdown>
+      </BaseDropdown>
 
-      <base-dropdown placement="bottom-end">
-        <base-dropdown-button class="p-2 rounded-sm shadow-md bg-primary-600 text-white hover:bg-primary-400"
+      <BaseDropdown placement="bottom-end">
+        <BaseDropdownButton class="p-2 rounded-sm shadow-md bg-primary-600 text-white hover:bg-primary-400"
           >靠右
-        </base-dropdown-button>
+        </BaseDropdownButton>
         <template #overlay>
-          <base-dropdown-item>快使用双截棍 哼哼哈兮 哼哼哈兮 哼哼哈兮</base-dropdown-item>
-          <base-dropdown-item>仁者无敌</base-dropdown-item>
+          <BaseDropdownItem>快使用双截棍 哼哼哈兮 哼哼哈兮 哼哼哈兮</BaseDropdownItem>
+          <BaseDropdownItem>仁者无敌</BaseDropdownItem>
         </template>
-      </base-dropdown>
+      </BaseDropdown>
 
-      <base-dropdown>
-        <base-dropdown-button class="p-2 rounded-sm shadow-md bg-primary-600 text-white hover:bg-primary-400"
+      <BaseDropdown>
+        <BaseDropdownButton class="p-2 rounded-sm shadow-md bg-primary-600 text-white hover:bg-primary-400"
           >带图标
-        </base-dropdown-button>
+        </BaseDropdownButton>
         <template #overlay>
-          <base-dropdown-item>没图标</base-dropdown-item>
-          <base-dropdown-item>
-            <template #icon><lock-closed-solid-icon /></template>锁住水分持久保鲜
-          </base-dropdown-item>
+          <BaseDropdownItem>没图标</BaseDropdownItem>
+          <BaseDropdownItem>
+            <template #icon><LockClosedSolidIcon /></template>锁住水分持久保鲜
+          </BaseDropdownItem>
         </template>
-      </base-dropdown>
+      </BaseDropdown>
     </div>
 
     <h1 class="text-neutral-900">BaseTag:</h1>
     <div class="rounded-lg p-4 space-x-4">
-      <base-tag color="error" closable>气球</base-tag>
-      <base-tag color="info">修狗</base-tag>
-      <base-tag color="success" closable>汪汪队</base-tag>
-      <base-tag color="warning">此时正是深夜, 一片漆黑中</base-tag>
+      <BaseTag color="error" closable>气球</BaseTag>
+      <BaseTag color="info">修狗</BaseTag>
+      <BaseTag color="success" closable>汪汪队</BaseTag>
+      <BaseTag color="warning">此时正是深夜, 一片漆黑中</BaseTag>
     </div>
 
     <h1 class="text-neutral-900">BasePage:</h1>
     <div class="rounded-lg p-4 space-x-4">
       <div class="w-full max-w-screen-lg">
-        <base-page subtitle="副标题, 描述性质文本">
+        <BasePage subtitle="副标题, 描述性质文本">
           <template #breadcrumb>一级 / 二级 / 三级 / 当前</template>
           <template #title>
             <h1>页标题</h1>
           </template>
           <template #extra>
-            <base-button>Some</base-button>
-            <base-button type="primary">Buttons</base-button>
+            <BaseButton>Some</BaseButton>
+            <BaseButton type="primary">Buttons</BaseButton>
           </template>
-          <base-tabs>
+          <BaseTabs>
             <template #tabs>
-              <base-tab-item>页签</base-tab-item>
-              <base-tab-item>又一个</base-tab-item>
-              <base-tab-item>再来</base-tab-item>
+              <BaseTabItem>页签</BaseTabItem>
+              <BaseTabItem>又一个</BaseTabItem>
+              <BaseTabItem>再来</BaseTabItem>
             </template>
             <template #panels>
-              <base-tab-panel class="h-20">一些随意的内容</base-tab-panel>
-              <base-tab-panel class="h-20">
+              <BaseTabPanel class="h-20">一些随意的内容</BaseTabPanel>
+              <BaseTabPanel class="h-20">
                 <div class="flex items-center gap-2">
                   <span>另一些随意的内容</span>
-                  <base-button>还有按钮</base-button>
+                  <BaseButton>还有按钮</BaseButton>
                 </div>
-              </base-tab-panel>
-              <base-tab-panel class="h-20">别过来</base-tab-panel>
+              </BaseTabPanel>
+              <BaseTabPanel class="h-20">别过来</BaseTabPanel>
             </template>
-          </base-tabs>
-        </base-page>
+          </BaseTabs>
+        </BasePage>
       </div>
     </div>
 
     <h1 class="text-neutral-900">BaseForm:</h1>
     <div class="rounded-lg p-4">
-      <base-form class="max-w-lg">
-        <base-form-item label="普通文本">
-          <base-input placeholder="say something..." />
-        </base-form-item>
+      <BaseForm class="max-w-lg">
+        <BaseFormItem label="普通文本">
+          <BaseInput placeholder="say something..." />
+        </BaseFormItem>
 
-        <base-form-item label="Email 地址" required>
-          <base-input placeholder="快输入..." html-type="email" autocomplete="email" required />
-        </base-form-item>
+        <BaseFormItem label="Email 地址" required>
+          <BaseInput placeholder="快输入..." html-type="email" autocomplete="email" required />
+        </BaseFormItem>
 
-        <base-form-item label="密码" required>
-          <base-input placeholder="快输入..." html-type="password" autocomplete="current-password" required />
-        </base-form-item>
+        <BaseFormItem label="密码" required>
+          <BaseInput placeholder="快输入..." html-type="password" autocomplete="current-password" required />
+        </BaseFormItem>
 
-        <base-form-item label="长宽高">
-          <base-input-group>
-            <base-input hide-label html-type="number" />
-            <base-input hide-label html-type="number" />
-            <base-input hide-label html-type="number" />
-          </base-input-group>
-        </base-form-item>
+        <BaseFormItem label="长宽高">
+          <BaseInputGroup>
+            <BaseInput hide-label html-type="number" />
+            <BaseInput hide-label html-type="number" />
+            <BaseInput hide-label html-type="number" />
+          </BaseInputGroup>
+        </BaseFormItem>
 
-        <base-form-item label="何年何月">
-          <base-input-group>
-            <base-input hide-label html-type="number" suffix="年" />
-            <base-input hide-label html-type="number" suffix="月" />
-            <base-input hide-label html-type="number" suffix="日" />
-          </base-input-group>
-        </base-form-item>
+        <BaseFormItem label="何年何月">
+          <BaseInputGroup>
+            <BaseInput hide-label html-type="number" suffix="年" />
+            <BaseInput hide-label html-type="number" suffix="月" />
+            <BaseInput hide-label html-type="number" suffix="日" />
+          </BaseInputGroup>
+        </BaseFormItem>
 
-        <base-form-item label="文本前后缀">
-          <base-input placeholder="fims" prefix="https://" suffix=".com" />
-        </base-form-item>
+        <BaseFormItem label="文本前后缀">
+          <BaseInput placeholder="fims" prefix="https://" suffix=".com" />
+        </BaseFormItem>
 
-        <base-form-item label="控件前后缀_未完成">
-          <base-input placeholder="0.00">
+        <BaseFormItem label="控件前后缀_未完成">
+          <BaseInput placeholder="0.00">
             <template #prefix>
               <select class="border-transparent rounded-md text-sm">
                 <option>Income</option>
@@ -298,25 +295,25 @@ const onNewNotification = (text: string) => {
                 <option>CNY</option>
               </select>
             </template>
-          </base-input>
-        </base-form-item>
+          </BaseInput>
+        </BaseFormItem>
 
         <div>
-          <base-button html-type="submit" type="primary" class="w-full">
+          <BaseButton html-type="submit" type="primary" class="w-full">
             <template #icon>
-              <lock-closed-solid-icon />
+              <LockClosedSolidIcon />
             </template>
             <span>登录</span>
-          </base-button>
+          </BaseButton>
         </div>
-      </base-form>
+      </BaseForm>
     </div>
 
     <h1 class="text-neutral-900">Inputs:</h1>
     <div class="rounded-lg p-4">
-      <base-form-item label="日期: ">
-        <base-input v-model="inputDate" html-type="date" class="w-40" />
-      </base-form-item>
+      <BaseFormItem label="日期: ">
+        <BaseInput v-model="inputDate" html-type="date" class="w-40" />
+      </BaseFormItem>
     </div>
 
     <!-- <h1 class="text-neutral-900">SomeOthers:</h1>

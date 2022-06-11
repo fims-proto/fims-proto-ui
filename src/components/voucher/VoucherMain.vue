@@ -56,10 +56,10 @@ const whoIs = async (userId: string) => {
 </script>
 
 <template>
-  <base-page>
+  <BasePage>
     <template #title>{{ t('voucher.title') }}</template>
     <template #extra>
-      <base-button type="primary" @click="onCreate">{{ t('action.create') }}</base-button>
+      <BaseButton type="primary" @click="onCreate">{{ t('action.create') }}</BaseButton>
     </template>
 
     <div v-if="vouchers.length" class="w-full overflow-clip border border-neutral-300 shadow-lg rounded-md">
@@ -91,5 +91,5 @@ const whoIs = async (userId: string) => {
     </div>
 
     <span v-else>no vouchers</span>
-  </base-page>
+  </BasePage>
 </template>

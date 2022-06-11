@@ -40,7 +40,7 @@ const onCreatePeriod = () => {
       {{ `${period.financialYear} ${t('common.year')} ${period.number} ${t('common.month')}` }}
     </li>
     <li v-if="!periods?.length">
-      <base-button @click="onCreatePeriod">{{ t('ledger.createPeriod') }}</base-button>
+      <BaseButton @click="onCreatePeriod">{{ t('ledger.createPeriod') }}</BaseButton>
     </li>
   </ol>
 </template>

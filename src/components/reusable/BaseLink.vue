@@ -14,9 +14,9 @@ defineProps({
 </script>
 
 <template>
-  <router-link v-slot="{ href, navigate }" v-bind="$props" custom>
+  <RouterLink v-slot="{ href, navigate }" v-bind="$props" custom>
     <a v-bind="$attrs" :href="href" @click="navigate">
       <slot></slot>
     </a>
-  </router-link>
+  </RouterLink>
 </template>

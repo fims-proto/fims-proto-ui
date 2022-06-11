@@ -13,7 +13,7 @@ const onClose = (id: string) => notificationStore.action.remove(id)
     class="fixed w-96 max-h-full min-h-[] top-0 right-4 px-4 pt-4 pb-8 flex flex-col gap-4 z-50 overflow-y-auto"
   >
     <li v-for="notification in notifications.slice().reverse()" :key="notification.id">
-      <base-notification
+      <BaseNotification
         :type="notification.type"
         :message="notification.message"
         :duration="notification.duration ?? 5"

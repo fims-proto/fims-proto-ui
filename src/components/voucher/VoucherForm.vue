@@ -60,9 +60,9 @@ defineExpose({
     <div class="h-14 flex flex-row justify-between items-end">
       <div class="flex-1 flex justify-start">
         <p v-if="disabled">{{ t('voucher.transactionTime') }} {{ d(internalTransactionTime, 'date') }}</p>
-        <base-form-item v-else :label="t('voucher.transactionTime')" hide-label>
-          <base-input v-model="internalTransactionTime" html-type="date" :prefix="t('voucher.transactionTime')" />
-        </base-form-item>
+        <BaseFormItem v-else :label="t('voucher.transactionTime')" hide-label>
+          <BaseInput v-model="internalTransactionTime" html-type="date" :prefix="t('voucher.transactionTime')" />
+        </BaseFormItem>
       </div>
       <div class="flex-1 flex flex-row gap-4 justify-center items-baseline">
         <h1>{{ t('voucher.type') }}</h1>
@@ -72,8 +72,8 @@ defineExpose({
           {{ t('voucher.attachmentQuantity') }} {{ internalAttachmentQuantity }}
           {{ t('voucher.attachmentQuantityUnit') }}
         </p>
-        <base-form-item v-else :label="t('voucher.attachmentQuantity')" hide-label>
-          <base-input
+        <BaseFormItem v-else :label="t('voucher.attachmentQuantity')" hide-label>
+          <BaseInput
             v-model="internalAttachmentQuantity"
             class="w-36"
             html-type="number"
@@ -81,7 +81,7 @@ defineExpose({
             :suffix="t('voucher.attachmentQuantityUnit')"
             :min="0"
           />
-        </base-form-item>
+        </BaseFormItem>
       </div>
     </div>
 
@@ -93,11 +93,11 @@ defineExpose({
         <div class="flex-1 font-bold flex justify-center items-center">{{ t('voucher.account') }}</div>
         <div class="w-72 flex flex-col divide-y divide-neutral-300">
           <div class="text-center font-bold py-2">{{ t('voucher.debit') }}</div>
-          <tabulated-number :disabled="true" :header="true" />
+          <TabulatedNumber :disabled="true" :header="true" />
         </div>
         <div class="w-72 flex flex-col divide-y divide-neutral-300">
           <div class="text-center font-bold py-2">{{ t('voucher.credit') }}</div>
-          <tabulated-number :disabled="true" :header="true" />
+          <TabulatedNumber :disabled="true" :header="true" />
         </div>
       </div>
 
@@ -113,18 +113,18 @@ defineExpose({
             class="w-8 flex items-center justify-center text-neutral-300 hover:text-primary-800 focus:z-10"
             @click.prevent="onClearLineItem(i)"
           >
-            <minus-circle-outline-icon class="w-4" />
+            <MinusCircleOutlineIcon class="w-4" />
           </button>
-          <tabulated-input v-model="item.summary" :disabled="disabled" @focus="onSummaryFocus(i)" />
+          <TabulatedInput v-model="item.summary" :disabled="disabled" @focus="onSummaryFocus(i)" />
         </div>
         <div class="flex-1 p-[1px]">
-          <account-input v-model="item.accountNumber" :disabled="disabled" />
+          <AccountInput v-model="item.accountNumber" :disabled="disabled" />
         </div>
         <div class="w-72">
-          <tabulated-number v-model="item.debit" :disabled="disabled" />
+          <TabulatedNumber v-model="item.debit" :disabled="disabled" />
         </div>
         <div class="w-72">
-          <tabulated-number v-model="item.credit" :disabled="disabled" />
+          <TabulatedNumber v-model="item.credit" :disabled="disabled" />
         </div>
       </div>
 
@@ -134,7 +134,7 @@ defineExpose({
           class="w-full flex gap-2 items-center px-2 py-1 text-sm text-neutral-400 shadow-inner hover:text-primary-800 hover:bg-primary-200/50 focus:z-10"
           @click.prevent="onNewLineItem"
         >
-          <plus-circle-outline-icon class="w-4" />
+          <PlusCircleOutlineIcon class="w-4" />
           <span>{{ t('voucher.newLineItem') }}</span>
         </button>
       </div>
@@ -143,10 +143,10 @@ defineExpose({
       <div class="flex flex-row divide-x divide-neutral-300">
         <div class="flex-1 font-bold px-3 py-2">{{ t('voucher.total') }}</div>
         <div class="w-72">
-          <tabulated-number :disabled="true" :model-value="totalDebit" />
+          <TabulatedNumber :disabled="true" :model-value="totalDebit" />
         </div>
         <div class="w-72">
-          <tabulated-number :disabled="true" :model-value="totalCredit" />
+          <TabulatedNumber :disabled="true" :model-value="totalCredit" />
         </div>
       </div>
     </div>

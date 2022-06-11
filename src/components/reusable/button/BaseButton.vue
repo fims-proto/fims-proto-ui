@@ -53,8 +53,8 @@ const onConfirmClick = () => {
 </script>
 
 <template>
-  <v-binder>
-    <v-target>
+  <VBinder>
+    <VTarget>
       <button
         :class="[
           'group flex gap-1 items-center justify-center',
@@ -112,9 +112,9 @@ const onConfirmClick = () => {
         </span>
         <slot></slot>
       </button>
-    </v-target>
+    </VTarget>
 
-    <v-follower :show="confirming" placement="bottom">
+    <VFollower :show="confirming" placement="bottom">
       <transition
         :appear="confirming"
         enter-active-class="transition duration-100 ease-out"
@@ -131,6 +131,6 @@ const onConfirmClick = () => {
           </button>
         </div>
       </transition>
-    </v-follower>
-  </v-binder>
+    </VFollower>
+  </VBinder>
 </template>

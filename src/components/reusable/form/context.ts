@@ -10,17 +10,17 @@ export interface FormItemInterface {
 }
 
 export function provideForm(ctx: FormInterface) {
-  provide<FormInterface>('base-form', ctx)
+  provide<FormInterface>('BaseForm', ctx)
 }
 
 export function provideFormItem(ctx: FormItemInterface) {
-  provide<FormItemInterface>('base-form-item', ctx)
+  provide<FormItemInterface>('BaseFormItem', ctx)
 }
 
 export function injectForm(): FormInterface | undefined {
-  return inject<FormInterface | undefined>('base-form', undefined)
+  return inject<FormInterface | undefined>('BaseForm', undefined)
 }
 
 export function injectFormItem(): FormItemInterface | undefined {
-  return inject<FormItemInterface | undefined>('base-form-item', undefined)
+  return inject<FormItemInterface | undefined>('BaseFormItem', undefined)
 }

@@ -1,10 +1,10 @@
 <template>
-  <tab-group manual>
-    <tab-list class="flex gap-1">
+  <TabGroup manual>
+    <TabList class="flex gap-1">
       <slot name="tabs"></slot>
-    </tab-list>
-    <tab-panels>
+    </TabList>
+    <TabPanels>
       <slot name="panels"></slot>
-    </tab-panels>
-  </tab-group>
+    </TabPanels>
+  </TabGroup>
 </template>

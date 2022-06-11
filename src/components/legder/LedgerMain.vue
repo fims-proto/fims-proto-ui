@@ -40,15 +40,15 @@ onBeforeRouteUpdate(async (to, from) => {
 </script>
 
 <template>
-  <base-page>
+  <BasePage>
     <template #title>{{ t('ledger.title') }}</template>
     <div class="flex gap-4">
       <div class="flex-none w-80">
-        <period-list :periods="periods" />
+        <PeriodList :periods="periods" />
       </div>
       <div class="flex-auto">
-        <router-view />
+        <RouterView />
       </div>
     </div>
-  </base-page>
+  </BasePage>
 </template>

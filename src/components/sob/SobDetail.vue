@@ -16,21 +16,21 @@ onMounted(async () => {
 </script>
 
 <template>
-  <base-page :subtitle="sobDetail?.description">
+  <BasePage :subtitle="sobDetail?.description">
     <template #title>{{ sobDetail?.name }}</template>
-    <base-tabs>
+    <BaseTabs>
       <template #tabs>
-        <base-tab-item>{{ t('sob.detail.basic') }}</base-tab-item>
-        <base-tab-item>{{ t('sob.detail.accounts') }}</base-tab-item>
+        <BaseTabItem>{{ t('sob.detail.basic') }}</BaseTabItem>
+        <BaseTabItem>{{ t('sob.detail.accounts') }}</BaseTabItem>
       </template>
       <template #panels>
         <!-- basic tab -->
-        <base-tab-panel>basic yet empty</base-tab-panel>
+        <BaseTabPanel>basic yet empty</BaseTabPanel>
         <!-- accounts tab -->
-        <base-tab-panel>
-          <account-list :sob-id="sobId" />
-        </base-tab-panel>
+        <BaseTabPanel>
+          <AccountList :sob-id="sobId" />
+        </BaseTabPanel>
       </template>
-    </base-tabs>
-  </base-page>
+    </BaseTabs>
+  </BasePage>
 </template>

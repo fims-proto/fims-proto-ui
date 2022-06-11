@@ -57,10 +57,10 @@ const onClose = () => {
     }"
   >
     <span v-if="showIcon" class="h-6 w-auto p-1">
-      <exclamation-circle-solid-icon v-if="is('error')" class="h-4 w-4" aria-hidden="true" />
-      <exclamation-solid-icon v-if="is('warning')" class="h-4 w-4" aria-hidden="true" />
-      <check-circle-solid-icon v-if="is('success')" class="h-4 w-4" aria-hidden="true" />
-      <information-circle-solid-icon v-if="is('info')" class="h-4 w-4" aria-hidden="true" />
+      <ExclamationCircleSolidIcon v-if="is('error')" class="h-4 w-4" aria-hidden="true" />
+      <ExclamationSolidIcon v-if="is('warning')" class="h-4 w-4" aria-hidden="true" />
+      <CheckCircleSolidIcon v-if="is('success')" class="h-4 w-4" aria-hidden="true" />
+      <InformationCircleSolidIcon v-if="is('info')" class="h-4 w-4" aria-hidden="true" />
     </span>
 
     <slot>
@@ -96,7 +96,7 @@ const onClose = () => {
       @click.prevent="onClose"
     >
       <span class="sr-only">{{ t('action.close') }}</span>
-      <x-outline-icon class="h-4 w-4" aria-hidden="true" />
+      <XOutlineIcon class="h-4 w-4" aria-hidden="true" />
     </button>
   </div>
 </template>

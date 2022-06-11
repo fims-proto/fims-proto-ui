@@ -52,25 +52,25 @@ function getCurrentUTCTime() {
 </script>
 
 <template>
-  <base-page>
+  <BasePage>
     <template #title>{{ t('sob.creation.title') }}</template>
     <div>
-      <base-form class="w-full max-w-2xl" @submit="handleSubmit">
-        <base-form-item :label="t('sob.name')" required>
-          <base-input v-model="newSob.name" required />
-        </base-form-item>
+      <BaseForm class="w-full max-w-2xl" @submit="handleSubmit">
+        <BaseFormItem :label="t('sob.name')" required>
+          <BaseInput v-model="newSob.name" required />
+        </BaseFormItem>
 
-        <base-form-item :label="t('common.description')">
-          <base-input v-model="newSob.description" />
-        </base-form-item>
+        <BaseFormItem :label="t('common.description')">
+          <BaseInput v-model="newSob.description" />
+        </BaseFormItem>
 
-        <base-form-item :label="t('sob.baseCurrency')" required>
-          <base-input v-model="newSob.baseCurrency" />
-        </base-form-item>
+        <BaseFormItem :label="t('sob.baseCurrency')" required>
+          <BaseInput v-model="newSob.baseCurrency" />
+        </BaseFormItem>
 
-        <base-form-item :label="t('sob.startingPeriod')" required>
-          <base-input-group>
-            <base-input
+        <BaseFormItem :label="t('sob.startingPeriod')" required>
+          <BaseInputGroup>
+            <BaseInput
               v-model="newSob.startingPeriodYear"
               html-type="number"
               required
@@ -78,7 +78,7 @@ function getCurrentUTCTime() {
               :max="3000"
               :suffix="t('common.year')"
             />
-            <base-input
+            <BaseInput
               v-model="newSob.startingPeriodMonth"
               html-type="number"
               required
@@ -86,13 +86,13 @@ function getCurrentUTCTime() {
               :max="12"
               :suffix="t('common.month')"
             />
-          </base-input-group>
-        </base-form-item>
+          </BaseInputGroup>
+        </BaseFormItem>
 
-        <base-form-item :label="t('sob.accountCodeLength')" required>
+        <BaseFormItem :label="t('sob.accountCodeLength')" required>
           <div class="flex gap-2">
-            <base-input-group>
-              <base-input
+            <BaseInputGroup>
+              <BaseInput
                 v-for="(_, index) in newSob.accountsCodeLength"
                 :key="`sobCreation-accountsCodeLength-${index}`"
                 v-model="newSob.accountsCodeLength[index]"
@@ -102,17 +102,17 @@ function getCurrentUTCTime() {
                 :min="1"
                 :max="6"
               />
-            </base-input-group>
+            </BaseInputGroup>
 
-            <base-button-group>
-              <base-button @click="onShorten">-</base-button>
-              <base-button @click="onExtend">+</base-button>
-            </base-button-group>
+            <BaseButtonGroup>
+              <BaseButton @click="onShorten">-</BaseButton>
+              <BaseButton @click="onExtend">+</BaseButton>
+            </BaseButtonGroup>
           </div>
-        </base-form-item>
+        </BaseFormItem>
 
-        <base-button html-type="submit" type="primary" class="w-full">{{ t('action.submit') }}</base-button>
-      </base-form>
+        <BaseButton html-type="submit" type="primary" class="w-full">{{ t('action.submit') }}</BaseButton>
+      </BaseForm>
     </div>
-  </base-page>
+  </BasePage>
 </template>

@@ -5,11 +5,11 @@ export interface ButtonGroupInterface {
 }
 
 export function provideButtonGroup(ctx: ButtonGroupInterface) {
-  provide<ButtonGroupInterface>('base-button-group', ctx)
+  provide<ButtonGroupInterface>('BaseButtonGroup', ctx)
 }
 
 export function injectButtonGroup(): ButtonGroupInterface | undefined {
-  return inject<ButtonGroupInterface>('base-button-group', {
+  return inject<ButtonGroupInterface>('BaseButtonGroup', {
     insideGroup: ref(false),
   })
 }

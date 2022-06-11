@@ -5,9 +5,9 @@ export interface DropdownInterface {
 }
 
 export function provideInterface(ctx: DropdownInterface) {
-  provide<DropdownInterface>('base-dropdown', ctx)
+  provide<DropdownInterface>('BaseDropdown', ctx)
 }
 
 export function injectInterface(): DropdownInterface | undefined {
-  return inject<DropdownInterface>('base-dropdown')
+  return inject<DropdownInterface>('BaseDropdown')
 }

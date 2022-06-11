@@ -57,7 +57,7 @@ const onValueUpdated = (value: unknown) => emit('update:modelValue', Number(valu
   <div v-if="disabled" class="h-full flex justify-between items-stretch">
     <div
       v-for="(c, i) in content"
-      :key="`tabulated-number-${i}`"
+      :key="`TabulatedNumber-${i}`"
       class="min-w-[1.5rem] w-[1.5rem] max-w-[1.5rem] flex-auto flex items-center justify-center border-r last:border-r-0"
       :class="[i === 8 ? 'border-error-800' : (i + 1) % 3 === 0 ? 'border-neutral-400' : 'border-neutral-200']"
     >
@@ -74,7 +74,7 @@ const onValueUpdated = (value: unknown) => emit('update:modelValue', Number(valu
     >
       <div
         v-for="(c, i) in content"
-        :key="`tabulated-number-${i}`"
+        :key="`TabulatedNumber-${i}`"
         class="min-w-[1.5rem] w-[1.5rem] max-w-[1.5rem] flex-auto flex items-center justify-center border-r last:border-r-0"
         :class="[i === 8 ? 'border-error-800' : (i + 1) % 3 === 0 ? 'border-neutral-400' : 'border-neutral-200']"
       >
@@ -82,7 +82,7 @@ const onValueUpdated = (value: unknown) => emit('update:modelValue', Number(valu
       </div>
     </div>
     <div v-show="editMode" class="p-[1px]">
-      <tabulated-input
+      <TabulatedInput
         ref="inputRef"
         type="number"
         :model-value="modelValue"

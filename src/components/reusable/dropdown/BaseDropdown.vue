@@ -23,12 +23,12 @@ provideInterface({
 
 <template>
   <Menu v-slot="{ open }" as="template">
-    <v-binder>
-      <v-target>
+    <VBinder>
+      <VTarget>
         <slot></slot>
-      </v-target>
+      </VTarget>
 
-      <v-follower :show="open" :placement="placement">
+      <VFollower :show="open" :placement="placement">
         <transition
           :appear="open"
           enter-active-class="transition duration-100 ease-out"
@@ -38,13 +38,13 @@ provideInterface({
           leave-from-class="scale-100 translate-y-0 opacity-100"
           leave-to-class="scale-95 -translate-y-2 opacity-0"
         >
-          <menu-items
+          <MenuItems
             class="rounded-md my-2 shadow-lg bg-white divide-y divide-neutral-200 ring-1 ring-black ring-opacity-5 focus:outline-none"
           >
             <slot name="overlay"></slot>
-          </menu-items>
+          </MenuItems>
         </transition>
-      </v-follower>
-    </v-binder>
+      </VFollower>
+    </VBinder>
   </Menu>
 </template>
