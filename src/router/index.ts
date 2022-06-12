@@ -16,14 +16,13 @@ import VoucherCreation from '../components/voucher/VoucherCreation.vue'
 import VoucherDetail from '../components/voucher/VoucherDetail.vue'
 import ExceptionPage from '../components/ExceptionPage.vue'
 import StyleTest from '../components/StyleTest.vue'
-import { useSobStore } from '../store/sob'
-
-const sobStore = useSobStore()
+import { beforeAppEnterHandler, beforeWorkingZoneEnterHandler } from './beforeEnterHandlers'
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/ui',
     component: LayoutPage,
+    beforeEnter: beforeAppEnterHandler,
     children: [
       // home
       {
@@ -71,7 +70,7 @@ const routes: RouteRecordRaw[] = [
         path: 'sobs/:sobId/periods',
         component: RouterView,
         props: true,
-        beforeEnter: async (to) => sobStore.action.setWorkingSob(to.params['sobId'] as string),
+        beforeEnter: beforeWorkingZoneEnterHandler,
         children: [
           {
             path: '',
@@ -93,7 +92,7 @@ const routes: RouteRecordRaw[] = [
         path: 'sobs/:sobId/vouchers',
         component: RouterView,
         props: true,
-        beforeEnter: async (to) => sobStore.action.setWorkingSob(to.params['sobId'] as string),
+        beforeEnter: beforeWorkingZoneEnterHandler,
         children: [
           {
             path: '',

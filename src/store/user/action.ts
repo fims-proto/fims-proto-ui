@@ -9,6 +9,7 @@ function setUser(state: IUserState) {
 
 function loadUser(state: IUserState) {
   return async () => {
+    console.log('Updating current user')
     mapUser(await UserService.whoAmI(), state)
   }
 }
