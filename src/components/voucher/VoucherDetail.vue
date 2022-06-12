@@ -20,11 +20,15 @@ const creator = ref<User>()
 const formRef = ref<InstanceType<typeof VoucherForm>>()
 const editMode = ref(false)
 
-const refreshVoucher = async () => (voucher.value = await VoucherService.getVoucherById(props.sobId, props.voucherId))
+const refreshVoucher = async () => {
+  const { data } = await VoucherService.getVoucherById(props.sobId, props.voucherId)
+  voucher.value = data
+}
 
 onMounted(async () => {
   await refreshVoucher()
-  creator.value = await UserService.whoIs(voucher.value?.creator as string)
+  const { data } = await UserService.whoIs(voucher.value?.creator as string)
+  creator.value = data
 })
 
 const onSave = async () => {
@@ -58,12 +62,18 @@ const onSave = async () => {
     return
   }
 
-  voucher.value = await VoucherService.updateVoucher(
+  const { exception } = await VoucherService.updateVoucher(
     props.sobId,
     props.voucherId,
     toBeUpdated.transactionTime,
     toBeUpdated.lineItems
   )
+
+  if (exception) {
+    return
+  }
+
+  await refreshVoucher()
 
   editMode.value = false
   notificationStore.action.push({
@@ -74,12 +84,26 @@ const onSave = async () => {
 }
 
 const onAudit = async () => {
-  await VoucherService.auditVoucher(props.sobId, voucher.value?.id as string, userStore.state.userId)
+  const { exception } = await VoucherService.auditVoucher(
+    props.sobId,
+    voucher.value?.id as string,
+    userStore.state.userId
+  )
+  if (exception) {
+    return
+  }
   await refreshVoucher()
 }
 
 const onCancelAudit = async () => {
-  await VoucherService.cancelAuditVoucher(props.sobId, voucher.value?.id as string, userStore.state.userId)
+  const { exception } = await VoucherService.cancelAuditVoucher(
+    props.sobId,
+    voucher.value?.id as string,
+    userStore.state.userId
+  )
+  if (exception) {
+    return
+  }
   await refreshVoucher()
 }
 </script>
@@ -95,7 +119,7 @@ const onCancelAudit = async () => {
       <BaseButton v-if="!voucher?.isAudited" :disabled="editMode" @click="onAudit">
         {{ t('voucher.audit') }}
       </BaseButton>
-      <BaseButton v-if="voucher?.isAudited" :disabled="editMode" @click="onCancelAudit">
+      <BaseButton v-if="voucher?.isAudited" :disabled="editMode" confirm @click="onCancelAudit">
         {{ t('voucher.cancelAudit') }}
       </BaseButton>
     </template>

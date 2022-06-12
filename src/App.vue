@@ -9,7 +9,6 @@ const userStore = useUserStore()
 userStore.action.loadUser()
 
 const initialize = async () => {
-  console.log('start initialization')
   sobStore.action.loadWorkingSob()
 }
 

@@ -15,7 +15,8 @@ const ledgers = ref<Ledger[]>([])
 watch(
   [() => props.sobId, () => props.periodId],
   async () => {
-    ledgers.value = await LedgerService.getAllLedgersInPeriod(props.sobId, props.periodId as string)
+    const { data } = await LedgerService.getAllLedgersInPeriod(props.sobId, props.periodId as string)
+    ledgers.value = data ?? []
   },
   { immediate: true }
 )

@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import Components from 'unplugin-vue-components/vite'
-import { HeadlessUiResolver } from 'unplugin-vue-components/resolvers'
+import { HeadlessUiResolver, VueUseComponentsResolver } from 'unplugin-vue-components/resolvers'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -11,23 +11,23 @@ export default defineConfig({
   plugins: [
     vue(),
     Components({
-      resolvers: [
-        HeadlessUiResolver(),
-        // for heroicons
-        (name: string) => {
-          if (name.endsWith('SolidIcon')) {
-            return {
-              name: `${name.substring(0, name.length - 9)}Icon`,
-              from: '@heroicons/vue/solid',
-            }
-          } else if (name.endsWith('OutlineIcon')) {
-            return {
-              name: `${name.substring(0, name.length - 11)}Icon`,
-              from: '@heroicons/vue/outline',
-            }
-          }
-        },
-      ],
+      resolvers: [HeadlessUiResolver(), VueUseComponentsResolver(), HeroiconsResolver()],
     }),
   ],
 })
+
+function HeroiconsResolver() {
+  return (name: string) => {
+    if (name.endsWith('SolidIcon')) {
+      return {
+        name: `${name.substring(0, name.length - 9)}Icon`,
+        from: '@heroicons/vue/solid',
+      }
+    } else if (name.endsWith('OutlineIcon')) {
+      return {
+        name: `${name.substring(0, name.length - 11)}Icon`,
+        from: '@heroicons/vue/outline',
+      }
+    }
+  }
+}

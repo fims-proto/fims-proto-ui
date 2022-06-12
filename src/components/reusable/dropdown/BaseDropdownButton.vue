@@ -8,7 +8,7 @@ defineProps({
 </script>
 
 <template>
-  <MenuButton v-slot="{ open }" :as="as" class="cursor-pointer" @click.prevent>
+  <MenuButton v-slot="{ open }" :as="as" class="cursor-pointer">
     <slot :open="open"></slot>
   </MenuButton>
 </template>

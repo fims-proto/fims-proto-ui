@@ -15,7 +15,8 @@ const vouchers = ref<Voucher[]>([])
 const users: Record<string, User> = {}
 
 onMounted(async () => {
-  vouchers.value = await VoucherService.getAllVouchersBySod(props.sobId)
+  const { data } = await VoucherService.getAllVouchersBySod(props.sobId)
+  vouchers.value = data ?? []
   for (const voucher of vouchers.value) {
     voucher.creator = await whoIs(voucher.creator)
     voucher.auditor = await whoIs(voucher.auditor)
@@ -48,7 +49,11 @@ const whoIs = async (userId: string) => {
   }
   let traits = undefined
   if (!users[userId]) {
-    users[userId] = await UserService.whoIs(userId)
+    const { data, exception } = await UserService.whoIs(userId)
+    if (exception) {
+      return ''
+    }
+    users[userId] = data as User
   }
   traits = users[userId].traits
   return t('common.userName', { lastName: traits.name?.last, firstName: traits.name?.first })

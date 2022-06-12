@@ -25,7 +25,8 @@ watch(
       selectedAccount.value = undefined
       return
     }
-    selectedAccount.value = await AccountService.getAccountByNumber(workingSob.value.id, props.modelValue)
+    const { data } = await AccountService.getAccountByNumber(workingSob.value.id, props.modelValue)
+    selectedAccount.value = data
   },
   { immediate: true }
 )
@@ -35,8 +36,8 @@ watch(query, async () => {
     filteredAccounts.value = []
     return
   }
-  const result = await AccountService.getAccountsStartsWithNumber(workingSob.value.id, query.value)
-  filteredAccounts.value = result.content
+  const { data } = await AccountService.getAccountsStartsWithNumber(workingSob.value.id, query.value)
+  filteredAccounts.value = data?.content ?? []
 })
 
 const onUpdate = (account: Account) => {

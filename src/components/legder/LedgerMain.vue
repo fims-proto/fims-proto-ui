@@ -15,7 +15,8 @@ const router = useRouter()
 const periods = ref<Period[]>()
 
 onMounted(async () => {
-  periods.value = await LedgerService.getAllPeriods(props.sobId)
+  const { data } = await LedgerService.getAllPeriods(props.sobId)
+  periods.value = data ?? []
 
   if (route.name === 'ledgerMain') {
     const openPeriod = periods.value?.find((period) => !period.isClosed)

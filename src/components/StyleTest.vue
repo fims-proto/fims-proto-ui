@@ -5,7 +5,7 @@ import { AppNotification } from '../domain'
 
 const inputDate = ref(new Date())
 const notificationStore = useNotificationStore()
-const onNewNotification = (text: string) => {
+const onNewNotification = (text?: string) => {
   const index = Math.floor(Math.random() * 4)
   notificationStore.action.push({
     type: ['error', 'info', 'success', 'warning'][index] as AppNotification['type'],

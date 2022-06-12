@@ -9,7 +9,8 @@ const props = defineProps<{
 const accounts = ref<Page<Account>>()
 
 onMounted(async () => {
-  accounts.value = await AccountService.getAllAccounts(props.sobId)
+  const { data } = await AccountService.getAllAccounts(props.sobId)
+  accounts.value = data
 })
 </script>
 

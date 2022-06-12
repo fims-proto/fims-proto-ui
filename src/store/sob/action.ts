@@ -4,13 +4,16 @@ import { ISobState } from './state'
 const CURRENT_SOB_KEY = 'CURRENT_SOB'
 
 function refreshSobs(state: ISobState) {
-  return async () => (state.sobs = await SobService.getAllSods())
+  return async () => {
+    const { data } = await SobService.getAllSods()
+    state.sobs = data ?? []
+  }
 }
 
 function setWorkingSob(state: ISobState) {
   return async (sobId: string) => {
     if (state.workingSob?.id !== sobId && sobId) {
-      console.log('update working sob')
+      console.log('Update working sob')
 
       await refreshSobs(state)()
 
@@ -21,7 +24,9 @@ function setWorkingSob(state: ISobState) {
 
       state.workingSob = foundSob
       StorageService.set(CURRENT_SOB_KEY, sobId)
-      state.currentPeriod = await LedgerService.getCurrentPeriod(sobId)
+
+      const { data } = await LedgerService.getCurrentPeriod(sobId)
+      state.currentPeriod = data
     }
   }
 }

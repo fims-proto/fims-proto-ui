@@ -11,7 +11,8 @@ const { t } = useI18n()
 const sobDetail = ref<Sob>()
 
 onMounted(async () => {
-  sobDetail.value = await SobService.getSobById(props.sobId)
+  const { data } = await SobService.getSobById(props.sobId)
+  sobDetail.value = data
 })
 </script>
 

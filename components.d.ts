@@ -56,6 +56,7 @@ declare module '@vue/runtime-core' {
     MenuItems: typeof import('@headlessui/vue')['MenuItems']
     MinusCircleOutlineIcon: typeof import('@heroicons/vue/outline')['MinusCircleIcon']
     NotFound: typeof import('./src/components/NotFound.vue')['default']
+    OnClickOutside: typeof import('@vueuse/components')['OnClickOutside']
     PeriodList: typeof import('./src/components/legder/PeriodList.vue')['default']
     PeriodMain: typeof import('./src/components/legder/PeriodMain.vue')['default']
     PlusCircleOutlineIcon: typeof import('@heroicons/vue/outline')['PlusCircleIcon']

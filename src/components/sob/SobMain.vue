@@ -13,13 +13,13 @@ const onCreate = () => router.push({ name: 'sobCreation' })
 </script>
 
 <template>
-  <BasePage :subtitle="t('sob.subtitle')">
+  <base-page :subtitle="t('sob.subtitle')">
     <template #title>{{ t('sob.title') }}</template>
     <template #extra>
-      <BaseButton type="primary" @click="onCreate">{{ t('action.create') }}</BaseButton>
+      <base-button type="primary" @click="onCreate">{{ t('action.create') }}</base-button>
     </template>
     <div v-if="sobs.length > 0" class="flex flex-wrap gap-8">
-      <BaseLink
+      <base-link
         v-for="sob in sobs"
         :key="sob.id"
         :to="{ name: 'sobDetail', params: { sobId: sob.id } }"
@@ -28,8 +28,8 @@ const onCreate = () => router.push({ name: 'sobCreation' })
         <h3 class="group-hover:text-primary-700">{{ sob.name }}</h3>
         <p class="mt-2 text-sm text-neutral-500">{{ sob.description }}</p>
         <p class="mt-4">{{ sob.baseCurrency }}</p>
-      </BaseLink>
+      </base-link>
     </div>
     <span v-else>empty</span>
-  </BasePage>
+  </base-page>
 </template>

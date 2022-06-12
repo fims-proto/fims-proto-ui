@@ -5,5 +5,6 @@ export * from './account'
 export * from './voucher'
 export * from './kratos'
 export * from './types'
+export * from './errorHandler'
 
 export { StorageServiceInstance as StorageService } from './Storage'

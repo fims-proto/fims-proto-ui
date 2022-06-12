@@ -5,6 +5,7 @@ export default defineComponent({ inheritAttrs: false })
 <script setup lang="ts">
 import { defineComponent, PropType, ref } from 'vue'
 import { VBinder, VTarget, VFollower } from 'vueuc'
+import { onClickOutside } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
 import { injectButtonGroup } from './context'
 
@@ -35,6 +36,7 @@ const { t } = useI18n()
 const ButtonGroup = injectButtonGroup()
 const insideGroup = ButtonGroup?.insideGroup.value
 const confirming = ref(false)
+const confirmationBoxRef = ref()
 
 const is = (t: string) => props.type === t
 
@@ -50,6 +52,8 @@ const onConfirmClick = () => {
   confirming.value = false
   emit('click')
 }
+
+onClickOutside(confirmationBoxRef, () => (confirming.value = false))
 </script>
 
 <template>
@@ -124,7 +128,11 @@ const onConfirmClick = () => {
         leave-from-class="scale-100 translate-y-0 opacity-100"
         leave-to-class="scale-95 -translate-y-2 opacity-0"
       >
-        <div v-if="confirming" class="bg-white mt-2 p-2 text-sm rounded-md shadow-lg border border-neutral-200">
+        <div
+          v-if="confirming"
+          ref="confirmationBoxRef"
+          class="bg-white mt-2 p-2 text-sm rounded-md shadow-lg border border-neutral-200"
+        >
           <span>{{ confirmationText ?? t('common.confirmationText') }}</span>
           <button class="bg-error-600 ml-1 px-2 text-white rounded-md" @click.prevent="onConfirmClick">
             {{ t('common.confirm') }}

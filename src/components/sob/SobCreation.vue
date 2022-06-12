@@ -2,12 +2,10 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { NewSob, SobService, LedgerService } from '../../domain'
-import { useSobStore } from '../../store/sob'
+import { NewSob, Sob, SobService, LedgerService } from '../../domain'
 
 const t = useI18n().t
 const router = useRouter()
-const sobStore = useSobStore()
 
 const { year, month } = getCurrentUTCTime()
 
@@ -20,8 +18,13 @@ const newSob = ref<NewSob>({
   accountsCodeLength: [4, 3, 3],
 })
 
-const handleSubmit = async () => {
-  const createdSob = await SobService.createSob(newSob.value)
+const onSubmit = async () => {
+  const { data, exception } = await SobService.createSob(newSob.value)
+  if (exception) {
+    return
+  }
+
+  const createdSob = data as Sob
 
   // create accounting period as well
   await LedgerService.createPeriod({
@@ -30,7 +33,6 @@ const handleSubmit = async () => {
     number: createdSob.startingPeriodMonth,
   })
 
-  sobStore.action.refreshSobs()
   router.replace({
     name: 'sobDetail',
     params: { sobId: createdSob.id },
@@ -55,7 +57,7 @@ function getCurrentUTCTime() {
   <BasePage>
     <template #title>{{ t('sob.creation.title') }}</template>
     <div>
-      <BaseForm class="w-full max-w-2xl" @submit="handleSubmit">
+      <BaseForm class="w-full max-w-2xl" @submit="onSubmit">
         <BaseFormItem :label="t('sob.name')" required>
           <BaseInput v-model="newSob.name" required />
         </BaseFormItem>

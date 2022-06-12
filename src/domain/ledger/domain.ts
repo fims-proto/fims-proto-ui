@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { Ledger, NewPeriod, Period } from './types'
 import { FIMS_URL } from '../../config'
-import { invokeWithErrorHandler } from '../errorHandler'
+import { invokeWithErrorHandler, Response } from '../errorHandler'
 import { convertFieldsFromString } from '../dateTypeConverter'
 
 const PERIOD_FIELDS_CONVERSION: Record<string, 'number' | 'date'> = {
@@ -24,21 +24,21 @@ const LEDGER_FIELDS_CONVERSION: Record<string, 'number' | 'date'> = {
 }
 
 class LedgerService {
-  public async getCurrentPeriod(sobId: string): Promise<Period> {
+  public async getCurrentPeriod(sobId: string): Promise<Response<Period>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(`${FIMS_URL}/api/v1/sob/${sobId}/period/current`)
       return convertFieldsFromString(result.data, PERIOD_FIELDS_CONVERSION)
     })
   }
 
-  public async getAllPeriods(sobId: string): Promise<Period[]> {
+  public async getAllPeriods(sobId: string): Promise<Response<Period[]>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(`${FIMS_URL}/api/v1/sob/${sobId}/periods/`)
       return convertFieldsFromString(result.data, PERIOD_FIELDS_CONVERSION)
     })
   }
 
-  public async createPeriod(newPeriod: NewPeriod): Promise<Period> {
+  public async createPeriod(newPeriod: NewPeriod): Promise<Response<Period>> {
     if (!newPeriod.openingTime) {
       newPeriod.openingTime = this.getStartTimeOfMonth(newPeriod.financialYear, newPeriod.number)
     }
@@ -48,7 +48,7 @@ class LedgerService {
     })
   }
 
-  public async getAllLedgersInPeriod(sobId: string, periodId: string): Promise<Ledger[]> {
+  public async getAllLedgersInPeriod(sobId: string, periodId: string): Promise<Response<Ledger[]>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(`${FIMS_URL}/api/v1/sob/${sobId}/period/${periodId}/ledgers/`)
       return convertFieldsFromString(result.data, LEDGER_FIELDS_CONVERSION)

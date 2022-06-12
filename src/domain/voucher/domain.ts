@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { FIMS_URL } from '../../config'
 import { convertFieldsFromString } from '../dateTypeConverter'
-import { invokeWithErrorHandler } from '../errorHandler'
+import { invokeWithErrorHandler, Response } from '../errorHandler'
 import { LineItem, NewVoucher, Voucher } from './types'
 
 const FIELDS_CONVERSION: Record<string, 'number' | 'date'> = {
@@ -16,21 +16,21 @@ const FIELDS_CONVERSION: Record<string, 'number' | 'date'> = {
 }
 
 class VoucherService {
-  public async getAllVouchersBySod(sobId: string): Promise<Voucher[]> {
+  public async getAllVouchersBySod(sobId: string): Promise<Response<Voucher[]>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(`${FIMS_URL}/api/v1/sob/${sobId}/vouchers/`)
       return convertFieldsFromString(result.data, FIELDS_CONVERSION)
     })
   }
 
-  public async getVoucherById(sobId: string, voucherId: string): Promise<Voucher> {
+  public async getVoucherById(sobId: string, voucherId: string): Promise<Response<Voucher>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(`${FIMS_URL}/api/v1/sob/${sobId}/voucher/${voucherId}`)
       return convertFieldsFromString(result.data, FIELDS_CONVERSION)
     })
   }
 
-  public async createVoucher(sobId: string, voucher: NewVoucher): Promise<Voucher> {
+  public async createVoucher(sobId: string, voucher: NewVoucher): Promise<Response<Voucher>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/vouchers/`, voucher)
       return convertFieldsFromString(result.data, FIELDS_CONVERSION)
@@ -42,20 +42,17 @@ class VoucherService {
     voucherId: string,
     transactionTime: Date,
     lineItems: LineItem[]
-  ): Promise<Voucher> {
+  ): Promise<Response<void>> {
     return invokeWithErrorHandler(async () => {
       // patch
       await axios.patch(`${FIMS_URL}/api/v1/sob/${sobId}/voucher/${voucherId}`, {
         transactionTime: transactionTime,
         lineItems: lineItems,
       })
-
-      // read
-      return this.getVoucherById(sobId, voucherId)
     })
   }
 
-  public async auditVoucher(sobId: string, voucherId: string, auditor: string): Promise<void> {
+  public async auditVoucher(sobId: string, voucherId: string, auditor: string): Promise<Response<void>> {
     return invokeWithErrorHandler(async () => {
       await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/voucher/${voucherId}/audit`, {
         auditor,
@@ -63,7 +60,7 @@ class VoucherService {
     })
   }
 
-  public async cancelAuditVoucher(sobId: string, voucherId: string, auditor: string): Promise<void> {
+  public async cancelAuditVoucher(sobId: string, voucherId: string, auditor: string): Promise<Response<void>> {
     return invokeWithErrorHandler(async () => {
       await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/voucher/${voucherId}/cancel-audit`, {
         auditor,

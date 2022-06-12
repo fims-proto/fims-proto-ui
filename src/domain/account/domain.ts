@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { FIMS_URL } from '../../config'
 import { convertFieldsFromString } from '../dateTypeConverter'
-import { invokeWithErrorHandler } from '../errorHandler'
+import { invokeWithErrorHandler, Response } from '../errorHandler'
 import { Page } from '../types'
 import { Account } from './types'
 
@@ -12,14 +12,14 @@ const FIELDS_CONVERSION: Record<string, 'number' | 'date'> = {
 }
 
 class AccountService {
-  public async getAllAccounts(sobId: string): Promise<Page<Account>> {
+  public async getAllAccounts(sobId: string): Promise<Response<Page<Account>>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(`${FIMS_URL}/api/v1/sob/${sobId}/accounts/`)
       return convertFieldsFromString(result.data, FIELDS_CONVERSION)
     })
   }
 
-  public async getAccountByNumber(sobId: string, accountNumber: string): Promise<Account | undefined> {
+  public async getAccountByNumber(sobId: string, accountNumber: string): Promise<Response<Account | undefined>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(
         `${FIMS_URL}/api/v1/sob/${sobId}/accounts/?$filter=accountNumber eq ${accountNumber}`
@@ -31,7 +31,7 @@ class AccountService {
     })
   }
 
-  public async getAccountsStartsWithNumber(sobId: string, serachNumber: string): Promise<Page<Account>> {
+  public async getAccountsStartsWithNumber(sobId: string, serachNumber: string): Promise<Response<Page<Account>>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(
         `${FIMS_URL}/api/v1/sob/${sobId}/accounts/?$filter=accountNumber startsWith ${serachNumber}&$sort=accountNumber`

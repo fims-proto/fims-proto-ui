@@ -1,8 +1,3 @@
-export interface SlugError {
-  slug: string
-  message: string
-}
-
 export type UiText = {
   context?: object
   id: number

@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { NewSob, Sob } from './types'
 import { FIMS_URL } from '../../config'
-import { invokeWithErrorHandler } from '../errorHandler'
+import { invokeWithErrorHandler, Response } from '../errorHandler'
 import { convertFieldsFromString } from '../dateTypeConverter'
 
 const FIELDS_CONVERSION: Record<string, 'number' | 'date'> = {
@@ -13,21 +13,21 @@ const FIELDS_CONVERSION: Record<string, 'number' | 'date'> = {
 }
 
 class SobService {
-  public async getAllSods(): Promise<Sob[]> {
+  public async getAllSods(): Promise<Response<Sob[]>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(`${FIMS_URL}/api/v1/sobs/`)
       return convertFieldsFromString(result.data, FIELDS_CONVERSION)
     })
   }
 
-  public async createSob(newSob: NewSob): Promise<Sob> {
+  public async createSob(newSob: NewSob): Promise<Response<Sob>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.post(`${FIMS_URL}/api/v1/sobs/`, convertFieldsFromString(newSob, FIELDS_CONVERSION))
       return convertFieldsFromString(result.data, FIELDS_CONVERSION)
     })
   }
 
-  public async getSobById(sobId: string): Promise<Sob> {
+  public async getSobById(sobId: string): Promise<Response<Sob>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(`${FIMS_URL}/api/v1/sobs/${sobId}`)
       return convertFieldsFromString(result.data, FIELDS_CONVERSION)
