@@ -1,53 +1,39 @@
 <script setup lang="ts">
-import { ref, onUpdated } from 'vue'
+import { onMounted, ref } from 'vue'
 
 defineProps<{
-  customSizing?: boolean
-  customColor?: boolean
+  name: string
 }>()
 
 const containerRef = ref<HTMLElement>()
 const contentRef = ref<HTMLElement>()
 const scale = ref(1)
 
-const setScaleStyle = () => {
-  const gap = 8
-  if (!containerRef.value || !contentRef.value) {
+const setScaleParam = () => {
+  if (!contentRef.value || !containerRef.value) {
     return
   }
-
-  const containerWidth = containerRef.value.offsetWidth
-  const contentWidth = contentRef.value.offsetWidth
-  if (containerWidth !== 0 && contentWidth !== 0 && contentWidth + gap >= containerWidth) {
-    scale.value = (containerWidth - gap) / contentWidth
-  } else {
-    scale.value = 1
+  const childrenWidth = contentRef.value.offsetWidth // offsetWidth avoid affecting be transform scale
+  const nodeWidth = containerRef.value.offsetWidth
+  // denominator is 0 is no meaning
+  if (childrenWidth !== 0 && nodeWidth !== 0) {
+    const gap = 5
+    if (gap * 2 < nodeWidth) {
+      scale.value = nodeWidth - gap * 2 < childrenWidth ? (nodeWidth - gap * 2) / childrenWidth : 1
+    }
   }
 }
 
-setScaleStyle()
-
-onUpdated(() => {
-  setScaleStyle()
+onMounted(() => {
+  setScaleParam()
 })
 </script>
 
 <template>
   <span
     ref="containerRef"
-    class="block relative rounded-full ring-2 ring-white overflow-hidden"
-    :class="{ 'h-10 w-10': !customSizing, 'bg-neutral-500 text-neutral-50': !customColor }"
+    class="w-10 h-10 flex items-center justify-center bg-neutral-700 text-white rounded-full ring-2 ring-white overflow-clip"
   >
-    <span v-if="!!$slots.icon" class="w-auto">
-      <slot name="icon"></slot>
-    </span>
-    <span
-      v-else
-      ref="contentRef"
-      class="absolute left-1/2 top-1/2 whitespace-nowrap"
-      :style="`transform: scale(${scale}) translate(-50%, -50%); transform-origin: 0 0;`"
-    >
-      <slot></slot>
-    </span>
+    <span ref="contentRef" class="whitespace-nowrap" :style="`transform: scale(${scale});`">{{ name }}</span>
   </span>
 </template>

@@ -122,7 +122,7 @@ const onSobSelected = async (command: string) => {
       <div>
         <BaseDropdown placement="bottom-end" @select="onUserMenuSelected">
           <BaseDropdownButton as="a">
-            <BaseAvatar custom-sizing class="h-8 w-8">{{ userInfo.name?.first }}</BaseAvatar>
+            <BaseAvatar :name="userInfo.name?.first ?? ''" class="h-8 w-8" />
           </BaseDropdownButton>
           <template #overlay>
             <BaseDropdownGroup>

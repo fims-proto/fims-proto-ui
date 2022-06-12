@@ -144,22 +144,8 @@ const onNewNotification = (text?: string) => {
     <h1 class="text-neutral-900">BaseAvatar:</h1>
     <div class="rounded-lg p-4 space-y-4">
       <div class="flex gap-4">
-        <BaseAvatar>张三</BaseAvatar>
-        <BaseAvatar>张三</BaseAvatar>
-        <BaseAvatar>长一点</BaseAvatar>
-        <BaseAvatar class="h-12 w-12" custom-sizing>大一号</BaseAvatar>
-        <BaseAvatar class="h-8 w-8" custom-sizing>张三</BaseAvatar>
-        <BaseAvatar>
-          <template #icon>
-            <EmojiHappyOutlineIcon />
-          </template>
-          Should not display
-        </BaseAvatar>
-        <BaseAvatar class="bg-warning-600 text-warning-100" custom-color>
-          <template #icon>
-            <EmojiHappyOutlineIcon />
-          </template>
-        </BaseAvatar>
+        <BaseAvatar name="张三" />
+        <BaseAvatar name="张三丰荔枝" />
       </div>
     </div>
 

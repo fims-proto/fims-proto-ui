@@ -21,7 +21,6 @@ onMounted(async () => {
   if (route.name === 'ledgerMain') {
     const openPeriod = periods.value?.find((period) => !period.isClosed)
     if (openPeriod) {
-      console.log('display default period')
       router.replace({
         name: 'ledgerList',
         params: {
