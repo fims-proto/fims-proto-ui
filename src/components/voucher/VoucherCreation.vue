@@ -69,7 +69,10 @@ const saveVoucher = async () => {
     return
   }
 
-  const createdVoucher = await VoucherService.createVoucher(workingSob.value.id, toBeCreated)
+  const { data, exception } = await VoucherService.createVoucher(workingSob.value.id, toBeCreated)
+  if (exception) {
+    return
+  }
 
   notificationStore.action.push({
     type: 'success',
@@ -77,7 +80,7 @@ const saveVoucher = async () => {
     duration: 3,
   })
 
-  return createdVoucher
+  return data
 }
 
 const onSave = async () => {
