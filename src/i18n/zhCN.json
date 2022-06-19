@@ -82,6 +82,10 @@
     "auditor": "审核人",
     "audit": "审核",
     "cancelAudit": "撤销审核",
+    "reviewer": "复核人",
+    "review": "复核",
+    "cancelReview": "取消复核",
+    "updateSuccess": "凭证已更新",
     "save": {
       "notBalanced": "借贷不平衡",
       "emptyItems": "行项目不能为空",

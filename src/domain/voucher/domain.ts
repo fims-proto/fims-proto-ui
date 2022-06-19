@@ -67,6 +67,22 @@ class VoucherService {
       })
     })
   }
+
+  public async reviewVoucher(sobId: string, voucherId: string, reviewer: string): Promise<Response<void>> {
+    return invokeWithErrorHandler(async () => {
+      await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/voucher/${voucherId}/review`, {
+        reviewer,
+      })
+    })
+  }
+
+  public async cancelReviewVoucher(sobId: string, voucherId: string, reviewer: string): Promise<Response<void>> {
+    return invokeWithErrorHandler(async () => {
+      await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/voucher/${voucherId}/cancel-review`, {
+        reviewer,
+      })
+    })
+  }
 }
 
 export const VoucherServiceInstance = new VoucherService()
