@@ -181,11 +181,11 @@ watch(
     class="w-80 h-80 bg-white my-2 flex flex-col shadow-lg rounded-sm ring-1 ring-black ring-opacity-5 divide-y divide-neutral-300"
   >
     <div class="flex flex-row justify-between items-center px-4 py-2">
-      <BaseButton type="text" class="w-4" @click="onNav(-1)">
+      <BaseButton class="w-4" @click="onNav(-1)">
         <ChevronLeftSolidIcon />
       </BaseButton>
-      <BaseButton type="text" @click="onUpLevel">{{ title }}</BaseButton>
-      <BaseButton type="text" class="w-4" @click="onNav(1)">
+      <BaseButton @click="onUpLevel">{{ title }}</BaseButton>
+      <BaseButton class="w-4" @click="onNav(1)">
         <ChevronRightSolidIcon />
       </BaseButton>
     </div>
@@ -235,7 +235,7 @@ watch(
       </template>
     </div>
     <div class="px-4 py-2">
-      <BaseButton type="text" class="w-full" @click="onTodaySelected">{{ t('base.datepicker.today') }}</BaseButton>
+      <BaseButton class="w-full" @click="onTodaySelected">{{ t('base.datepicker.today') }}</BaseButton>
     </div>
   </div>
 </template>

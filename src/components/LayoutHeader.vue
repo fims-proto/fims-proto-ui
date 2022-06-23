@@ -62,7 +62,12 @@ const onSobSelected = async (command: string) => {
     router.push({ name: 'sobMain' })
   } else {
     await sobStore.action.setWorkingSob(command)
-    router.push({ name: 'home' })
+    router.push({
+      name: 'sobDetail',
+      params: {
+        sobId: command,
+      },
+    })
   }
 }
 </script>

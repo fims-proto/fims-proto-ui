@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Sob, SobService } from '../../domain'
 
@@ -10,10 +10,16 @@ const props = defineProps<{
 const { t } = useI18n()
 const sobDetail = ref<Sob>()
 
-onMounted(async () => {
-  const { data } = await SobService.getSobById(props.sobId)
-  sobDetail.value = data
-})
+watch(
+  () => props.sobId,
+  async () => {
+    if (props.sobId) {
+      const { data } = await SobService.getSobById(props.sobId)
+      sobDetail.value = data
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <template>

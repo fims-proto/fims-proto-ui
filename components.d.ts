@@ -26,6 +26,7 @@ declare module '@vue/runtime-core' {
     BaseLink: typeof import('./src/components/reusable/BaseLink.vue')['default']
     BaseNotification: typeof import('./src/components/reusable/BaseNotification.vue')['default']
     BasePage: typeof import('./src/components/reusable/BasePage.vue')['default']
+    BasePagination: typeof import('./src/components/reusable/BasePagination.vue')['default']
     BaseTabItem: typeof import('./src/components/reusable/tab/BaseTabItem.vue')['default']
     BaseTabPanel: typeof import('./src/components/reusable/tab/BaseTabPanel.vue')['default']
     BaseTabs: typeof import('./src/components/reusable/tab/BaseTabs.vue')['default']

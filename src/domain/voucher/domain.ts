@@ -2,6 +2,7 @@ import axios from 'axios'
 import { FIMS_URL } from '../../config'
 import { convertFieldsFromString } from '../dateTypeConverter'
 import { invokeWithErrorHandler, Response } from '../errorHandler'
+import { Page, Pageable } from '../types'
 import { LineItem, NewVoucher, Voucher } from './types'
 
 const FIELDS_CONVERSION: Record<string, 'number' | 'date'> = {
@@ -16,10 +17,16 @@ const FIELDS_CONVERSION: Record<string, 'number' | 'date'> = {
 }
 
 class VoucherService {
-  public async getAllVouchersBySod(sobId: string): Promise<Response<Voucher[]>> {
+  public async getAllVouchers(sobId: string, pageable: Pageable = { page: 1 }): Promise<Response<Page<Voucher>>> {
+    let url = `${FIMS_URL}/api/v1/sob/${sobId}/vouchers/?$sort=createdAt&$page=${pageable.page}`
+    if (pageable.size) {
+      url = `${url}&$size=${pageable.size}`
+    }
+
     return invokeWithErrorHandler(async () => {
-      const result = await axios.get(`${FIMS_URL}/api/v1/sob/${sobId}/vouchers/`)
-      return convertFieldsFromString(result.data, FIELDS_CONVERSION)
+      const result = await axios.get(url)
+      convertFieldsFromString(result.data.content, FIELDS_CONVERSION)
+      return result.data
     })
   }
 

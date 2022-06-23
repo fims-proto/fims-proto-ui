@@ -15,8 +15,8 @@ const vouchers = ref<Voucher[]>([])
 const users: Record<string, User> = {}
 
 onMounted(async () => {
-  const { data } = await VoucherService.getAllVouchersBySod(props.sobId)
-  vouchers.value = data ?? []
+  const { data } = await VoucherService.getAllVouchers(props.sobId)
+  vouchers.value = data?.content ?? []
   for (const voucher of vouchers.value) {
     voucher.creator = await whoIs(voucher.creator)
     voucher.auditor = await whoIs(voucher.auditor)

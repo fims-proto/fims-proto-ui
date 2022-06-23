@@ -2,7 +2,7 @@ import axios from 'axios'
 import { FIMS_URL } from '../../config'
 import { convertFieldsFromString } from '../dateTypeConverter'
 import { invokeWithErrorHandler, Response } from '../errorHandler'
-import { Page } from '../types'
+import { Page, Pageable } from '../types'
 import { Account } from './types'
 
 const FIELDS_CONVERSION: Record<string, 'number' | 'date'> = {
@@ -12,10 +12,16 @@ const FIELDS_CONVERSION: Record<string, 'number' | 'date'> = {
 }
 
 class AccountService {
-  public async getAllAccounts(sobId: string): Promise<Response<Page<Account>>> {
+  public async getAllAccounts(sobId: string, pageable: Pageable = { page: 1 }): Promise<Response<Page<Account>>> {
+    let url = `${FIMS_URL}/api/v1/sob/${sobId}/accounts/?$sort=accountNumber&$page=${pageable.page}`
+    if (pageable.size) {
+      url = `${url}&$size=${pageable.size}`
+    }
+
     return invokeWithErrorHandler(async () => {
-      const result = await axios.get(`${FIMS_URL}/api/v1/sob/${sobId}/accounts/`)
-      return convertFieldsFromString(result.data, FIELDS_CONVERSION)
+      const result = await axios.get(url)
+      convertFieldsFromString(result.data.content, FIELDS_CONVERSION)
+      return result.data
     })
   }
 

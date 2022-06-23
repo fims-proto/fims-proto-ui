@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useNotificationStore } from '../store/notification'
-import { AppNotification } from '../domain'
+import { AppNotification, Pageable } from '../domain'
 
 const inputDate = ref(new Date())
 const notificationStore = useNotificationStore()
@@ -12,6 +12,10 @@ const onNewNotification = (text?: string) => {
     message: text ?? ['打雷啦', '下雨啦', '收衣服啦', '衣服掉地上啦'][index],
     duration: Math.floor(Math.random() * 4),
   })
+}
+
+const onPaginationSelect = (pageable: Pageable) => {
+  console.log(`target page: ${pageable.page}, size: ${pageable.size}`)
 }
 </script>
 
@@ -103,32 +107,6 @@ const onNewNotification = (text?: string) => {
       <!-- double confirm -->
       <div class="flex gap-4">
         <BaseButton type="primary" confirm @click="onNewNotification('Ta-da!!')">重要事件</BaseButton>
-      </div>
-      <!-- text type -->
-      <div>
-        <p>
-          <span>在文字中的 text 类型</span>
-          <BaseButton type="text">按钮</BaseButton>
-          <span>长这个样子</span>
-        </p>
-        <p>
-          <span>在文字中的 disabled text 类型</span>
-          <BaseButton disabled type="text">按钮</BaseButton>
-          <span>长这个样子</span>
-        </p>
-      </div>
-      <!-- link type -->
-      <div>
-        <p>
-          <span>在文字中的 link 类型</span>
-          <BaseButton type="link">按钮</BaseButton>
-          <span>长这个样子</span>
-        </p>
-        <p>
-          <span>在文字中的 disabled link 类型</span>
-          <BaseButton disabled type="link">按钮</BaseButton>
-          <span>长这个样子</span>
-        </p>
       </div>
     </div>
 
@@ -300,6 +278,12 @@ const onNewNotification = (text?: string) => {
       <BaseFormItem label="日期: ">
         <BaseInput v-model="inputDate" html-type="date" class="w-40" />
       </BaseFormItem>
+    </div>
+
+    <h1 class="text-neutral-900">Pagination:</h1>
+    <span>Curent page: 1, total element: 44</span>
+    <div class="rounded-lg p-4">
+      <BasePagination :current-page="1" :total-element="44" @select="onPaginationSelect" />
     </div>
 
     <!-- <h1 class="text-neutral-900">SomeOthers:</h1>

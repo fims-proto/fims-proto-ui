@@ -3,7 +3,7 @@ export default defineComponent({ inheritAttrs: false })
 </script>
 
 <script setup lang="ts">
-import { defineComponent, PropType, ref } from 'vue'
+import { defineComponent, PropType, ref, useSlots } from 'vue'
 import { VBinder, VTarget, VFollower } from 'vueuc'
 import { onClickOutside } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
@@ -11,7 +11,7 @@ import { injectButtonGroup } from './context'
 
 const props = defineProps({
   type: {
-    type: String as PropType<'primary' | 'default' | 'text' | 'link'>,
+    type: String as PropType<'primary' | 'default'>,
     default: 'default',
   },
   htmlType: {
@@ -31,6 +31,8 @@ const emit = defineEmits<{
   (event: 'click'): void
 }>()
 
+const slots = useSlots()
+
 const { t } = useI18n()
 
 const ButtonGroup = injectButtonGroup()
@@ -39,6 +41,7 @@ const confirming = ref(false)
 const confirmationBoxRef = ref()
 
 const is = (t: string) => props.type === t
+const hasSlot = (n: string) => !!slots[n]
 
 const onClick = () => {
   if (props.confirm) {
@@ -65,21 +68,7 @@ onClickOutside(confirmationBoxRef, () => (confirming.value = false))
 
           insideGroup ? '-ml-[1px] first:m-0 first:rounded-l-md last:rounded-r-md hover:z-10' : 'rounded-md',
 
-          is('link') && [
-            'inline-flex px-1 py-0 bg-transparent',
-            'focus:z-10 focus:outline-none focus:underline focus:underline-offset-2 focus:decoration-primary-700 focus:decoration-2',
-            disabled ? 'text-neutral-400 bg-transparent' : 'text-primary-700 hover:text-primary-800',
-          ],
-
-          is('text') && [
-            'inline-flex px-1 py-0 bg-transparent',
-            'focus:z-10 focus:outline-none focus:underline focus:underline-offset-2',
-            'focus:z-10 focus:outline-none focus:underline focus:underline-offset-2 focus:decoration-primary-700 focus:decoration-2',
-            disabled ? 'text-neutral-400 bg-transparent' : 'hover:bg-neutral-500 hover:bg-opacity-5',
-          ],
-
           is('primary') && [
-            'px-3 py-1.5 text-sm shadow-sm',
             'focus:z-10 focus:outline-none focus:ring-offset-2 focus:ring focus:ring-primary-500',
             disabled
               ? 'text-neutral-400 bg-transparent border border-neutral-300'
@@ -87,7 +76,6 @@ onClickOutside(confirmationBoxRef, () => (confirming.value = false))
           ],
 
           is('default') && [
-            'px-3 py-1.5 text-sm shadow-sm',
             'focus:z-10 focus:outline-none focus:ring-offset-2 focus:ring focus:ring-primary-500',
             disabled
               ? 'text-neutral-400 bg-transparent border border-neutral-300'
@@ -103,18 +91,23 @@ onClickOutside(confirmationBoxRef, () => (confirming.value = false))
         :disabled="disabled"
         @click="onClick"
       >
-        <span v-if="busy">TODO</span>
+        <!-- icon -->
         <span
-          v-if="!!$slots['icon'] && !is('text')"
+          v-if="hasSlot('icon')"
           :class="[
             'inline-block w-4 align-text-top',
+            hasSlot('default') ? 'ml-1.5 my-1.5' : 'mx-1.5 my-1.5',
             is('primary') && (disabled ? 'text-neutral-400' : 'text-primary-300 group-hover:text-primary-200'),
           ]"
           aria-hidden="true"
         >
           <slot name="icon"></slot>
         </span>
-        <slot></slot>
+
+        <!-- text -->
+        <span v-if="hasSlot('default')" :class="['text-sm shadow-sm', hasSlot('icon') ? 'mr-3 my-1.5' : 'mx-3 my-1.5']">
+          <slot></slot>
+        </span>
       </button>
     </VTarget>
 
