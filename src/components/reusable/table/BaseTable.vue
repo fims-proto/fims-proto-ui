@@ -3,7 +3,6 @@ import { useI18n } from 'vue-i18n'
 import { ColumnType, PageType } from '.'
 import BaseNode from './BaseNode'
 import { Pageable } from '../../../domain'
-import { h } from 'vue'
 
 defineProps<{
   dataSource: object[]
@@ -25,20 +24,20 @@ const columnKey = (col: ColumnType<unknown>) => {
     if (typeof col.path === 'string') {
       return col.path
     }
-    return (col.path as string[]).join('/')
+    return (col.path as string[]).join(':')
   }
   throw 'cannot determine column key'
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const columnData = (data: any, col: ColumnType<unknown>, index: number) => {
+const columnData = (record: any, col: ColumnType<unknown>, index: number) => {
   let value
 
   if (col.path) {
     if (typeof col.path === 'string') {
-      value = data[col.path]
+      value = record[col.path]
     } else {
-      value = data
+      value = record
       for (const path of col.path as string[]) {
         value = value[path]
       }
@@ -46,10 +45,10 @@ const columnData = (data: any, col: ColumnType<unknown>, index: number) => {
   }
 
   if (col.render) {
-    return col.render(value, data, index)
+    return col.render(value, record, index)
   }
 
-  return h('span', value)
+  return value
 }
 </script>
 

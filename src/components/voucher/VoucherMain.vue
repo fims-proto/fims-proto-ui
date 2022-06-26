@@ -21,11 +21,13 @@ const columns: ColumnType<Voucher>[] = [
   {
     title: t('voucher.transactionTime'),
     path: 'transactionTime',
+    width: 'md',
     render: (value: Date) => d(value, 'date'),
   },
   {
     title: t('voucher.number'),
     path: 'number',
+    width: 'sm',
     render: (_, { number, id }) =>
       h(
         BaseLink,
@@ -48,24 +50,29 @@ const columns: ColumnType<Voucher>[] = [
   {
     title: t('voucher.creator'),
     key: 'creator',
+    width: 'sm',
     render: (_, { creator: { traits } }) =>
       traits ? t('common.userName', { lastName: traits.name?.last, firstName: traits.name?.first }) : '',
   },
   {
     title: t('voucher.auditor'),
     key: 'auditor',
+    width: 'sm',
     render: (_, { auditor: { traits } }) =>
       traits ? t('common.userName', { lastName: traits.name?.last, firstName: traits.name?.first }) : '',
   },
   {
     title: t('voucher.reviewer'),
     key: 'reviewer',
+    width: 'sm',
     render: (_, { reviewer: { traits } }) =>
       traits ? t('common.userName', { lastName: traits.name?.last, firstName: traits.name?.first }) : '',
   },
   {
     title: t('voucher.amount'),
     path: 'debit',
+    align: 'right',
+    width: 'md',
     render: (value: number) => n(value, 'decimal'),
   },
 ]
