@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useNotificationStore } from '../store/notification'
-import { AppNotification, Pageable } from '../domain'
+import { AppNotification } from '../domain'
 
+// inputs
 const inputDate = ref(new Date())
+
+// notification
 const notificationStore = useNotificationStore()
 const onNewNotification = (text?: string) => {
   const index = Math.floor(Math.random() * 4)
@@ -14,9 +17,52 @@ const onNewNotification = (text?: string) => {
   })
 }
 
-const onPaginationSelect = (pageable: Pageable) => {
-  console.log(`target page: ${pageable.page}, size: ${pageable.size}`)
-}
+// table
+const tablePage = ref({ currentPage: 1, totalElement: 55, pageSize: 10 })
+const tableData = ref<{ company: string; contact: string; address: string; city: string }[]>([])
+watch(
+  [() => tablePage.value.currentPage, () => tablePage.value.pageSize],
+  () => {
+    tableData.value = []
+    for (let i = 0; i < tablePage.value.pageSize; i++) {
+      const index = Math.floor(Math.random() * 4)
+      tableData.value.push({
+        company: ['Google', 'Facebook', 'Twitter', 'Nokia'][index],
+        contact: ['Donald', 'Michael', 'Trump', 'Json'][index],
+        address: [
+          'No. 699, Wangshang Road, Binjiang District',
+          '1 Infinite Loop Cupertino, CA 95014',
+          '	1600 Amphitheatre Parkway Mountain View, CA 94043',
+          'Park Ridge, NJ 07656',
+        ][index],
+        city: ['New York', 'Kuerla', 'Helsinki', 'Cupertino'][index],
+      })
+    }
+  },
+  { immediate: true }
+)
+
+const tableColumns = [
+  {
+    title: '公司',
+    path: 'company',
+    width: 'sm',
+  },
+  {
+    title: '联系人',
+    path: 'contact',
+    width: 'md',
+  },
+  {
+    title: '地址',
+    path: 'address',
+  },
+  {
+    title: '城市',
+    path: 'city',
+    width: 'lg',
+  },
+]
 </script>
 
 <!-- style test page for Tailwindcss -->
@@ -70,6 +116,8 @@ const onPaginationSelect = (pageable: Pageable) => {
           </template>
           Primary
         </BaseButton>
+        <BaseButton type="flat">Flat</BaseButton>
+        <BaseButton disabled type="flat">Flat</BaseButton>
       </div>
       <!-- grouped button -->
       <div class="flex gap-4">
@@ -280,10 +328,23 @@ const onPaginationSelect = (pageable: Pageable) => {
       </BaseFormItem>
     </div>
 
-    <h1 class="text-neutral-900">Pagination:</h1>
-    <span>Curent page: 1, total element: 44</span>
+    <h1 class="text-neutral-900">Table:</h1>
     <div class="rounded-lg p-4">
-      <BasePagination :current-page="1" :total-element="44" @select="onPaginationSelect" />
+      <p>Empty table</p>
+      <BaseTable :data-source="[]" :columns="tableColumns" />
+      <br />
+      <p>Table</p>
+      <BaseTable
+        :data-source="tableData"
+        :columns="tableColumns"
+        :page="tablePage"
+        @page="
+          (pageable) => {
+            tablePage.currentPage = pageable.page
+            tablePage.pageSize = pageable.size ?? 10
+          }
+        "
+      />
     </div>
 
     <!-- <h1 class="text-neutral-900">SomeOthers:</h1>

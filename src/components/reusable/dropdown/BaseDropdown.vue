@@ -11,7 +11,7 @@ defineProps({
 })
 
 const emit = defineEmits<{
-  (e: 'select', command: string): void
+  (event: 'select', command: string): void
 }>()
 
 const handleItemSelect = (command: string | undefined) => command && emit('select', command)

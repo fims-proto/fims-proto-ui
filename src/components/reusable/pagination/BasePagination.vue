@@ -7,6 +7,7 @@ const props = defineProps<{
   currentPage: number
   totalElement: number
   pageSize?: number
+  unitDescription?: string
 }>()
 
 const emit = defineEmits<{
@@ -45,10 +46,15 @@ const onSizeChange = (targetSize: string) => {
 </script>
 
 <template>
-  <div class="flex gap-4">
+  <div class="w-full flex gap-4 items-center justify-start">
     <!-- page number control -->
     <div class="flex gap-2 items-center">
-      <BaseButton :disabled="isFirst()" @click="onSelect(current - 1)">
+      <BaseButton type="flat" :disabled="isFirst()" @click="onSelect(1)">
+        <template #icon>
+          <ChevronDoubleLeftSolidIcon />
+        </template>
+      </BaseButton>
+      <BaseButton type="flat" :disabled="isFirst()" @click="onSelect(current - 1)">
         <template #icon>
           <ChevronLeftSolidIcon />
         </template>
@@ -56,9 +62,14 @@ const onSizeChange = (targetSize: string) => {
       <span class="w-16 text-center">
         {{ t('base.pagination.pageNumber', { currentPage: current, totalPage: totalPage }) }}
       </span>
-      <BaseButton :disabled="isLast()" @click="onSelect(current + 1)">
+      <BaseButton type="flat" :disabled="isLast()" @click="onSelect(current + 1)">
         <template #icon>
           <ChevronRightSolidIcon />
+        </template>
+      </BaseButton>
+      <BaseButton type="flat" :disabled="isLast()" @click="onSelect(totalPage)">
+        <template #icon>
+          <ChevronDoubleRightSolidIcon />
         </template>
       </BaseButton>
     </div>
@@ -67,7 +78,7 @@ const onSizeChange = (targetSize: string) => {
     <BaseDropdown @select="onSizeChange">
       <BaseDropdownButton
         as="a"
-        class="px-3 py-2 space-x-2 rounded-md whitespace-nowrap text-neutral-700 hover:text-neutral-900 hover:bg-black hover:bg-opacity-5"
+        class="px-3 py-2 space-x-2 whitespace-nowrap text-neutral-700 hover:text-primary-800 hover:bg-neutral-200/50"
       >
         {{ t('base.pagination.pageSize', [size]) }}
       </BaseDropdownButton>
@@ -78,5 +89,13 @@ const onSizeChange = (targetSize: string) => {
         <BaseDropdownItem command="100">{{ t('base.pagination.pageSize', [100]) }}</BaseDropdownItem>
       </template>
     </BaseDropdown>
+
+    <!-- total element display -->
+    <span class="ml-auto text-neutral-800/50">{{
+      t('base.pagination.totalElement', {
+        count: totalElement,
+        unitDescription: unitDescription ?? t('base.pagination.defaultUnitDescription'),
+      })
+    }}</span>
   </div>
 </template>

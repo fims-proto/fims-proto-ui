@@ -110,6 +110,7 @@ const onSaveAndNew = async () => {
     <template #extra>
       <BaseButton type="primary" @click="onSaveAndNew">{{ t('action.saveAndNew') }}</BaseButton>
       <BaseButton @click="onSave">{{ t('action.save') }}</BaseButton>
+      <BaseButton @click="$router.go(-1)">{{ t('action.cancel') }}</BaseButton>
     </template>
     <VoucherForm
       ref="formRef"

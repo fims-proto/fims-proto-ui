@@ -22,7 +22,7 @@ class SobService {
 
   public async createSob(newSob: NewSob): Promise<Response<Sob>> {
     return invokeWithErrorHandler(async () => {
-      const result = await axios.post(`${FIMS_URL}/api/v1/sobs/`, convertFieldsFromString(newSob, FIELDS_CONVERSION))
+      const result = await axios.post(`${FIMS_URL}/api/v1/sobs/`, newSob)
       return convertFieldsFromString(result.data, FIELDS_CONVERSION)
     })
   }

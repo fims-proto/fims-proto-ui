@@ -11,7 +11,9 @@
     },
     "pagination": {
       "pageNumber": "{currentPage} / {totalPage}",
-      "pageSize": "{0} / 页"
+      "pageSize": "{0} / 页",
+      "totalElement": "总计 {count} {unitDescription}",
+      "defaultUnitDescription": "条记录"
     }
   },
   "common": {
@@ -30,7 +32,8 @@
     "save": "保存",
     "submit": "提交",
     "close": "关闭",
-    "edit": "编辑"
+    "edit": "编辑",
+    "cancel": "取消"
   },
   "user": {
     "email": "E-Mail",

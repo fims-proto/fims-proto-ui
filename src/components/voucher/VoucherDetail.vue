@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Voucher, User, VoucherService, UserService } from '../../domain'
+import { Voucher, VoucherService } from '../../domain'
 import { useNotificationStore } from '../../store/notification'
 import { useUserStore } from '../../store/user'
 import VoucherForm from './VoucherForm.vue'
@@ -16,7 +16,6 @@ const notificationStore = useNotificationStore()
 const userStore = useUserStore()
 
 const voucher = ref<Voucher>()
-const creator = ref<User>()
 const formRef = ref<InstanceType<typeof VoucherForm>>()
 const editMode = ref(false)
 
@@ -27,8 +26,6 @@ const refreshVoucher = async () => {
 
 onMounted(async () => {
   await refreshVoucher()
-  const { data } = await UserService.whoIs(voucher.value?.creator as string)
-  creator.value = data
 })
 
 const onSave = async () => {
@@ -83,6 +80,11 @@ const onSave = async () => {
   })
 }
 
+const onCancel = () => {
+  editMode.value = false
+  formRef.value?.reset()
+}
+
 const onAction = async (action: 'audit' | 'cancelAudit' | 'review' | 'cancelReview') => {
   const voucherId = voucher.value?.id as string
   let resp
@@ -119,10 +121,15 @@ const onAction = async (action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
   <BasePage :subtitle="voucher?.lineItems[0].summary">
     <template #title>{{ voucher?.number }}</template>
     <template #extra>
-      <BaseButton :disabled="editMode || voucher?.isAudited || voucher?.isReviewed" @click="editMode = true">
+      <BaseButton
+        v-if="!editMode"
+        :disabled="editMode || voucher?.isAudited || voucher?.isReviewed"
+        @click="editMode = true"
+      >
         {{ t('action.edit') }}
       </BaseButton>
       <BaseButton v-if="editMode" type="primary" @click="onSave">{{ t('action.save') }}</BaseButton>
+      <BaseButton v-if="editMode" @click="onCancel">{{ t('action.cancel') }}</BaseButton>
       <BaseButton v-if="!voucher?.isAudited" :disabled="editMode" @click="onAction('audit')">
         {{ t('voucher.audit') }}
       </BaseButton>
@@ -137,13 +144,13 @@ const onAction = async (action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
       </BaseButton>
     </template>
     <VoucherForm
-      v-if="voucher && creator"
+      v-if="voucher"
       ref="formRef"
       :disabled="!editMode"
       :attachment-quantity="voucher.attachmentQuantity"
       :transaction-time="voucher.transactionTime"
       :line-items="voucher.lineItems"
-      :creator="creator.traits"
+      :creator="voucher.creator.traits"
     />
   </BasePage>
 </template>

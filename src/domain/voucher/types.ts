@@ -1,8 +1,10 @@
+import { User } from '../user'
+
 export interface Voucher {
   attachmentQuantity: number
-  auditor: string
+  auditor: User
   createdAt: Date
-  creator: string
+  creator: User
   credit: number
   debit: number
   id: string
@@ -10,7 +12,7 @@ export interface Voucher {
   isPosted: boolean
   isReviewed: boolean
   number: string
-  reviewer: string
+  reviewer: User
   sobId: string
   transactionTime: Date
   type: string

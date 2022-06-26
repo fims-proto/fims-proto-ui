@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { h, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { VoucherService, Voucher, User, UserService } from '../../domain'
+import { VoucherService, Voucher, Page } from '../../domain'
+import { ColumnType } from '../reusable/table'
+import BaseLink from '../reusable/link/BaseLink.vue'
 
 const props = defineProps<{
   sobId: string
@@ -11,18 +13,72 @@ const props = defineProps<{
 const { t, d, n } = useI18n()
 const router = useRouter()
 
-const vouchers = ref<Voucher[]>([])
-const users: Record<string, User> = {}
+const vouchers = ref<Page<Voucher>>()
 
-onMounted(async () => {
-  const { data } = await VoucherService.getAllVouchers(props.sobId)
-  vouchers.value = data?.content ?? []
-  for (const voucher of vouchers.value) {
-    voucher.creator = await whoIs(voucher.creator)
-    voucher.auditor = await whoIs(voucher.auditor)
-    voucher.reviewer = await whoIs(voucher.reviewer)
-  }
-})
+const pageable = ref({ page: 1, size: 10 })
+
+const columns: ColumnType<Voucher>[] = [
+  {
+    title: t('voucher.transactionTime'),
+    path: 'transactionTime',
+    render: (value: Date) => d(value, 'date'),
+  },
+  {
+    title: t('voucher.number'),
+    path: 'number',
+    render: (_, { number, id }) =>
+      h(
+        BaseLink,
+        {
+          to: {
+            name: 'voucherDetail',
+            params: {
+              sobId: props.sobId,
+              voucherId: id,
+            },
+          },
+          class: 'text-primary-800 hover:text-primary-500',
+        },
+        () => number
+      ),
+  },
+  {
+    title: t('voucher.summary'),
+    path: ['lineItems', '0', 'summary'],
+  },
+  {
+    title: t('voucher.creator'),
+    key: 'creator',
+    render: (_, { creator: { traits } }) =>
+      traits ? t('common.userName', { lastName: traits.name?.last, firstName: traits.name?.first }) : '',
+  },
+  {
+    title: t('voucher.auditor'),
+    key: 'auditor',
+    render: (_, { auditor: { traits } }) =>
+      traits ? t('common.userName', { lastName: traits.name?.last, firstName: traits.name?.first }) : '',
+  },
+  {
+    title: t('voucher.reviewer'),
+    key: 'reviewer',
+    render: (_, { reviewer: { traits } }) =>
+      traits ? t('common.userName', { lastName: traits.name?.last, firstName: traits.name?.first }) : '',
+  },
+  {
+    title: t('voucher.amount'),
+    path: 'debit',
+    render: (value: number) => n(value, 'decimal'),
+  },
+]
+
+watch(
+  [() => pageable.value.page, () => pageable.value.size],
+  async () => {
+    const { data } = await VoucherService.getAllVouchers(props.sobId, pageable.value)
+    vouchers.value = data
+  },
+  { immediate: true }
+)
 
 const onCreate = () => {
   router.push({
@@ -31,32 +87,6 @@ const onCreate = () => {
       sobId: props.sobId,
     },
   })
-}
-
-const onNav = (voucherId: string) => {
-  router.push({
-    name: 'voucherDetail',
-    params: {
-      sobId: props.sobId,
-      voucherId: voucherId,
-    },
-  })
-}
-
-const whoIs = async (userId: string) => {
-  if (!userId) {
-    return ''
-  }
-  let traits = undefined
-  if (!users[userId]) {
-    const { data, exception } = await UserService.whoIs(userId)
-    if (exception) {
-      return ''
-    }
-    users[userId] = data as User
-  }
-  traits = users[userId].traits
-  return t('common.userName', { lastName: traits.name?.last, firstName: traits.name?.first })
 }
 </script>
 
@@ -67,36 +97,20 @@ const whoIs = async (userId: string) => {
       <BaseButton type="primary" @click="onCreate">{{ t('action.create') }}</BaseButton>
     </template>
 
-    <div v-if="vouchers.length" class="w-full overflow-clip border border-neutral-300 shadow-lg rounded-md">
-      <table class="w-full table-fixed">
-        <tr class="bg-neutral-100">
-          <th class="border-b border-neutral-200 py-2 px-4 text-left w-48">{{ t('voucher.transactionTime') }}</th>
-          <th class="border-b border-neutral-200 py-2 px-4 text-left w-32">{{ t('voucher.number') }}</th>
-          <th class="border-b border-neutral-200 py-2 px-4 text-left">{{ t('voucher.summary') }}</th>
-          <th class="border-b border-neutral-200 py-2 px-4 text-left w-32">{{ t('voucher.creator') }}</th>
-          <th class="border-b border-neutral-200 py-2 px-4 text-left w-32">{{ t('voucher.auditor') }}</th>
-          <th class="border-b border-neutral-200 py-2 px-4 text-left w-32">{{ t('voucher.reviewer') }}</th>
-          <th class="border-b border-neutral-200 py-2 px-4 text-right w-48">{{ t('voucher.amount') }}</th>
-        </tr>
-        <tr
-          v-for="voucher in vouchers"
-          :key="voucher.id"
-          class="rounded-md hover:text-primary-700 hover:bg-neutral-200/50 hover:shadow-inner focus:outline-none focus:ring-inset focus:ring focus:ring-primary-500"
-          role="button"
-          tabindex="0"
-          @click="onNav(voucher.id)"
-        >
-          <td class="border-t border-neutral-200 py-2 px-4 text-left w-48">{{ d(voucher.transactionTime, 'date') }}</td>
-          <td class="border-t border-neutral-200 py-2 px-4 text-left w-32">{{ voucher.number }}</td>
-          <td class="border-t border-neutral-200 py-2 px-4 text-left">{{ voucher.lineItems[0].summary }}</td>
-          <td class="border-t border-neutral-200 py-2 px-4 text-left w-32">{{ voucher.creator }}</td>
-          <td class="border-t border-neutral-200 py-2 px-4 text-left w-32">{{ voucher.auditor }}</td>
-          <td class="border-t border-neutral-200 py-2 px-4 text-left w-32">{{ voucher.reviewer }}</td>
-          <td class="border-t border-neutral-200 py-2 px-4 text-right w-48">{{ n(voucher.debit, 'decimal') }}</td>
-        </tr>
-      </table>
-    </div>
-
-    <span v-else>no vouchers</span>
+    <BaseTable
+      :data-source="vouchers?.content ?? []"
+      :columns="columns"
+      :page="{
+        currentPage: vouchers?.page ?? 1,
+        totalElement: vouchers?.numberOfElements ?? 0,
+        pageSize: vouchers?.size,
+      }"
+      @page="
+        (target) => {
+          pageable.page = target.page
+          pageable.size = target.size ?? 10
+        }
+      "
+    />
   </BasePage>
 </template>

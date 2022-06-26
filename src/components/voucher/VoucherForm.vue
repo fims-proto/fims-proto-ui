@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Big from 'big.js'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { LineItem, Traits } from '../../domain'
 
@@ -14,9 +14,10 @@ const props = defineProps<{
 
 const { t, d } = useI18n()
 
-const internalTransactionTime = computed(() => props.transactionTime)
-const internalAttachmentQuantity = computed(() => props.attachmentQuantity)
-const internalLineItems = computed(() => props.lineItems)
+const internalTransactionTime = ref()
+const internalAttachmentQuantity = ref()
+const internalLineItems = ref<LineItem[]>([])
+
 const totalDebit = computed(() =>
   internalLineItems.value.reduce((sum, item) => sum.add(Big(item.debit ?? 0)), Big(0)).toNumber()
 )
@@ -49,9 +50,18 @@ const collect = () => ({
   totalCredit: totalCredit.value,
 })
 
+const inititialize = () => {
+  internalTransactionTime.value = props.transactionTime
+  internalAttachmentQuantity.value = props.attachmentQuantity
+  internalLineItems.value = JSON.parse(JSON.stringify(props.lineItems))
+}
+
 defineExpose({
   collect,
+  reset: inititialize,
 })
+
+inititialize()
 </script>
 
 <template>

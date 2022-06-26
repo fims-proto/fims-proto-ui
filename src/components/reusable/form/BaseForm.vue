@@ -8,7 +8,7 @@ const props = defineProps<{
 }>()
 
 defineEmits<{
-  (e: 'submit'): void
+  (event: 'submit'): void
 }>()
 
 provideForm({

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Account, AccountService } from '../../domain'
+import { Account, AccountService, Page } from '../../domain'
 
 const props = defineProps<{
   sobId: string
@@ -9,30 +9,46 @@ const props = defineProps<{
 
 const { t } = useI18n()
 
-const accounts = ref<Account[]>([])
+const accounts = ref<Page<Account>>()
 
-onMounted(async () => {
-  const { data } = await AccountService.getAllAccounts(props.sobId)
-  accounts.value = data?.content ?? []
-})
+const columns = [
+  {
+    title: t('account.number'),
+    path: 'accountNumber',
+    width: 'md',
+  },
+  {
+    title: t('account.title'),
+    path: 'title',
+  },
+]
+
+const pageable = ref({ page: 1, size: 10 })
+
+watch(
+  [() => pageable.value.page, () => pageable.value.size],
+  async () => {
+    const { data } = await AccountService.getAllAccounts(props.sobId, pageable.value)
+    accounts.value = data
+  },
+  { immediate: true }
+)
 </script>
 
 <template>
-  <div v-if="accounts.length" class="w-full overflow-clip border border-neutral-300 shadow-lg rounded-md">
-    <table class="w-full table-fixed">
-      <tr class="bg-neutral-100">
-        <th class="border-b border-neutral-200 py-2 px-4 text-left">{{ t('account.number') }}</th>
-        <th class="border-b border-neutral-200 py-2 px-4 text-left">{{ t('account.title') }}</th>
-      </tr>
-      <tr
-        v-for="account in accounts"
-        :key="account.id"
-        class="rounded-md hover:text-primary-700 hover:bg-neutral-200/50 hover:shadow-inner focus:outline-none focus:ring-inset focus:ring focus:ring-primary-500"
-        tabindex="0"
-      >
-        <td class="border-t border-neutral-200 py-2 px-4 text-left">{{ account.accountNumber }}</td>
-        <td class="border-t border-neutral-200 py-2 px-4 text-left">{{ account.title }}</td>
-      </tr>
-    </table>
-  </div>
+  <BaseTable
+    :data-source="accounts?.content ?? []"
+    :columns="columns"
+    :page="{
+      currentPage: accounts?.page ?? 1,
+      totalElement: accounts?.numberOfElements ?? 0,
+      pageSize: accounts?.size,
+    }"
+    @page="
+      (target) => {
+        pageable.page = target.page
+        pageable.size = target.size ?? 10
+      }
+    "
+  />
 </template>

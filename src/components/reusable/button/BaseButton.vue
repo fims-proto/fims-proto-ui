@@ -11,7 +11,7 @@ import { injectButtonGroup } from './context'
 
 const props = defineProps({
   type: {
-    type: String as PropType<'primary' | 'default'>,
+    type: String as PropType<'primary' | 'default' | 'flat'>,
     default: 'default',
   },
   htmlType: {
@@ -69,17 +69,24 @@ onClickOutside(confirmationBoxRef, () => (confirming.value = false))
           insideGroup ? '-ml-[1px] first:m-0 first:rounded-l-md last:rounded-r-md hover:z-10' : 'rounded-md',
 
           is('primary') && [
-            'focus:z-10 focus:outline-none focus:ring-offset-2 focus:ring focus:ring-primary-500',
+            'shadow-sm focus:z-10 focus:outline-none focus:ring-offset-2 focus:ring focus:ring-primary-500',
             disabled
               ? 'text-neutral-400 bg-transparent border border-neutral-300'
               : 'text-white bg-primary-600 hover:bg-primary-800',
           ],
 
           is('default') && [
-            'focus:z-10 focus:outline-none focus:ring-offset-2 focus:ring focus:ring-primary-500',
+            'shadow-sm focus:z-10 focus:outline-none focus:ring-offset-2 focus:ring focus:ring-primary-500',
             disabled
               ? 'text-neutral-400 bg-transparent border border-neutral-300'
               : 'text-neutral-900 bg-transparent border border-neutral-400 hover:text-primary-800 hover:border-primary-500',
+          ],
+
+          is('flat') && [
+            'focus:z-10 focus:outline-none focus:ring-offset-2 focus:ring focus:ring-primary-500',
+            disabled
+              ? 'text-neutral-400 bg-transparent'
+              : 'text-neutral-700 bg-transparent hover:text-primary-800 hover:bg-neutral-200/50',
           ],
 
           {
@@ -105,7 +112,7 @@ onClickOutside(confirmationBoxRef, () => (confirming.value = false))
         </span>
 
         <!-- text -->
-        <span v-if="hasSlot('default')" :class="['text-sm shadow-sm', hasSlot('icon') ? 'mr-3 my-1.5' : 'mx-3 my-1.5']">
+        <span v-if="hasSlot('default')" :class="['text-sm', hasSlot('icon') ? 'mr-3 my-1.5' : 'mx-3 my-1.5']">
           <slot></slot>
         </span>
       </button>

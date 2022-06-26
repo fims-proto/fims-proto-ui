@@ -25,7 +25,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits<{
-  (event: 'update:modelValue', value: Date | string): void
+  (event: 'update:modelValue', value: string | Date | number): void
 }>()
 
 const attrClass = useAttrs()['class']
@@ -33,21 +33,23 @@ const attrExceptClass = Object.assign({}, useAttrs())
 delete attrExceptClass['class'] // remove class from attrs
 
 const inputValue = computed(() => {
-  if (!props.modelValue || attrExceptClass['type'] !== 'date') {
-    return props.modelValue
+  if (props.htmlType === 'date' && !!props.modelValue) {
+    // html date input only accepts string "YYYY-mm-dd"
+    const inputDate = props.modelValue as Date
+    const year = inputDate.getFullYear()
+    const month = (inputDate.getMonth() + 1).toString().padStart(2, '0')
+    const date = inputDate.getDate().toString().padStart(2, '0')
+    return `${year}-${month}-${date}`
   }
-  // html date input only accepts string "YYYY-mm-dd"
-  const inputDate = props.modelValue as Date
-  const year = inputDate.getFullYear()
-  const month = (inputDate.getMonth() + 1).toString().padStart(2, '0')
-  const date = inputDate.getDate().toString().padStart(2, '0')
-  return `${year}-${month}-${date}`
+  return props.modelValue
 })
 
 const onValueUpdate = (event: Event) => {
   const val = (event.target as HTMLInputElement).value
-  if (attrExceptClass['type'] === 'date') {
+  if (props.htmlType === 'date') {
     emit('update:modelValue', new Date(val))
+  } else if (props.htmlType === 'number') {
+    emit('update:modelValue', Number(val))
   } else {
     emit('update:modelValue', val)
   }
