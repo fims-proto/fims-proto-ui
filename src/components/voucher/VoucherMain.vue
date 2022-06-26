@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { h, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { VoucherService, Voucher, Page } from '../../domain'
+import { VoucherService, Voucher, Page, User } from '../../domain'
 import { ColumnType } from '../reusable/table'
 import BaseLink from '../reusable/link/BaseLink.vue'
 
@@ -17,31 +17,16 @@ const vouchers = ref<Page<Voucher>>()
 
 const pageable = ref({ page: 1, size: 10 })
 
-const columns: ColumnType<Voucher>[] = [
+const columns: ColumnType[] = [
   {
     title: t('voucher.transactionTime'),
-    path: 'transactionTime',
+    key: 'transactionTime',
     width: 'md',
-    render: (value: Date) => d(value, 'date'),
   },
   {
     title: t('voucher.number'),
-    path: 'number',
+    key: 'number',
     width: 'sm',
-    render: (_, { number, id }) =>
-      h(
-        BaseLink,
-        {
-          to: {
-            name: 'voucherDetail',
-            params: {
-              sobId: props.sobId,
-              voucherId: id,
-            },
-          },
-        },
-        () => number
-      ),
   },
   {
     title: t('voucher.summary'),
@@ -51,29 +36,22 @@ const columns: ColumnType<Voucher>[] = [
     title: t('voucher.creator'),
     key: 'creator',
     width: 'sm',
-    render: (_, { creator: { traits } }) =>
-      traits ? t('common.userName', { lastName: traits.name?.last, firstName: traits.name?.first }) : '',
   },
   {
     title: t('voucher.auditor'),
     key: 'auditor',
     width: 'sm',
-    render: (_, { auditor: { traits } }) =>
-      traits ? t('common.userName', { lastName: traits.name?.last, firstName: traits.name?.first }) : '',
   },
   {
     title: t('voucher.reviewer'),
     key: 'reviewer',
     width: 'sm',
-    render: (_, { reviewer: { traits } }) =>
-      traits ? t('common.userName', { lastName: traits.name?.last, firstName: traits.name?.first }) : '',
   },
   {
     title: t('voucher.amount'),
-    path: 'debit',
+    key: 'amount',
     align: 'right',
     width: 'md',
-    render: (value: number) => n(value, 'decimal'),
   },
 ]
 
@@ -85,6 +63,14 @@ watch(
   },
   { immediate: true }
 )
+
+const getUserName = (user: User) =>
+  user && user.traits
+    ? t('common.userName', {
+        lastName: user.traits.name?.last,
+        firstName: user.traits.name?.first,
+      })
+    : ''
 
 const onCreate = () => {
   router.push({
@@ -117,6 +103,26 @@ const onCreate = () => {
           pageable.size = target.size ?? 10
         }
       "
-    />
+    >
+      <template #bodyCell="{ record, column }: { record: Voucher, index: number, column: ColumnType }">
+        <span v-if="column.key === 'transactionTime'">{{ d(record.transactionTime, 'date') }}</span>
+        <BaseLink
+          v-else-if="column.key === 'number'"
+          :to="{
+            name: 'voucherDetail',
+            params: {
+              sobId: sobId,
+              voucherId: record.id,
+            },
+          }"
+        >
+          {{ record.number }}
+        </BaseLink>
+        <span v-else-if="column.key === 'creator'">{{ getUserName(record.creator) }}</span>
+        <span v-else-if="column.key === 'auditor'">{{ getUserName(record.auditor) }}</span>
+        <span v-else-if="column.key === 'reviewer'">{{ getUserName(record.reviewer) }}</span>
+        <span v-else-if="column.key === 'amount'">{{ n(record.debit, 'decimal') }}</span>
+      </template>
+    </BaseTable>
   </BasePage>
 </template>

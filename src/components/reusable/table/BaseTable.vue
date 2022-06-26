@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { ColumnType, PageType } from '.'
-import BaseNode from './BaseNode'
 import { Pageable } from '../../../domain'
 
-defineProps<{
-  dataSource: object[]
-  columns: ColumnType<unknown>[]
+const props = defineProps<{
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  dataSource: any[]
+  columns: ColumnType[]
+  rowKey?: string
   page?: PageType
 }>()
 
@@ -16,7 +17,7 @@ defineEmits<{
 
 const { t } = useI18n()
 
-const columnKey = (col: ColumnType<unknown>) => {
+const getColumnKey = (col: ColumnType) => {
   if (col.key) {
     return col.key
   }
@@ -30,7 +31,10 @@ const columnKey = (col: ColumnType<unknown>) => {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const columnData = (record: any, col: ColumnType<unknown>, index: number) => {
+const getRowKey = (record: any) => record[props.rowKey ?? 'id']
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const getColumnData = (record: any, col: ColumnType) => {
   let value
 
   if (col.path) {
@@ -42,10 +46,6 @@ const columnData = (record: any, col: ColumnType<unknown>, index: number) => {
         value = value[path]
       }
     }
-  }
-
-  if (col.render) {
-    return col.render(value, record, index)
   }
 
   return value
@@ -60,7 +60,7 @@ const columnData = (record: any, col: ColumnType<unknown>, index: number) => {
         <tr class="bg-neutral-100">
           <th
             v-for="column in columns"
-            :key="columnKey(column)"
+            :key="getColumnKey(column)"
             :class="[
               'border-b border-neutral-200 py-2 px-4',
               { 'text-left': column.align === 'left' || !column.align },
@@ -76,13 +76,13 @@ const columnData = (record: any, col: ColumnType<unknown>, index: number) => {
         </tr>
         <tr
           v-for="(data, i) in dataSource"
-          :key="`table-data-key-${i}`"
+          :key="getRowKey(data)"
           class="rounded-md hover:bg-neutral-200/50 hover:shadow-inner"
           tabindex="0"
         >
           <td
             v-for="column in columns"
-            :key="`${columnKey(column)}-data`"
+            :key="`${getColumnKey(column)}-${getRowKey(data)}`"
             :class="[
               'border-t border-neutral-200 py-2 px-4',
               { 'text-left': column.align === 'left' || !column.align },
@@ -90,7 +90,9 @@ const columnData = (record: any, col: ColumnType<unknown>, index: number) => {
               { 'text-center': column.align === 'center' },
             ]"
           >
-            <BaseNode :content="columnData(data, column, i)" />
+            <slot name="bodyCell" :record="data" :index="i" :column="column">
+              {{ getColumnData(data, column) }}
+            </slot>
           </td>
         </tr>
       </table>

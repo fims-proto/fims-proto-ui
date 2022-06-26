@@ -1,12 +1,9 @@
-import { VNode } from 'vue'
-
-export interface ColumnType<T> {
+export interface ColumnType {
   title: string
   path?: string | string[]
   key?: string
   align?: 'left' | 'right' | 'center'
-  width?: string
-  render?(value: string | Date | number, record: T, index: number): string | VNode
+  width?: 'sm' | 'md' | 'lg'
 }
 
 export interface PageType {
