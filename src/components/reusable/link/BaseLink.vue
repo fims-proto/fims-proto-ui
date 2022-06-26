@@ -15,7 +15,7 @@ defineProps({
 
 <template>
   <RouterLink v-slot="{ href, navigate }" v-bind="$props" custom>
-    <a v-bind="$attrs" :href="href" @click="navigate">
+    <a v-bind="$attrs" :href="href" class="text-primary-900 hover:text-primary-500" @click="navigate">
       <slot></slot>
     </a>
   </RouterLink>

@@ -37,7 +37,6 @@ const columns: ColumnType<Voucher>[] = [
               voucherId: id,
             },
           },
-          class: 'text-primary-800 hover:text-primary-500',
         },
         () => number
       ),
