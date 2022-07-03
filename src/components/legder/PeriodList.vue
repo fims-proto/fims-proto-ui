@@ -2,11 +2,11 @@
 import { toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { Period } from '../../domain'
+import { Page, Period } from '../../domain'
 import { useSobStore } from '../../store/sob'
 
 const props = defineProps<{
-  periods?: Period[]
+  periods?: Page<Period>
   periodId?: string
 }>()
 
@@ -36,10 +36,10 @@ const onCreatePeriod = () => {
 
 <template>
   <ol>
-    <li v-for="period in periods" :key="period.id" @click="onPeriodSelected(period.id)">
+    <li v-for="period in periods?.content ?? []" :key="period.id" @click="onPeriodSelected(period.id)">
       {{ `${period.financialYear} ${t('common.year')} ${period.number} ${t('common.month')}` }}
     </li>
-    <li v-if="!periods?.length">
+    <li v-if="!periods?.content.length">
       <BaseButton @click="onCreatePeriod">{{ t('ledger.createPeriod') }}</BaseButton>
     </li>
   </ol>

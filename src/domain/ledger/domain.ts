@@ -3,6 +3,7 @@ import { Ledger, NewPeriod, Period } from './types'
 import { FIMS_URL } from '../../config'
 import { invokeWithErrorHandler, Response } from '../errorHandler'
 import { convertFieldsFromString } from '../dateTypeConverter'
+import { Page, Pageable } from '../types'
 
 const PERIOD_FIELDS_CONVERSION: Record<string, 'number' | 'date'> = {
   financialYear: 'number',
@@ -31,10 +32,16 @@ class LedgerService {
     })
   }
 
-  public async getAllPeriods(sobId: string): Promise<Response<Period[]>> {
+  public async getAllPeriods(
+    sobId: string,
+    pageable: Pageable = { page: 1, size: 10 }
+  ): Promise<Response<Page<Period>>> {
     return invokeWithErrorHandler(async () => {
-      const result = await axios.get(`${FIMS_URL}/api/v1/sob/${sobId}/periods/`)
-      return convertFieldsFromString(result.data, PERIOD_FIELDS_CONVERSION)
+      const result = await axios.get(
+        `${FIMS_URL}/api/v1/sob/${sobId}/periods/?$page=${pageable.page}&$size=${pageable.size}`
+      )
+      convertFieldsFromString(result.data.content, PERIOD_FIELDS_CONVERSION)
+      return result.data
     })
   }
 
@@ -48,10 +55,17 @@ class LedgerService {
     })
   }
 
-  public async getAllLedgersInPeriod(sobId: string, periodId: string): Promise<Response<Ledger[]>> {
+  public async getAllLedgersInPeriod(
+    sobId: string,
+    periodId: string,
+    pageable: Pageable = { page: 1, size: 10 }
+  ): Promise<Response<Page<Ledger>>> {
     return invokeWithErrorHandler(async () => {
-      const result = await axios.get(`${FIMS_URL}/api/v1/sob/${sobId}/period/${periodId}/ledgers/`)
-      return convertFieldsFromString(result.data, LEDGER_FIELDS_CONVERSION)
+      const result = await axios.get(
+        `${FIMS_URL}/api/v1/sob/${sobId}/period/${periodId}/ledgers/?$page=${pageable.page}&$size=${pageable.size}`
+      )
+      convertFieldsFromString(result.data.content, LEDGER_FIELDS_CONVERSION)
+      return result.data
     })
   }
 

@@ -104,24 +104,40 @@ const onCreate = () => {
         }
       "
     >
-      <template #bodyCell="{ record, column }: { record: Voucher, index: number, column: ColumnType }">
-        <span v-if="column.key === 'transactionTime'">{{ d(record.transactionTime, 'date') }}</span>
-        <BaseLink
-          v-else-if="column.key === 'number'"
-          :to="{
-            name: 'voucherDetail',
-            params: {
-              sobId: sobId,
-              voucherId: record.id,
-            },
-          }"
-        >
-          {{ record.number }}
-        </BaseLink>
-        <span v-else-if="column.key === 'creator'">{{ getUserName(record.creator) }}</span>
-        <span v-else-if="column.key === 'auditor'">{{ getUserName(record.auditor) }}</span>
-        <span v-else-if="column.key === 'reviewer'">{{ getUserName(record.reviewer) }}</span>
-        <span v-else-if="column.key === 'amount'">{{ n(record.debit, 'decimal') }}</span>
+      <template #bodyCell="{ record, column }: { record: Voucher, column: ColumnType }">
+        <template v-if="column.key === 'transactionTime'">
+          <span>{{ d(record.transactionTime, 'date') }}</span>
+        </template>
+
+        <template v-else-if="column.key === 'number'">
+          <BaseLink
+            :to="{
+              name: 'voucherDetail',
+              params: {
+                sobId: sobId,
+                voucherId: record.id,
+              },
+            }"
+          >
+            {{ record.number }}
+          </BaseLink>
+        </template>
+
+        <template v-else-if="column.key === 'creator'">
+          <span>{{ getUserName(record.creator) }}</span>
+        </template>
+
+        <template v-else-if="column.key === 'auditor'">
+          <span>{{ getUserName(record.auditor) }}</span>
+        </template>
+
+        <template v-else-if="column.key === 'reviewer'">
+          <span>{{ getUserName(record.reviewer) }}</span>
+        </template>
+
+        <template v-else-if="column.key === 'amount'">
+          <span>{{ n(record.debit, 'decimal') }}</span>
+        </template>
       </template>
     </BaseTable>
   </BasePage>

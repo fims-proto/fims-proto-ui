@@ -12,14 +12,14 @@ const FIELDS_CONVERSION: Record<string, 'number' | 'date'> = {
 }
 
 class AccountService {
-  public async getAllAccounts(sobId: string, pageable: Pageable = { page: 1 }): Promise<Response<Page<Account>>> {
-    let url = `${FIMS_URL}/api/v1/sob/${sobId}/accounts/?$sort=accountNumber&$page=${pageable.page}`
-    if (pageable.size) {
-      url = `${url}&$size=${pageable.size}`
-    }
-
+  public async getAllAccounts(
+    sobId: string,
+    pageable: Pageable = { page: 1, size: 10 }
+  ): Promise<Response<Page<Account>>> {
     return invokeWithErrorHandler(async () => {
-      const result = await axios.get(url)
+      const result = await axios.get(
+        `${FIMS_URL}/api/v1/sob/${sobId}/accounts/?$sort=accountNumber&$page=${pageable.page}&$size=${pageable.size}`
+      )
       convertFieldsFromString(result.data.content, FIELDS_CONVERSION)
       return result.data
     })

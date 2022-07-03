@@ -10,7 +10,7 @@ export interface Page<T> {
 
 export interface Pageable {
   page: number
-  size?: number
+  size: number
 }
 
 export interface AppNotification {
