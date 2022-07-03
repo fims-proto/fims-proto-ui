@@ -26,7 +26,7 @@ const onSubmit = async () => {
 
   const createdSob = data as Sob
 
-  // create accounting period as well
+  // create period as well
   await LedgerService.createPeriod({
     sobId: createdSob.id,
     financialYear: createdSob.startingPeriodYear,
