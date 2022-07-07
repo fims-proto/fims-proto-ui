@@ -8,6 +8,10 @@ defineProps({
     type: String as PropType<'bottom-start' | 'bottom-end'>,
     default: 'bottom-start',
   },
+  triggerAs: {
+    type: String,
+    default: 'template',
+  },
 })
 
 const emit = defineEmits<{
@@ -25,7 +29,9 @@ provideInterface({
   <Menu v-slot="{ open }" as="template">
     <VBinder>
       <VTarget>
-        <slot></slot>
+        <MenuButton :as="triggerAs">
+          <slot name="trigger" :open="open"></slot>
+        </MenuButton>
       </VTarget>
 
       <VFollower :show="open" :placement="placement">
@@ -39,7 +45,7 @@ provideInterface({
           leave-to-class="scale-95 -translate-y-2 opacity-0"
         >
           <MenuItems
-            class="rounded-md my-2 shadow-lg bg-white divide-y divide-neutral-200 ring-1 ring-black ring-opacity-5 focus:outline-none"
+            class="my-2 bg-white divide-y divide-neutral-200 border border-neutral-200 overflow-hidden rounded-md shadow-lg focus:outline-none"
           >
             <slot name="overlay"></slot>
           </MenuItems>

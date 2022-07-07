@@ -32,7 +32,7 @@ const is = (t: string | undefined) => props.color === t
     <button
       v-if="closable"
       type="button"
-      class="h-4 w-auto rounded-sm ml-1"
+      class="h-4 w-auto rounded-sm ml-1 focus:outline-none focus:ring focus:ring-primary-600/50"
       :class="{
         'hover:bg-error-300': is('error'),
         'hover:bg-warning-300': is('warning'),

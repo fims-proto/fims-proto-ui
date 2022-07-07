@@ -60,11 +60,12 @@ const hasSuffix = () => !!props.suffix || !!useSlots()['suffix']
 </script>
 
 <template>
-  <span class="group flex items-stretch bg-white" :class="attrClass">
+  <span class="group flex items-stretch bg-white -ml-px group-first-of-type:ml-0" :class="attrClass">
     <span
       v-if="hasPrefix()"
       :class="[
-        'flex items-center text-sm text-neutral-700 bg-neutral-100 border-y border-neutral-300 whitespace-nowrap group-first-of-type:border-l group-first-of-type:rounded-l-md',
+        'flex items-center text-sm text-neutral-700 bg-neutral-100',
+        'border border-neutral-300 whitespace-nowrap group-first-of-type:rounded-l-md',
         { 'px-2': !$slots['prefix'] },
       ]"
     >
@@ -73,10 +74,10 @@ const hasSuffix = () => !!props.suffix || !!useSlots()['suffix']
     <input
       v-bind="attrExceptClass"
       :class="[
-        'appearance-none w-full text-sm placeholder-neutral-500 border-0 border-y border-l border-neutral-300',
-        'focus:z-10 focus:outline-none focus:border-transparent focus:ring-offset-2 focus:ring focus:ring-primary-500',
-        { 'group-first-of-type:rounded-l-md': !hasPrefix() },
-        { 'group-last-of-type:rounded-r-md group-last-of-type:border-r': !hasSuffix() },
+        'appearance-none w-full text-sm placeholder-neutral-500 border border-neutral-300',
+        'focus:z-10 focus:outline-none focus:ring focus:ring-primary-600/50 focus:border-primary-600',
+        hasPrefix() ? '-ml-px' : 'group-first-of-type:rounded-l-md',
+        hasSuffix() ? '-mr-px' : 'group-last-of-type:rounded-r-md',
       ]"
       :value="inputValue"
       :type="htmlType"
@@ -85,7 +86,8 @@ const hasSuffix = () => !!props.suffix || !!useSlots()['suffix']
     <span
       v-if="hasSuffix()"
       :class="[
-        'flex items-center text-sm text-neutral-700 bg-neutral-100 border-l border-y border-neutral-300 whitespace-nowrap group-last-of-type:border-r group-last-of-type:rounded-r-md',
+        'flex items-center text-sm text-neutral-700 bg-neutral-100',
+        'border border-neutral-300 whitespace-nowrap group-last-of-type:rounded-r-md',
         { 'px-2': !$slots['prefix'] },
       ]"
     >

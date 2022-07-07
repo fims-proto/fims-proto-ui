@@ -92,6 +92,7 @@ const onClose = () => {
           'hover:bg-success-300': is('success'),
           'hover:bg-primary-300': is('info'),
         },
+        'focus:outline-none focus:ring focus:ring-primary-600/50',
       ]"
       @click.prevent="onClose"
     >

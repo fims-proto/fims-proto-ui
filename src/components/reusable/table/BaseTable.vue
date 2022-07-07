@@ -78,7 +78,6 @@ const getColumnData = (record: any, col: ColumnType) => {
           v-for="(data, i) in dataSource"
           :key="getRowKey(data)"
           class="rounded-md hover:bg-neutral-200/50 hover:shadow-inner"
-          tabindex="0"
         >
           <td
             v-for="column in columns"

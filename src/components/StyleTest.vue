@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue'
 import { useNotificationStore } from '../store/notification'
 import { AppNotification } from '../domain'
+import { ColumnType } from './reusable/table'
 
 // inputs
 const inputDate = ref(new Date())
@@ -42,7 +43,7 @@ watch(
   { immediate: true }
 )
 
-const tableColumns = [
+const tableColumns: ColumnType[] = [
   {
     title: '公司',
     path: 'company',
@@ -82,7 +83,7 @@ const tableColumns = [
     <div class="rounded-lg p-4 space-y-4">
       <!-- normal buttons -->
       <div class="flex gap-4">
-        <BaseButton>Default</BaseButton>
+        <BaseButton @click="onNewNotification('Ta-da!!')">Default</BaseButton>
         <BaseButton type="primary"> Primary </BaseButton>
         <BaseButton>
           <template #icon>
@@ -125,7 +126,7 @@ const tableColumns = [
           <BaseButton>
             <template #icon><LockClosedSolidIcon /></template>Fisrt
           </BaseButton>
-          <BaseButton>Second</BaseButton>
+          <BaseConfirmationButton @click="onNewNotification('2nd Thoughts!!')">2nd thought</BaseConfirmationButton>
           <BaseButton>Third</BaseButton>
         </BaseButtonGroup>
 
@@ -154,8 +155,15 @@ const tableColumns = [
       </div>
       <!-- double confirm -->
       <div class="flex gap-4">
-        <BaseButton type="primary" confirm @click="onNewNotification('Ta-da!!')">重要事件</BaseButton>
+        <BaseConfirmationButton type="primary" @click="onNewNotification('Ta-da after confirmation!!')">
+          重要事件
+        </BaseConfirmationButton>
       </div>
+    </div>
+
+    <h1 class="text-neutral-900">BaseLink:</h1>
+    <div class="rounded-lg p-4">
+      <BaseLink to="/styleTest">Nav link</BaseLink>
     </div>
 
     <h1 class="text-neutral-900">BaseNotification:</h1>
@@ -176,11 +184,9 @@ const tableColumns = [
     </div>
 
     <h1 class="text-neutral-900">BaseDropdown:</h1>
-    <div class="rounded-lg p-4 space-x-4">
-      <BaseDropdown>
-        <BaseDropdownButton class="p-2 rounded-sm shadow-md bg-primary-600 text-white hover:bg-primary-400"
-          >双节棍
-        </BaseDropdownButton>
+    <div class="flex rounded-lg p-4 space-x-4">
+      <BaseDropdown trigger-as="button">
+        <template #trigger>双节棍</template>
         <template #overlay>
           <BaseDropdownGroup>
             <BaseDropdownItem>岩烧店的烟味弥漫</BaseDropdownItem>
@@ -194,20 +200,16 @@ const tableColumns = [
         </template>
       </BaseDropdown>
 
-      <BaseDropdown placement="bottom-end">
-        <BaseDropdownButton class="p-2 rounded-sm shadow-md bg-primary-600 text-white hover:bg-primary-400"
-          >靠右
-        </BaseDropdownButton>
+      <BaseDropdown trigger-as="button" placement="bottom-end">
+        <template #trigger>靠右</template>
         <template #overlay>
           <BaseDropdownItem>快使用双截棍 哼哼哈兮 哼哼哈兮 哼哼哈兮</BaseDropdownItem>
           <BaseDropdownItem>仁者无敌</BaseDropdownItem>
         </template>
       </BaseDropdown>
 
-      <BaseDropdown>
-        <BaseDropdownButton class="p-2 rounded-sm shadow-md bg-primary-600 text-white hover:bg-primary-400"
-          >带图标
-        </BaseDropdownButton>
+      <BaseDropdown trigger-as="button">
+        <template #trigger>带图标</template>
         <template #overlay>
           <BaseDropdownItem>没图标</BaseDropdownItem>
           <BaseDropdownItem>

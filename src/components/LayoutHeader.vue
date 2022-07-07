@@ -89,16 +89,20 @@ const onSobSelected = async (command: string) => {
 
       <!-- SoB selection -->
       <div>
-        <BaseDropdown @select="onSobSelected">
-          <BaseDropdownButton
-            v-slot="{ open }"
-            as="a"
-            class="px-3 py-2 space-x-2 rounded-md whitespace-nowrap text-neutral-700 hover:text-neutral-900 hover:bg-black hover:bg-opacity-5"
-          >
-            <span class="inline">{{ workingSob ? workingSob.name : t('sob.selectSob') }}</span>
-            <span class="inline">{{ period }}</span>
-            <ChevronDownOutlineIcon :class="['inline w-3 align-baseline', { 'rotate-180': open }]" aria-hidden="true" />
-          </BaseDropdownButton>
+        <BaseDropdown trigger-as="a" @select="onSobSelected">
+          <template #trigger="{ open }">
+            <span
+              class="px-3 py-2 space-x-2 rounded-md whitespace-nowrap text-neutral-700 hover:text-neutral-900 hover:bg-black hover:bg-opacity-5"
+            >
+              <span class="inline">{{ workingSob ? workingSob.name : t('sob.selectSob') }}</span>
+              <span class="inline">{{ period }}</span>
+              <ChevronDownOutlineIcon
+                :class="['inline w-3 align-baseline', { 'rotate-180': open }]"
+                aria-hidden="true"
+              />
+            </span>
+          </template>
+
           <template #overlay>
             <BaseDropdownGroup :title="t('sob.selectSob')">
               <BaseDropdownItem v-for="sob in sobs" :key="sob.id" :command="sob.id">
@@ -127,10 +131,11 @@ const onSobSelected = async (command: string) => {
     <!-- right part -->
     <div class="flex gap-4 items-center">
       <div>
-        <BaseDropdown placement="bottom-end" @select="onUserMenuSelected">
-          <BaseDropdownButton as="a">
+        <BaseDropdown trigger-as="a" placement="bottom-end" @select="onUserMenuSelected">
+          <template #trigger>
             <BaseAvatar :name="userInfo.name?.first ?? ''" class="h-8 w-8" />
-          </BaseDropdownButton>
+          </template>
+
           <template #overlay>
             <BaseDropdownGroup>
               <BaseDropdownItem command="update-profile">{{ t('profile.updateProfile') }}</BaseDropdownItem>

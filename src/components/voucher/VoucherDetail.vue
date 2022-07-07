@@ -133,15 +133,15 @@ const onAction = async (action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
       <BaseButton v-if="!voucher?.isAudited" :disabled="editMode" @click="onAction('audit')">
         {{ t('voucher.audit') }}
       </BaseButton>
-      <BaseButton v-if="voucher?.isAudited" :disabled="editMode" confirm @click="onAction('cancelAudit')">
+      <BaseConfirmationButton v-if="voucher?.isAudited" :disabled="editMode" @click="onAction('cancelAudit')">
         {{ t('voucher.cancelAudit') }}
-      </BaseButton>
+      </BaseConfirmationButton>
       <BaseButton v-if="!voucher?.isReviewed" :disabled="editMode" @click="onAction('review')">
         {{ t('voucher.review') }}
       </BaseButton>
-      <BaseButton v-if="voucher?.isReviewed" :disabled="editMode" confirm @click="onAction('cancelReview')">
+      <BaseConfirmationButton v-if="voucher?.isReviewed" :disabled="editMode" @click="onAction('cancelReview')">
         {{ t('voucher.cancelReview') }}
-      </BaseButton>
+      </BaseConfirmationButton>
     </template>
     <VoucherForm
       v-if="voucher"

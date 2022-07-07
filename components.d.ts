@@ -3,6 +3,8 @@
 // Read more: https://github.com/vuejs/core/pull/3399
 import '@vue/runtime-core'
 
+export {}
+
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     AboutUs: typeof import('./src/components/AboutUs.vue')['default']
@@ -13,9 +15,9 @@ declare module '@vue/runtime-core' {
     BaseAvatar: typeof import('./src/components/reusable/avatar/BaseAvatar.vue')['default']
     BaseButton: typeof import('./src/components/reusable/button/BaseButton.vue')['default']
     BaseButtonGroup: typeof import('./src/components/reusable/button/BaseButtonGroup.vue')['default']
+    BaseConfirmationButton: typeof import('./src/components/reusable/button/BaseConfirmationButton.vue')['default']
     BaseDatepicker: typeof import('./src/components/reusable/datepicker/BaseDatepicker.vue')['default']
     BaseDropdown: typeof import('./src/components/reusable/dropdown/BaseDropdown.vue')['default']
-    BaseDropdownButton: typeof import('./src/components/reusable/dropdown/BaseDropdownButton.vue')['default']
     BaseDropdownGroup: typeof import('./src/components/reusable/dropdown/BaseDropdownGroup.vue')['default']
     BaseDropdownItem: typeof import('./src/components/reusable/dropdown/BaseDropdownItem.vue')['default']
     BaseForm: typeof import('./src/components/reusable/form/BaseForm.vue')['default']
@@ -36,6 +38,7 @@ declare module '@vue/runtime-core' {
     ChevronDoubleLeftSolidIcon: typeof import('@heroicons/vue/solid')['ChevronDoubleLeftIcon']
     ChevronDoubleRightSolidIcon: typeof import('@heroicons/vue/solid')['ChevronDoubleRightIcon']
     ChevronDownOutlineIcon: typeof import('@heroicons/vue/outline')['ChevronDownIcon']
+    ChevronLeftOutlineIcon: typeof import('@heroicons/vue/outline')['ChevronLeftIcon']
     ChevronLeftSolidIcon: typeof import('@heroicons/vue/solid')['ChevronLeftIcon']
     ChevronRightSolidIcon: typeof import('@heroicons/vue/solid')['ChevronRightIcon']
     Combobox: typeof import('@headlessui/vue')['Combobox']
@@ -85,6 +88,5 @@ declare module '@vue/runtime-core' {
     VoucherMain: typeof import('./src/components/voucher/VoucherMain.vue')['default']
     XOutlineIcon: typeof import('@heroicons/vue/outline')['XIcon']
   }
-}
 
-export {}
+}
