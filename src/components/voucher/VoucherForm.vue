@@ -10,6 +10,9 @@ const props = defineProps<{
   lineItems: LineItem[]
   creator: Traits
   disabled?: boolean
+  isReviewed?: boolean
+  isAudited?: boolean
+  isPosted?: boolean
 }>()
 
 const { t, d } = useI18n()
@@ -74,8 +77,26 @@ inititialize()
           <BaseInput v-model="internalTransactionTime" html-type="date" :prefix="t('voucher.transactionTime')" />
         </BaseFormItem>
       </div>
-      <div class="flex-1 flex flex-row gap-4 justify-center items-baseline">
-        <h1>{{ t('voucher.type') }}</h1>
+      <div class="flex-1 flex flex-row gap-4 justify-center items-end">
+        <h3>{{ t('voucher.type') }}</h3>
+
+        <div
+          v-if="disabled"
+          class="flex gap-4 items-end px-1 py-px text-sm text-neutral-500 border border-neutral-300/50 rounded-md shadow-sm"
+        >
+          <span class="flex">
+            <BadgeCheckSolidIcon v-if="isAudited" class="w-4 text-success-600" />
+            {{ isAudited ? t('voucher.isAudited') : t('voucher.notAudited') }}
+          </span>
+          <span class="flex">
+            <BadgeCheckSolidIcon v-if="isReviewed" class="w-4 text-success-600" />
+            {{ isReviewed ? t('voucher.isReviewed') : t('voucher.notReviewed') }}
+          </span>
+          <span class="flex">
+            <BadgeCheckSolidIcon v-if="isPosted" class="w-4 text-success-600" />
+            {{ isPosted ? t('voucher.isPosted') : t('voucher.notPosted') }}
+          </span>
+        </div>
       </div>
       <div class="flex-1 flex justify-end">
         <p v-if="disabled">
@@ -161,9 +182,12 @@ inititialize()
       </div>
     </div>
 
-    <p class="mt-4">
-      {{ t('voucher.creator') }}:
-      {{ t('common.userName', { lastName: creator.name?.last, firstName: creator.name?.first }) }}
-    </p>
+    <!-- footer -->
+    <div class="mt-4">
+      <span>
+        {{ t('voucher.creator') }}:
+        {{ t('common.userName', { lastName: creator.name?.last, firstName: creator.name?.first }) }}
+      </span>
+    </div>
   </div>
 </template>

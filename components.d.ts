@@ -12,6 +12,8 @@ declare module '@vue/runtime-core' {
     AccountList: typeof import('./src/components/account/AccountList.vue')['default']
     AuthenticationLogin: typeof import('./src/components/user/AuthenticationLogin.vue')['default']
     AuthenticationLogout: typeof import('./src/components/user/AuthenticationLogout.vue')['default']
+    BadgeCheckSolidIcon: typeof import('@heroicons/vue/solid')['BadgeCheckIcon']
+    BanSolidIcon: typeof import('@heroicons/vue/solid')['BanIcon']
     BaseAvatar: typeof import('./src/components/reusable/avatar/BaseAvatar.vue')['default']
     BaseButton: typeof import('./src/components/reusable/button/BaseButton.vue')['default']
     BaseButtonGroup: typeof import('./src/components/reusable/button/BaseButtonGroup.vue')['default']
@@ -87,6 +89,7 @@ declare module '@vue/runtime-core' {
     VoucherForm: typeof import('./src/components/voucher/VoucherForm.vue')['default']
     VoucherMain: typeof import('./src/components/voucher/VoucherMain.vue')['default']
     XOutlineIcon: typeof import('@heroicons/vue/outline')['XIcon']
+    XSolidIcon: typeof import('@heroicons/vue/solid')['XIcon']
   }
 
 }

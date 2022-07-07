@@ -109,11 +109,6 @@ const onAction = async (action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
   }
 
   await refreshVoucher()
-
-  notificationStore.action.push({
-    message: t('voucher.updateSuccess'),
-    type: 'success',
-  })
 }
 </script>
 
@@ -151,6 +146,9 @@ const onAction = async (action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
       :transaction-time="voucher.transactionTime"
       :line-items="voucher.lineItems"
       :creator="voucher.creator.traits"
+      :is-reviewed="voucher.isReviewed"
+      :is-audited="voucher.isAudited"
+      :is-posted="voucher.isPosted"
     />
   </BasePage>
 </template>
