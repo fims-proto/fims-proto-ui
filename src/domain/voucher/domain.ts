@@ -90,6 +90,12 @@ class VoucherService {
       })
     })
   }
+
+  public async postVoucher(sobId: string, voucherId: string): Promise<Response<void>> {
+    return invokeWithErrorHandler(async () => {
+      await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/voucher/${voucherId}/post`)
+    })
+  }
 }
 
 export const VoucherServiceInstance = new VoucherService()

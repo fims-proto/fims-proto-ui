@@ -4,7 +4,6 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { VoucherService, Voucher, Page, User } from '../../domain'
 import { ColumnType } from '../reusable/table'
-import BaseLink from '../reusable/link/BaseLink.vue'
 
 const props = defineProps<{
   sobId: string
@@ -110,7 +109,7 @@ const onCreate = () => {
         </template>
 
         <template v-else-if="column.key === 'number'">
-          <BaseLink
+          <BaseNavLink
             :to="{
               name: 'voucherDetail',
               params: {
@@ -120,7 +119,7 @@ const onCreate = () => {
             }"
           >
             {{ record.number }}
-          </BaseLink>
+          </BaseNavLink>
         </template>
 
         <template v-else-if="column.key === 'creator'">

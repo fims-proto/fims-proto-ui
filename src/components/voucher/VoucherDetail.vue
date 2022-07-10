@@ -85,7 +85,7 @@ const onCancel = () => {
   formRef.value?.reset()
 }
 
-const onAction = async (action: 'audit' | 'cancelAudit' | 'review' | 'cancelReview') => {
+const onAction = async (action: 'audit' | 'cancelAudit' | 'review' | 'cancelReview' | 'post') => {
   const voucherId = voucher.value?.id as string
   let resp
 
@@ -102,6 +102,8 @@ const onAction = async (action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
     case 'cancelReview':
       resp = await VoucherService.cancelReviewVoucher(props.sobId, voucherId, userStore.state.userId)
       break
+    case 'post':
+      resp = await VoucherService.postVoucher(props.sobId, voucherId)
   }
 
   if (resp?.exception) {
@@ -115,6 +117,7 @@ const onAction = async (action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
 <template>
   <BasePage :subtitle="voucher?.lineItems[0].summary">
     <template #title>{{ voucher?.number }}</template>
+
     <template #extra>
       <BaseButton
         v-if="!editMode"
@@ -137,7 +140,15 @@ const onAction = async (action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
       <BaseConfirmationButton v-if="voucher?.isReviewed" :disabled="editMode" @click="onAction('cancelReview')">
         {{ t('voucher.cancelReview') }}
       </BaseConfirmationButton>
+      <BaseButton
+        v-if="voucher?.isReviewed && voucher.isAudited && !voucher.isPosted"
+        type="primary"
+        @click="onAction('post')"
+      >
+        {{ t('voucher.post') }}
+      </BaseButton>
     </template>
+
     <VoucherForm
       v-if="voucher"
       ref="formRef"

@@ -19,7 +19,7 @@ const is = (t: string | undefined) => props.color === t
 <template>
   <div
     v-if="!closed"
-    class="inline-block p-1 rounded-sm shadow-sm text-xs ring-1"
+    class="inline-flex p-1 rounded-sm shadow-sm text-xs ring-1"
     :class="{
       'bg-error-200 text-error-900 ring-error-300': is('error'),
       'bg-warning-200 text-warning-900 ring-warning-300': is('warning'),
@@ -32,7 +32,7 @@ const is = (t: string | undefined) => props.color === t
     <button
       v-if="closable"
       type="button"
-      class="h-4 w-auto rounded-sm ml-1 focus:outline-none focus:ring focus:ring-primary-600/50"
+      class="h-4 w-auto rounded-sm ml-1 focus:outline-none focus-visible:ring focus-visible:ring-primary-600/50"
       :class="{
         'hover:bg-error-300': is('error'),
         'hover:bg-warning-300': is('warning'),

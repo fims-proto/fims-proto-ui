@@ -10,7 +10,6 @@ import SobMain from '../components/sob/SobMain.vue'
 import SobDetail from '../components/sob/SobDetail.vue'
 import SobCreation from '../components/sob/SobCreation.vue'
 import LedgerMain from '../components/legder/LedgerMain.vue'
-import LedgerList from '../components/legder/LedgerList.vue'
 import VoucherMain from '../components/voucher/VoucherMain.vue'
 import VoucherCreation from '../components/voucher/VoucherCreation.vue'
 import VoucherDetail from '../components/voucher/VoucherDetail.vue'
@@ -67,7 +66,7 @@ const routes: RouteRecordRaw[] = [
       },
       // ledgers
       {
-        path: 'sobs/:sobId/periods',
+        path: 'sobs/:sobId/periods/:periodId?',
         component: RouterView,
         props: true,
         beforeEnter: beforeWorkingZoneEnterHandler,
@@ -76,14 +75,6 @@ const routes: RouteRecordRaw[] = [
             path: '',
             name: 'ledgerMain',
             component: LedgerMain,
-            children: [
-              {
-                path: ':periodId',
-                name: 'ledgerList',
-                component: LedgerList,
-                props: true,
-              },
-            ],
           },
         ],
       },

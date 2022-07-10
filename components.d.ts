@@ -28,6 +28,7 @@ declare module '@vue/runtime-core' {
     BaseInput: typeof import('./src/components/reusable/form/BaseInput.vue')['default']
     BaseInputGroup: typeof import('./src/components/reusable/form/BaseInputGroup.vue')['default']
     BaseLink: typeof import('./src/components/reusable/link/BaseLink.vue')['default']
+    BaseNavLink: typeof import('./src/components/reusable/link/BaseNavLink.vue')['default']
     BaseNotification: typeof import('./src/components/reusable/notification/BaseNotification.vue')['default']
     BasePage: typeof import('./src/components/reusable/page/BasePage.vue')['default']
     BasePagination: typeof import('./src/components/reusable/pagination/BasePagination.vue')['default']
@@ -91,5 +92,4 @@ declare module '@vue/runtime-core' {
     XOutlineIcon: typeof import('@heroicons/vue/outline')['XIcon']
     XSolidIcon: typeof import('@heroicons/vue/solid')['XIcon']
   }
-
 }

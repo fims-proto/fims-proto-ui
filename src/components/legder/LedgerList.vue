@@ -51,14 +51,29 @@ const columns: ColumnType[] = [
 
 const pageable = ref({ page: 1, size: 10 })
 
-watch(
-  [() => props.sobId, () => props.periodId, () => pageable.value.page, () => pageable.value.size],
-  async () => {
-    const { data } = await LedgerService.getAllLedgersInPeriod(props.sobId, props.periodId as string, pageable.value)
-    ledgers.value = data
-  },
-  { immediate: true }
-)
+const refresh = async () => {
+  const { data } = await LedgerService.getAllLedgersInPeriod(props.sobId, props.periodId as string, pageable.value)
+  ledgers.value = data
+}
+
+const calculateLedgerBalance = async () => {
+  const { exception } = await LedgerService.calculateLedgersBalanceInPeriod(props.sobId, props.periodId)
+  if (exception) {
+    return
+  }
+
+  refresh()
+}
+
+watch([() => props.sobId, () => props.periodId, () => pageable.value.page, () => pageable.value.size], refresh, {
+  immediate: true,
+})
+
+defineExpose({
+  selectedPeriodId: props.periodId,
+  refresh,
+  calculateLedgerBalance,
+})
 </script>
 
 <template>

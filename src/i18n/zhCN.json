@@ -100,6 +100,7 @@
     "cancelReview": "取消复核",
     "notReviewed": "未复核",
     "isReviewed": "已复核",
+    "post": "登账",
     "notPosted": "未登账",
     "isPosted": "已登账",
     "save": {
@@ -120,6 +121,7 @@
     "openingBalance": "期初余额",
     "endingBalance": "期末余额",
     "debit": "借",
-    "credit": "贷"
+    "credit": "贷",
+    "refresh": "更新账簿"
   }
 }

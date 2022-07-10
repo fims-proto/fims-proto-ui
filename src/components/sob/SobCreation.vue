@@ -15,7 +15,7 @@ const newSob = ref<NewSob>({
   baseCurrency: 'CNY',
   startingPeriodYear: year,
   startingPeriodMonth: month,
-  accountsCodeLength: [4, 3, 3],
+  accountsCodeLength: [4, 3, 3, 3, 3],
 })
 
 const onSubmit = async () => {
@@ -39,7 +39,7 @@ const onSubmit = async () => {
   })
 }
 
-const onExtend = () => newSob.value.accountsCodeLength.push(2)
+const onExtend = () => newSob.value.accountsCodeLength.push(3)
 const onShorten = () => newSob.value.accountsCodeLength.pop()
 </script>
 

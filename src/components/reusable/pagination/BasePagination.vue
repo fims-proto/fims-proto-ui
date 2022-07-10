@@ -75,13 +75,11 @@ const onSizeChange = (targetSize: string) => {
     </div>
 
     <!-- page size selection -->
-    <BaseDropdown trigger-as="a" @select="onSizeChange">
+    <BaseDropdown @select="onSizeChange">
       <template #trigger>
-        <span
-          class="px-3 py-2 space-x-2 whitespace-nowrap text-neutral-700 hover:text-primary-800 hover:bg-neutral-200/50"
-        >
+        <BaseButton type="flat">
           {{ t('base.pagination.pageSize', [size]) }}
-        </span>
+        </BaseButton>
       </template>
 
       <template #overlay>

@@ -81,26 +81,24 @@ const onSobSelected = async (command: string) => {
       <div>
         <RouterLink
           :to="{ name: 'home' }"
-          class="px-3 py-2 pl-0 rounded-md text-xl font-serif italic font-extrabold text-primary-700"
+          class="px-3 py-2 -ml-3 rounded-md text-xl font-serif italic font-extrabold text-primary-700"
         >
-          fims
+          Fims
         </RouterLink>
       </div>
 
       <!-- SoB selection -->
       <div>
-        <BaseDropdown trigger-as="a" @select="onSobSelected">
+        <BaseDropdown @select="onSobSelected">
           <template #trigger="{ open }">
-            <span
-              class="px-3 py-2 space-x-2 rounded-md whitespace-nowrap text-neutral-700 hover:text-neutral-900 hover:bg-black hover:bg-opacity-5"
-            >
+            <BaseLink menu>
               <span class="inline">{{ workingSob ? workingSob.name : t('sob.selectSob') }}</span>
               <span class="inline">{{ period }}</span>
               <ChevronDownOutlineIcon
                 :class="['inline w-3 align-baseline', { 'rotate-180': open }]"
                 aria-hidden="true"
               />
-            </span>
+            </BaseLink>
           </template>
 
           <template #overlay>
@@ -117,23 +115,24 @@ const onSobSelected = async (command: string) => {
 
       <!-- navigation -->
       <nav class="space-x-2">
-        <RouterLink
+        <BaseNavLink
           v-for="item in navigation"
           :key="item.key"
           :to="item.to"
           class="px-3 py-2 rounded-md text-neutral-700 hover:text-neutral-900 hover:bg-black hover:bg-opacity-5"
+          menu
         >
           {{ item.label }}
-        </RouterLink>
+        </BaseNavLink>
       </nav>
     </div>
 
     <!-- right part -->
     <div class="flex gap-4 items-center">
       <div>
-        <BaseDropdown trigger-as="a" placement="bottom-end" @select="onUserMenuSelected">
+        <BaseDropdown placement="bottom-end" @select="onUserMenuSelected">
           <template #trigger>
-            <BaseAvatar :name="userInfo.name?.first ?? ''" class="h-8 w-8" />
+            <BaseAvatar :name="userInfo.name?.first ?? ''" class="h-8 w-8 cursor-pointer" tabindex="0" />
           </template>
 
           <template #overlay>

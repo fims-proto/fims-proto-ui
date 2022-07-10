@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router'
 import { Page, Period } from '../../domain'
 import { useSobStore } from '../../store/sob'
 
-const props = defineProps<{
+defineProps<{
   periods?: Page<Period>
   periodId?: string
 }>()
@@ -14,23 +14,16 @@ const { t } = useI18n()
 const router = useRouter()
 const sobStore = useSobStore()
 
-const { workingSob, currentPeriod } = toRefs(sobStore.state)
-
-const isOpenPeriod = (periodId: string) => periodId === currentPeriod.value?.id
-const isSelectedPeriod = (periodId: string) => periodId === props.periodId
+const { workingSob } = toRefs(sobStore.state)
 
 const onPeriodSelected = (periodId: string) => {
   router.push({
-    name: 'ledgerList',
+    name: 'ledgerMain',
     params: {
       sobId: workingSob.value?.id,
       periodId,
     },
   })
-}
-
-const onCreatePeriod = () => {
-  // TODO
 }
 </script>
 
@@ -40,7 +33,7 @@ const onCreatePeriod = () => {
       {{ `${period.financialYear} ${t('common.year')} ${period.number} ${t('common.month')}` }}
     </li>
     <li v-if="!periods?.content.length">
-      <BaseButton @click="onCreatePeriod">{{ t('ledger.createPeriod') }}</BaseButton>
+      <BaseButton>{{ t('ledger.createPeriod') }}</BaseButton>
     </li>
   </ol>
 </template>

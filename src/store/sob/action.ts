@@ -19,7 +19,8 @@ function setWorkingSob(state: ISobState) {
 
       const foundSob = state.sobs.find((sob) => sob.id === sobId)
       if (!foundSob) {
-        throw new Error('sob-not-found')
+        console.warn('sob-not-found')
+        return
       }
 
       state.workingSob = foundSob

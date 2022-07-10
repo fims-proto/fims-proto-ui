@@ -8,10 +8,6 @@ defineProps({
     type: String as PropType<'bottom-start' | 'bottom-end'>,
     default: 'bottom-start',
   },
-  triggerAs: {
-    type: String,
-    default: 'template',
-  },
 })
 
 const emit = defineEmits<{
@@ -26,10 +22,10 @@ provideInterface({
 </script>
 
 <template>
-  <Menu v-slot="{ open }" as="template">
+  <Menu v-slot="{ open }">
     <VBinder>
       <VTarget>
-        <MenuButton :as="triggerAs">
+        <MenuButton as="template">
           <slot name="trigger" :open="open"></slot>
         </MenuButton>
       </VTarget>

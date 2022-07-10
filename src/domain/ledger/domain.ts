@@ -62,10 +62,16 @@ class LedgerService {
   ): Promise<Response<Page<Ledger>>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(
-        `${FIMS_URL}/api/v1/sob/${sobId}/period/${periodId}/ledgers/?$page=${pageable.page}&$size=${pageable.size}`
+        `${FIMS_URL}/api/v1/sob/${sobId}/period/${periodId}/ledgers/?$page=${pageable.page}&$size=${pageable.size}&$sort=accountNumber`
       )
       convertFieldsFromString(result.data.content, LEDGER_FIELDS_CONVERSION)
       return result.data
+    })
+  }
+
+  public async calculateLedgersBalanceInPeriod(sobId: string, periodId: string): Promise<Response<void>> {
+    return invokeWithErrorHandler(async () => {
+      await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/period/${periodId}/ledgers/calculate`)
     })
   }
 

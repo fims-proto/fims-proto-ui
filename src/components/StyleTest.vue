@@ -162,8 +162,10 @@ const tableColumns: ColumnType[] = [
     </div>
 
     <h1 class="text-neutral-900">BaseLink:</h1>
-    <div class="rounded-lg p-4">
-      <BaseLink to="/styleTest">Nav link</BaseLink>
+    <div class="flex items-center gap-4 rounded-lg p-4">
+      <BaseNavLink to="/styleTest">Nav link</BaseNavLink>
+      <BaseLink>Base link</BaseLink>
+      <BaseLink menu>Menu link</BaseLink>
     </div>
 
     <h1 class="text-neutral-900">BaseNotification:</h1>
@@ -185,8 +187,10 @@ const tableColumns: ColumnType[] = [
 
     <h1 class="text-neutral-900">BaseDropdown:</h1>
     <div class="flex rounded-lg p-4 space-x-4">
-      <BaseDropdown trigger-as="button">
-        <template #trigger>双节棍</template>
+      <BaseDropdown>
+        <template #trigger>
+          <BaseButton type="flat">双节棍</BaseButton>
+        </template>
         <template #overlay>
           <BaseDropdownGroup>
             <BaseDropdownItem>岩烧店的烟味弥漫</BaseDropdownItem>
@@ -200,16 +204,20 @@ const tableColumns: ColumnType[] = [
         </template>
       </BaseDropdown>
 
-      <BaseDropdown trigger-as="button" placement="bottom-end">
-        <template #trigger>靠右</template>
+      <BaseDropdown placement="bottom-end">
+        <template #trigger>
+          <BaseButton>靠右</BaseButton>
+        </template>
         <template #overlay>
           <BaseDropdownItem>快使用双截棍 哼哼哈兮 哼哼哈兮 哼哼哈兮</BaseDropdownItem>
           <BaseDropdownItem>仁者无敌</BaseDropdownItem>
         </template>
       </BaseDropdown>
 
-      <BaseDropdown trigger-as="button">
-        <template #trigger>带图标</template>
+      <BaseDropdown>
+        <template #trigger>
+          <BaseAvatar name="张三" class="cursor-pointer" tabindex="0" />
+        </template>
         <template #overlay>
           <BaseDropdownItem>没图标</BaseDropdownItem>
           <BaseDropdownItem>
