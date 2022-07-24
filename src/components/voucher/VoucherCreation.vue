@@ -23,7 +23,7 @@ const formRef = ref<InstanceType<typeof VoucherForm>>()
 const initVoucher = () => ({
   transactionTime: new Date(),
   attachmentQuantity: 0,
-  voucherType: 'GENERAL_VOUCHER',
+  voucherType: 'general_voucher',
   creator: '',
   lineItems: Array(4)
     .fill(null)
