@@ -126,7 +126,7 @@ const onAction = async (action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
       >
         {{ t('action.edit') }}
       </BaseButton>
-      <BaseButton v-if="editMode" type="primary" @click="onSave">{{ t('action.save') }}</BaseButton>
+      <BaseButton v-if="editMode" category="primary" @click="onSave">{{ t('action.save') }}</BaseButton>
       <BaseButton v-if="editMode" @click="onCancel">{{ t('action.cancel') }}</BaseButton>
       <BaseButton v-if="!voucher?.isAudited" :disabled="editMode" @click="onAction('audit')">
         {{ t('voucher.audit') }}
@@ -142,7 +142,7 @@ const onAction = async (action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
       </BaseConfirmationButton>
       <BaseButton
         v-if="voucher?.isReviewed && voucher.isAudited && !voucher.isPosted"
-        type="primary"
+        category="primary"
         @click="onAction('post')"
       >
         {{ t('voucher.post') }}

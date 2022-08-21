@@ -85,7 +85,7 @@ const onCreate = () => {
   <BasePage>
     <template #title>{{ t('voucher.title') }}</template>
     <template #extra>
-      <BaseButton type="primary" @click="onCreate">{{ t('action.create') }}</BaseButton>
+      <BaseButton category="primary" @click="onCreate">{{ t('action.create') }}</BaseButton>
     </template>
 
     <BaseTable

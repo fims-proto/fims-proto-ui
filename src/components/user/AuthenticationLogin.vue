@@ -178,7 +178,7 @@ const handleSubmit = async () => {
         </BaseFormItem>
 
         <div>
-          <BaseButton html-type="submit" type="primary" class="w-full">
+          <BaseButton html-type="submit" category="primary" class="w-full">
             <template #icon>
               <LockClosedSolidIcon />
             </template>

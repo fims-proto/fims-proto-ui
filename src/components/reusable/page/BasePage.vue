@@ -12,7 +12,7 @@ defineProps<{
 
     <header class="flex justify-between items-center">
       <div class="flex gap-4 items-center">
-        <BaseButton type="flat" @click="$router.go(-1)">
+        <BaseButton category="flat" @click="$router.go(-1)">
           <template #icon>
             <ChevronLeftOutlineIcon />
           </template>

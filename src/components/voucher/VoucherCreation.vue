@@ -100,6 +100,7 @@ const onSaveAndNew = async () => {
   const createdVoucher = await saveVoucher()
   if (createdVoucher) {
     newVoucher.value = initVoucher()
+    formRef.value?.reset()
   }
 }
 </script>
@@ -108,7 +109,7 @@ const onSaveAndNew = async () => {
   <BasePage>
     <template #title>{{ t('voucher.creation.title') }}</template>
     <template #extra>
-      <BaseButton type="primary" @click="onSaveAndNew">{{ t('action.saveAndNew') }}</BaseButton>
+      <BaseButton category="primary" @click="onSaveAndNew">{{ t('action.saveAndNew') }}</BaseButton>
       <BaseButton @click="onSave">{{ t('action.save') }}</BaseButton>
       <BaseButton @click="$router.go(-1)">{{ t('action.cancel') }}</BaseButton>
     </template>

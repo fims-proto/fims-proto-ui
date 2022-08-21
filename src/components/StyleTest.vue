@@ -84,14 +84,14 @@ const tableColumns: ColumnType[] = [
       <!-- normal buttons -->
       <div class="flex gap-4">
         <BaseButton @click="onNewNotification('Ta-da!!')">Default</BaseButton>
-        <BaseButton type="primary"> Primary </BaseButton>
+        <BaseButton category="primary"> Primary </BaseButton>
         <BaseButton>
           <template #icon>
             <LockClosedSolidIcon />
           </template>
           Default
         </BaseButton>
-        <BaseButton type="primary">
+        <BaseButton category="primary">
           <template #icon>
             <LockClosedSolidIcon />
           </template>
@@ -104,21 +104,21 @@ const tableColumns: ColumnType[] = [
         </BaseButton>
         <!-- disabled -->
         <BaseButton disabled>Default</BaseButton>
-        <BaseButton disabled type="primary"> Primary </BaseButton>
+        <BaseButton disabled category="primary"> Primary </BaseButton>
         <BaseButton disabled>
           <template #icon>
             <LockClosedSolidIcon />
           </template>
           Default
         </BaseButton>
-        <BaseButton disabled type="primary">
+        <BaseButton disabled category="primary">
           <template #icon>
             <LockClosedSolidIcon />
           </template>
           Primary
         </BaseButton>
-        <BaseButton type="flat">Flat</BaseButton>
-        <BaseButton disabled type="flat">Flat</BaseButton>
+        <BaseButton category="flat">Flat</BaseButton>
+        <BaseButton disabled category="flat">Flat</BaseButton>
       </div>
       <!-- grouped button -->
       <div class="flex gap-4">
@@ -139,14 +139,14 @@ const tableColumns: ColumnType[] = [
       </div>
       <!-- with style class -->
       <div class="flex gap-4">
-        <BaseButton type="primary" class="w-64">
+        <BaseButton category="primary" class="w-64">
           <template #icon>
             <LockClosedSolidIcon />
           </template>
           <span>固定宽度居中</span>
         </BaseButton>
 
-        <BaseButton disabled type="primary" class="w-64">
+        <BaseButton disabled category="primary" class="w-64">
           <template #icon>
             <LockClosedSolidIcon />
           </template>
@@ -155,7 +155,7 @@ const tableColumns: ColumnType[] = [
       </div>
       <!-- double confirm -->
       <div class="flex gap-4">
-        <BaseConfirmationButton type="primary" @click="onNewNotification('Ta-da after confirmation!!')">
+        <BaseConfirmationButton category="primary" @click="onNewNotification('Ta-da after confirmation!!')">
           重要事件
         </BaseConfirmationButton>
       </div>
@@ -189,7 +189,7 @@ const tableColumns: ColumnType[] = [
     <div class="flex rounded-lg p-4 space-x-4">
       <BaseDropdown>
         <template #trigger>
-          <BaseButton type="flat">双节棍</BaseButton>
+          <BaseButton category="flat">双节棍</BaseButton>
         </template>
         <template #overlay>
           <BaseDropdownGroup>
@@ -206,7 +206,7 @@ const tableColumns: ColumnType[] = [
 
       <BaseDropdown placement="bottom-end">
         <template #trigger>
-          <BaseButton>靠右</BaseButton>
+          <BaseButton category="primary">靠右</BaseButton>
         </template>
         <template #overlay>
           <BaseDropdownItem>快使用双截棍 哼哼哈兮 哼哼哈兮 哼哼哈兮</BaseDropdownItem>
@@ -245,7 +245,7 @@ const tableColumns: ColumnType[] = [
           </template>
           <template #extra>
             <BaseButton>Some</BaseButton>
-            <BaseButton type="primary">Buttons</BaseButton>
+            <BaseButton category="primary">Buttons</BaseButton>
           </template>
           <BaseTabs>
             <template #tabs>
@@ -321,7 +321,7 @@ const tableColumns: ColumnType[] = [
         </BaseFormItem>
 
         <div>
-          <BaseButton html-type="submit" type="primary" class="w-full">
+          <BaseButton html-type="submit" category="primary" class="w-full">
             <template #icon>
               <LockClosedSolidIcon />
             </template>

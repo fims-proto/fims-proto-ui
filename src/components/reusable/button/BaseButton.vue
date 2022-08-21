@@ -7,7 +7,7 @@ import { defineComponent, PropType, useSlots } from 'vue'
 import { injectButtonGroup } from './context'
 
 const props = defineProps({
-  type: {
+  category: {
     type: String as PropType<'primary' | 'default' | 'flat'>,
     default: 'default',
   },
@@ -24,7 +24,7 @@ const slots = useSlots()
 const ButtonGroup = injectButtonGroup()
 const insideGroup = ButtonGroup?.insideGroup.value
 
-const is = (t: string) => props.type === t
+const is = (t: string) => props.category === t
 const hasSlot = (n: string) => !!slots[n]
 </script>
 

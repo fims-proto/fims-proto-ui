@@ -14,10 +14,10 @@ const handleClick = () => {
 
 <template>
   <MenuItem v-slot="{ active }">
-    <a
+    <button
       class="group w-full flex items-center gap-2 px-4 py-2 text-left text-sm whitespace-nowrap cursor-pointer"
       :class="[active ? 'bg-neutral-200 text-neutral-900' : 'text-neutral-700']"
-      @click.prevent="handleClick"
+      @click="handleClick"
     >
       <span
         v-if="!!$slots['icon']"
@@ -28,6 +28,6 @@ const handleClick = () => {
       </span>
 
       <slot></slot>
-    </a>
+    </button>
   </MenuItem>
 </template>

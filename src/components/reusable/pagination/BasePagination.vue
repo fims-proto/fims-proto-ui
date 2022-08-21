@@ -49,12 +49,12 @@ const onSizeChange = (targetSize: string) => {
   <div class="w-full flex gap-4 items-center justify-start">
     <!-- page number control -->
     <div class="flex gap-2 items-center">
-      <BaseButton type="flat" :disabled="isFirst()" @click="onSelect(1)">
+      <BaseButton category="flat" :disabled="isFirst()" @click="onSelect(1)">
         <template #icon>
           <ChevronDoubleLeftSolidIcon />
         </template>
       </BaseButton>
-      <BaseButton type="flat" :disabled="isFirst()" @click="onSelect(current - 1)">
+      <BaseButton category="flat" :disabled="isFirst()" @click="onSelect(current - 1)">
         <template #icon>
           <ChevronLeftSolidIcon />
         </template>
@@ -62,12 +62,12 @@ const onSizeChange = (targetSize: string) => {
       <span class="w-16 text-center">
         {{ t('base.pagination.pageNumber', { currentPage: current, totalPage: totalPage }) }}
       </span>
-      <BaseButton type="flat" :disabled="isLast()" @click="onSelect(current + 1)">
+      <BaseButton category="flat" :disabled="isLast()" @click="onSelect(current + 1)">
         <template #icon>
           <ChevronRightSolidIcon />
         </template>
       </BaseButton>
-      <BaseButton type="flat" :disabled="isLast()" @click="onSelect(totalPage)">
+      <BaseButton category="flat" :disabled="isLast()" @click="onSelect(totalPage)">
         <template #icon>
           <ChevronDoubleRightSolidIcon />
         </template>
@@ -77,7 +77,7 @@ const onSizeChange = (targetSize: string) => {
     <!-- page size selection -->
     <BaseDropdown @select="onSizeChange">
       <template #trigger>
-        <BaseButton type="flat">
+        <BaseButton category="flat">
           {{ t('base.pagination.pageSize', [size]) }}
         </BaseButton>
       </template>
