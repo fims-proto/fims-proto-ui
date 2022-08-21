@@ -18,7 +18,7 @@ const { workingSob } = toRefs(sobStore.state)
 
 const onPeriodSelected = (periodId: string) => {
   router.push({
-    name: 'ledgerMain',
+    name: 'accountMain',
     params: {
       sobId: workingSob.value?.id,
       periodId,
@@ -29,11 +29,11 @@ const onPeriodSelected = (periodId: string) => {
 
 <template>
   <ol>
-    <li v-for="period in periods?.content ?? []" :key="period.id" @click="onPeriodSelected(period.id)">
+    <li v-for="period in periods?.content ?? []" :key="period.periodId" @click="onPeriodSelected(period.periodId)">
       {{ `${period.financialYear} ${t('common.year')} ${period.number} ${t('common.month')}` }}
     </li>
     <li v-if="!periods?.content.length">
-      <BaseButton>{{ t('ledger.createPeriod') }}</BaseButton>
+      <BaseButton>{{ t('account.createPeriod') }}</BaseButton>
     </li>
   </ol>
 </template>

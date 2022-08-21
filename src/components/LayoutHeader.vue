@@ -19,10 +19,10 @@ const navigation = computed(() => {
 
   if (workingSob.value?.id) {
     items.push({
-      key: 'voucher',
-      label: t('voucher.title'),
+      key: 'journal',
+      label: t('journal.entry.title'),
       to: {
-        name: 'voucherMain',
+        name: 'journalMain',
         params: {
           sobId: workingSob.value?.id,
         },
@@ -30,9 +30,9 @@ const navigation = computed(() => {
     })
     items.push({
       key: 'legder',
-      label: t('ledger.title'),
+      label: t('account.title'),
       to: {
-        name: 'ledgerMain',
+        name: 'accountMain',
         params: {
           sobId: workingSob.value?.id,
         },
@@ -46,7 +46,7 @@ const navigation = computed(() => {
 const period = computed(() => {
   return currentPeriod.value
     ? `${currentPeriod.value.financialYear}-${currentPeriod.value.number}`
-    : t('ledger.periodUnselected')
+    : t('account.periodUnselected')
 })
 
 const onUserMenuSelected = (key: string) => {

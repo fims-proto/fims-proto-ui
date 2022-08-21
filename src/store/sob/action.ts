@@ -1,4 +1,4 @@
-import { LedgerService, Period, SobService, StorageService } from '../../domain'
+import { AccountService, Period, SobService, StorageService } from '../../domain'
 import { ISobState } from './state'
 
 const CURRENT_SOB_KEY = 'CURRENT_SOB'
@@ -6,7 +6,7 @@ const CURRENT_SOB_KEY = 'CURRENT_SOB'
 function refreshSobs(state: ISobState) {
   return async () => {
     const { data } = await SobService.getAllSods()
-    state.sobs = data ?? []
+    state.sobs = data?.content ?? []
   }
 }
 
@@ -26,7 +26,7 @@ function setWorkingSob(state: ISobState) {
       state.workingSob = foundSob
       StorageService.set(CURRENT_SOB_KEY, sobId)
 
-      const { data } = await LedgerService.getCurrentPeriod(sobId)
+      const { data } = await AccountService.getOpenPeriod(sobId)
       state.currentPeriod = data
     }
   }

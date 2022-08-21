@@ -9,6 +9,8 @@ const router = useRouter()
 const sobStore = useSobStore()
 const { sobs } = toRefs(sobStore.state)
 
+sobStore.action.refreshSobs()
+
 const onCreate = () => router.push({ name: 'sobCreation' })
 </script>
 

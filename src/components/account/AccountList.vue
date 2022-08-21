@@ -2,37 +2,67 @@
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Account, AccountService, Page } from '../../domain'
+import { ColumnType } from '../reusable/table'
 
 const props = defineProps<{
   sobId: string
+  periodId: string
 }>()
 
-const { t } = useI18n()
+const { t, n } = useI18n()
 
 const accounts = ref<Page<Account>>()
 
-const columns = [
+const columns: ColumnType[] = [
   {
-    title: t('account.number'),
-    path: 'accountNumber',
+    title: t('account.accountNumber'),
+    path: ['account', 'accountNumber'],
     width: 'md',
   },
   {
-    title: t('account.title'),
-    path: 'title',
+    title: t('account.accountTitle'),
+    path: ['account', 'title'],
+  },
+  {
+    title: t('account.openingBalance'),
+    key: 'openingBalance',
+    align: 'right',
+    width: 'sm',
+  },
+  {
+    title: t('account.periodDebit'),
+    key: 'debit',
+    align: 'right',
+    width: 'sm',
+  },
+  {
+    title: t('account.periodCredit'),
+    key: 'credit',
+    align: 'right',
+    width: 'sm',
+  },
+  {
+    title: t('account.endingBalance'),
+    key: 'endingBalance',
+    align: 'right',
+    width: 'sm',
   },
 ]
 
 const pageable = ref({ page: 1, size: 10 })
 
-watch(
-  [() => pageable.value.page, () => pageable.value.size],
-  async () => {
-    const { data } = await AccountService.getAllAccounts(props.sobId, pageable.value)
-    accounts.value = data
-  },
-  { immediate: true }
-)
+const refresh = async () => {
+  const { data } = await AccountService.getAccountsInPeriod(props.sobId, props.periodId as string, pageable.value)
+  accounts.value = data
+}
+
+watch([() => props.sobId, () => props.periodId, () => pageable.value.page, () => pageable.value.size], refresh, {
+  immediate: true,
+})
+
+defineExpose({
+  selectedPeriodId: props.periodId,
+})
 </script>
 
 <template>
@@ -50,5 +80,23 @@ watch(
         pageable.size = target.size ?? 10
       }
     "
-  />
+  >
+    <template #bodyCell="{ record, column }: { record: Account, column: ColumnType }">
+      <template v-if="column.key === 'openingBalance'">
+        <span>{{ n(record.openingBalance, 'decimal') }}</span>
+      </template>
+
+      <template v-else-if="column.key === 'debit'">
+        <span>{{ n(record.periodDebit, 'decimal') }}</span>
+      </template>
+
+      <template v-else-if="column.key === 'credit'">
+        <span>{{ n(record.periodCredit, 'decimal') }}</span>
+      </template>
+
+      <template v-else-if="column.key === 'endingBalance'">
+        <span>{{ n(record.endingBalance, 'decimal') }}</span>
+      </template>
+    </template>
+  </BaseTable>
 </template>

@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-export function convertFieldsFromString(data: any, options: Record<string, 'number' | 'date'>) {
+import { FieldConversionRecord } from './types'
+
+export function convertFieldsFromString(data: any, options: FieldConversionRecord) {
   if (Array.isArray(data)) {
     for (let i = 0; i < data.length; i++) {
       convertObjectPropertiesFromString('', data[i], options)
@@ -11,7 +13,7 @@ export function convertFieldsFromString(data: any, options: Record<string, 'numb
   return data
 }
 
-function convertObjectPropertiesFromString(context: string, data: any, options: Record<string, 'number' | 'date'>) {
+function convertObjectPropertiesFromString(context: string, data: any, options: FieldConversionRecord) {
   for (const key in data) {
     const path = context ? `${context}.${key}` : key
     if (options[path] && typeof data[key] === 'string') {

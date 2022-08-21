@@ -1,30 +1,33 @@
+import { Period } from '../account'
 import { User } from '../user'
 
-export interface Voucher {
+export interface JournalEntry {
+  sobId: string
+  entryId: string
+  period: Period
+  documentNumber: string
+  journalType: string
   attachmentQuantity: number
-  auditor: User
-  createdAt: Date
-  creator: User
-  credit: number
   debit: number
-  id: string
+  credit: number
+  creator: User
+  auditor: User
+  reviewer: User
+  poster: User
   isAudited: boolean
   isPosted: boolean
   isReviewed: boolean
-  number: string
-  reviewer: User
-  sobId: string
   transactionTime: Date
-  type: string
-  updatedAt: Date
   lineItems: LineItem[]
+  createdAt: Date
+  updatedAt: Date
 }
 
-export interface NewVoucher {
+export interface NewJournalEntry {
   attachmentQuantity: number
   creator: string
   transactionTime: Date
-  voucherType: string
+  journalType: string
   lineItems: LineItem[]
 }
 

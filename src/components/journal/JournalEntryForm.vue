@@ -72,13 +72,13 @@ inititialize()
     <!-- header -->
     <div class="h-14 flex flex-row justify-between items-end">
       <div class="flex-1 flex justify-start">
-        <p v-if="disabled">{{ t('voucher.transactionTime') }} {{ d(internalTransactionTime, 'date') }}</p>
-        <BaseFormItem v-else :label="t('voucher.transactionTime')" hide-label>
-          <BaseInput v-model="internalTransactionTime" html-type="date" :prefix="t('voucher.transactionTime')" />
+        <p v-if="disabled">{{ t('journal.entry.transactionTime') }} {{ d(internalTransactionTime, 'date') }}</p>
+        <BaseFormItem v-else :label="t('journal.entry.transactionTime')" hide-label>
+          <BaseInput v-model="internalTransactionTime" html-type="date" :prefix="t('journal.entry.transactionTime')" />
         </BaseFormItem>
       </div>
       <div class="flex-1 flex flex-row gap-4 justify-center items-end">
-        <h3>{{ t('voucher.type') }}</h3>
+        <h3>{{ t('journal.entry.type') }}</h3>
 
         <div
           v-if="disabled"
@@ -86,30 +86,30 @@ inititialize()
         >
           <span class="flex">
             <BadgeCheckSolidIcon v-if="isAudited" class="w-4 text-success-600" />
-            {{ isAudited ? t('voucher.isAudited') : t('voucher.notAudited') }}
+            {{ isAudited ? t('journal.entry.isAudited') : t('journal.entry.notAudited') }}
           </span>
           <span class="flex">
             <BadgeCheckSolidIcon v-if="isReviewed" class="w-4 text-success-600" />
-            {{ isReviewed ? t('voucher.isReviewed') : t('voucher.notReviewed') }}
+            {{ isReviewed ? t('journal.entry.isReviewed') : t('journal.entry.notReviewed') }}
           </span>
           <span class="flex">
             <BadgeCheckSolidIcon v-if="isPosted" class="w-4 text-success-600" />
-            {{ isPosted ? t('voucher.isPosted') : t('voucher.notPosted') }}
+            {{ isPosted ? t('journal.entry.isPosted') : t('journal.entry.notPosted') }}
           </span>
         </div>
       </div>
       <div class="flex-1 flex justify-end">
         <p v-if="disabled">
-          {{ t('voucher.attachmentQuantity') }} {{ internalAttachmentQuantity }}
-          {{ t('voucher.attachmentQuantityUnit') }}
+          {{ t('journal.entry.attachmentQuantity') }} {{ internalAttachmentQuantity }}
+          {{ t('journal.entry.attachmentQuantityUnit') }}
         </p>
-        <BaseFormItem v-else :label="t('voucher.attachmentQuantity')" hide-label>
+        <BaseFormItem v-else :label="t('journal.entry.attachmentQuantity')" hide-label>
           <BaseInput
             v-model="internalAttachmentQuantity"
             class="w-36"
             html-type="number"
-            :prefix="t('voucher.attachmentQuantity')"
-            :suffix="t('voucher.attachmentQuantityUnit')"
+            :prefix="t('journal.entry.attachmentQuantity')"
+            :suffix="t('journal.entry.attachmentQuantityUnit')"
             :min="0"
           />
         </BaseFormItem>
@@ -120,14 +120,14 @@ inititialize()
     <div class="flex flex-col bg-white mt-4 divide-y divide-neutral-300 border border-neutral-300 rounded-md shadow-lg">
       <!-- table header -->
       <div class="flex flex-row divide-x divide-neutral-300">
-        <div class="flex-1 font-bold flex justify-center items-center">{{ t('voucher.summary') }}</div>
-        <div class="flex-1 font-bold flex justify-center items-center">{{ t('voucher.account') }}</div>
+        <div class="flex-1 font-bold flex justify-center items-center">{{ t('journal.entry.summary') }}</div>
+        <div class="flex-1 font-bold flex justify-center items-center">{{ t('journal.entry.account') }}</div>
         <div class="w-72 flex flex-col divide-y divide-neutral-300">
-          <div class="text-center font-bold py-2">{{ t('voucher.debit') }}</div>
+          <div class="text-center font-bold py-2">{{ t('journal.entry.debit') }}</div>
           <TabulatedNumber :disabled="true" :header="true" />
         </div>
         <div class="w-72 flex flex-col divide-y divide-neutral-300">
-          <div class="text-center font-bold py-2">{{ t('voucher.credit') }}</div>
+          <div class="text-center font-bold py-2">{{ t('journal.entry.credit') }}</div>
           <TabulatedNumber :disabled="true" :header="true" />
         </div>
       </div>
@@ -135,7 +135,7 @@ inititialize()
       <!-- table body -->
       <div
         v-for="(item, i) in internalLineItems"
-        :key="`create-voucher-li-${i}`"
+        :key="`create-entry-li-${i}`"
         class="flex flex-row divide-x divide-neutral-300"
       >
         <div class="flex-1 p-[1px] flex">
@@ -166,13 +166,13 @@ inititialize()
           @click.prevent="onNewLineItem"
         >
           <PlusCircleOutlineIcon class="w-4" />
-          <span>{{ t('voucher.newLineItem') }}</span>
+          <span>{{ t('journal.entry.newLineItem') }}</span>
         </button>
       </div>
 
       <!-- total -->
       <div class="flex flex-row divide-x divide-neutral-300">
-        <div class="flex-1 font-bold px-3 py-2">{{ t('voucher.total') }}</div>
+        <div class="flex-1 font-bold px-3 py-2">{{ t('journal.entry.total') }}</div>
         <div class="w-72">
           <TabulatedNumber :disabled="true" :model-value="totalDebit" />
         </div>
@@ -185,7 +185,7 @@ inititialize()
     <!-- footer -->
     <div class="mt-4">
       <span>
-        {{ t('voucher.creator') }}:
+        {{ t('journal.entry.creator') }}:
         {{ t('common.userName', { lastName: creator.name?.last, firstName: creator.name?.first }) }}
       </span>
     </div>

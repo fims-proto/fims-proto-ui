@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { NewSob, Sob, SobService, LedgerService } from '../../domain'
+import { NewSob, SobService } from '../../domain'
 
 const t = useI18n().t
 const router = useRouter()
@@ -24,18 +24,9 @@ const onSubmit = async () => {
     return
   }
 
-  const createdSob = data as Sob
-
-  // create period as well
-  await LedgerService.createPeriod({
-    sobId: createdSob.id,
-    financialYear: createdSob.startingPeriodYear,
-    number: createdSob.startingPeriodMonth,
-  })
-
   router.replace({
     name: 'sobDetail',
-    params: { sobId: createdSob.id },
+    params: { sobId: data?.id },
   })
 }
 

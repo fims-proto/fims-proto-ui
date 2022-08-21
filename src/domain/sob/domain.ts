@@ -3,8 +3,9 @@ import { NewSob, Sob } from './types'
 import { FIMS_URL } from '../../config'
 import { invokeWithErrorHandler, Response } from '../errorHandler'
 import { convertFieldsFromString } from '../dateTypeConverter'
+import { FieldConversionRecord, Page } from '../types'
 
-const FIELDS_CONVERSION: Record<string, 'number' | 'date'> = {
+const FIELDS_CONVERSION: FieldConversionRecord = {
   startingPeriodYear: 'number',
   startingPeriodMonth: 'number',
   accountsCodeLength: 'number',
@@ -13,10 +14,11 @@ const FIELDS_CONVERSION: Record<string, 'number' | 'date'> = {
 }
 
 class SobService {
-  public async getAllSods(): Promise<Response<Sob[]>> {
+  public async getAllSods(): Promise<Response<Page<Sob>>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(`${FIMS_URL}/api/v1/sobs/`)
-      return convertFieldsFromString(result.data, FIELDS_CONVERSION)
+      convertFieldsFromString(result.data.content, FIELDS_CONVERSION)
+      return result.data
     })
   }
 

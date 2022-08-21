@@ -9,10 +9,10 @@ import NotFound from '../components/NotFound.vue'
 import SobMain from '../components/sob/SobMain.vue'
 import SobDetail from '../components/sob/SobDetail.vue'
 import SobCreation from '../components/sob/SobCreation.vue'
-import LedgerMain from '../components/legder/LedgerMain.vue'
-import VoucherMain from '../components/voucher/VoucherMain.vue'
-import VoucherCreation from '../components/voucher/VoucherCreation.vue'
-import VoucherDetail from '../components/voucher/VoucherDetail.vue'
+import AccountMain from '../components/account/AccountMain.vue'
+import JournalMain from '../components/journal/JournalMain.vue'
+import JournalEntryCreation from '../components/journal/JournalEntryCreation.vue'
+import JournalEntryDetail from '../components/journal/JournalEntryDetail.vue'
 import ExceptionPage from '../components/ExceptionPage.vue'
 import StyleTest from '../components/StyleTest.vue'
 import { beforeAppEnterHandler, beforeWorkingZoneEnterHandler } from './beforeEnterHandlers'
@@ -64,7 +64,7 @@ const routes: RouteRecordRaw[] = [
           },
         ],
       },
-      // ledgers
+      // accounts
       {
         path: 'sobs/:sobId/periods/:periodId?',
         component: RouterView,
@@ -73,32 +73,32 @@ const routes: RouteRecordRaw[] = [
         children: [
           {
             path: '',
-            name: 'ledgerMain',
-            component: LedgerMain,
+            name: 'accountMain',
+            component: AccountMain,
           },
         ],
       },
-      // vouchers
+      // journals
       {
-        path: 'sobs/:sobId/vouchers',
+        path: 'sobs/:sobId/journals',
         component: RouterView,
         props: true,
         beforeEnter: beforeWorkingZoneEnterHandler,
         children: [
           {
             path: '',
-            name: 'voucherMain',
-            component: VoucherMain,
+            name: 'journalMain',
+            component: JournalMain,
           },
           {
             path: 'new',
-            name: 'voucherCreation',
-            component: VoucherCreation,
+            name: 'journalEntryCreation',
+            component: JournalEntryCreation,
           },
           {
-            path: ':voucherId',
-            name: 'voucherDetail',
-            component: VoucherDetail,
+            path: ':entryId',
+            name: 'journalEntryDetail',
+            component: JournalEntryDetail,
           },
         ],
       },
