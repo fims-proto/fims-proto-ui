@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { LineItem, Traits } from '../../domain'
 
 const props = defineProps<{
+  headerText: string
   transactionTime: Date
   attachmentQuantity: number
   lineItems: LineItem[]
@@ -17,6 +18,7 @@ const props = defineProps<{
 
 const { t, d } = useI18n()
 
+const internalHeaderText = ref()
 const internalTransactionTime = ref()
 const internalAttachmentQuantity = ref()
 const internalLineItems = ref<LineItem[]>([])
@@ -28,14 +30,8 @@ const totalCredit = computed(() =>
   internalLineItems.value.reduce((sum, item) => sum.add(Big(item.credit ?? 0)), Big(0)).toNumber()
 )
 
-const onSummaryFocus = (index: number) => {
-  if (index > 0 && !internalLineItems.value[index].summary) {
-    internalLineItems.value[index].summary = internalLineItems.value[index - 1].summary
-  }
-}
-
 const emptyItem = () => ({
-  summary: '',
+  text: '',
   accountNumber: '',
   credit: 0,
   debit: 0,
@@ -46,6 +42,7 @@ const onClearLineItem = (index: number) => (internalLineItems.value[index] = emp
 const onNewLineItem = () => internalLineItems.value.push(emptyItem())
 
 const collect = () => ({
+  headerText: internalHeaderText.value,
   transactionTime: internalTransactionTime.value,
   attachmentQuantity: internalAttachmentQuantity.value,
   lineItems: internalLineItems.value,
@@ -54,6 +51,7 @@ const collect = () => ({
 })
 
 const inititialize = () => {
+  internalHeaderText.value = props.headerText
   internalTransactionTime.value = props.transactionTime
   internalAttachmentQuantity.value = props.attachmentQuantity
   internalLineItems.value = JSON.parse(JSON.stringify(props.lineItems))
@@ -70,14 +68,40 @@ inititialize()
 <template>
   <div class="w-full">
     <!-- header -->
-    <div class="h-14 flex flex-row justify-between items-end">
-      <div class="flex-1 flex justify-start">
-        <p v-if="disabled">{{ t('journal.entry.transactionTime') }} {{ d(internalTransactionTime, 'date') }}</p>
-        <BaseFormItem v-else :label="t('journal.entry.transactionTime')" hide-label>
-          <BaseInput v-model="internalTransactionTime" html-type="date" :prefix="t('journal.entry.transactionTime')" />
+    <div class="flex gap-4">
+      <!-- header text -->
+      <div>
+        <BaseFormItem v-if="!disabled" required :label="t('journal.entry.headerText')">
+          <BaseInput v-model="internalHeaderText" :placeholder="t('journal.entry.headerTextPlaceholder')" />
         </BaseFormItem>
       </div>
-      <div class="flex-1 flex flex-row gap-4 justify-center items-end">
+
+      <!-- transaction time field -->
+      <div>
+        <p v-if="disabled">{{ t('journal.entry.transactionTime') }} {{ d(internalTransactionTime, 'date') }}</p>
+        <BaseFormItem v-else required :label="t('journal.entry.transactionTime')">
+          <BaseInput v-model="internalTransactionTime" html-type="date" />
+        </BaseFormItem>
+      </div>
+
+      <!-- attachment quntity field -->
+      <div>
+        <p v-if="disabled">
+          {{ t('journal.entry.attachmentQuantity') }} {{ internalAttachmentQuantity }}
+          {{ t('journal.entry.attachmentQuantityUnit') }}
+        </p>
+        <BaseFormItem v-else :label="t('journal.entry.attachmentQuantity')">
+          <BaseInput
+            v-model="internalAttachmentQuantity"
+            class="w-36"
+            html-type="number"
+            :suffix="t('journal.entry.attachmentQuantityUnit')"
+            :min="0"
+          />
+        </BaseFormItem>
+      </div>
+
+      <!-- <div class="flex-1 flex flex-row gap-4 justify-center items-end">
         <h3>{{ t('journal.entry.type') }}</h3>
 
         <div
@@ -97,30 +121,13 @@ inititialize()
             {{ isPosted ? t('journal.entry.isPosted') : t('journal.entry.notPosted') }}
           </span>
         </div>
-      </div>
-      <div class="flex-1 flex justify-end">
-        <p v-if="disabled">
-          {{ t('journal.entry.attachmentQuantity') }} {{ internalAttachmentQuantity }}
-          {{ t('journal.entry.attachmentQuantityUnit') }}
-        </p>
-        <BaseFormItem v-else :label="t('journal.entry.attachmentQuantity')" hide-label>
-          <BaseInput
-            v-model="internalAttachmentQuantity"
-            class="w-36"
-            html-type="number"
-            :prefix="t('journal.entry.attachmentQuantity')"
-            :suffix="t('journal.entry.attachmentQuantityUnit')"
-            :min="0"
-          />
-        </BaseFormItem>
-      </div>
+      </div> -->
     </div>
 
     <!-- table -->
     <div class="flex flex-col bg-white mt-4 divide-y divide-neutral-300 border border-neutral-300 rounded-md shadow-lg">
       <!-- table header -->
       <div class="flex flex-row divide-x divide-neutral-300">
-        <div class="flex-1 font-bold flex justify-center items-center">{{ t('journal.entry.summary') }}</div>
         <div class="flex-1 font-bold flex justify-center items-center">{{ t('journal.entry.account') }}</div>
         <div class="w-72 flex flex-col divide-y divide-neutral-300">
           <div class="text-center font-bold py-2">{{ t('journal.entry.debit') }}</div>
@@ -146,9 +153,7 @@ inititialize()
           >
             <MinusCircleOutlineIcon class="w-4" />
           </button>
-          <TabulatedInput v-model="item.summary" :disabled="disabled" @focus="onSummaryFocus(i)" />
-        </div>
-        <div class="flex-1 p-[1px]">
+
           <AccountInput v-model="item.accountNumber" :disabled="disabled" />
         </div>
         <div class="w-72">

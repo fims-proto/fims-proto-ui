@@ -16,12 +16,12 @@ const accounts = ref<Page<Account>>()
 const columns: ColumnType[] = [
   {
     title: t('account.accountNumber'),
-    path: ['account', 'accountNumber'],
+    path: ['configuration', 'accountNumber'],
     width: 'md',
   },
   {
     title: t('account.accountTitle'),
-    path: ['account', 'title'],
+    path: ['configuration', 'title'],
   },
   {
     title: t('account.openingBalance'),
@@ -31,13 +31,13 @@ const columns: ColumnType[] = [
   },
   {
     title: t('account.periodDebit'),
-    key: 'debit',
+    key: 'periodDebit',
     align: 'right',
     width: 'sm',
   },
   {
     title: t('account.periodCredit'),
-    key: 'credit',
+    key: 'periodCredit',
     align: 'right',
     width: 'sm',
   },

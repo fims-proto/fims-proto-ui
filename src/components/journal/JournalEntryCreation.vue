@@ -21,6 +21,7 @@ const { workingSob } = toRefs(useSobStore().state)
 const formRef = ref<InstanceType<typeof JournalEntryForm>>()
 
 const initEntry = () => ({
+  headerText: '',
   transactionTime: new Date(),
   attachmentQuantity: 0,
   journalType: 'general_journal',
@@ -28,7 +29,7 @@ const initEntry = () => ({
   lineItems: Array(4)
     .fill(null)
     .map(() => ({
-      summary: '',
+      text: '',
       accountNumber: '',
       debit: 0,
       credit: 0,
@@ -56,8 +57,9 @@ const saveEntry = async () => {
   }
 
   toBeCreated.creator = userId.value
+  toBeCreated.lineItems.forEach((item) => (item.text = toBeCreated.headerText))
   toBeCreated.lineItems = toBeCreated.lineItems.filter(
-    (item) => item.summary.trim() && item.accountNumber.trim() && item.debit.toString() && item.credit.toString()
+    (item) => item.accountNumber.trim() && item.debit.toString() && item.credit.toString()
   )
 
   if (!toBeCreated.lineItems.length) {
@@ -115,6 +117,7 @@ const onSaveAndNew = async () => {
     </template>
     <JournalEntryForm
       ref="formRef"
+      :header-text="newEntry.headerText"
       :attachment-quantity="newEntry.attachmentQuantity"
       :transaction-time="newEntry.transactionTime"
       :line-items="newEntry.lineItems"

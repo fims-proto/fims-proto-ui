@@ -4,6 +4,7 @@ import { User } from '../user'
 export interface JournalEntry {
   sobId: string
   entryId: string
+  headerText: string
   period: Period
   documentNumber: string
   journalType: string
@@ -26,6 +27,7 @@ export interface JournalEntry {
 export interface NewJournalEntry {
   attachmentQuantity: number
   creator: string
+  headerText: string
   transactionTime: Date
   journalType: string
   lineItems: LineItem[]
@@ -33,7 +35,7 @@ export interface NewJournalEntry {
 
 export interface LineItem {
   id?: string
-  summary: string
+  text: string
   accountId?: string
   accountNumber: string
   credit: number

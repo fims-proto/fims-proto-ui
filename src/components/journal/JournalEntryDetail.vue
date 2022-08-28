@@ -46,8 +46,9 @@ const onSave = async () => {
     return
   }
 
+  toBeUpdated.lineItems.filter((item) => !item.text.trim()).forEach((item) => (item.text = toBeUpdated.headerText))
   toBeUpdated.lineItems = toBeUpdated.lineItems.filter(
-    (item) => item.summary.trim() && item.accountNumber.trim() && item.debit.toString() && item.credit.toString()
+    (item) => item.text.trim() && item.accountNumber.trim() && item.debit.toString() && item.credit.toString()
   )
 
   if (!toBeUpdated.lineItems.length) {
@@ -115,7 +116,7 @@ const onAction = async (action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
 </script>
 
 <template>
-  <BasePage :subtitle="entry?.lineItems[0].summary">
+  <BasePage :subtitle="entry?.lineItems[0].text">
     <template #title>{{ entry?.documentNumber }}</template>
 
     <template #extra>
@@ -153,6 +154,7 @@ const onAction = async (action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
       v-if="entry"
       ref="formRef"
       :disabled="!editMode"
+      :header-text="entry.headerText"
       :attachment-quantity="entry.attachmentQuantity"
       :transaction-time="entry.transactionTime"
       :line-items="entry.lineItems"

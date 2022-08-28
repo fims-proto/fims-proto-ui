@@ -45,6 +45,24 @@ class AccountService {
     })
   }
 
+  public async getAccountConfigurationByAccountNumber(
+    sobId: string,
+    accountNumber: string
+  ): Promise<Response<AccountConfiguration>> {
+    return invokeWithErrorHandler(async () => {
+      const result = await axios.get(
+        `${FIMS_URL}/api/v1/sob/${sobId}/account-configurations/?$filter=accountNumber eq '${accountNumber}'`
+      )
+      convertFieldsFromString(result.data.content, CONFIGURATION_FIELDS)
+
+      if (result.data.numberOfElements !== 1) {
+        throw 'result not unique'
+      }
+
+      return result.data.content[0]
+    })
+  }
+
   public async getAccountConfigurationsStartsWithNumber(
     sobId: string,
     serachNumber: string
@@ -88,7 +106,7 @@ class AccountService {
   ): Promise<Response<Page<Account>>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(
-        `${FIMS_URL}/api/v1/sob/${sobId}/period/${periodId}/accounts/?$sort=accountNumber&$page=${pageable.page}&$size=${pageable.size}`
+        `${FIMS_URL}/api/v1/sob/${sobId}/period/${periodId}/accounts/?$page=${pageable.page}&$size=${pageable.size}`
       )
       convertFieldsFromString(result.data.content, ACCOUNT_FIELDS)
       return result.data

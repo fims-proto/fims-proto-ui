@@ -92,6 +92,8 @@
       },
       "title": "凭证",
       "number": "编号",
+      "headerText": "凭证摘要",
+      "headerTextPlaceholder": "记一笔...",
       "summary": "摘要",
       "account": "会计科目",
       "amount": "发生金额",
