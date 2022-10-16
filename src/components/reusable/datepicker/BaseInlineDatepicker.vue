@@ -182,11 +182,11 @@ watch(
   >
     <div class="flex flex-row justify-between items-center px-4 py-2">
       <BaseButton class="w-4" @click="onNav(-1)">
-        <ChevronLeftSolidIcon />
+        <ChevronLeftOutlineIcon />
       </BaseButton>
       <BaseButton @click="onUpLevel">{{ title }}</BaseButton>
       <BaseButton class="w-4" @click="onNav(1)">
-        <ChevronRightSolidIcon />
+        <ChevronRightOutlineIcon />
       </BaseButton>
     </div>
 

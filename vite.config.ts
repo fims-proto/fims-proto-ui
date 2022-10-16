@@ -22,12 +22,12 @@ function HeroiconsResolver() {
     if (name.endsWith('SolidIcon')) {
       return {
         name: `${name.substring(0, name.length - 9)}Icon`,
-        from: '@heroicons/vue/solid',
+        from: '@heroicons/vue/24/solid',
       }
     } else if (name.endsWith('OutlineIcon')) {
       return {
         name: `${name.substring(0, name.length - 11)}Icon`,
-        from: '@heroicons/vue/outline',
+        from: '@heroicons/vue/24/outline',
       }
     }
   }

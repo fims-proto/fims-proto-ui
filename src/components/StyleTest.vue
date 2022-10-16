@@ -87,19 +87,19 @@ const tableColumns: ColumnType[] = [
         <BaseButton category="primary"> Primary </BaseButton>
         <BaseButton>
           <template #icon>
-            <LockClosedSolidIcon />
+            <LockClosedOutlineIcon />
           </template>
           Default
         </BaseButton>
         <BaseButton category="primary">
           <template #icon>
-            <LockClosedSolidIcon />
+            <LockClosedOutlineIcon />
           </template>
           Primary
         </BaseButton>
         <BaseButton>
           <template #icon>
-            <LockClosedSolidIcon />
+            <LockClosedOutlineIcon />
           </template>
         </BaseButton>
         <!-- disabled -->
@@ -107,13 +107,13 @@ const tableColumns: ColumnType[] = [
         <BaseButton disabled category="primary"> Primary </BaseButton>
         <BaseButton disabled>
           <template #icon>
-            <LockClosedSolidIcon />
+            <LockClosedOutlineIcon />
           </template>
           Default
         </BaseButton>
         <BaseButton disabled category="primary">
           <template #icon>
-            <LockClosedSolidIcon />
+            <LockClosedOutlineIcon />
           </template>
           Primary
         </BaseButton>
@@ -124,7 +124,7 @@ const tableColumns: ColumnType[] = [
       <div class="flex gap-4">
         <BaseButtonGroup>
           <BaseButton>
-            <template #icon><LockClosedSolidIcon /></template>Fisrt
+            <template #icon><LockClosedOutlineIcon /></template>Fisrt
           </BaseButton>
           <BaseConfirmationButton @click="onNewNotification('2nd Thoughts!!')">2nd thought</BaseConfirmationButton>
           <BaseButton>Third</BaseButton>
@@ -132,7 +132,7 @@ const tableColumns: ColumnType[] = [
 
         <BaseButtonGroup>
           <BaseButton disabled>
-            <template #icon><LockClosedSolidIcon /></template>Fisrt
+            <template #icon><LockClosedOutlineIcon /></template>Fisrt
           </BaseButton>
           <BaseButton disabled>Second</BaseButton>
         </BaseButtonGroup>
@@ -141,14 +141,14 @@ const tableColumns: ColumnType[] = [
       <div class="flex gap-4">
         <BaseButton category="primary" class="w-64">
           <template #icon>
-            <LockClosedSolidIcon />
+            <LockClosedOutlineIcon />
           </template>
           <span>固定宽度居中</span>
         </BaseButton>
 
         <BaseButton disabled category="primary" class="w-64">
           <template #icon>
-            <LockClosedSolidIcon />
+            <LockClosedOutlineIcon />
           </template>
           <span>固定宽度但禁止</span>
         </BaseButton>
@@ -172,9 +172,9 @@ const tableColumns: ColumnType[] = [
     <div class="rounded-lg p-4 space-y-4">
       <BaseNotification type="error" closable message="丹麦的艾辛诺尔堡" />
       <BaseNotification type="info" message="在城墙的一平台上" />
-      <BaseNotification type="success" closable :show-icon="false" message="守卫柏纳多与佛郎西斯哥入" />
+      <BaseNotification type="success" closable :show-icon="false" message="没有 icon! 守卫柏纳多与佛郎西斯哥入" />
       <BaseNotification type="warning" message="此时正是深夜, 一片漆黑中, 佛郎西斯哥在城墙上站岗, 而柏纳多来接他的班" />
-      <BaseButton @click="onNewNotification">弹出式通知</BaseButton>
+      <BaseButton @click="onNewNotification()">弹出式通知</BaseButton>
     </div>
 
     <h1 class="text-neutral-900">BaseAvatar:</h1>
@@ -221,7 +221,7 @@ const tableColumns: ColumnType[] = [
         <template #overlay>
           <BaseDropdownItem>没图标</BaseDropdownItem>
           <BaseDropdownItem>
-            <template #icon><LockClosedSolidIcon /></template>锁住水分持久保鲜
+            <template #icon><LockClosedOutlineIcon /></template>锁住水分持久保鲜
           </BaseDropdownItem>
         </template>
       </BaseDropdown>
@@ -323,7 +323,7 @@ const tableColumns: ColumnType[] = [
         <div>
           <BaseButton html-type="submit" category="primary" class="w-full">
             <template #icon>
-              <LockClosedSolidIcon />
+              <LockClosedOutlineIcon />
             </template>
             <span>登录</span>
           </BaseButton>

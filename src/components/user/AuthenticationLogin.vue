@@ -180,7 +180,7 @@ const handleSubmit = async () => {
         <div>
           <BaseButton html-type="submit" category="primary" class="w-full">
             <template #icon>
-              <LockClosedSolidIcon />
+              <LockClosedOutlineIcon />
             </template>
             <span>{{ t('user.login') }}</span>
           </BaseButton>

@@ -142,7 +142,7 @@ const onSobSelected = async (command: string) => {
             <BaseDropdownGroup>
               <BaseDropdownItem command="logout">
                 <template #icon>
-                  <LogoutOutlineIcon />
+                  <ArrowLeftOnRectangleIcon />
                 </template>
                 {{ t('user.logout') }}
               </BaseDropdownItem>

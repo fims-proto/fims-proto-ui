@@ -177,7 +177,7 @@ function buildMessages(flow: SelfServiceSettingsFlow | undefined): messageType[]
               <div>
                 <BaseButton html-type="submit" category="primary" class="w-full">
                   <template #icon>
-                    <LockClosedSolidIcon />
+                    <LockClosedOutlineIcon />
                   </template>
                   <span>{{ t('action.submit') }}</span>
                 </BaseButton>
@@ -209,7 +209,7 @@ function buildMessages(flow: SelfServiceSettingsFlow | undefined): messageType[]
               <div>
                 <BaseButton html-type="submit" category="primary" class="w-full">
                   <template #icon>
-                    <LockClosedSolidIcon />
+                    <LockClosedOutlineIcon />
                   </template>
                   <span>{{ t('action.submit') }}</span>
                 </BaseButton>
