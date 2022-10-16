@@ -5,12 +5,10 @@ export interface FieldConversionRecord extends FieldConversionRecursiveRecord<Fi
 
 export interface Page<T> {
   content: T[]
-  page: number
-  size: number
-  total: number
+  pageNumber: number
+  pageSize: number
+  totalPage: number
   numberOfElements: number
-  isFirst: boolean
-  isLast: boolean
 }
 
 export interface Pageable {

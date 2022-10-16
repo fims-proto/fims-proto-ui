@@ -1,6 +1,6 @@
-export interface AccountConfiguration {
+export interface Account {
+  id: string
   sobId: string
-  accountId: string
   superiorAccountId: string
   accountNumber: string
   numberHierarchy: number[]
@@ -13,11 +13,11 @@ export interface AccountConfiguration {
 }
 
 export interface Period {
+  id: string
   sobId: string
-  periodId: string
   previousPeriodId: string
-  financialYear: number
-  number: number
+  fiscalYear: number
+  periodNumber: number
   openingTime: Date
   endingTime: Date
   isClosed: boolean
@@ -25,15 +25,16 @@ export interface Period {
   createdAt: Date
 }
 
-export interface Account {
+export interface Ledger {
+  id: string
   sobId: string
   accountId: string
   openingBalance: number
   endingBalance: number
   periodDebit: number
   periodCredit: number
-  configuration: AccountConfiguration
-  period: Period
+  account: Account
+  periodId: string
   updatedAt: Date
   createdAt: Date
 }

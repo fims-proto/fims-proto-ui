@@ -26,7 +26,7 @@ onMounted(async () => {
         name: 'accountMain',
         params: {
           sobId: props.sobId,
-          periodId: openPeriod.periodId,
+          periodId: openPeriod.id,
         },
       })
       console.log('display default open period')
@@ -50,7 +50,7 @@ onBeforeRouteUpdate(async (to) => {
         <PeriodList :periods="periods" />
       </div>
       <div class="flex-auto">
-        <AccountList v-if="selectedPeriodId" :sob-id="sobId" :period-id="selectedPeriodId" />
+        <LedgerList v-if="selectedPeriodId" :sob-id="sobId" :period-id="selectedPeriodId" />
       </div>
     </div>
   </BasePage>

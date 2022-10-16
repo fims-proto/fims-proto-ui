@@ -54,13 +54,15 @@ class JournalService {
     sobId: string,
     entryId: string,
     transactionTime: Date,
-    lineItems: LineItem[]
+    lineItems: LineItem[],
+    updater: string
   ): Promise<Response<void>> {
     return invokeWithErrorHandler(async () => {
       // patch
       await axios.patch(`${FIMS_URL}/api/v1/sob/${sobId}/journal-entry/${entryId}`, {
         transactionTime: transactionTime,
         lineItems: lineItems,
+        updater: updater,
       })
     })
   }

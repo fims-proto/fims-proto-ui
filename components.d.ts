@@ -8,7 +8,6 @@ export {}
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     AboutUs: typeof import('./src/components/AboutUs.vue')['default']
-    AccountConfigurationList: typeof import('./src/components/account/AccountConfigurationList.vue')['default']
     AccountInput: typeof import('./src/components/journal/AccountInput.vue')['default']
     AccountList: typeof import('./src/components/account/AccountList.vue')['default']
     AccountMain: typeof import('./src/components/account/AccountMain.vue')['default']
@@ -62,6 +61,7 @@ declare module '@vue/runtime-core' {
     JournalMain: typeof import('./src/components/journal/JournalMain.vue')['default']
     LayoutHeader: typeof import('./src/components/LayoutHeader.vue')['default']
     LayoutPage: typeof import('./src/components/LayoutPage.vue')['default']
+    LedgerList: typeof import('./src/components/account/LedgerList.vue')['default']
     LockClosedSolidIcon: typeof import('@heroicons/vue/solid')['LockClosedIcon']
     LogoutOutlineIcon: typeof import('@heroicons/vue/outline')['LogoutIcon']
     Menu: typeof import('@headlessui/vue')['Menu']

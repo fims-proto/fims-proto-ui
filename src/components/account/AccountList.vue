@@ -6,63 +6,34 @@ import { ColumnType } from '../reusable/table'
 
 const props = defineProps<{
   sobId: string
-  periodId: string
 }>()
 
-const { t, n } = useI18n()
+const { t } = useI18n()
 
 const accounts = ref<Page<Account>>()
 
 const columns: ColumnType[] = [
   {
     title: t('account.accountNumber'),
-    path: ['configuration', 'accountNumber'],
+    path: 'accountNumber',
     width: 'md',
   },
   {
-    title: t('account.accountTitle'),
-    path: ['configuration', 'title'],
-  },
-  {
-    title: t('account.openingBalance'),
-    key: 'openingBalance',
-    align: 'right',
-    width: 'sm',
-  },
-  {
-    title: t('account.periodDebit'),
-    key: 'periodDebit',
-    align: 'right',
-    width: 'sm',
-  },
-  {
-    title: t('account.periodCredit'),
-    key: 'periodCredit',
-    align: 'right',
-    width: 'sm',
-  },
-  {
-    title: t('account.endingBalance'),
-    key: 'endingBalance',
-    align: 'right',
-    width: 'sm',
+    title: t('account.title'),
+    path: 'title',
   },
 ]
 
 const pageable = ref({ page: 1, size: 10 })
 
-const refresh = async () => {
-  const { data } = await AccountService.getAccountsInPeriod(props.sobId, props.periodId as string, pageable.value)
-  accounts.value = data
-}
-
-watch([() => props.sobId, () => props.periodId, () => pageable.value.page, () => pageable.value.size], refresh, {
-  immediate: true,
-})
-
-defineExpose({
-  selectedPeriodId: props.periodId,
-})
+watch(
+  [() => pageable.value.page, () => pageable.value.size],
+  async () => {
+    const { data } = await AccountService.getAccounts(props.sobId, pageable.value)
+    accounts.value = data
+  },
+  { immediate: true }
+)
 </script>
 
 <template>
@@ -70,9 +41,9 @@ defineExpose({
     :data-source="accounts?.content ?? []"
     :columns="columns"
     :page="{
-      currentPage: accounts?.page ?? 1,
+      currentPage: accounts?.pageNumber ?? 1,
       totalElement: accounts?.numberOfElements ?? 0,
-      pageSize: accounts?.size,
+      pageSize: accounts?.pageSize,
     }"
     @page="
       (target) => {
@@ -80,23 +51,5 @@ defineExpose({
         pageable.size = target.size ?? 10
       }
     "
-  >
-    <template #bodyCell="{ record, column }: { record: Account, column: ColumnType }">
-      <template v-if="column.key === 'openingBalance'">
-        <span>{{ n(record.openingBalance, 'decimal') }}</span>
-      </template>
-
-      <template v-else-if="column.key === 'debit'">
-        <span>{{ n(record.periodDebit, 'decimal') }}</span>
-      </template>
-
-      <template v-else-if="column.key === 'credit'">
-        <span>{{ n(record.periodCredit, 'decimal') }}</span>
-      </template>
-
-      <template v-else-if="column.key === 'endingBalance'">
-        <span>{{ n(record.endingBalance, 'decimal') }}</span>
-      </template>
-    </template>
-  </BaseTable>
+  />
 </template>

@@ -35,7 +35,7 @@ watch(
         <BaseTabPanel>basic yet empty</BaseTabPanel>
         <!-- accounts tab -->
         <BaseTabPanel>
-          <AccountConfigurationList :sob-id="sobId" />
+          <AccountList :sob-id="sobId" />
         </BaseTabPanel>
       </template>
     </BaseTabs>

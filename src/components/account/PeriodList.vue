@@ -29,8 +29,8 @@ const onPeriodSelected = (periodId: string) => {
 
 <template>
   <ol>
-    <li v-for="period in periods?.content ?? []" :key="period.periodId" @click="onPeriodSelected(period.periodId)">
-      {{ `${period.financialYear} ${t('common.year')} ${period.number} ${t('common.month')}` }}
+    <li v-for="period in periods?.content ?? []" :key="period.id" @click="onPeriodSelected(period.id)">
+      {{ `${period.fiscalYear} ${t('common.year')} ${period.periodNumber} ${t('common.month')}` }}
     </li>
     <li v-if="!periods?.content.length">
       <BaseButton>{{ t('account.createPeriod') }}</BaseButton>

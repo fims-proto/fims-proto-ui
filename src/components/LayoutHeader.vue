@@ -17,7 +17,7 @@ const { traits: userInfo } = toRefs(userStore.state)
 const navigation = computed(() => {
   const items = []
 
-  if (workingSob.value?.id) {
+  if (currentPeriod.value?.id) {
     items.push({
       key: 'journal',
       label: t('journal.entry.title'),
@@ -45,7 +45,7 @@ const navigation = computed(() => {
 
 const period = computed(() => {
   return currentPeriod.value
-    ? `${currentPeriod.value.financialYear}-${currentPeriod.value.number}`
+    ? `${currentPeriod.value.fiscalYear}-${currentPeriod.value.periodNumber}`
     : t('account.periodUnselected')
 })
 

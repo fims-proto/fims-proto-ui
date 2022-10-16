@@ -64,7 +64,8 @@ const onSave = async () => {
     props.sobId,
     props.entryId,
     toBeUpdated.transactionTime,
-    toBeUpdated.lineItems
+    toBeUpdated.lineItems,
+    userStore.state.userId
   )
 
   if (exception) {
@@ -112,6 +113,12 @@ const onAction = async (action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
   }
 
   await refreshEntry()
+
+  notificationStore.action.push({
+    type: 'success',
+    message: t('journal.entry.save.success'),
+    duration: 3,
+  })
 }
 </script>
 

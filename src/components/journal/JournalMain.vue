@@ -29,7 +29,7 @@ const columns: ColumnType[] = [
   },
   {
     title: t('journal.entry.summary'),
-    path: ['lineItems', '0', 'summary'],
+    path: 'headerText',
   },
   {
     title: t('journal.entry.creator'),
@@ -92,9 +92,9 @@ const onCreate = () => {
       :data-source="journalEnties?.content ?? []"
       :columns="columns"
       :page="{
-        currentPage: journalEnties?.page ?? 1,
+        currentPage: journalEnties?.pageNumber ?? 1,
         totalElement: journalEnties?.numberOfElements ?? 0,
-        pageSize: journalEnties?.size,
+        pageSize: journalEnties?.pageSize,
       }"
       @page="
         (target) => {

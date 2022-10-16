@@ -3,7 +3,7 @@ import { FIMS_URL } from '../../config'
 import { convertFieldsFromString } from '../dateTypeConverter'
 import { invokeWithErrorHandler, Response } from '../errorHandler'
 import { FieldConversionRecord, Page, Pageable } from '../types'
-import { Account, AccountConfiguration, Period } from './types'
+import { Account, Ledger, Period } from './types'
 
 const CONFIGURATION_FIELDS: FieldConversionRecord = {
   level: 'number',
@@ -32,26 +32,23 @@ const ACCOUNT_FIELDS: FieldConversionRecord = {
 }
 
 class AccountService {
-  public async getAccountConfigurations(
+  public async getAccounts(
     sobId: string,
     pageable: Pageable = { page: 1, size: 10 }
-  ): Promise<Response<Page<AccountConfiguration>>> {
+  ): Promise<Response<Page<Account>>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(
-        `${FIMS_URL}/api/v1/sob/${sobId}/account-configurations/?$sort=accountNumber&$page=${pageable.page}&$size=${pageable.size}`
+        `${FIMS_URL}/api/v1/sob/${sobId}/accounts/?$sort=accountNumber&$page=${pageable.page}&$size=${pageable.size}`
       )
       convertFieldsFromString(result.data.content, CONFIGURATION_FIELDS)
       return result.data
     })
   }
 
-  public async getAccountConfigurationByAccountNumber(
-    sobId: string,
-    accountNumber: string
-  ): Promise<Response<AccountConfiguration>> {
+  public async getAccountByAccountNumber(sobId: string, accountNumber: string): Promise<Response<Account>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(
-        `${FIMS_URL}/api/v1/sob/${sobId}/account-configurations/?$filter=accountNumber eq '${accountNumber}'`
+        `${FIMS_URL}/api/v1/sob/${sobId}/accounts/?$filter=accountNumber eq '${accountNumber}'`
       )
       convertFieldsFromString(result.data.content, CONFIGURATION_FIELDS)
 
@@ -63,13 +60,10 @@ class AccountService {
     })
   }
 
-  public async getAccountConfigurationsStartsWithNumber(
-    sobId: string,
-    serachNumber: string
-  ): Promise<Response<Page<AccountConfiguration>>> {
+  public async getAccountsStartsWithNumber(sobId: string, serachNumber: string): Promise<Response<Page<Account>>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(
-        `${FIMS_URL}/api/v1/sob/${sobId}/account-configurations/?$filter=accountNumber startsWith ${serachNumber}&$sort=accountNumber`
+        `${FIMS_URL}/api/v1/sob/${sobId}/accounts/?$filter=accountNumber startsWith ${serachNumber}&$sort=accountNumber`
       )
       return convertFieldsFromString(result.data, CONFIGURATION_FIELDS)
     })
@@ -85,28 +79,22 @@ class AccountService {
     })
   }
 
-  public async getOpenPeriod(sobId: string, pageable: Pageable = { page: 1, size: 1 }): Promise<Response<Period>> {
+  public async getOpenPeriod(sobId: string): Promise<Response<Period>> {
     return invokeWithErrorHandler(async () => {
-      const result = await axios.get(
-        `${FIMS_URL}/api/v1/sob/${sobId}/periods/?$filter=isClosed eq false&$page=${pageable.page}&$size=${pageable.size}`
-      )
-      if (result.data.numberOfElements === 1) {
-        convertFieldsFromString(result.data.content[0], PERIOD_FIELDS)
-        return result.data.content[0]
-      }
-
-      throw `${result.data.numberOfElements} period found`
+      const result = await axios.get(`${FIMS_URL}/api/v1/sob/${sobId}/periods/open-period`)
+      convertFieldsFromString(result.data, PERIOD_FIELDS)
+      return result.data
     })
   }
 
-  public async getAccountsInPeriod(
+  public async getLedgersInPeriod(
     sobId: string,
     periodId: string,
     pageable: Pageable = { page: 1, size: 10 }
-  ): Promise<Response<Page<Account>>> {
+  ): Promise<Response<Page<Ledger>>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(
-        `${FIMS_URL}/api/v1/sob/${sobId}/period/${periodId}/accounts/?$page=${pageable.page}&$size=${pageable.size}`
+        `${FIMS_URL}/api/v1/sob/${sobId}/period/${periodId}/ledgers/?$sort=account.accountNumber&$page=${pageable.page}&$size=${pageable.size}`
       )
       convertFieldsFromString(result.data.content, ACCOUNT_FIELDS)
       return result.data
