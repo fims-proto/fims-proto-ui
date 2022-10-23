@@ -47,7 +47,7 @@ const onClose = () => {
 <template>
   <div
     v-if="!closed"
-    class="w-full relative flex gap-2 items-strech p-2 border-none rounded-md shadow-lg overflow-hidden"
+    class="w-full relative flex gap-2 items-center p-2 border-none rounded-md shadow-lg overflow-hidden"
     :class="{
       'bg-error-200 text-error-900 shadow-error-400/60': is('error'),
       'bg-warning-200 text-warning-900 shadow-warning-500/60': is('warning'),
@@ -56,11 +56,11 @@ const onClose = () => {
       'pl-4': !showIcon,
     }"
   >
-    <span v-if="showIcon" class="h-6 w-auto p-1">
-      <ExclamationCircleOutlineIcon v-if="is('error')" class="h-4 w-4" aria-hidden="true" />
-      <ExclamationTriangleOutlineIcon v-if="is('warning')" class="h-4 w-4" aria-hidden="true" />
-      <CheckCircleOutlineIcon v-if="is('success')" class="h-4 w-4" aria-hidden="true" />
-      <InformationCircleOutlineIcon v-if="is('info')" class="h-4 w-4" aria-hidden="true" />
+    <span v-if="showIcon" class="w-4">
+      <ExclamationCircleMiniIcon v-if="is('error')" aria-hidden="true" />
+      <ExclamationTriangleMiniIcon v-if="is('warning')" aria-hidden="true" />
+      <CheckCircleMiniIcon v-if="is('success')" aria-hidden="true" />
+      <InformationCircleMiniIcon v-if="is('info')" aria-hidden="true" />
     </span>
 
     <slot>
@@ -97,7 +97,7 @@ const onClose = () => {
       @click.prevent="onClose"
     >
       <span class="sr-only">{{ t('action.close') }}</span>
-      <XMarkOutlineIcon class="h-4 w-4" aria-hidden="true" />
+      <XMarkMiniIcon class="h-4 w-4" aria-hidden="true" />
     </button>
   </div>
 </template>

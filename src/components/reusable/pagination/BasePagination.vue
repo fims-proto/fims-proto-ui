@@ -51,12 +51,12 @@ const onSizeChange = (targetSize: string) => {
     <div class="flex gap-2 items-center">
       <BaseButton category="flat" :disabled="isFirst()" @click="onSelect(1)">
         <template #icon>
-          <ChevronDoubleLeftOutlineIcon />
+          <ChevronDoubleLeftMiniIcon />
         </template>
       </BaseButton>
       <BaseButton category="flat" :disabled="isFirst()" @click="onSelect(current - 1)">
         <template #icon>
-          <ChevronLeftOutlineIcon />
+          <ChevronLeftMiniIcon />
         </template>
       </BaseButton>
       <span class="w-16 text-center">
@@ -64,12 +64,12 @@ const onSizeChange = (targetSize: string) => {
       </span>
       <BaseButton category="flat" :disabled="isLast()" @click="onSelect(current + 1)">
         <template #icon>
-          <ChevronRightOutlineIcon />
+          <ChevronRightMiniIcon />
         </template>
       </BaseButton>
       <BaseButton category="flat" :disabled="isLast()" @click="onSelect(totalPage)">
         <template #icon>
-          <ChevronDoubleRightOutlineIcon />
+          <ChevronDoubleRightMiniIcon />
         </template>
       </BaseButton>
     </div>

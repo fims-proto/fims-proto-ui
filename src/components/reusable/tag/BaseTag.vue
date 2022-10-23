@@ -42,7 +42,7 @@ const is = (t: string | undefined) => props.color === t
       @click.prevent="closed = true"
     >
       <span class="sr-only">{{ t('action.close') }}</span>
-      <XMarkOutlineIcon class="h-3 w-3" aria-hidden="true" />
+      <XMarkMiniIcon class="h-3 w-3" aria-hidden="true" />
     </button>
   </div>
 </template>

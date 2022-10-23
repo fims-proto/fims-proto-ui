@@ -94,10 +94,7 @@ const onSobSelected = async (command: string) => {
             <BaseLink menu>
               <span class="inline">{{ workingSob ? workingSob.name : t('sob.selectSob') }}</span>
               <span class="inline">{{ period }}</span>
-              <ChevronDownOutlineIcon
-                :class="['inline w-3 align-baseline', { 'rotate-180': open }]"
-                aria-hidden="true"
-              />
+              <ChevronDownMiniIcon :class="['inline w-4 align-baseline', { 'rotate-180': open }]" aria-hidden="true" />
             </BaseLink>
           </template>
 
@@ -142,7 +139,7 @@ const onSobSelected = async (command: string) => {
             <BaseDropdownGroup>
               <BaseDropdownItem command="logout">
                 <template #icon>
-                  <ArrowLeftOnRectangleIcon />
+                  <ArrowLeftOnRectangleMiniIcon />
                 </template>
                 {{ t('user.logout') }}
               </BaseDropdownItem>

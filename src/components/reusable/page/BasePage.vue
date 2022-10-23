@@ -14,7 +14,7 @@ defineProps<{
       <div class="flex gap-4 items-center">
         <BaseButton category="flat" @click="$router.go(-1)">
           <template #icon>
-            <ChevronLeftOutlineIcon />
+            <ArrowUturnLeftMiniIcon />
           </template>
         </BaseButton>
         <h1 class="font-medium text-neutral-800">

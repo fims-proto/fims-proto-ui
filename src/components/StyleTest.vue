@@ -87,19 +87,19 @@ const tableColumns: ColumnType[] = [
         <BaseButton category="primary"> Primary </BaseButton>
         <BaseButton>
           <template #icon>
-            <LockClosedOutlineIcon />
+            <LockClosedMiniIcon />
           </template>
           Default
         </BaseButton>
         <BaseButton category="primary">
           <template #icon>
-            <LockClosedOutlineIcon />
+            <LockClosedMiniIcon />
           </template>
           Primary
         </BaseButton>
         <BaseButton>
           <template #icon>
-            <LockClosedOutlineIcon />
+            <LockClosedMiniIcon />
           </template>
         </BaseButton>
         <!-- disabled -->
@@ -107,13 +107,13 @@ const tableColumns: ColumnType[] = [
         <BaseButton disabled category="primary"> Primary </BaseButton>
         <BaseButton disabled>
           <template #icon>
-            <LockClosedOutlineIcon />
+            <LockClosedMiniIcon />
           </template>
           Default
         </BaseButton>
         <BaseButton disabled category="primary">
           <template #icon>
-            <LockClosedOutlineIcon />
+            <LockClosedMiniIcon />
           </template>
           Primary
         </BaseButton>
@@ -124,7 +124,7 @@ const tableColumns: ColumnType[] = [
       <div class="flex gap-4">
         <BaseButtonGroup>
           <BaseButton>
-            <template #icon><LockClosedOutlineIcon /></template>Fisrt
+            <template #icon><LockClosedMiniIcon /></template>Fisrt
           </BaseButton>
           <BaseConfirmationButton @click="onNewNotification('2nd Thoughts!!')">2nd thought</BaseConfirmationButton>
           <BaseButton>Third</BaseButton>
@@ -132,7 +132,7 @@ const tableColumns: ColumnType[] = [
 
         <BaseButtonGroup>
           <BaseButton disabled>
-            <template #icon><LockClosedOutlineIcon /></template>Fisrt
+            <template #icon><LockClosedMiniIcon /></template>Fisrt
           </BaseButton>
           <BaseButton disabled>Second</BaseButton>
         </BaseButtonGroup>
@@ -141,14 +141,14 @@ const tableColumns: ColumnType[] = [
       <div class="flex gap-4">
         <BaseButton category="primary" class="w-64">
           <template #icon>
-            <LockClosedOutlineIcon />
+            <LockClosedMiniIcon />
           </template>
           <span>固定宽度居中</span>
         </BaseButton>
 
         <BaseButton disabled category="primary" class="w-64">
           <template #icon>
-            <LockClosedOutlineIcon />
+            <LockClosedMiniIcon />
           </template>
           <span>固定宽度但禁止</span>
         </BaseButton>
@@ -221,7 +221,7 @@ const tableColumns: ColumnType[] = [
         <template #overlay>
           <BaseDropdownItem>没图标</BaseDropdownItem>
           <BaseDropdownItem>
-            <template #icon><LockClosedOutlineIcon /></template>锁住水分持久保鲜
+            <template #icon><LockClosedMiniIcon /></template>锁住水分持久保鲜
           </BaseDropdownItem>
         </template>
       </BaseDropdown>
@@ -323,7 +323,7 @@ const tableColumns: ColumnType[] = [
         <div>
           <BaseButton html-type="submit" category="primary" class="w-full">
             <template #icon>
-              <LockClosedOutlineIcon />
+              <LockClosedMiniIcon />
             </template>
             <span>登录</span>
           </BaseButton>

@@ -37,7 +37,7 @@ const emptyItem = () => ({
   debit: 0,
 })
 
-const onClearLineItem = (index: number) => (internalLineItems.value[index] = emptyItem())
+const onClearLineItem = (index: number) => internalLineItems.value.splice(index, 1)
 
 const onNewLineItem = () => internalLineItems.value.push(emptyItem())
 
@@ -109,15 +109,15 @@ inititialize()
           class="flex gap-4 items-end px-1 py-px text-sm text-neutral-500 border border-neutral-300/50 rounded-md shadow-sm"
         >
           <span class="flex">
-            <CheckBadgeOutlineIcon v-if="isAudited" class="w-4 text-success-600" />
+            <CheckBadgeMiniIcon v-if="isAudited" class="w-4 text-success-600" />
             {{ isAudited ? t('journal.entry.isAudited') : t('journal.entry.notAudited') }}
           </span>
           <span class="flex">
-            <CheckBadgeOutlineIcon v-if="isReviewed" class="w-4 text-success-600" />
+            <CheckBadgeMiniIcon v-if="isReviewed" class="w-4 text-success-600" />
             {{ isReviewed ? t('journal.entry.isReviewed') : t('journal.entry.notReviewed') }}
           </span>
           <span class="flex">
-            <CheckBadgeOutlineIcon v-if="isPosted" class="w-4 text-success-600" />
+            <CheckBadgeMiniIcon v-if="isPosted" class="w-4 text-success-600" />
             {{ isPosted ? t('journal.entry.isPosted') : t('journal.entry.notPosted') }}
           </span>
         </div>
@@ -151,7 +151,7 @@ inititialize()
             class="w-8 flex items-center justify-center text-neutral-300 hover:text-primary-800 focus:z-10"
             @click.prevent="onClearLineItem(i)"
           >
-            <MinusCircleOutlineIcon class="w-4" />
+            <MinusCircleMiniIcon class="w-4" />
           </button>
 
           <AccountInput v-model="item.accountNumber" :disabled="disabled" />
@@ -170,7 +170,7 @@ inititialize()
           class="w-full flex gap-2 items-center px-2 py-1 text-sm text-neutral-400 shadow-inner hover:text-primary-800 hover:bg-primary-200/50 focus:z-10"
           @click.prevent="onNewLineItem"
         >
-          <PlusCircleOutlineIcon class="w-4" />
+          <PlusCircleMiniIcon class="w-4" />
           <span>{{ t('journal.entry.newLineItem') }}</span>
         </button>
       </div>
