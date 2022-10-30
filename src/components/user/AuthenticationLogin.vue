@@ -155,7 +155,11 @@ const handleSubmit = async () => {
       />
 
       <!-- form -->
-      <BaseForm class="px-12 py-8 bg-white shadow-lg rounded-lg" hide-required-mark @submit="handleSubmit">
+      <BaseForm
+        class="flex flex-col gap-4 px-12 py-8 bg-white shadow-lg rounded-lg"
+        hide-required-mark
+        @submit="handleSubmit"
+      >
         <input v-model="formValue.csrfToken" type="hidden" />
         <BaseFormItem :label="t('user.email')" required>
           <BaseInput

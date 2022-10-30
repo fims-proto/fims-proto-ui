@@ -18,7 +18,7 @@ provideForm({
 </script>
 
 <template>
-  <form class="flex flex-col gap-6" @submit.prevent.stop="$emit('submit')">
+  <form @submit.prevent.stop="$emit('submit')">
     <slot></slot>
   </form>
 </template>

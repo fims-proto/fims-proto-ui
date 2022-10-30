@@ -270,7 +270,7 @@ const tableColumns: ColumnType[] = [
 
     <h1 class="text-neutral-900">BaseForm:</h1>
     <div class="rounded-lg p-4">
-      <BaseForm class="max-w-lg">
+      <BaseForm class="max-w-lg flex flex-col gap-4">
         <BaseFormItem label="普通文本">
           <BaseInput placeholder="say something..." />
         </BaseFormItem>

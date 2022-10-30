@@ -46,9 +46,8 @@ const onSave = async () => {
     return
   }
 
-  toBeUpdated.lineItems.filter((item) => !item.text.trim()).forEach((item) => (item.text = toBeUpdated.headerText))
   toBeUpdated.lineItems = toBeUpdated.lineItems.filter(
-    (item) => item.text.trim() && item.accountNumber.trim() && item.debit.toString() && item.credit.toString()
+    (item) => item.accountNumber.trim() && item.debit.toString() && item.credit.toString()
   )
 
   if (!toBeUpdated.lineItems.length) {
@@ -63,6 +62,7 @@ const onSave = async () => {
   const { exception } = await JournalService.updateJournalEntry(
     props.sobId,
     props.entryId,
+    toBeUpdated.headerText,
     toBeUpdated.transactionTime,
     toBeUpdated.lineItems,
     userStore.state.userId
@@ -123,7 +123,7 @@ const onAction = async (action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
 </script>
 
 <template>
-  <BasePage :subtitle="entry?.lineItems[0].text">
+  <BasePage :subtitle="entry?.headerText">
     <template #title>{{ entry?.documentNumber }}</template>
 
     <template #extra>

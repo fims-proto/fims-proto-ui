@@ -53,6 +53,7 @@ class JournalService {
   public async updateJournalEntry(
     sobId: string,
     entryId: string,
+    headerText: string,
     transactionTime: Date,
     lineItems: LineItem[],
     updater: string
@@ -60,6 +61,7 @@ class JournalService {
     return invokeWithErrorHandler(async () => {
       // patch
       await axios.patch(`${FIMS_URL}/api/v1/sob/${sobId}/journal-entry/${entryId}`, {
+        headerText: headerText,
         transactionTime: transactionTime,
         lineItems: lineItems,
         updater: updater,

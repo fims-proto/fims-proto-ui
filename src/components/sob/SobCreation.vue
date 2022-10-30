@@ -48,7 +48,7 @@ function getCurrentUTCTime() {
   <BasePage>
     <template #title>{{ t('sob.creation.title') }}</template>
     <div>
-      <BaseForm class="w-full max-w-2xl" @submit="onSubmit">
+      <BaseForm class="w-full max-w-2xl flex flex-col gap-4" @submit="onSubmit">
         <BaseFormItem :label="t('sob.name')" required>
           <BaseInput v-model="newSob.name" required />
         </BaseFormItem>

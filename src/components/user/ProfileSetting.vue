@@ -151,7 +151,7 @@ function buildMessages(flow: SelfServiceSettingsFlow | undefined): messageType[]
         <template #panels>
           <!-- profile update -->
           <BaseTabPanel class="max-w-xl">
-            <BaseForm @submit="onProfileUpdate">
+            <BaseForm class="flex flex-col gap-4" @submit="onProfileUpdate">
               <input v-model="profileFormValue.csrf_token" type="hidden" />
               <BaseFormItem :label="t('user.email')" required>
                 <BaseInput
@@ -174,20 +174,18 @@ function buildMessages(flow: SelfServiceSettingsFlow | undefined): messageType[]
                   :placeholder="t('user.firstnameInputPlaceholder')"
                 />
               </BaseFormItem>
-              <div>
-                <BaseButton html-type="submit" category="primary" class="w-full">
-                  <template #icon>
-                    <LockClosedMiniIcon />
-                  </template>
-                  <span>{{ t('action.submit') }}</span>
-                </BaseButton>
-              </div>
+              <BaseButton html-type="submit" category="primary">
+                <template #icon>
+                  <LockClosedMiniIcon />
+                </template>
+                <span>{{ t('action.submit') }}</span>
+              </BaseButton>
             </BaseForm>
           </BaseTabPanel>
 
           <!-- password update -->
           <BaseTabPanel class="max-w-xl">
-            <BaseForm @submit="handleSubmit(passwordFormValue)">
+            <BaseForm class="flex flex-col gap-4" @submit="handleSubmit(passwordFormValue)">
               <input v-model="passwordFormValue.csrf_token" type="hidden" />
               <!-- hidden username field for browser autocomplete -->
               <input
@@ -206,14 +204,12 @@ function buildMessages(flow: SelfServiceSettingsFlow | undefined): messageType[]
                   required
                 />
               </BaseFormItem>
-              <div>
-                <BaseButton html-type="submit" category="primary" class="w-full">
-                  <template #icon>
-                    <LockClosedMiniIcon />
-                  </template>
-                  <span>{{ t('action.submit') }}</span>
-                </BaseButton>
-              </div>
+              <BaseButton html-type="submit" category="primary">
+                <template #icon>
+                  <LockClosedMiniIcon />
+                </template>
+                <span>{{ t('action.submit') }}</span>
+              </BaseButton>
             </BaseForm>
           </BaseTabPanel>
         </template>

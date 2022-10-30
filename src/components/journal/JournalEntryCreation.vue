@@ -44,6 +44,10 @@ const saveEntry = async () => {
     return
   }
 
+  if (!formRef.value?.validate()) {
+    return
+  }
+
   // collect form
   const toBeCreated = Object.assign({}, newEntry.value, formRef.value?.collect())
 
@@ -57,7 +61,6 @@ const saveEntry = async () => {
   }
 
   toBeCreated.creator = userId.value
-  toBeCreated.lineItems.forEach((item) => (item.text = toBeCreated.headerText))
   toBeCreated.lineItems = toBeCreated.lineItems.filter(
     (item) => item.accountNumber.trim() && item.debit.toString() && item.credit.toString()
   )

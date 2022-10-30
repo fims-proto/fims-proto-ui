@@ -3,6 +3,7 @@ import Big from 'big.js'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { LineItem, Traits } from '../../domain'
+import BaseForm from '../reusable/form/BaseForm.vue'
 
 const props = defineProps<{
   headerText: string
@@ -17,6 +18,8 @@ const props = defineProps<{
 }>()
 
 const { t, d } = useI18n()
+
+const headerFormRef = ref<InstanceType<typeof BaseForm>>()
 
 const internalHeaderText = ref()
 const internalTransactionTime = ref()
@@ -37,12 +40,22 @@ const emptyItem = () => ({
   debit: 0,
 })
 
+const onHeaderTextChange = () => internalLineItems.value.forEach((item) => (item.text = internalHeaderText.value))
+
 const onClearLineItem = (index: number) => internalLineItems.value.splice(index, 1)
 
 const onNewLineItem = () => internalLineItems.value.push(emptyItem())
 
+const validate = () => {
+  if (!internalHeaderText.value.trim()) {
+    alert('header text cannot be empty')
+    return false
+  }
+  return true
+}
+
 const collect = () => ({
-  headerText: internalHeaderText.value,
+  headerText: internalHeaderText.value.trim(),
   transactionTime: internalTransactionTime.value,
   attachmentQuantity: internalAttachmentQuantity.value,
   lineItems: internalLineItems.value,
@@ -50,7 +63,7 @@ const collect = () => ({
   totalCredit: totalCredit.value,
 })
 
-const inititialize = () => {
+const initialize = () => {
   internalHeaderText.value = props.headerText
   internalTransactionTime.value = props.transactionTime
   internalAttachmentQuantity.value = props.attachmentQuantity
@@ -58,48 +71,47 @@ const inititialize = () => {
 }
 
 defineExpose({
+  validate,
   collect,
-  reset: inititialize,
+  reset: initialize,
 })
 
-inititialize()
+initialize()
 </script>
 
 <template>
   <div class="w-full">
     <!-- header -->
-    <div class="flex gap-4">
+    <BaseForm ref="headerFormRef" class="flex gap-4">
       <!-- header text -->
-      <div>
-        <BaseFormItem v-if="!disabled" required :label="t('journal.entry.headerText')">
-          <BaseInput v-model="internalHeaderText" :placeholder="t('journal.entry.headerTextPlaceholder')" />
-        </BaseFormItem>
-      </div>
+      <BaseFormItem v-if="!disabled" required :label="t('journal.entry.headerText')">
+        <BaseInput
+          v-model="internalHeaderText"
+          :placeholder="t('journal.entry.headerTextPlaceholder')"
+          @change="onHeaderTextChange"
+        />
+      </BaseFormItem>
 
       <!-- transaction time field -->
-      <div>
-        <p v-if="disabled">{{ t('journal.entry.transactionTime') }} {{ d(internalTransactionTime, 'date') }}</p>
-        <BaseFormItem v-else required :label="t('journal.entry.transactionTime')">
-          <BaseInput v-model="internalTransactionTime" html-type="date" />
-        </BaseFormItem>
-      </div>
+      <p v-if="disabled">{{ t('journal.entry.transactionTime') }} {{ d(internalTransactionTime, 'date') }}</p>
+      <BaseFormItem v-else required :label="t('journal.entry.transactionTime')">
+        <BaseInput v-model="internalTransactionTime" html-type="date" />
+      </BaseFormItem>
 
       <!-- attachment quntity field -->
-      <div>
-        <p v-if="disabled">
-          {{ t('journal.entry.attachmentQuantity') }} {{ internalAttachmentQuantity }}
-          {{ t('journal.entry.attachmentQuantityUnit') }}
-        </p>
-        <BaseFormItem v-else :label="t('journal.entry.attachmentQuantity')">
-          <BaseInput
-            v-model="internalAttachmentQuantity"
-            class="w-36"
-            html-type="number"
-            :suffix="t('journal.entry.attachmentQuantityUnit')"
-            :min="0"
-          />
-        </BaseFormItem>
-      </div>
+      <p v-if="disabled">
+        {{ t('journal.entry.attachmentQuantity') }} {{ internalAttachmentQuantity }}
+        {{ t('journal.entry.attachmentQuantityUnit') }}
+      </p>
+      <BaseFormItem v-else :label="t('journal.entry.attachmentQuantity')">
+        <BaseInput
+          v-model="internalAttachmentQuantity"
+          class="w-36"
+          html-type="number"
+          :suffix="t('journal.entry.attachmentQuantityUnit')"
+          :min="0"
+        />
+      </BaseFormItem>
 
       <!-- <div class="flex-1 flex flex-row gap-4 justify-center items-end">
         <h3>{{ t('journal.entry.type') }}</h3>
@@ -122,7 +134,7 @@ inititialize()
           </span>
         </div>
       </div> -->
-    </div>
+    </BaseForm>
 
     <!-- table -->
     <div class="flex flex-col bg-white mt-4 divide-y divide-neutral-300 border border-neutral-300 rounded-md shadow-lg">
