@@ -4,29 +4,28 @@ export default defineComponent({ inheritAttrs: false })
 
 <script setup lang="ts">
 import { computed, defineComponent, useAttrs, useSlots } from 'vue'
+import { injectFormItem } from './context'
 
-const props = defineProps({
-  modelValue: {
-    type: [String, Number, Date],
-    default: undefined,
-  },
-  htmlType: {
-    type: String,
-    default: 'text',
-  },
-  prefix: {
-    type: String,
-    default: undefined,
-  },
-  suffix: {
-    type: String,
-    default: undefined,
-  },
-})
+const props = withDefaults(
+  defineProps<{
+    modelValue?: string | number | Date
+    htmlType?: string
+    prefix?: string
+    suffix?: string
+  }>(),
+  {
+    modelValue: undefined,
+    htmlType: 'text',
+    prefix: undefined,
+    suffix: undefined,
+  }
+)
 
 const emit = defineEmits<{
   (event: 'update:modelValue', value: string | Date | number): void
 }>()
+
+const FormItem = injectFormItem()
 
 const attrClass = useAttrs()['class']
 const attrExceptClass = Object.assign({}, useAttrs())
@@ -53,10 +52,14 @@ const onValueUpdate = (event: Event) => {
   } else {
     emit('update:modelValue', val)
   }
+
+  FormItem?.handleContentChange()
 }
 
 const hasPrefix = () => !!props.prefix || !!useSlots()['prefix']
 const hasSuffix = () => !!props.suffix || !!useSlots()['suffix']
+const errorStatus = () => FormItem?.itemStatus.value === 'error'
+const warningStatus = () => FormItem?.itemStatus.value === 'warning'
 </script>
 
 <template>
@@ -74,8 +77,12 @@ const hasSuffix = () => !!props.suffix || !!useSlots()['suffix']
     <input
       v-bind="attrExceptClass"
       :class="[
-        'appearance-none w-full text-sm placeholder-neutral-500 border border-neutral-300',
-        'focus:z-10 focus:outline-none focus:ring focus:ring-primary-600/50 focus:border-primary-600',
+        'appearance-none w-full text-sm placeholder-neutral-500 border focus:z-10 focus:outline-none focus:ring',
+        errorStatus()
+          ? 'border-error-700 focus:ring-error-700/50 focus:border-error-600'
+          : warningStatus()
+          ? 'border-warning-300 focus:ring-warning-600/50 focus:border-warning-600'
+          : 'border-neutral-300 hover:border-primary-400 focus:ring-primary-600/50 focus:border-primary-600',
         hasPrefix() ? '-ml-px' : 'group-first-of-type:rounded-l-md',
         hasSuffix() ? '-mr-px' : 'group-last-of-type:rounded-r-md',
       ]"

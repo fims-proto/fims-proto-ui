@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { useNotificationStore } from '../store/notification'
-import { AppNotification } from '../domain'
-import { ColumnType } from './reusable/table'
+import { useNotificationStore } from '../../store/notification'
+import { AppNotification } from '../../domain'
+import { ColumnType } from '../reusable/table'
 
 // inputs
 const inputDate = ref(new Date())

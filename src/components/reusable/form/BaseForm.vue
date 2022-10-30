@@ -1,19 +1,38 @@
+<script lang="ts">
+export type FormItemValidator = (value: string) => boolean | Error
+
+export type FormItemRule = {
+  required?: boolean
+  validator?: FormItemValidator
+  message?: string
+}
+
+export type FormRules = {
+  [path: string]: FormRules | FormItemRule
+}
+
+export type FormProps = {
+  name?: string
+  model?: object
+  rules?: FormRules
+}
+</script>
+
 <script setup lang="ts">
-import { computed } from 'vue'
 import { provideForm } from './context'
 
-const props = defineProps<{
-  name?: string
-  hideRequiredMark?: boolean
-}>()
+const props = withDefaults(defineProps<FormProps>(), {
+  name: undefined,
+  model: () => ({}),
+  rules: () => ({}),
+})
 
 defineEmits<{
   (event: 'submit'): void
 }>()
 
 provideForm({
-  name: computed(() => props.name),
-  hideRequiredMark: computed(() => props.hideRequiredMark ?? false),
+  props,
 })
 </script>
 

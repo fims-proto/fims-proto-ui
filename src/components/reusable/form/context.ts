@@ -1,26 +1,32 @@
 import { inject, provide, Ref } from 'vue'
+import { FormProps } from './BaseForm.vue'
+import { FormValidationStatus } from './interface'
 
-export interface FormInterface {
-  name: Ref<string | undefined>
-  hideRequiredMark: Ref<boolean>
+// Form injections
+
+export interface FormInjection {
+  props: FormProps
 }
 
-export interface FormItemInterface {
-  inputId: Ref<string>
+export function provideForm(ctx: FormInjection) {
+  provide<FormInjection>('BaseForm', ctx)
 }
 
-export function provideForm(ctx: FormInterface) {
-  provide<FormInterface>('BaseForm', ctx)
+export function injectForm(): FormInjection | undefined {
+  return inject<FormInjection | undefined>('BaseForm', undefined)
 }
 
-export function provideFormItem(ctx: FormItemInterface) {
-  provide<FormItemInterface>('BaseFormItem', ctx)
+// Form item injections
+
+export interface FormItemInjection {
+  itemStatus: Ref<FormValidationStatus | undefined>
+  handleContentChange: () => void
 }
 
-export function injectForm(): FormInterface | undefined {
-  return inject<FormInterface | undefined>('BaseForm', undefined)
+export function provideFormItem(ctx: FormItemInjection) {
+  provide<FormItemInjection>('BaseFormItem', ctx)
 }
 
-export function injectFormItem(): FormItemInterface | undefined {
-  return inject<FormItemInterface | undefined>('BaseFormItem', undefined)
+export function injectFormItem(): FormItemInjection | undefined {
+  return inject<FormItemInjection | undefined>('BaseFormItem', undefined)
 }

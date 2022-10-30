@@ -14,7 +14,7 @@ import JournalMain from '../components/journal/JournalMain.vue'
 import JournalEntryCreation from '../components/journal/JournalEntryCreation.vue'
 import JournalEntryDetail from '../components/journal/JournalEntryDetail.vue'
 import ExceptionPage from '../components/ExceptionPage.vue'
-import StyleTest from '../components/StyleTest.vue'
+import StyleTest from '../components/style-test/StyleTest.vue'
 import { beforeAppEnterHandler, beforeWorkingZoneEnterHandler } from './beforeEnterHandlers'
 
 const routes: RouteRecordRaw[] = [
