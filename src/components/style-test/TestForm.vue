@@ -37,7 +37,10 @@ const formRef = ref<InstanceType<typeof BaseForm>>()
 </script>
 
 <template>
-  <button class="block" @click="formRef?.validate">validate</button>
+  <div class="flex gap-2 mb-2">
+    <BaseButton @click="formRef?.validate">Validate</BaseButton>
+    <BaseButton @click="formRef?.resetValidation">Reset Validation</BaseButton>
+  </div>
 
   <BaseForm ref="formRef" :model="modelRef" :rules="rules" class="w-96 flex flex-col gap-4">
     <BaseFormItem path="username" label="user name">

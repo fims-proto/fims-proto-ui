@@ -1,19 +1,9 @@
-<script lang="ts">
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const get = <T>(obj: any, path: string): T => {
-  const parts = path ? path.split('.') : []
-  for (let i = 0; i < parts.length && obj; i++) {
-    obj = obj[parts[i]]
-  }
-  return path ? obj : undefined
-}
-</script>
-
 <script setup lang="ts">
-import { ref } from 'vue'
-import { FormItemRule } from './BaseForm.vue'
+import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { injectForm, provideFormItem } from './context'
-import { FormValidationStatus } from './interface'
+import { FormItemRule, FormValidationStatus } from './interface'
+import { get, validate } from './utils'
 
 const props = withDefaults(
   defineProps<{
@@ -28,45 +18,42 @@ const props = withDefaults(
   }
 )
 
+const { t } = useI18n()
+
 const itemStatus = ref<FormValidationStatus | undefined>()
 const validationMessage = ref<string>()
 
 const Form = injectForm()
 
-const validate = () => {
+props.path &&
+  watch(
+    () => Form?.itemValidationState.value[props.path as string],
+    () => {
+      const result = Form?.itemValidationState.value[props.path as string]
+      result !== undefined && result !== null && updateValidationState(result)
+    }
+  )
+
+const updateValidationState = (state: true | string) => {
   itemStatus.value = undefined
   validationMessage.value = undefined
 
-  const value = get<string>(Form?.props.model, props.path)
-  const rule = get<FormItemRule>(Form?.props.rules, props.path)
-
-  if (!rule) {
-    // no rule specified, regard as validate pass
-    return true
-  }
-
-  if (rule.required && !value) {
+  if (state !== true) {
     itemStatus.value = 'error'
-    validationMessage.value = rule.message ?? ''
-    return false
+    validationMessage.value = t(state)
   }
+}
 
-  if (rule.validator) {
-    const validationResult = rule.validator(value)
-    if (validationResult instanceof Error) {
-      itemStatus.value = 'error'
-      validationMessage.value = validationResult.message ?? rule.message ?? ''
-      return false
-    }
-    return validationResult === true
-  }
+const validateItem = () => {
+  const value = get<string>(Form?.model, props.path)
+  const rule = get<FormItemRule>(Form?.rules, props.path)
 
-  return true
+  updateValidationState(validate(value, rule))
 }
 
 provideFormItem({
   itemStatus,
-  handleContentChange: validate,
+  handleContentChange: validateItem,
 })
 </script>
 

@@ -1,4 +1,4 @@
-import { FormItemRule } from './BaseForm.vue'
+import { FormItemRule } from './interface'
 
 export function validate(value: string, rule: FormItemRule): true | string {
   if (!rule) {
@@ -7,7 +7,7 @@ export function validate(value: string, rule: FormItemRule): true | string {
   }
 
   if (rule.required && !value) {
-    return rule.message ?? ''
+    return rule.message ?? 'common.mandatoryFieldMissing'
   }
 
   if (rule.validator) {

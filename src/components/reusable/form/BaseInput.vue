@@ -59,7 +59,6 @@ const onValueUpdate = (event: Event) => {
 const hasPrefix = () => !!props.prefix || !!useSlots()['prefix']
 const hasSuffix = () => !!props.suffix || !!useSlots()['suffix']
 const errorStatus = () => FormItem?.itemStatus.value === 'error'
-const warningStatus = () => FormItem?.itemStatus.value === 'warning'
 </script>
 
 <template>
@@ -80,8 +79,6 @@ const warningStatus = () => FormItem?.itemStatus.value === 'warning'
         'appearance-none w-full text-sm placeholder-neutral-500 border focus:z-10 focus:outline-none focus:ring',
         errorStatus()
           ? 'border-error-700 focus:ring-error-700/50 focus:border-error-600'
-          : warningStatus()
-          ? 'border-warning-300 focus:ring-warning-600/50 focus:border-warning-600'
           : 'border-neutral-300 hover:border-primary-400 focus:ring-primary-600/50 focus:border-primary-600',
         hasPrefix() ? '-ml-px' : 'group-first-of-type:rounded-l-md',
         hasSuffix() ? '-mr-px' : 'group-last-of-type:rounded-r-md',

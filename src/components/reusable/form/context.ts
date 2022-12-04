@@ -1,19 +1,22 @@
-import { inject, provide, Ref } from 'vue'
-import { FormProps } from './BaseForm.vue'
-import { FormValidationStatus } from './interface'
+import { inject, InjectionKey, provide, Ref } from 'vue'
+import { FormRules, FormValidationStatus } from './interface'
 
 // Form injections
 
 export interface FormInjection {
-  props: FormProps
+  model?: object
+  rules?: FormRules
+  itemValidationState: Ref<Record<string, true | string>>
 }
+
+const formInjectionKey = Symbol() as InjectionKey<FormInjection>
 
 export function provideForm(ctx: FormInjection) {
-  provide<FormInjection>('BaseForm', ctx)
+  provide(formInjectionKey, ctx)
 }
 
-export function injectForm(): FormInjection | undefined {
-  return inject<FormInjection | undefined>('BaseForm', undefined)
+export function injectForm() {
+  return inject(formInjectionKey, undefined)
 }
 
 // Form item injections
@@ -23,10 +26,12 @@ export interface FormItemInjection {
   handleContentChange: () => void
 }
 
+const formItemInjectionKey = Symbol() as InjectionKey<FormItemInjection>
+
 export function provideFormItem(ctx: FormItemInjection) {
-  provide<FormItemInjection>('BaseFormItem', ctx)
+  provide(formItemInjectionKey, ctx)
 }
 
-export function injectFormItem(): FormItemInjection | undefined {
-  return inject<FormItemInjection | undefined>('BaseFormItem', undefined)
+export function injectFormItem() {
+  return inject(formItemInjectionKey, undefined)
 }
