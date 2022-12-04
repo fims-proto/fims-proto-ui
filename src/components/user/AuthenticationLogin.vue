@@ -14,7 +14,7 @@ interface messageType {
   text: string
 }
 
-function buildFormValue(flow: SelfServiceLoginFlow): formValueType {
+function buildFormValue(flow: LoginFlow): formValueType {
   const getValue = (attr: string) =>
     (
       flow.ui.nodes.find((node) => (node.attributes as UiNodeInputAttributes).name == attr)
@@ -41,7 +41,7 @@ function buildSumitForm(formValue: formValueType) {
   return result
 }
 
-function buildMessages(flow: SelfServiceLoginFlow): messageType[] {
+function buildMessages(flow: LoginFlow): messageType[] {
   const convertMessageType = (type: string) => {
     switch (type) {
       case 'error':
@@ -66,7 +66,7 @@ function buildMessages(flow: SelfServiceLoginFlow): messageType[] {
 
 <script setup lang="ts">
 import {
-  SelfServiceLoginFlow,
+  LoginFlow,
   UiNodeInputAttributes,
   SubmitSelfServiceLoginFlowWithPasswordMethodBody,
   UiText,
