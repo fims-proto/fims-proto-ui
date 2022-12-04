@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import BaseForm from '../reusable/form/BaseForm.vue'
 
 const modelRef = ref({
   username: '',
@@ -13,30 +14,32 @@ const rules = {
   username: {
     required: true,
   },
-  journal: {
-    headerText: {
-      required: true,
-      validator: (value: string) => {
-        if (value.startsWith('N')) {
-          return new Error('Cannot starts with "N"')
-        }
-        return true
-      },
+  'journal.headerText': {
+    required: true,
+    validator: (value: string) => {
+      if (value.startsWith('N')) {
+        return new Error('Cannot starts with "N"')
+      }
+      return true
     },
-    attachmentNumber: {
-      validator: (value: string) => {
-        if (Number(value) < 0) {
-          return new Error('Cannot be negetive')
-        }
-        return true
-      },
+  },
+  'journal.attachmentNumber': {
+    validator: (value: string) => {
+      if (Number(value) < 0) {
+        return new Error('Cannot be negetive')
+      }
+      return true
     },
   },
 }
+
+const formRef = ref<InstanceType<typeof BaseForm>>()
 </script>
 
 <template>
-  <BaseForm :model="modelRef" :rules="rules" class="w-96 flex flex-col gap-4">
+  <button class="block" @click="formRef?.validate">validate</button>
+
+  <BaseForm ref="formRef" :model="modelRef" :rules="rules" class="w-96 flex flex-col gap-4">
     <BaseFormItem path="username" label="user name">
       <BaseInput v-model="modelRef.username" />
     </BaseFormItem>

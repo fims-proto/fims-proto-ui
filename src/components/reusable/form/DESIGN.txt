@@ -1,0 +1,4 @@
+Form 里面有 data，有 rules，validate 可以直接进行。
+检查出的错误储存在 map 中: Record<path, errorMsg>，并且通过 function(path): errorMsg provide 到下层.
+
+Form Input Item 中 通过自己的 path 取得 error message
