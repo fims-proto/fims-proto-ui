@@ -174,6 +174,12 @@ const tableColumns: ColumnType[] = [
       <BaseNotification type="info" message="在城墙的一平台上" />
       <BaseNotification type="success" closable :show-icon="false" message="没有 icon! 守卫柏纳多与佛郎西斯哥入" />
       <BaseNotification type="warning" message="此时正是深夜, 一片漆黑中, 佛郎西斯哥在城墙上站岗, 而柏纳多来接他的班" />
+      <BaseNotification
+        class="w-72"
+        type="error"
+        closable
+        message="一段比较长的文本, 但是受限在了比较窄的空间, 它将如何表现, 让我们拭目以待, 希望它的图标不会被挤占, 希望它的按钮容易点."
+      />
       <BaseButton @click="onNewNotification()">弹出式通知</BaseButton>
     </div>
 

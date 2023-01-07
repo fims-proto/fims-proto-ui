@@ -1,60 +1,3 @@
-<script setup lang="ts">
-import { SelfServiceSettingsFlow, SubmitSelfServiceSettingsFlowBody } from '@ory/kratos-client'
-import { ref, onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { KratosService, UiNode, UiText, UserService } from '../../domain'
-import { useNotificationStore } from '../../store/notification'
-import { useUserStore } from '../../store/user'
-
-const { t } = useI18n()
-const userStore = useUserStore()
-const notificationStore = useNotificationStore()
-
-const formBusy = ref(true)
-const messages = ref<messageType[]>([])
-
-const flow = ref<SelfServiceSettingsFlow | undefined>()
-const profileFormValue = ref<profileFormType>({
-  csrf_token: '',
-  method: '',
-  traits: { email: '', name: { first: '', last: '' } },
-})
-const passwordFormValue = ref<passwordFormType>({ csrf_token: '', method: '', password: '' })
-
-onMounted(async () => {
-  flow.value = await KratosService.initSettingFlow()
-  profileFormValue.value = buildProfileForm(filterNodes('profile', flow.value) as UiNode[])
-  passwordFormValue.value = buildPasswordForm(filterNodes('password', flow.value) as UiNode[])
-  messages.value = buildMessages(flow.value)
-  formBusy.value = false
-})
-
-const handleSubmit = async (formValue: SubmitSelfServiceSettingsFlowBody) => {
-  formBusy.value = true
-  if (!flow.value) {
-    notificationStore.action.push({
-      type: 'error',
-      message: 'should not happen: no flow id',
-      duration: 0,
-    })
-    return
-  }
-
-  flow.value = await KratosService.submitSettingFlow(flow.value?.id, formValue)
-  profileFormValue.value = buildProfileForm(filterNodes('profile', flow.value) as UiNode[])
-  passwordFormValue.value = buildPasswordForm(filterNodes('password', flow.value) as UiNode[])
-  messages.value = buildMessages(flow.value)
-  formBusy.value = false
-
-  await userStore.action.loadUser()
-}
-
-const onProfileUpdate = async () => {
-  await handleSubmit(profileFormValue.value)
-  UserService.updateUser(userStore.state.userId, userStore.state.traits)
-}
-</script>
-
 <script lang="ts">
 interface profileFormType {
   csrf_token: string
@@ -74,12 +17,7 @@ interface passwordFormType {
   password: string
 }
 
-interface messageType {
-  type?: 'error' | 'info' | 'success' | 'warning' | undefined
-  text: string
-}
-
-function filterNodes(group: string, flow: SelfServiceSettingsFlow | undefined) {
+function filterNodes(group: string, flow: SettingsFlow | undefined) {
   return flow?.ui.nodes.filter((node) => node.group == 'default' || node.group == group)
 }
 
@@ -108,8 +46,31 @@ function buildPasswordForm(uiNodes: UiNode[] | undefined) {
     password: getValue('password', uiNodes) ?? '',
   }
 }
+</script>
 
-function buildMessages(flow: SelfServiceSettingsFlow | undefined): messageType[] {
+<script setup lang="ts">
+import { SettingsFlow, UpdateSettingsFlowBody } from '@ory/kratos-client'
+import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { KratosService, UiNode, UiText, UserService } from '../../domain'
+import { useNotificationStore } from '../../store/notification'
+import { useUserStore } from '../../store/user'
+
+const { t } = useI18n()
+const userStore = useUserStore()
+const notificationStore = useNotificationStore()
+
+const formBusy = ref(true)
+
+const flow = ref<SettingsFlow | undefined>()
+const profileFormValue = ref<profileFormType>({
+  csrf_token: '',
+  method: '',
+  traits: { email: '', name: { first: '', last: '' } },
+})
+const passwordFormValue = ref<passwordFormType>({ csrf_token: '', method: '', password: '' })
+
+const notify = (flow: SettingsFlow | undefined) => {
   const convertMessageType = (type: string) => {
     switch (type) {
       case 'error':
@@ -118,17 +79,56 @@ function buildMessages(flow: SelfServiceSettingsFlow | undefined): messageType[]
       case 'warning':
         return type
       default:
-        return undefined
+        return 'error'
     }
   }
   const createMessage = (message: UiText) => ({
     type: convertMessageType(message.type),
     text: message.text,
   })
-  return [
-    flow?.ui.messages?.map(createMessage) ?? [],
-    flow?.ui.nodes.flatMap((node) => node.messages).map(createMessage) ?? [],
-  ].flat()
+
+  let messages = flow?.ui.messages?.map(createMessage) ?? []
+  messages = messages.concat(flow?.ui.nodes.flatMap((node) => node.messages).map(createMessage) ?? [])
+  messages.forEach((message) =>
+    notificationStore.action.push({
+      type: message.type,
+      message: message.text,
+      duration: message.type === 'error' || message.type === 'warning' ? 0 : undefined,
+    })
+  )
+}
+
+onMounted(async () => {
+  flow.value = await KratosService.initSettingFlow()
+  profileFormValue.value = buildProfileForm(filterNodes('profile', flow.value) as UiNode[])
+  passwordFormValue.value = buildPasswordForm(filterNodes('password', flow.value) as UiNode[])
+  formBusy.value = false
+  notify(flow.value)
+})
+
+const handleSubmit = async (formValue: UpdateSettingsFlowBody) => {
+  formBusy.value = true
+  if (!flow.value) {
+    notificationStore.action.push({
+      type: 'error',
+      message: 'should not happen: no flow id',
+      duration: 0,
+    })
+    return
+  }
+
+  flow.value = await KratosService.submitSettingFlow(flow.value?.id, formValue)
+  profileFormValue.value = buildProfileForm(filterNodes('profile', flow.value) as UiNode[])
+  passwordFormValue.value = buildPasswordForm(filterNodes('password', flow.value) as UiNode[])
+  formBusy.value = false
+  notify(flow.value)
+
+  await userStore.action.loadUser()
+}
+
+const onProfileUpdate = async () => {
+  await handleSubmit(profileFormValue.value)
+  UserService.updateUser(userStore.state.userId, userStore.state.traits)
 }
 </script>
 
@@ -136,13 +136,6 @@ function buildMessages(flow: SelfServiceSettingsFlow | undefined): messageType[]
   <BasePage :subtitle="t('profile.subtitle')">
     <template #title>{{ t('profile.title') }}</template>
     <div class="flex flex-col gap-2">
-      <BaseNotification
-        v-for="(message, i) in messages"
-        :key="`profileUpdate-alert-${i}`"
-        :type="message.type ?? 'error'"
-        :message="message.text"
-      />
-
       <BaseTabs>
         <template #tabs>
           <BaseTabItem>{{ t('profile.updateProfile') }}</BaseTabItem>

@@ -2,15 +2,18 @@ import { AxiosError } from 'axios'
 import { useNotificationStore } from '../../store/notification'
 import { Response, SlugError } from './types'
 
-export async function invokeWithErrorHandler<T>(invoker: () => Promise<T>): Promise<Response<T>> {
+export async function invokeWithErrorHandler<T>(
+  invoker: () => Promise<T>,
+  errorExtractor: (e: AxiosError) => SlugError = generalErrorExtractor
+): Promise<Response<T>> {
   try {
     return { data: await invoker() }
   } catch (error) {
     if ((error as AxiosError).response) {
       // server response
-      const slugErr = (error as AxiosError).response?.data as SlugError
-      generalErrorHandler(slugErr)
-      return { exception: slugErr }
+      const slugError = errorExtractor(error as AxiosError)
+      notify(slugError)
+      return { exception: slugError }
     }
 
     if ((error as AxiosError).request) {
@@ -25,10 +28,14 @@ export async function invokeWithErrorHandler<T>(invoker: () => Promise<T>): Prom
   }
 }
 
-function generalErrorHandler(exception: SlugError) {
+function generalErrorExtractor(error: AxiosError): SlugError {
+  return error.response?.data as SlugError
+}
+
+function notify(slugError: SlugError) {
   useNotificationStore().action.push({
     type: 'error',
-    message: exception.message,
+    message: slugError.message,
     duration: 0,
   })
 }

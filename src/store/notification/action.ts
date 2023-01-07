@@ -12,9 +12,14 @@ function remove(state: INotificationState) {
   return (id: string) => (state.notifications = state.notifications.filter((m) => m.id != id))
 }
 
+function clear(state: INotificationState) {
+  return () => state.notifications.splice(0, state.notifications.length)
+}
+
 export function createAction(state: INotificationState) {
   return {
     push: push(state),
     remove: remove(state),
+    clear: clear(state),
   }
 }

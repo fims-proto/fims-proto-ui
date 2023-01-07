@@ -9,11 +9,6 @@ interface formValueType {
   csrfToken: string
 }
 
-interface messageType {
-  type?: 'error' | 'info' | 'success' | 'warning' | undefined
-  text: string
-}
-
 function buildFormValue(flow: LoginFlow): formValueType {
   const getValue = (attr: string) =>
     (
@@ -33,45 +28,17 @@ function buildFormValue(flow: LoginFlow): formValueType {
 }
 
 function buildSumitForm(formValue: formValueType) {
-  let result = {} as SubmitSelfServiceLoginFlowWithPasswordMethodBody
+  let result = {} as UpdateLoginFlowWithPasswordMethod
   result.csrf_token = formValue.csrfToken
   result.method = formValue.method
   result.password = formValue.user.password
   result.password_identifier = formValue.user.email
   return result
 }
-
-function buildMessages(flow: LoginFlow): messageType[] {
-  const convertMessageType = (type: string) => {
-    switch (type) {
-      case 'error':
-      case 'info':
-      case 'success':
-      case 'warning':
-        return type
-      default:
-        return undefined
-    }
-  }
-  const createMessage = (message: UiText) => ({
-    type: convertMessageType(message.type),
-    text: message.text,
-  })
-  return [
-    flow.ui.messages?.map(createMessage) ?? [],
-    flow.ui.nodes.flatMap((node) => node.messages).map(createMessage) ?? [],
-  ].flat()
-}
 </script>
 
 <script setup lang="ts">
-import {
-  LoginFlow,
-  UiNodeInputAttributes,
-  SubmitSelfServiceLoginFlowWithPasswordMethodBody,
-  UiText,
-  JsonError,
-} from '@ory/kratos-client'
+import { LoginFlow, UiNodeInputAttributes, UpdateLoginFlowWithPasswordMethod, UiText } from '@ory/kratos-client'
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
@@ -85,24 +52,43 @@ const router = useRouter()
 const userStore = useUserStore()
 const notificationStore = useNotificationStore()
 
-const messages = ref<messageType[]>([])
 const formValue = ref<formValueType>({ flowId: '', method: '', user: { email: '', password: '' }, csrfToken: '' })
 const formBusy = ref(true)
 
+const notify = (flow: LoginFlow) => {
+  const convertMessageType = (type: string) => {
+    switch (type) {
+      case 'error':
+      case 'info':
+      case 'success':
+      case 'warning':
+        return type
+      default:
+        return 'error'
+    }
+  }
+  const createMessage = (message: UiText) => ({
+    type: convertMessageType(message.type),
+    text: message.text,
+  })
+
+  let messages = flow.ui.messages?.map(createMessage) ?? []
+  messages = messages.concat(flow.ui.nodes.flatMap((node) => node.messages).map(createMessage) ?? [])
+  messages.forEach((message) =>
+    notificationStore.action.push({
+      type: message.type,
+      message: message.text,
+      duration: 0,
+    })
+  )
+}
+
 onMounted(async () => {
   const result = await KratosService.initLoginFlow()
-  if ('error' in result) {
-    messages.value = [
-      {
-        type: 'error',
-        text: (result as unknown as JsonError).error.message,
-      },
-    ]
-  } else {
-    formValue.value = buildFormValue(result)
-    messages.value = buildMessages(result)
-  }
+
+  formValue.value = buildFormValue(result)
   formBusy.value = false
+  notify(result)
 })
 
 const handleSubmit = async () => {
@@ -126,12 +112,13 @@ const handleSubmit = async () => {
     } else {
       router.replace({ name: 'home' })
     }
+    notificationStore.action.clear()
     return
   }
   // otherwise, flow is retured
   formValue.value = buildFormValue(result)
-  messages.value = buildMessages(result)
   formBusy.value = false
+  notify(result)
 }
 </script>
 
@@ -144,15 +131,6 @@ const handleSubmit = async () => {
       <div>
         <h1 class="text-center text-3xl font-extrabold text-primary-900">Login</h1>
       </div>
-
-      <!-- messages -->
-      <BaseNotification
-        v-for="(message, i) in messages"
-        :key="`login-alert-${i}`"
-        :type="message.type ?? 'error'"
-        :message="message.text"
-        closable
-      />
 
       <!-- form -->
       <BaseForm class="flex flex-col gap-4 px-12 py-8 bg-white shadow-lg rounded-lg" @submit="handleSubmit">

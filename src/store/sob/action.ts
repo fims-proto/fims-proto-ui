@@ -15,8 +15,6 @@ function setWorkingSob(state: ISobState) {
     if (state.workingSob?.id !== sobId && sobId) {
       console.log('Updating working sob')
 
-      await refreshSobs(state)()
-
       const foundSob = state.sobs.find((sob) => sob.id === sobId)
       if (!foundSob) {
         console.warn('sob-not-found')
@@ -34,6 +32,7 @@ function setWorkingSob(state: ISobState) {
 
 function loadWorkingSob(state: ISobState) {
   return async () => {
+    await refreshSobs(state)()
     const sobId = StorageService.get(CURRENT_SOB_KEY)
     if (sobId) {
       await setWorkingSob(state)(sobId)
