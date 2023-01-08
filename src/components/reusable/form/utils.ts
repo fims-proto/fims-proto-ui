@@ -1,6 +1,6 @@
 import { FormItemRule } from './interface'
 
-export function validate(value: string, rule: FormItemRule): true | string {
+export function validate(value: unknown, rule: FormItemRule): true | string {
   if (!rule) {
     // no rule specified, regard as validate pass
     return true

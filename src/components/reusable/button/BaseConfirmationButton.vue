@@ -58,7 +58,10 @@ onClickOutside(confirmationBoxRef, () => (confirming.value = false))
           class="bg-white mt-2 p-2 text-sm rounded-md shadow-lg border border-neutral-200"
         >
           <span>{{ confirmationText ?? t('common.confirmationText') }}</span>
-          <button class="bg-error-600 ml-1 px-2 text-white rounded-md" @click.prevent="onConfirmClick">
+          <button
+            class="bg-error-600 ml-1 px-2 text-white rounded-md hover:bg-error-700"
+            @click.prevent="onConfirmClick"
+          >
             {{ t('common.confirm') }}
           </button>
         </div>

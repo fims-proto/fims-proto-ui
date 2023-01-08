@@ -1,6 +1,6 @@
 export type FormValidationStatus = 'success' | 'error' | 'warning'
 
-export type FormItemValidator = (value: string) => boolean | Error
+export type FormItemValidator = (value: unknown) => boolean | Error
 
 export type FormItemRule = {
   required?: boolean

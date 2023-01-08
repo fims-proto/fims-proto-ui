@@ -123,7 +123,8 @@
       "save": {
         "notBalanced": "借贷不平衡",
         "emptyItems": "行项目不能为空",
-        "success": "凭证保存成功"
+        "success": "凭证保存成功",
+        "transactionTimeInvalid": "交易日期不合法"
       }
     }
   }

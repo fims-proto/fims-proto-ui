@@ -21,13 +21,16 @@ defineEmits<{
 
 const itemValidationState = ref<Record<string, true | string>>({})
 
-const validateAllItems = () => {
+const validateAllItems = (): boolean => {
+  let valid = true
   for (const [path, rule] of Object.entries(props.rules)) {
-    const value = get<string>(props.model, path)
+    const value = get<unknown>(props.model, path)
     const result = validate(value, rule)
 
     itemValidationState.value[path] = result
+    valid = valid && result === true
   }
+  return valid
 }
 
 const resetValidation = () => {

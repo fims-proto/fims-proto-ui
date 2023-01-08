@@ -48,7 +48,7 @@ const validateItem = () => {
   if (!props.path) {
     return
   }
-  const value = get<string>(Form?.model, props.path)
+  const value = get<unknown>(Form?.model, props.path)
   const rule = get<FormItemRule>(Form?.rules, props.path)
 
   updateValidationState(validate(value, rule))

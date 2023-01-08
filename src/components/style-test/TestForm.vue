@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { FormRules } from '../reusable/form'
 import BaseForm from '../reusable/form/BaseForm.vue'
 
 const modelRef = ref({
@@ -10,21 +11,21 @@ const modelRef = ref({
   },
 })
 
-const rules = {
+const rules: FormRules = {
   username: {
     required: true,
   },
   'journal.headerText': {
     required: true,
-    validator: (value: string) => {
-      if (value.startsWith('N')) {
+    validator: (value) => {
+      if ((value as string).startsWith('N')) {
         return new Error('Cannot starts with "N"')
       }
       return true
     },
   },
   'journal.attachmentNumber': {
-    validator: (value: string) => {
+    validator: (value) => {
       if (Number(value) < 0) {
         return new Error('Cannot be negetive')
       }

@@ -3,6 +3,7 @@ import Big from 'big.js'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { LineItem, Traits } from '../../domain'
+import { FormRules } from '../reusable/form'
 import BaseForm from '../reusable/form/BaseForm.vue'
 
 const props = defineProps<{
@@ -21,9 +22,31 @@ const { t, d } = useI18n()
 
 const headerFormRef = ref<InstanceType<typeof BaseForm>>()
 
-const internalHeaderText = ref()
-const internalTransactionTime = ref()
-const internalAttachmentQuantity = ref()
+const formModel = ref({
+  headerText: '',
+  transactionTime: new Date(),
+  attachmentQuantity: 0,
+})
+
+const formRules: FormRules = {
+  headerText: {
+    validator: (value) => {
+      if (!(value as string).trim()) {
+        return Error('common.mandatoryFieldMissing')
+      }
+      return true
+    },
+  },
+  transactionTime: {
+    validator: (value) => {
+      if (isNaN((value as Date).getTime())) {
+        return Error('journal.entry.save.transactionTimeInvalid')
+      }
+      return true
+    },
+  },
+}
+
 const internalLineItems = ref<LineItem[]>([])
 
 const totalDebit = computed(() =>
@@ -40,33 +63,29 @@ const emptyItem = () => ({
   debit: 0,
 })
 
-const onHeaderTextChange = () => internalLineItems.value.forEach((item) => (item.text = internalHeaderText.value))
+const onHeaderTextChange = () => internalLineItems.value.forEach((item) => (item.text = formModel.value.headerText))
 
 const onClearLineItem = (index: number) => internalLineItems.value.splice(index, 1)
 
 const onNewLineItem = () => internalLineItems.value.push(emptyItem())
 
 const validate = () => {
-  if (!internalHeaderText.value.trim()) {
-    alert('header text cannot be empty')
-    return false
-  }
-  return true
+  return headerFormRef.value?.validate()
 }
 
 const collect = () => ({
-  headerText: internalHeaderText.value.trim(),
-  transactionTime: internalTransactionTime.value,
-  attachmentQuantity: internalAttachmentQuantity.value,
+  headerText: formModel.value.headerText.trim(),
+  transactionTime: formModel.value.transactionTime,
+  attachmentQuantity: formModel.value.attachmentQuantity,
   lineItems: internalLineItems.value,
   totalDebit: totalDebit.value,
   totalCredit: totalCredit.value,
 })
 
 const initialize = () => {
-  internalHeaderText.value = props.headerText
-  internalTransactionTime.value = props.transactionTime
-  internalAttachmentQuantity.value = props.attachmentQuantity
+  formModel.value.headerText = props.headerText
+  formModel.value.transactionTime = props.transactionTime
+  formModel.value.attachmentQuantity = props.attachmentQuantity
   internalLineItems.value = JSON.parse(JSON.stringify(props.lineItems))
 }
 
@@ -82,58 +101,37 @@ initialize()
 <template>
   <div class="w-full">
     <!-- header -->
-    <BaseForm ref="headerFormRef" class="flex gap-4">
+    <BaseForm ref="headerFormRef" :model="formModel" :rules="formRules" class="flex gap-4">
       <!-- header text -->
-      <BaseFormItem v-if="!disabled" required :label="t('journal.entry.headerText')">
+      <BaseFormItem v-if="!disabled" path="headerText" required :label="t('journal.entry.headerText')">
         <BaseInput
-          v-model="internalHeaderText"
+          v-model="formModel.headerText"
           :placeholder="t('journal.entry.headerTextPlaceholder')"
+          required
           @change="onHeaderTextChange"
         />
       </BaseFormItem>
 
       <!-- transaction time field -->
-      <p v-if="disabled">{{ t('journal.entry.transactionTime') }} {{ d(internalTransactionTime, 'date') }}</p>
-      <BaseFormItem v-else required :label="t('journal.entry.transactionTime')">
-        <BaseInput v-model="internalTransactionTime" html-type="date" />
+      <p v-if="disabled">{{ t('journal.entry.transactionTime') }}: {{ d(formModel.transactionTime, 'date') }}</p>
+      <BaseFormItem v-else path="transactionTime" required :label="t('journal.entry.transactionTime')">
+        <BaseInput v-model="formModel.transactionTime" html-type="date" required />
       </BaseFormItem>
 
       <!-- attachment quntity field -->
       <p v-if="disabled">
-        {{ t('journal.entry.attachmentQuantity') }} {{ internalAttachmentQuantity }}
+        {{ t('journal.entry.attachmentQuantity') }} {{ formModel.attachmentQuantity }}
         {{ t('journal.entry.attachmentQuantityUnit') }}
       </p>
-      <BaseFormItem v-else :label="t('journal.entry.attachmentQuantity')">
+      <BaseFormItem v-else path="attachmentQuantity" :label="t('journal.entry.attachmentQuantity')">
         <BaseInput
-          v-model="internalAttachmentQuantity"
+          v-model="formModel.attachmentQuantity"
           class="w-36"
           html-type="number"
           :suffix="t('journal.entry.attachmentQuantityUnit')"
           :min="0"
         />
       </BaseFormItem>
-
-      <!-- <div class="flex-1 flex flex-row gap-4 justify-center items-end">
-        <h3>{{ t('journal.entry.type') }}</h3>
-
-        <div
-          v-if="disabled"
-          class="flex gap-4 items-end px-1 py-px text-sm text-neutral-500 border border-neutral-300/50 rounded-md shadow-sm"
-        >
-          <span class="flex">
-            <CheckBadgeMiniIcon v-if="isAudited" class="w-4 text-success-600" />
-            {{ isAudited ? t('journal.entry.isAudited') : t('journal.entry.notAudited') }}
-          </span>
-          <span class="flex">
-            <CheckBadgeMiniIcon v-if="isReviewed" class="w-4 text-success-600" />
-            {{ isReviewed ? t('journal.entry.isReviewed') : t('journal.entry.notReviewed') }}
-          </span>
-          <span class="flex">
-            <CheckBadgeMiniIcon v-if="isPosted" class="w-4 text-success-600" />
-            {{ isPosted ? t('journal.entry.isPosted') : t('journal.entry.notPosted') }}
-          </span>
-        </div>
-      </div> -->
     </BaseForm>
 
     <!-- table -->

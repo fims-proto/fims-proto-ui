@@ -30,12 +30,11 @@ onMounted(async () => {
 
 const onSave = async () => {
   // collect form
-  const toBeUpdated = formRef.value?.collect()
-
-  if (!toBeUpdated) {
-    alert('should not happen: empty data')
+  if (!formRef.value?.validate()) {
     return
   }
+
+  const toBeUpdated = formRef.value?.collect()
 
   if (toBeUpdated.totalDebit !== toBeUpdated.totalCredit) {
     notificationStore.action.push({
