@@ -1,13 +1,27 @@
-import { IUserState } from "./state";
+import { User, UserService } from '../../domain'
+import { IUserState } from './state'
 
-function updateUser(state: IUserState) {
-  return (user: any) => {
-    state.user = user
+function setUser(state: IUserState) {
+  return (user: User) => {
+    mapUser(user, state)
   }
+}
+
+function loadUser(state: IUserState) {
+  return async () => {
+    console.log('Updating current user')
+    mapUser(await UserService.whoAmI(), state)
+  }
+}
+
+function mapUser(source: User, target: IUserState) {
+  target.userId = source.id
+  target.traits = source.traits
 }
 
 export function createAction(state: IUserState) {
   return {
-    updateUser: updateUser(state)
+    loadUser: loadUser(state),
+    setUser: setUser(state),
   }
 }

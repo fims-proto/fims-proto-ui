@@ -1,32 +1,46 @@
 import { createI18n } from 'vue-i18n'
+import zhCN from './zhCN.json'
 
-const modules = import.meta.globEager('./*')
+// Type-define 'zh' as the master schema for the resource
+type MessageSchema = typeof zhCN
 
-function getLangFiles(modules: Record<string, { [key: string]: any }>) {
-  let messages: any = {}
-
-  for (let path in modules) {
-    if (modules[path].default) {
-      const pathName = path.substr(path.lastIndexOf('/') + 1, 5) // e.g.: en-US
-
-      if (messages[pathName]) {
-        messages[pathName] = {
-          ...modules[pathName],
-          ...modules[path].default
-        }
-      } else {
-        messages[pathName] = modules[path].default
-      }
-    }
-  }
-
-  return messages
-}
-
-const i18n = createI18n({
-  locale: navigator.language,
-  fallbackLocale: 'en-US',
-  messages: getLangFiles(modules)
+const i18n = createI18n<MessageSchema[], 'zh-CN'>({
+  legacy: false,
+  locale: 'zh-CN',
+  fallbackLocale: 'zh-CN',
+  messages: {
+    'zh-CN': zhCN,
+    // en,
+  },
+  datetimeFormats: {
+    'zh-CN': {
+      date: {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      },
+      datetime: {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+      },
+    },
+  },
+  numberFormats: {
+    'zh-CN': {
+      currency: {
+        style: 'currency',
+        currency: 'CNY',
+      },
+      decimal: {
+        style: 'decimal',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      },
+    },
+  },
 })
 
 export default i18n

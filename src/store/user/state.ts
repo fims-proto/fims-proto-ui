@@ -1,13 +1,22 @@
-import { reactive } from "vue"
+import { reactive } from 'vue'
+import { Traits } from '../../domain'
 
 export interface IUserState {
-  user: any
+  userId: string
+  traits: Traits
 }
 
-export const UserStats: IUserState = {
-  user: {}
+export const UserState: IUserState = {
+  userId: '',
+  traits: {
+    name: {
+      first: '',
+      last: '',
+    },
+    email: '',
+  },
 }
 
 export function createState() {
-  return reactive(UserStats)
+  return reactive(UserState)
 }

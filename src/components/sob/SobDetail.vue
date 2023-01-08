@@ -1,0 +1,43 @@
+<script setup lang="ts">
+import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { Sob, SobService } from '../../domain'
+
+const props = defineProps<{
+  sobId: string
+}>()
+
+const { t } = useI18n()
+const sobDetail = ref<Sob>()
+
+watch(
+  () => props.sobId,
+  async () => {
+    if (props.sobId) {
+      const { data } = await SobService.getSobById(props.sobId)
+      sobDetail.value = data
+    }
+  },
+  { immediate: true }
+)
+</script>
+
+<template>
+  <BasePage :subtitle="sobDetail?.description">
+    <template #title>{{ sobDetail?.name }}</template>
+    <BaseTabs>
+      <template #tabs>
+        <BaseTabItem>{{ t('sob.detail.basic') }}</BaseTabItem>
+        <BaseTabItem>{{ t('sob.detail.accounts') }}</BaseTabItem>
+      </template>
+      <template #panels>
+        <!-- basic tab -->
+        <BaseTabPanel>basic yet empty</BaseTabPanel>
+        <!-- accounts tab -->
+        <BaseTabPanel>
+          <AccountList :sob-id="sobId" />
+        </BaseTabPanel>
+      </template>
+    </BaseTabs>
+  </BasePage>
+</template>

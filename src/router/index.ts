@@ -1,104 +1,146 @@
-import { createRouter, createWebHistory, RouteRecordRaw, RouterView } from 'vue-router';
-import AuthenticationLogin from '../components/AuthenticationLogin.vue';
-import AuthenticationLogout from '../components/AuthenticationLogout.vue';
-import ProfileSetting from '../components/ProfileSetting.vue';
-import Layout from '../components/Layout.vue';
-import Home from '../components/Home.vue';
-import About from '../components/About.vue';
-import NotFound from '../components/NotFound.vue';
-import SobMain from '../components/SobMain.vue';
-import SobDetail from '../components/SobDetail.vue';
-import SobCreation from '../components/SobCreation.vue';
-import VoucherMain from '../components/VoucherMain.vue';
-import VoucherCreation from '../components/VoucherCreation.vue';
+import { createRouter, createWebHistory, RouteRecordRaw, RouterView } from 'vue-router'
+import AuthenticationLogin from '../components/user/AuthenticationLogin.vue'
+import AuthenticationLogout from '../components/user/AuthenticationLogout.vue'
+import ProfileSetting from '../components/user/ProfileSetting.vue'
+import LayoutPage from '../components/LayoutPage.vue'
+import HomePage from '../components/HomePage.vue'
+import AboutUs from '../components/AboutUs.vue'
+import NotFound from '../components/NotFound.vue'
+import SobMain from '../components/sob/SobMain.vue'
+import SobDetail from '../components/sob/SobDetail.vue'
+import SobCreation from '../components/sob/SobCreation.vue'
+import AccountMain from '../components/account/AccountMain.vue'
+import JournalMain from '../components/journal/JournalMain.vue'
+import JournalEntryCreation from '../components/journal/JournalEntryCreation.vue'
+import JournalEntryDetail from '../components/journal/JournalEntryDetail.vue'
+import ExceptionPage from '../components/ExceptionPage.vue'
+import StyleTest from '../components/style-test/StyleTest.vue'
+import { beforeAppEnterHandler, beforeWorkingZoneEnterHandler } from './beforeEnterHandlers'
 
-const routes: Array<RouteRecordRaw> = [
-	{
-		path: '/ui',
-		component: Layout,
-		children: [
-			{
-				path: '',
-				name: 'home',
-				component: Home
-			},
-			{
-				path: 'about',
-				name: 'about',
-				component: About
-			},
-			{
-				path: 'profile/settings',
-				component: ProfileSetting,
-			},
-			{
-				path: 'sobs',
-				component: RouterView,
-				children: [
-					{
-						path: '',
-						name: 'sobMain',
-						component: SobMain
-					},
-					{
-						path: 'new',
-						name: 'sobCreation',
-						component: SobCreation
-					},
-					{
-						path: ':sobId',
-						component: RouterView,
-						children: [
-							{
-								path: '',
-								name: 'sobDetail',
-								component: SobDetail
-							},
-							{
-								path: 'vouchers',
-								component: RouterView,
-								children: [
-									{
-										path: '',
-										name: 'voucherMain',
-										component: VoucherMain
-									},
-									{
-										path: 'new',
-										name: 'voucherCreation',
-										component: VoucherCreation
-									}
-								]
-							}
-						]
-					}
-				]
-			}
-		]
-	},
-	{
-		path: '/authentication',
-		component: RouterView,
-		children: [
-			{
-				path: 'login',
-				component: AuthenticationLogin
-			},
-			{
-				path: 'logout',
-				component: AuthenticationLogout
-			}
-		]
-	},
-	{
-		path: '/:pathMatch(.*)*',
-		component: NotFound
-	}
+const routes: RouteRecordRaw[] = [
+  {
+    path: '/ui',
+    component: LayoutPage,
+    beforeEnter: beforeAppEnterHandler,
+    children: [
+      // home
+      {
+        path: '',
+        name: 'home',
+        component: HomePage,
+      },
+      // about
+      {
+        path: 'about',
+        name: 'about',
+        component: AboutUs,
+      },
+      // profile
+      {
+        path: 'profile/settings',
+        name: 'profile',
+        component: ProfileSetting,
+      },
+      // sobs
+      {
+        path: 'sobs',
+        component: RouterView,
+        children: [
+          {
+            path: '',
+            name: 'sobMain',
+            component: SobMain,
+          },
+          {
+            path: 'new',
+            name: 'sobCreation',
+            component: SobCreation,
+          },
+          {
+            path: ':sobId',
+            name: 'sobDetail',
+            component: SobDetail,
+            props: true,
+          },
+        ],
+      },
+      // accounts
+      {
+        path: 'sobs/:sobId/periods/:periodId?',
+        component: RouterView,
+        props: true,
+        beforeEnter: beforeWorkingZoneEnterHandler,
+        children: [
+          {
+            path: '',
+            name: 'accountMain',
+            component: AccountMain,
+          },
+        ],
+      },
+      // journals
+      {
+        path: 'sobs/:sobId/journals',
+        component: RouterView,
+        props: true,
+        beforeEnter: beforeWorkingZoneEnterHandler,
+        children: [
+          {
+            path: '',
+            name: 'journalMain',
+            component: JournalMain,
+          },
+          {
+            path: 'new',
+            name: 'journalEntryCreation',
+            component: JournalEntryCreation,
+          },
+          {
+            path: ':entryId',
+            name: 'journalEntryDetail',
+            component: JournalEntryDetail,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    path: '/authentication',
+    component: RouterView,
+    children: [
+      {
+        path: 'login',
+        component: AuthenticationLogin,
+      },
+      {
+        path: 'logout',
+        component: AuthenticationLogout,
+      },
+    ],
+  },
+  {
+    path: '/styleTest',
+    component: StyleTest,
+  },
+  {
+    path: '/error',
+    name: 'exception',
+    component: ExceptionPage,
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    component: NotFound,
+  },
 ]
 
 const router = createRouter({
-	history: createWebHistory(),
-	routes,
+  history: createWebHistory(),
+  routes,
+})
+
+router.onError((...args) => {
+  console.log(args)
+  router.push({ name: 'exception' })
 })
 
 export default router
