@@ -47,7 +47,7 @@ const onClose = () => {
 <template>
   <div
     v-if="!closed"
-    class="w-full relative flex gap-2 items-center p-2 border-none rounded-md shadow-lg overflow-hidden"
+    class="w-full relative flex gap-2 items-stretch p-2 border-none rounded-md shadow-lg overflow-hidden"
     :class="{
       'bg-error-200 text-error-900 shadow-error-400/60': is('error'),
       'bg-warning-200 text-warning-900 shadow-warning-500/60': is('warning'),
@@ -56,7 +56,7 @@ const onClose = () => {
       'pl-4': !showIcon,
     }"
   >
-    <span v-if="showIcon" class="w-4">
+    <span v-if="showIcon" class="w-4 shrink-0 self-center">
       <ExclamationCircleMiniIcon v-if="is('error')" aria-hidden="true" />
       <ExclamationTriangleMiniIcon v-if="is('warning')" aria-hidden="true" />
       <CheckCircleMiniIcon v-if="is('success')" aria-hidden="true" />
@@ -85,7 +85,7 @@ const onClose = () => {
       v-if="closable"
       type="button"
       :class="[
-        'h-6 w-auto p-1 rounded-sm ml-auto',
+        'w-6 p-1 rounded-sm ml-auto',
         {
           'hover:bg-error-300': is('error'),
           'hover:bg-warning-300': is('warning'),
