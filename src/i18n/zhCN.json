@@ -86,46 +86,44 @@
     "periodDebit": "借",
     "periodCredit": "贷"
   },
-  "journal": {
-    "entry": {
-      "creation": {
-        "title": "新建凭证"
-      },
-      "title": "凭证",
-      "number": "编号",
-      "headerText": "凭证摘要",
-      "headerTextPlaceholder": "记一笔...",
-      "summary": "摘要",
-      "account": "会计科目",
-      "amount": "发生金额",
-      "debit": "借方金额",
-      "credit": "贷方金额",
-      "total": "合计",
-      "type": "记账凭证",
-      "attachmentQuantity": "附单据",
-      "attachmentQuantityUnit": "张",
-      "transactionTime": "交易日期",
-      "creator": "制单人",
-      "newLineItem": "新增",
-      "auditor": "审核人",
-      "audit": "审核",
-      "cancelAudit": "取消审核",
-      "notAudited": "未审核",
-      "isAudited": "已审核",
-      "reviewer": "复核人",
-      "review": "复核",
-      "cancelReview": "取消复核",
-      "notReviewed": "未复核",
-      "isReviewed": "已复核",
-      "post": "登账",
-      "notPosted": "未登账",
-      "isPosted": "已登账",
-      "save": {
-        "notBalanced": "借贷不平衡",
-        "emptyItems": "行项目不能为空",
-        "success": "凭证保存成功",
-        "transactionTimeInvalid": "交易日期不合法"
-      }
+  "voucher": {
+    "creation": {
+      "title": "新建凭证"
+    },
+    "title": "凭证",
+    "number": "编号",
+    "headerText": "凭证摘要",
+    "headerTextPlaceholder": "记一笔...",
+    "summary": "摘要",
+    "account": "会计科目",
+    "amount": "发生金额",
+    "debit": "借方金额",
+    "credit": "贷方金额",
+    "total": "合计",
+    "type": "记账凭证",
+    "attachmentQuantity": "附单据",
+    "attachmentQuantityUnit": "张",
+    "transactionTime": "交易日期",
+    "creator": "制单人",
+    "newLineItem": "新增",
+    "auditor": "审核人",
+    "audit": "审核",
+    "cancelAudit": "取消审核",
+    "notAudited": "未审核",
+    "isAudited": "已审核",
+    "reviewer": "复核人",
+    "review": "复核",
+    "cancelReview": "取消复核",
+    "notReviewed": "未复核",
+    "isReviewed": "已复核",
+    "post": "登账",
+    "notPosted": "未登账",
+    "isPosted": "已登账",
+    "save": {
+      "notBalanced": "借贷不平衡",
+      "emptyItems": "行项目不能为空",
+      "success": "凭证保存成功",
+      "transactionTimeInvalid": "交易日期不合法"
     }
   }
 }

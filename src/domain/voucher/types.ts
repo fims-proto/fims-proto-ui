@@ -1,13 +1,13 @@
 import { Period } from '../account'
 import { User } from '../user'
 
-export interface JournalEntry {
+export interface Voucher {
   sobId: string
-  entryId: string
+  id: string
   headerText: string
   period: Period
   documentNumber: string
-  journalType: string
+  voucherType: string
   attachmentQuantity: number
   debit: number
   credit: number
@@ -24,12 +24,12 @@ export interface JournalEntry {
   updatedAt: Date
 }
 
-export interface NewJournalEntry {
+export interface NewVoucher {
   attachmentQuantity: number
   creator: string
   headerText: string
   transactionTime: Date
-  journalType: string
+  voucherType: string
   lineItems: LineItem[]
 }
 

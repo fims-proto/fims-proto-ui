@@ -86,11 +86,11 @@ defineExpose({
         <span>{{ n(record.openingBalance, 'decimal') }}</span>
       </template>
 
-      <template v-else-if="column.key === 'debit'">
+      <template v-else-if="column.key === 'periodDebit'">
         <span>{{ n(record.periodDebit, 'decimal') }}</span>
       </template>
 
-      <template v-else-if="column.key === 'credit'">
+      <template v-else-if="column.key === 'periodCredit'">
         <span>{{ n(record.periodCredit, 'decimal') }}</span>
       </template>
 

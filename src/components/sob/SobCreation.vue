@@ -15,7 +15,7 @@ const newSob = ref<NewSob>({
   baseCurrency: 'CNY',
   startingPeriodYear: year,
   startingPeriodMonth: month,
-  accountsCodeLength: [4, 3, 3, 3, 3],
+  accountsCodeLength: [4, 2, 2, 2],
 })
 
 const onSubmit = async () => {

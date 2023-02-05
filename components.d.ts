@@ -8,7 +8,7 @@ export {}
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     AboutUs: typeof import('./src/components/AboutUs.vue')['default']
-    AccountInput: typeof import('./src/components/journal/AccountInput.vue')['default']
+    AccountInput: typeof import('./src/components/voucher/AccountInput.vue')['default']
     AccountList: typeof import('./src/components/account/AccountList.vue')['default']
     AccountMain: typeof import('./src/components/account/AccountMain.vue')['default']
     ArrowLeftOnRectangleMiniIcon: typeof import('@heroicons/vue/20/solid')['ArrowLeftOnRectangleIcon']
@@ -84,10 +84,14 @@ declare module '@vue/runtime-core' {
     TabList: typeof import('@headlessui/vue')['TabList']
     TabPanel: typeof import('@headlessui/vue')['TabPanel']
     TabPanels: typeof import('@headlessui/vue')['TabPanels']
-    TabulatedInput: typeof import('./src/components/journal/TabulatedInput.vue')['default']
-    TabulatedNumber: typeof import('./src/components/journal/TabulatedNumber.vue')['default']
+    TabulatedInput: typeof import('./src/components/voucher/TabulatedInput.vue')['default']
+    TabulatedNumber: typeof import('./src/components/voucher/TabulatedNumber.vue')['default']
     TestForm: typeof import('./src/components/style-test/TestForm.vue')['default']
     TheNotificationPanel: typeof import('./src/components/TheNotificationPanel.vue')['default']
+    VoucherCreation: typeof import('./src/components/voucher/VoucherCreation.vue')['default']
+    VoucherDetail: typeof import('./src/components/voucher/VoucherDetail.vue')['default']
+    VoucherForm: typeof import('./src/components/voucher/VoucherForm.vue')['default']
+    VoucherMain: typeof import('./src/components/voucher/VoucherMain.vue')['default']
     XMarkMiniIcon: typeof import('@heroicons/vue/20/solid')['XMarkIcon']
   }
 }
