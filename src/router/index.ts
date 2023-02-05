@@ -10,9 +10,9 @@ import SobMain from '../components/sob/SobMain.vue'
 import SobDetail from '../components/sob/SobDetail.vue'
 import SobCreation from '../components/sob/SobCreation.vue'
 import AccountMain from '../components/account/AccountMain.vue'
-import JournalMain from '../components/journal/JournalMain.vue'
-import JournalEntryCreation from '../components/journal/JournalEntryCreation.vue'
-import JournalEntryDetail from '../components/journal/JournalEntryDetail.vue'
+import VoucherMain from '../components/voucher/VoucherMain.vue'
+import VoucherCreation from '../components/voucher/VoucherCreation.vue'
+import VoucherDetail from '../components/voucher/VoucherDetail.vue'
 import ExceptionPage from '../components/ExceptionPage.vue'
 import StyleTest from '../components/style-test/StyleTest.vue'
 import { beforeAppEnterHandler, beforeWorkingZoneEnterHandler } from './beforeEnterHandlers'
@@ -78,27 +78,27 @@ const routes: RouteRecordRaw[] = [
           },
         ],
       },
-      // journals
+      // vouchers
       {
-        path: 'sobs/:sobId/journals',
+        path: 'sobs/:sobId/vouchers',
         component: RouterView,
         props: true,
         beforeEnter: beforeWorkingZoneEnterHandler,
         children: [
           {
             path: '',
-            name: 'journalMain',
-            component: JournalMain,
+            name: 'voucherMain',
+            component: VoucherMain,
           },
           {
             path: 'new',
-            name: 'journalEntryCreation',
-            component: JournalEntryCreation,
+            name: 'voucherCreation',
+            component: VoucherCreation,
           },
           {
-            path: ':entryId',
-            name: 'journalEntryDetail',
-            component: JournalEntryDetail,
+            path: ':voucherId',
+            name: 'voucherDetail',
+            component: VoucherDetail,
           },
         ],
       },

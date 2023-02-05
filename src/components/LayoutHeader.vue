@@ -19,10 +19,10 @@ const navigation = computed(() => {
 
   if (currentPeriod.value?.id) {
     items.push({
-      key: 'journal',
-      label: t('journal.entry.title'),
+      key: 'voucher',
+      label: t('voucher.title'),
       to: {
-        name: 'journalMain',
+        name: 'voucherMain',
         params: {
           sobId: workingSob.value?.id,
         },

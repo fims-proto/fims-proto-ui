@@ -5,7 +5,7 @@ import { invokeWithErrorHandler, Response } from '../errorHandler'
 import { FieldConversionRecord, Page, Pageable } from '../types'
 import { Account, Ledger, Period } from './types'
 
-const CONFIGURATION_FIELDS: FieldConversionRecord = {
+const ACCOUNT_FIELDS: FieldConversionRecord = {
   level: 'number',
   createdAt: 'date',
   updatedAt: 'date',
@@ -20,13 +20,12 @@ const PERIOD_FIELDS: FieldConversionRecord = {
   updatedAt: 'date',
 }
 
-const ACCOUNT_FIELDS: FieldConversionRecord = {
+const LEDGER_FIELDS: FieldConversionRecord = {
   openingBalance: 'number',
   endingBalance: 'number',
   periodDebit: 'number',
   periodCredit: 'number',
-  configuration: CONFIGURATION_FIELDS,
-  period: PERIOD_FIELDS,
+  acount: ACCOUNT_FIELDS,
   createdAt: 'date',
   updatedAt: 'date',
 }
@@ -40,7 +39,7 @@ class AccountService {
       const result = await axios.get(
         `${FIMS_URL}/api/v1/sob/${sobId}/accounts/?$sort=accountNumber&$page=${pageable.page}&$size=${pageable.size}`
       )
-      convertFieldsFromString(result.data.content, CONFIGURATION_FIELDS)
+      convertFieldsFromString(result.data.content, ACCOUNT_FIELDS)
       return result.data
     })
   }
@@ -50,7 +49,7 @@ class AccountService {
       const result = await axios.get(
         `${FIMS_URL}/api/v1/sob/${sobId}/accounts/?$filter=accountNumber eq '${accountNumber}'`
       )
-      convertFieldsFromString(result.data.content, CONFIGURATION_FIELDS)
+      convertFieldsFromString(result.data.content, ACCOUNT_FIELDS)
 
       if (result.data.numberOfElements !== 1) {
         throw 'result not unique'
@@ -65,7 +64,7 @@ class AccountService {
       const result = await axios.get(
         `${FIMS_URL}/api/v1/sob/${sobId}/accounts/?$filter=accountNumber startsWith ${serachNumber}&$sort=accountNumber`
       )
-      return convertFieldsFromString(result.data, CONFIGURATION_FIELDS)
+      return convertFieldsFromString(result.data, ACCOUNT_FIELDS)
     })
   }
 
@@ -96,7 +95,7 @@ class AccountService {
       const result = await axios.get(
         `${FIMS_URL}/api/v1/sob/${sobId}/period/${periodId}/ledgers/?$sort=account.accountNumber&$page=${pageable.page}&$size=${pageable.size}`
       )
-      convertFieldsFromString(result.data.content, ACCOUNT_FIELDS)
+      convertFieldsFromString(result.data.content, LEDGER_FIELDS)
       return result.data
     })
   }

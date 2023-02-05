@@ -5,7 +5,7 @@ import BaseForm from '../reusable/form/BaseForm.vue'
 
 const modelRef = ref({
   username: '',
-  journal: {
+  voucher: {
     headerText: '',
     attachmentNumber: 0,
   },
@@ -15,7 +15,7 @@ const rules: FormRules = {
   username: {
     required: true,
   },
-  'journal.headerText': {
+  'voucher.headerText': {
     required: true,
     validator: (value) => {
       if ((value as string).startsWith('N')) {
@@ -24,7 +24,7 @@ const rules: FormRules = {
       return true
     },
   },
-  'journal.attachmentNumber': {
+  'voucher.attachmentNumber': {
     validator: (value) => {
       if (Number(value) < 0) {
         return new Error('Cannot be negetive')
@@ -47,11 +47,11 @@ const formRef = ref<InstanceType<typeof BaseForm>>()
     <BaseFormItem path="username" label="user name">
       <BaseInput v-model="modelRef.username" />
     </BaseFormItem>
-    <BaseFormItem path="journal.headerText" label="header text">
-      <BaseInput v-model="modelRef.journal.headerText" />
+    <BaseFormItem path="voucher.headerText" label="header text">
+      <BaseInput v-model="modelRef.voucher.headerText" />
     </BaseFormItem>
-    <BaseFormItem path="journal.attachmentNumber" label="attachment number">
-      <BaseInput v-model="modelRef.journal.attachmentNumber" html-type="number" />
+    <BaseFormItem path="voucher.attachmentNumber" label="attachment number">
+      <BaseInput v-model="modelRef.voucher.attachmentNumber" html-type="number" />
     </BaseFormItem>
   </BaseForm>
 </template>

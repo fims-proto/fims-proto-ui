@@ -2,11 +2,11 @@
 import { toRefs, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { JournalService, NewJournalEntry } from '../../domain'
+import { VoucherService, NewVoucher } from '../../domain'
 import { useNotificationStore } from '../../store/notification'
 import { useSobStore } from '../../store/sob'
 import { useUserStore } from '../../store/user'
-import JournalEntryForm from './JournalEntryForm.vue'
+import VoucherForm from './VoucherForm.vue'
 
 const props = defineProps<{
   sobId: string
@@ -18,13 +18,13 @@ const notificationStore = useNotificationStore()
 const { userId, traits } = toRefs(useUserStore().state)
 const { workingSob } = toRefs(useSobStore().state)
 
-const formRef = ref<InstanceType<typeof JournalEntryForm>>()
+const formRef = ref<InstanceType<typeof VoucherForm>>()
 
-const initEntry = () => ({
+const initVoucher = () => ({
   headerText: '',
   transactionTime: new Date(),
   attachmentQuantity: 0,
-  journalType: 'general_journal',
+  voucherType: 'general_voucher',
   creator: '',
   lineItems: Array(4)
     .fill(null)
@@ -36,9 +36,9 @@ const initEntry = () => ({
     })),
 })
 
-const newEntry = ref<NewJournalEntry>(initEntry())
+const newVoucher = ref<NewVoucher>(initVoucher())
 
-const saveEntry = async () => {
+const saveVoucher = async () => {
   if (!workingSob.value) {
     alert('should not happen: invalid working sob')
     return
@@ -49,12 +49,12 @@ const saveEntry = async () => {
   }
 
   // collect form
-  const toBeCreated = Object.assign({}, newEntry.value, formRef.value?.collect())
+  const toBeCreated = Object.assign({}, newVoucher.value, formRef.value?.collect())
 
   if (toBeCreated.totalDebit !== toBeCreated.totalCredit) {
     notificationStore.action.push({
       type: 'error',
-      message: t('journal.entry.save.notBalanced'),
+      message: t('voucher.save.notBalanced'),
       duration: 5,
     })
     return
@@ -68,20 +68,20 @@ const saveEntry = async () => {
   if (!toBeCreated.lineItems.length) {
     notificationStore.action.push({
       type: 'warning',
-      message: t('journal.entry.save.emptyItems'),
+      message: t('voucher.save.emptyItems'),
       duration: 5,
     })
     return
   }
 
-  const { data, exception } = await JournalService.createJournalEntry(workingSob.value.id, toBeCreated)
+  const { data, exception } = await VoucherService.createVoucher(workingSob.value.id, toBeCreated)
   if (exception) {
     return
   }
 
   notificationStore.action.push({
     type: 'success',
-    message: t('journal.entry.save.success'),
+    message: t('voucher.save.success'),
     duration: 3,
   })
 
@@ -89,22 +89,22 @@ const saveEntry = async () => {
 }
 
 const onSave = async () => {
-  const createdEntry = await saveEntry()
-  if (createdEntry) {
+  const createdVoucher = await saveVoucher()
+  if (createdVoucher) {
     router.push({
-      name: 'journalEntryDetail',
+      name: 'voucherDetail',
       params: {
         sobId: props.sobId,
-        entryId: createdEntry?.entryId,
+        voucherId: createdVoucher?.id,
       },
     })
   }
 }
 
 const onSaveAndNew = async () => {
-  const createdEntry = await saveEntry()
-  if (createdEntry) {
-    newEntry.value = initEntry()
+  const createdVoucher = await saveVoucher()
+  if (createdVoucher) {
+    newVoucher.value = initVoucher()
     formRef.value?.reset()
   }
 }
@@ -112,18 +112,18 @@ const onSaveAndNew = async () => {
 
 <template>
   <BasePage>
-    <template #title>{{ t('journal.entry.creation.title') }}</template>
+    <template #title>{{ t('voucher.creation.title') }}</template>
     <template #extra>
       <BaseButton category="primary" @click="onSaveAndNew">{{ t('action.saveAndNew') }}</BaseButton>
       <BaseButton @click="onSave">{{ t('action.save') }}</BaseButton>
       <BaseButton @click="$router.go(-1)">{{ t('action.cancel') }}</BaseButton>
     </template>
-    <JournalEntryForm
+    <VoucherForm
       ref="formRef"
-      :header-text="newEntry.headerText"
-      :attachment-quantity="newEntry.attachmentQuantity"
-      :transaction-time="newEntry.transactionTime"
-      :line-items="newEntry.lineItems"
+      :header-text="newVoucher.headerText"
+      :attachment-quantity="newVoucher.attachmentQuantity"
+      :transaction-time="newVoucher.transactionTime"
+      :line-items="newVoucher.lineItems"
       :creator="traits"
     />
   </BasePage>

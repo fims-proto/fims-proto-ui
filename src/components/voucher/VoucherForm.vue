@@ -40,7 +40,7 @@ const formRules: FormRules = {
   transactionTime: {
     validator: (value) => {
       if (isNaN((value as Date).getTime())) {
-        return Error('journal.entry.save.transactionTimeInvalid')
+        return Error('voucher.save.transactionTimeInvalid')
       }
       return true
     },
@@ -103,32 +103,33 @@ initialize()
     <!-- header -->
     <BaseForm ref="headerFormRef" :model="formModel" :rules="formRules" class="flex gap-4">
       <!-- header text -->
-      <BaseFormItem v-if="!disabled" path="headerText" required :label="t('journal.entry.headerText')">
+      <BaseFormItem v-if="!disabled" path="headerText" required :label="t('voucher.headerText')">
         <BaseInput
           v-model="formModel.headerText"
-          :placeholder="t('journal.entry.headerTextPlaceholder')"
+          :placeholder="t('voucher.headerTextPlaceholder')"
           required
+          class="w-80"
           @change="onHeaderTextChange"
         />
       </BaseFormItem>
 
       <!-- transaction time field -->
-      <p v-if="disabled">{{ t('journal.entry.transactionTime') }}: {{ d(formModel.transactionTime, 'date') }}</p>
-      <BaseFormItem v-else path="transactionTime" required :label="t('journal.entry.transactionTime')">
+      <p v-if="disabled">{{ t('voucher.transactionTime') }}: {{ d(formModel.transactionTime, 'date') }}</p>
+      <BaseFormItem v-else path="transactionTime" required :label="t('voucher.transactionTime')">
         <BaseInput v-model="formModel.transactionTime" html-type="date" required />
       </BaseFormItem>
 
       <!-- attachment quntity field -->
       <p v-if="disabled">
-        {{ t('journal.entry.attachmentQuantity') }} {{ formModel.attachmentQuantity }}
-        {{ t('journal.entry.attachmentQuantityUnit') }}
+        {{ t('voucher.attachmentQuantity') }} {{ formModel.attachmentQuantity }}
+        {{ t('voucher.attachmentQuantityUnit') }}
       </p>
-      <BaseFormItem v-else path="attachmentQuantity" :label="t('journal.entry.attachmentQuantity')">
+      <BaseFormItem v-else path="attachmentQuantity" :label="t('voucher.attachmentQuantity')">
         <BaseInput
           v-model="formModel.attachmentQuantity"
           class="w-36"
           html-type="number"
-          :suffix="t('journal.entry.attachmentQuantityUnit')"
+          :suffix="t('voucher.attachmentQuantityUnit')"
           :min="0"
         />
       </BaseFormItem>
@@ -138,13 +139,13 @@ initialize()
     <div class="flex flex-col bg-white mt-4 divide-y divide-neutral-300 border border-neutral-300 rounded-md shadow-lg">
       <!-- table header -->
       <div class="flex flex-row divide-x divide-neutral-300">
-        <div class="flex-1 font-bold flex justify-center items-center">{{ t('journal.entry.account') }}</div>
+        <div class="flex-1 font-bold flex justify-center items-center">{{ t('voucher.account') }}</div>
         <div class="w-72 flex flex-col divide-y divide-neutral-300">
-          <div class="text-center font-bold py-2">{{ t('journal.entry.debit') }}</div>
+          <div class="text-center font-bold py-2">{{ t('voucher.debit') }}</div>
           <TabulatedNumber :disabled="true" :header="true" />
         </div>
         <div class="w-72 flex flex-col divide-y divide-neutral-300">
-          <div class="text-center font-bold py-2">{{ t('journal.entry.credit') }}</div>
+          <div class="text-center font-bold py-2">{{ t('voucher.credit') }}</div>
           <TabulatedNumber :disabled="true" :header="true" />
         </div>
       </div>
@@ -152,7 +153,7 @@ initialize()
       <!-- table body -->
       <div
         v-for="(item, i) in internalLineItems"
-        :key="`create-entry-li-${i}`"
+        :key="`create-voucher-li-${i}`"
         class="flex flex-row divide-x divide-neutral-300"
       >
         <div class="flex-1 p-[1px] flex">
@@ -181,13 +182,13 @@ initialize()
           @click.prevent="onNewLineItem"
         >
           <PlusCircleMiniIcon class="w-4" />
-          <span>{{ t('journal.entry.newLineItem') }}</span>
+          <span>{{ t('voucher.newLineItem') }}</span>
         </button>
       </div>
 
       <!-- total -->
       <div class="flex flex-row divide-x divide-neutral-300">
-        <div class="flex-1 font-bold px-3 py-2">{{ t('journal.entry.total') }}</div>
+        <div class="flex-1 font-bold px-3 py-2">{{ t('voucher.total') }}</div>
         <div class="w-72">
           <TabulatedNumber :disabled="true" :model-value="totalDebit" />
         </div>
@@ -200,7 +201,7 @@ initialize()
     <!-- footer -->
     <div class="mt-4">
       <span>
-        {{ t('journal.entry.creator') }}:
+        {{ t('voucher.creator') }}:
         {{ t('common.userName', { lastName: creator.name?.last, firstName: creator.name?.first }) }}
       </span>
     </div>

@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { JournalEntry, JournalService, Page, User } from '../../domain'
+import { Voucher, VoucherService, Page, User } from '../../domain'
 import { ColumnType } from '../reusable/table'
 
 const props = defineProps<{
@@ -12,42 +12,42 @@ const props = defineProps<{
 const { t, d, n } = useI18n()
 const router = useRouter()
 
-const journalEnties = ref<Page<JournalEntry>>()
+const vouchers = ref<Page<Voucher>>()
 
 const pageable = ref({ page: 1, size: 10 })
 
 const columns: ColumnType[] = [
   {
-    title: t('journal.entry.transactionTime'),
+    title: t('voucher.transactionTime'),
     key: 'transactionTime',
     width: 'md',
   },
   {
-    title: t('journal.entry.number'),
+    title: t('voucher.number'),
     key: 'number',
     width: 'sm',
   },
   {
-    title: t('journal.entry.summary'),
+    title: t('voucher.summary'),
     path: 'headerText',
   },
   {
-    title: t('journal.entry.creator'),
+    title: t('voucher.creator'),
     key: 'creator',
     width: 'sm',
   },
   {
-    title: t('journal.entry.auditor'),
+    title: t('voucher.auditor'),
     key: 'auditor',
     width: 'sm',
   },
   {
-    title: t('journal.entry.reviewer'),
+    title: t('voucher.reviewer'),
     key: 'reviewer',
     width: 'sm',
   },
   {
-    title: t('journal.entry.amount'),
+    title: t('voucher.amount'),
     key: 'amount',
     align: 'right',
     width: 'md',
@@ -57,8 +57,8 @@ const columns: ColumnType[] = [
 watch(
   [() => pageable.value.page, () => pageable.value.size],
   async () => {
-    const { data } = await JournalService.getJournalEntries(props.sobId, pageable.value)
-    journalEnties.value = data
+    const { data } = await VoucherService.getVouchers(props.sobId, pageable.value)
+    vouchers.value = data
   },
   { immediate: true }
 )
@@ -73,7 +73,7 @@ const getUserName = (user: User) =>
 
 const onCreate = () => {
   router.push({
-    name: 'journalEntryCreation',
+    name: 'voucherCreation',
     params: {
       sobId: props.sobId,
     },
@@ -83,18 +83,18 @@ const onCreate = () => {
 
 <template>
   <BasePage>
-    <template #title>{{ t('journal.entry.title') }}</template>
+    <template #title>{{ t('voucher.title') }}</template>
     <template #extra>
       <BaseButton category="primary" @click="onCreate">{{ t('action.create') }}</BaseButton>
     </template>
 
     <BaseTable
-      :data-source="journalEnties?.content ?? []"
+      :data-source="vouchers?.content ?? []"
       :columns="columns"
       :page="{
-        currentPage: journalEnties?.pageNumber ?? 1,
-        totalElement: journalEnties?.numberOfElements ?? 0,
-        pageSize: journalEnties?.pageSize,
+        currentPage: vouchers?.pageNumber ?? 1,
+        totalElement: vouchers?.numberOfElements ?? 0,
+        pageSize: vouchers?.pageSize,
       }"
       @page="
         (target) => {
@@ -103,7 +103,7 @@ const onCreate = () => {
         }
       "
     >
-      <template #bodyCell="{ record, column }: { record: JournalEntry, column: ColumnType }">
+      <template #bodyCell="{ record, column }: { record: Voucher, column: ColumnType }">
         <template v-if="column.key === 'transactionTime'">
           <span>{{ d(record.transactionTime, 'date') }}</span>
         </template>
@@ -111,10 +111,10 @@ const onCreate = () => {
         <template v-else-if="column.key === 'number'">
           <BaseNavLink
             :to="{
-              name: 'journalEntryDetail',
+              name: 'voucherDetail',
               params: {
                 sobId: sobId,
-                entryId: record.entryId,
+                voucherId: record.id,
               },
             }"
           >
