@@ -12,7 +12,7 @@ const ACCOUNT_FIELDS: FieldConversionRecord = {
 }
 
 const PERIOD_FIELDS: FieldConversionRecord = {
-  financialYear: 'number',
+  fiscalYear: 'number',
   number: 'number',
   openingTime: 'date',
   endingTime: 'date',
