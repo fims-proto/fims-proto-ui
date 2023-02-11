@@ -13,8 +13,8 @@ class UserService {
       id: session?.identity.id ?? '',
       traits: {
         name: {
-          first: session?.identity.traits.name.first,
-          last: session?.identity.traits.name.last,
+          first: session?.identity.traits.name?.first,
+          last: session?.identity.traits.name?.last,
         },
         email: session?.identity.traits.email,
       },
