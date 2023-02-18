@@ -14,6 +14,11 @@ const i18n = createI18n<MessageSchema[], 'zh-CN'>({
   },
   datetimeFormats: {
     'zh-CN': {
+      short: {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      },
       date: {
         year: 'numeric',
         month: 'short',

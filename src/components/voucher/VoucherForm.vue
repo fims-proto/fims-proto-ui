@@ -56,6 +56,13 @@ const totalCredit = computed(() =>
   internalLineItems.value.reduce((sum, item) => sum.add(Big(item.credit ?? 0)), Big(0)).toNumber()
 )
 
+const periodNumber = computed(() =>
+  t('account.periodText', {
+    fiscalYear: formModel.value.transactionTime.getFullYear(),
+    number: formModel.value.transactionTime.getMonth() + 1,
+  })
+)
+
 const emptyItem = () => ({
   text: '',
   accountNumber: '',
@@ -86,7 +93,7 @@ const initialize = () => {
   formModel.value.headerText = props.headerText
   formModel.value.transactionTime = props.transactionTime
   formModel.value.attachmentQuantity = props.attachmentQuantity
-  internalLineItems.value = JSON.parse(JSON.stringify(props.lineItems))
+  internalLineItems.value = JSON.parse(JSON.stringify(props.lineItems)) // deep copy
 }
 
 defineExpose({
@@ -101,9 +108,10 @@ initialize()
 <template>
   <div class="w-full">
     <!-- header -->
-    <BaseForm ref="headerFormRef" :model="formModel" :rules="formRules" class="flex gap-4">
+    <BaseForm ref="headerFormRef" :model="formModel" :rules="formRules" class="flex gap-4 items-baseline">
       <!-- header text -->
-      <BaseFormItem v-if="!disabled" path="headerText" required :label="t('voucher.headerText')">
+      <h1 v-if="disabled" class="font-black">{{ headerText }}</h1>
+      <BaseFormItem v-else path="headerText" required :label="t('voucher.headerText')">
         <BaseInput
           v-model="formModel.headerText"
           :placeholder="t('voucher.headerTextPlaceholder')"
@@ -113,17 +121,21 @@ initialize()
         />
       </BaseFormItem>
 
+      <span v-if="disabled">{{ periodNumber }}</span>
+
       <!-- transaction time field -->
-      <p v-if="disabled">{{ t('voucher.transactionTime') }}: {{ d(formModel.transactionTime, 'date') }}</p>
-      <BaseFormItem v-else path="transactionTime" required :label="t('voucher.transactionTime')">
-        <BaseInput v-model="formModel.transactionTime" html-type="date" required />
-      </BaseFormItem>
+      <span v-if="disabled" class="ml-auto">{{ d(formModel.transactionTime, 'short') }}</span>
+      <div v-else class="flex gap-2">
+        <BaseFormItem path="transactionTime" required :label="t('voucher.transactionTime')">
+          <BaseInput v-model="formModel.transactionTime" html-type="date" required :suffix="periodNumber" />
+        </BaseFormItem>
+      </div>
 
       <!-- attachment quntity field -->
-      <p v-if="disabled">
+      <span v-if="disabled">
         {{ t('voucher.attachmentQuantity') }} {{ formModel.attachmentQuantity }}
         {{ t('voucher.attachmentQuantityUnit') }}
-      </p>
+      </span>
       <BaseFormItem v-else path="attachmentQuantity" :label="t('voucher.attachmentQuantity')">
         <BaseInput
           v-model="formModel.attachmentQuantity"

@@ -83,6 +83,7 @@
     "accountNumber": "科目编号",
     "openingBalance": "期初余额",
     "endingBalance": "期末余额",
+    "periodText": "{fiscalYear} 年第 {number} 期",
     "periodDebit": "借",
     "periodCredit": "贷"
   },
@@ -103,7 +104,7 @@
     "type": "记账凭证",
     "attachmentQuantity": "附单据",
     "attachmentQuantityUnit": "张",
-    "transactionTime": "交易日期",
+    "transactionTime": "日期",
     "creator": "制单人",
     "newLineItem": "新增",
     "auditor": "审核人",

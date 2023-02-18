@@ -122,7 +122,7 @@ const onAction = async (action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
 </script>
 
 <template>
-  <BasePage :subtitle="voucher?.headerText">
+  <BasePage>
     <template #title>{{ voucher?.documentNumber }}</template>
 
     <template #extra>

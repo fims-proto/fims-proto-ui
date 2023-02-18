@@ -16,7 +16,7 @@ const FIELDS_CONVERSION: FieldConversionRecord = {
 class SobService {
   public async getAllSods(): Promise<Response<Page<Sob>>> {
     return invokeWithErrorHandler(async () => {
-      const result = await axios.get(`${FIMS_URL}/api/v1/sobs/`)
+      const result = await axios.get(`${FIMS_URL}/api/v1/sobs`)
       convertFieldsFromString(result.data.content, FIELDS_CONVERSION)
       return result.data
     })
@@ -24,7 +24,7 @@ class SobService {
 
   public async createSob(newSob: NewSob): Promise<Response<Sob>> {
     return invokeWithErrorHandler(async () => {
-      const result = await axios.post(`${FIMS_URL}/api/v1/sobs/`, newSob)
+      const result = await axios.post(`${FIMS_URL}/api/v1/sobs`, newSob)
       return convertFieldsFromString(result.data, FIELDS_CONVERSION)
     })
   }
