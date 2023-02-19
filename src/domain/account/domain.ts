@@ -80,7 +80,7 @@ class AccountService {
 
   public async getOpenPeriod(sobId: string): Promise<Response<Period>> {
     return invokeWithErrorHandler(async () => {
-      const result = await axios.get(`${FIMS_URL}/api/v1/sob/${sobId}/periods/open-period`)
+      const result = await axios.get(`${FIMS_URL}/api/v1/sob/${sobId}/periods/current`)
       convertFieldsFromString(result.data, PERIOD_FIELDS)
       return result.data
     })
