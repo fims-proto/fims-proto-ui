@@ -43,11 +43,14 @@ const navigation = computed(() => {
   return items
 })
 
-const period = computed(() => {
-  return currentPeriod.value
-    ? `${currentPeriod.value.fiscalYear}-${currentPeriod.value.periodNumber}`
+const period = computed(() =>
+  currentPeriod.value
+    ? t('account.periodText', {
+        fiscalYear: currentPeriod.value.fiscalYear,
+        number: currentPeriod.value.periodNumber,
+      })
     : t('account.periodUnselected')
-})
+)
 
 const onUserMenuSelected = (key: string) => {
   if (key === 'update-profile') {
@@ -92,7 +95,7 @@ const onSobSelected = async (command: string) => {
         <BaseDropdown @select="onSobSelected">
           <template #trigger="{ open }">
             <BaseLink menu>
-              <span class="inline">{{ workingSob ? workingSob.name : t('sob.selectSob') }}</span>
+              <span class="inline font-semibold">{{ workingSob ? workingSob.name : t('sob.selectSob') }}</span>
               <span class="inline">{{ period }}</span>
               <ChevronDownMiniIcon :class="['inline w-4 align-baseline', { 'rotate-180': open }]" aria-hidden="true" />
             </BaseLink>
