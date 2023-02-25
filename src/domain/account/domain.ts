@@ -37,7 +37,7 @@ class AccountService {
   ): Promise<Response<Page<Account>>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(
-        `${FIMS_URL}/api/v1/sob/${sobId}/accounts?$sort=accountNumber&$page=${pageable.page}&$size=${pageable.size}`
+        `${FIMS_URL}/api/v1/sob/${sobId}/accounts/?$sort=accountNumber&$page=${pageable.page}&$size=${pageable.size}`
       )
       convertFieldsFromString(result.data.content, ACCOUNT_FIELDS)
       return result.data
@@ -47,7 +47,7 @@ class AccountService {
   public async getAccountByAccountNumber(sobId: string, accountNumber: string): Promise<Response<Account>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(
-        `${FIMS_URL}/api/v1/sob/${sobId}/accounts?$filter=accountNumber eq '${accountNumber}'`
+        `${FIMS_URL}/api/v1/sob/${sobId}/accounts/?$filter=accountNumber eq '${accountNumber}'`
       )
       convertFieldsFromString(result.data.content, ACCOUNT_FIELDS)
 
@@ -62,7 +62,7 @@ class AccountService {
   public async getAccountsStartsWithNumber(sobId: string, serachNumber: string): Promise<Response<Page<Account>>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(
-        `${FIMS_URL}/api/v1/sob/${sobId}/accounts?$filter=accountNumber startsWith ${serachNumber}&$sort=accountNumber`
+        `${FIMS_URL}/api/v1/sob/${sobId}/accounts/?$filter=accountNumber startsWith ${serachNumber}&$sort=accountNumber`
       )
       return convertFieldsFromString(result.data, ACCOUNT_FIELDS)
     })
@@ -71,7 +71,7 @@ class AccountService {
   public async getPeriods(sobId: string, pageable: Pageable = { page: 1, size: 10 }): Promise<Response<Page<Period>>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(
-        `${FIMS_URL}/api/v1/sob/${sobId}/periods?$sort=openingTime desc&$page=${pageable.page}&$size=${pageable.size}`
+        `${FIMS_URL}/api/v1/sob/${sobId}/periods/?$sort=openingTime desc&$page=${pageable.page}&$size=${pageable.size}`
       )
       convertFieldsFromString(result.data.content, PERIOD_FIELDS)
       return result.data
@@ -93,7 +93,7 @@ class AccountService {
   ): Promise<Response<Page<Ledger>>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(
-        `${FIMS_URL}/api/v1/sob/${sobId}/period/${periodId}/ledgers?$sort=account.accountNumber&$page=${pageable.page}&$size=${pageable.size}`
+        `${FIMS_URL}/api/v1/sob/${sobId}/period/${periodId}/ledgers/?$sort=account.accountNumber&$page=${pageable.page}&$size=${pageable.size}`
       )
       convertFieldsFromString(result.data.content, LEDGER_FIELDS)
       return result.data

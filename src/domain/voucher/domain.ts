@@ -29,7 +29,7 @@ class VoucherService {
   ): Promise<Response<Page<Voucher>>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(
-        `${FIMS_URL}/api/v1/sob/${sobId}/vouchers?$sort=createdAt&$page=${pageable.page}&$size=${pageable.size}`
+        `${FIMS_URL}/api/v1/sob/${sobId}/vouchers/?$sort=createdAt&$page=${pageable.page}&$size=${pageable.size}`
       )
       convertFieldsFromString(result.data.content, VOUCHER_FIELDS)
       return result.data
@@ -45,7 +45,7 @@ class VoucherService {
 
   public async createVoucher(sobId: string, voucher: NewVoucher): Promise<Response<Voucher>> {
     return invokeWithErrorHandler(async () => {
-      const result = await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/vouchers`, voucher)
+      const result = await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/vouchers/`, voucher)
       return convertFieldsFromString(result.data, VOUCHER_FIELDS)
     })
   }
