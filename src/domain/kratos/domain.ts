@@ -24,7 +24,7 @@ class KratosService {
 
   public async initLoginFlow(): Promise<LoginFlow> {
     try {
-      const result = await kratos.createBrowserLoginFlow()
+      const result = await kratos.createBrowserLoginFlow({ refresh: true })
       return result.data
     } catch (error) {
       return (error as AxiosError).response?.data as LoginFlow
