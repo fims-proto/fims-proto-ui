@@ -28,12 +28,17 @@ const onPeriodSelected = (periodId: string) => {
 </script>
 
 <template>
-  <ol>
-    <li v-for="period in periods?.content ?? []" :key="period.id" @click="onPeriodSelected(period.id)">
+  <BaseList clickable hoverable>
+    <BaseListItem
+      v-for="period in periods?.content ?? []"
+      :key="period.id"
+      :active="periodId === period.id"
+      @click="onPeriodSelected(period.id)"
+    >
       {{ t('account.periodText', { fiscalYear: period.fiscalYear, number: period.periodNumber }) }}
-    </li>
-    <li v-if="!periods?.content.length">
+    </BaseListItem>
+    <BaseListItem v-if="!periods?.content.length">
       <BaseButton>{{ t('account.createPeriod') }}</BaseButton>
-    </li>
-  </ol>
+    </BaseListItem>
+  </BaseList>
 </template>

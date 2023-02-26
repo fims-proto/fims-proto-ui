@@ -21,6 +21,7 @@ export interface Period {
   openingTime: Date
   endingTime: Date
   isClosed: boolean
+  isCurrent: boolean
   updatedAt: Date
   createdAt: Date
 }
