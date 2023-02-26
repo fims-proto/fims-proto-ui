@@ -20,7 +20,7 @@ onMounted(async () => {
   periods.value = data
 
   if (!route.params['periodId']) {
-    const openPeriod = periods.value?.content.find((period) => !period.isClosed)
+    const openPeriod = periods.value?.content.find((period) => period.isCurrent)
     if (openPeriod) {
       router.replace({
         name: 'accountMain',
@@ -47,7 +47,7 @@ onBeforeRouteUpdate(async (to) => {
 
     <div class="flex gap-4">
       <div class="flex-none w-80">
-        <PeriodList :periods="periods" />
+        <PeriodList :periods="periods" :period-id="selectedPeriodId" />
       </div>
       <div class="flex-auto">
         <LedgerList v-if="selectedPeriodId" :sob-id="sobId" :period-id="selectedPeriodId" />

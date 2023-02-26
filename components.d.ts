@@ -29,6 +29,8 @@ declare module '@vue/runtime-core' {
     BaseInput: typeof import('./src/components/reusable/form/BaseInput.vue')['default']
     BaseInputGroup: typeof import('./src/components/reusable/form/BaseInputGroup.vue')['default']
     BaseLink: typeof import('./src/components/reusable/link/BaseLink.vue')['default']
+    BaseList: typeof import('./src/components/reusable/list/BaseList.vue')['default']
+    BaseListItem: typeof import('./src/components/reusable/list/BaseListItem.vue')['default']
     BaseNavLink: typeof import('./src/components/reusable/link/BaseNavLink.vue')['default']
     BaseNotification: typeof import('./src/components/reusable/notification/BaseNotification.vue')['default']
     BasePage: typeof import('./src/components/reusable/page/BasePage.vue')['default']
