@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { vOnClickOutside } from '@vueuse/components'
 import { useI18n } from 'vue-i18n'
 import { Pageable } from '../../../domain'
 
@@ -66,7 +67,7 @@ const onUpdateModelValue = (value: number | string | Date) => {
           <ChevronLeftMiniIcon />
         </template>
       </BaseButton>
-      <div class="flex items-center">
+      <div v-on-click-outside="($event) => onSelect(current)" class="flex items-center">
         <BaseButton v-if="!editingPage" category="flat" @click="editingPage = true">
           {{ t('base.pagination.pageNumber', { currentPage: current, totalPage: totalPage }) }}
         </BaseButton>
