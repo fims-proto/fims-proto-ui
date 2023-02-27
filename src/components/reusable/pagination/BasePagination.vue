@@ -15,8 +15,9 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-
+const editingPage = ref(false)
 const current = ref(props.currentPage)
+const currentPageCache = ref(current.value)
 const size = ref(props.pageSize ?? 20)
 const totalPage = computed(() => Math.ceil(props.totalElement / size.value))
 
@@ -24,6 +25,7 @@ const isFirst = () => current.value == 1
 const isLast = () => current.value == totalPage.value
 
 const onSelect = (targetPage: number) => {
+  editingPage.value = false
   if (targetPage > 0 && targetPage <= totalPage.value) {
     current.value = targetPage
     emit('select', {
@@ -35,6 +37,7 @@ const onSelect = (targetPage: number) => {
 
 const onSizeChange = (targetSize: string) => {
   size.value = Number(targetSize)
+  editingPage.value = false
   if (current.value > totalPage.value) {
     current.value = totalPage.value
   }
@@ -42,6 +45,10 @@ const onSizeChange = (targetSize: string) => {
     page: current.value,
     size: size.value,
   })
+}
+
+const onUpdateModelValue = (value: number | string | Date) => {
+  currentPageCache.value = Math.floor(value as number)
 }
 </script>
 
@@ -59,9 +66,28 @@ const onSizeChange = (targetSize: string) => {
           <ChevronLeftMiniIcon />
         </template>
       </BaseButton>
-      <span class="w-16 text-center">
-        {{ t('base.pagination.pageNumber', { currentPage: current, totalPage: totalPage }) }}
-      </span>
+      <div class="flex items-center">
+        <BaseButton v-if="!editingPage" category="flat" @click="editingPage = true">
+          {{ t('base.pagination.pageNumber', { currentPage: current, totalPage: totalPage }) }}
+        </BaseButton>
+        <BaseInput
+          v-if="editingPage"
+          class="w-16"
+          html-type="number"
+          :model-value="current"
+          :min="1"
+          :max="totalPage"
+          @update:model-value="onUpdateModelValue"
+        />
+        <BaseButtonGroup>
+          <BaseButton v-if="editingPage" @click="onSelect(currentPageCache)">
+            {{ t('base.pagination.confirmGotoPage') }}
+          </BaseButton>
+          <BaseButton v-if="editingPage" @click="onSelect(current)">
+            {{ t('base.pagination.cancelGotoPage') }}
+          </BaseButton>
+        </BaseButtonGroup>
+      </div>
       <BaseButton category="flat" :disabled="isLast()" @click="onSelect(current + 1)">
         <template #icon>
           <ChevronRightMiniIcon />

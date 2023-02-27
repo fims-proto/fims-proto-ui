@@ -13,7 +13,9 @@
       "pageNumber": "{currentPage} / {totalPage}",
       "pageSize": "{0} / 页",
       "totalElement": "总计 {count} {unitDescription}",
-      "defaultUnitDescription": "条记录"
+      "defaultUnitDescription": "条记录",
+      "confirmGotoPage": "前往",
+      "cancelGotoPage": "取消"
     }
   },
   "common": {

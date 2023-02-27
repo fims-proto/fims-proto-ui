@@ -54,7 +54,7 @@ const formRef = ref<InstanceType<typeof BaseForm>>()
           <BaseInput v-model="modelRef.voucher.headerText" />
         </BaseFormItem>
         <BaseFormItem path="voucher.attachmentNumber" label="attachment number">
-          <BaseInput v-model="modelRef.voucher.attachmentNumber" html-type="number" />
+          <BaseInput v-model="modelRef.voucher.attachmentNumber" html-type="number" :force-integer="true" />
         </BaseFormItem>
       </BaseForm>
     </div>
