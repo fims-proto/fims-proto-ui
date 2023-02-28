@@ -141,6 +141,7 @@ initialize()
           v-model="formModel.attachmentQuantity"
           class="w-36"
           html-type="number"
+          :force-integer="true"
           :suffix="t('voucher.attachmentQuantityUnit')"
           :min="0"
         />

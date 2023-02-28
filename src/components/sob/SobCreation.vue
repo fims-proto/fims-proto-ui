@@ -67,6 +67,7 @@ function getCurrentUTCTime() {
               v-model="newSob.startingPeriodYear"
               html-type="number"
               required
+              :force-integer="true"
               :min="2020"
               :max="3000"
               :suffix="t('common.year')"
@@ -75,6 +76,7 @@ function getCurrentUTCTime() {
               v-model="newSob.startingPeriodMonth"
               html-type="number"
               required
+              :force-integer="true"
               :min="1"
               :max="12"
               :suffix="t('common.month')"
@@ -92,6 +94,7 @@ function getCurrentUTCTime() {
                 class="w-14"
                 html-type="number"
                 required
+                :force-integer="true"
                 :min="1"
                 :max="6"
               />

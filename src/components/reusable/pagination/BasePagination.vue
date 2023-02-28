@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { vOnClickOutside } from '@vueuse/components'
 import { useI18n } from 'vue-i18n'
 import { Pageable } from '../../../domain'
 
@@ -15,8 +16,9 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-
+const editingPage = ref(false)
 const current = ref(props.currentPage)
+const currentPageCache = ref(current.value)
 const size = ref(props.pageSize ?? 20)
 const totalPage = computed(() => Math.ceil(props.totalElement / size.value))
 
@@ -24,6 +26,7 @@ const isFirst = () => current.value == 1
 const isLast = () => current.value == totalPage.value
 
 const onSelect = (targetPage: number) => {
+  editingPage.value = false
   if (targetPage > 0 && targetPage <= totalPage.value) {
     current.value = targetPage
     emit('select', {
@@ -35,6 +38,7 @@ const onSelect = (targetPage: number) => {
 
 const onSizeChange = (targetSize: string) => {
   size.value = Number(targetSize)
+  editingPage.value = false
   if (current.value > totalPage.value) {
     current.value = totalPage.value
   }
@@ -42,6 +46,17 @@ const onSizeChange = (targetSize: string) => {
     page: current.value,
     size: size.value,
   })
+}
+
+const onUpdatePageCache = (event: Event) => {
+  const val = (event.target as HTMLInputElement).value
+  currentPageCache.value = Number(val)
+}
+
+const onKeyPress = (event: KeyboardEvent) => {
+  if (/[^0-9]/g.test(event.key)) {
+    event.preventDefault()
+  }
 }
 </script>
 
@@ -59,9 +74,26 @@ const onSizeChange = (targetSize: string) => {
           <ChevronLeftMiniIcon />
         </template>
       </BaseButton>
-      <span class="w-16 text-center">
-        {{ t('base.pagination.pageNumber', { currentPage: current, totalPage: totalPage }) }}
-      </span>
+      <div v-on-click-outside="($event) => onSelect(current)" class="flex h-8 items-center">
+        <BaseButton v-if="!editingPage" category="flat" @click="editingPage = true">
+          {{ t('base.pagination.pageNumber', { currentPage: current, totalPage: totalPage }) }}
+        </BaseButton>
+        <input
+          v-if="editingPage"
+          autofocus
+          class="w-16 h-8 border-none m-0 bg-transparent text-sm underline outline-none focus:ring-0"
+          type="number"
+          inputmode="numeric"
+          :value="current"
+          :min="1"
+          :max="totalPage"
+          @keypress="onKeyPress"
+          @input="onUpdatePageCache"
+        />
+        <BaseButton v-if="editingPage" category="flat" @click="onSelect(currentPageCache)">
+          {{ t('base.pagination.confirmGotoPage') }}
+        </BaseButton>
+      </div>
       <BaseButton category="flat" :disabled="isLast()" @click="onSelect(current + 1)">
         <template #icon>
           <ChevronRightMiniIcon />
@@ -99,3 +131,8 @@ const onSizeChange = (targetSize: string) => {
     }}</span>
   </div>
 </template>
+
+<style>
+#pageJumpArea {
+}
+</style>

@@ -10,12 +10,14 @@ const props = withDefaults(
   defineProps<{
     modelValue?: string | number | Date
     htmlType?: string
+    forceInteger?: boolean
     prefix?: string
     suffix?: string
   }>(),
   {
     modelValue: undefined,
     htmlType: 'text',
+    forceInteger: false,
     prefix: undefined,
     suffix: undefined,
   }
@@ -56,6 +58,15 @@ const onValueUpdate = (event: Event) => {
   FormItem?.handleContentChange()
 }
 
+const onKeyPress = (event: KeyboardEvent) => {
+  if (props.forceInteger) {
+    const inputElemt = event.target as HTMLInputElement
+    if (/[^0-9]/g.test(event.key)) {
+      event.preventDefault()
+    }
+  }
+}
+
 const hasPrefix = () => !!props.prefix || !!useSlots()['prefix']
 const hasSuffix = () => !!props.suffix || !!useSlots()['suffix']
 const errorStatus = () => FormItem?.itemStatus.value === 'error'
@@ -85,6 +96,7 @@ const errorStatus = () => FormItem?.itemStatus.value === 'error'
       ]"
       :value="inputValue"
       :type="htmlType"
+      @keypress="onKeyPress"
       @input="onValueUpdate"
     />
     <span
