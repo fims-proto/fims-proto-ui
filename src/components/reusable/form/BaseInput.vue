@@ -62,10 +62,7 @@ const onKeyPress = (event: KeyboardEvent) => {
   if (props.forceInteger) {
     const inputElemt = event.target as HTMLInputElement
     if (/[^0-9]/g.test(event.key)) {
-      // if (event.key !== '-' || inputElemt.value.length !== 0) {
-      // not totally satisfactory, user can not move cursor to the left and input minus sign -
       event.preventDefault()
-      // }
     }
   }
 }

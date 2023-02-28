@@ -48,8 +48,15 @@ const onSizeChange = (targetSize: string) => {
   })
 }
 
-const onUpdateModelValue = (value: number | string | Date) => {
-  currentPageCache.value = Math.floor(value as number)
+const onUpdatePageCache = (event: Event) => {
+  const val = (event.target as HTMLInputElement).value
+  currentPageCache.value = Number(val)
+}
+
+const onKeyPress = (event: KeyboardEvent) => {
+  if (/[^0-9]/g.test(event.key)) {
+    event.preventDefault()
+  }
 }
 </script>
 
@@ -67,27 +74,25 @@ const onUpdateModelValue = (value: number | string | Date) => {
           <ChevronLeftMiniIcon />
         </template>
       </BaseButton>
-      <div v-on-click-outside="($event) => onSelect(current)" class="flex items-center">
+      <div v-on-click-outside="($event) => onSelect(current)" class="flex h-8 items-center">
         <BaseButton v-if="!editingPage" category="flat" @click="editingPage = true">
           {{ t('base.pagination.pageNumber', { currentPage: current, totalPage: totalPage }) }}
         </BaseButton>
-        <BaseInput
+        <input
           v-if="editingPage"
-          class="w-16"
-          html-type="number"
-          :model-value="current"
+          autofocus
+          class="w-16 h-8 border-none m-0 bg-transparent text-sm underline outline-none focus:ring-0"
+          type="number"
+          inputmode="numeric"
+          :value="current"
           :min="1"
           :max="totalPage"
-          @update:model-value="onUpdateModelValue"
+          @keypress="onKeyPress"
+          @input="onUpdatePageCache"
         />
-        <BaseButtonGroup>
-          <BaseButton v-if="editingPage" @click="onSelect(currentPageCache)">
-            {{ t('base.pagination.confirmGotoPage') }}
-          </BaseButton>
-          <BaseButton v-if="editingPage" @click="onSelect(current)">
-            {{ t('base.pagination.cancelGotoPage') }}
-          </BaseButton>
-        </BaseButtonGroup>
+        <BaseButton v-if="editingPage" category="flat" @click="onSelect(currentPageCache)">
+          {{ t('base.pagination.confirmGotoPage') }}
+        </BaseButton>
       </div>
       <BaseButton category="flat" :disabled="isLast()" @click="onSelect(current + 1)">
         <template #icon>
@@ -126,3 +131,8 @@ const onUpdateModelValue = (value: number | string | Date) => {
     }}</span>
   </div>
 </template>
+
+<style>
+#pageJumpArea {
+}
+</style>
