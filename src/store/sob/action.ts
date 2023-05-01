@@ -1,4 +1,4 @@
-import { AccountService, Period, SobService, StorageService } from '../../domain'
+import { Period, PeriodService, SobService, StorageService } from '../../domain'
 import { ISobState } from './state'
 
 const CURRENT_SOB_KEY = 'CURRENT_SOB'
@@ -24,7 +24,7 @@ function setWorkingSob(state: ISobState) {
       state.workingSob = foundSob
       StorageService.set(CURRENT_SOB_KEY, sobId)
 
-      const { data } = await AccountService.getOpenPeriod(sobId)
+      const { data } = await PeriodService.getOpenPeriod(sobId)
       state.currentPeriod = data
     }
   }

@@ -15,7 +15,7 @@ import VoucherCreation from '../components/voucher/VoucherCreation.vue'
 import VoucherDetail from '../components/voucher/VoucherDetail.vue'
 import ExceptionPage from '../components/ExceptionPage.vue'
 import StyleTest from '../components/style-test/StyleTest.vue'
-import { beforeAppEnterHandler, beforeWorkingZoneEnterHandler } from './beforeEnterHandlers'
+import { beforeAppEnterHandler, beforeWorkingZoneEnterHandler } from './before-enter-handlers'
 
 const routes: RouteRecordRaw[] = [
   {

@@ -2,7 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
-import { Period, Page, AccountService } from '../../domain'
+import { Period, Page, PeriodService } from '../../domain'
 
 const props = defineProps<{
   sobId: string
@@ -16,7 +16,7 @@ const periods = ref<Page<Period>>()
 const selectedPeriodId = computed(() => route.params['periodId'] as string)
 
 onMounted(async () => {
-  const { data } = await AccountService.getPeriods(props.sobId)
+  const { data } = await PeriodService.getPeriods(props.sobId)
   periods.value = data
 
   if (!route.params['periodId']) {
