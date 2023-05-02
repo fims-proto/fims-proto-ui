@@ -30,11 +30,22 @@ const navigation = computed(() => {
     })
     items.push({
       key: 'legder',
-      label: t('account.title'),
+      label: t('ledger.title'),
       to: {
-        name: 'accountMain',
+        name: 'ledgerMain',
         params: {
           sobId: workingSob.value?.id,
+        },
+      },
+    })
+    items.push({
+      key: 'close-period',
+      label: t('period.closeTitle'),
+      to: {
+        name: 'closePeriod',
+        params: {
+          sobId: workingSob.value?.id,
+          periodId: currentPeriod.value.id,
         },
       },
     })
@@ -45,11 +56,11 @@ const navigation = computed(() => {
 
 const period = computed(() =>
   currentPeriod.value
-    ? t('account.periodText', {
+    ? t('period.periodText', {
         fiscalYear: currentPeriod.value.fiscalYear,
         number: currentPeriod.value.periodNumber,
       })
-    : t('account.periodUnselected')
+    : t('period.periodUnselected')
 )
 
 const onUserMenuSelected = (key: string) => {

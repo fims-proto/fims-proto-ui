@@ -9,7 +9,8 @@ import NotFound from '../components/NotFound.vue'
 import SobMain from '../components/sob/SobMain.vue'
 import SobDetail from '../components/sob/SobDetail.vue'
 import SobCreation from '../components/sob/SobCreation.vue'
-import AccountMain from '../components/account/AccountMain.vue'
+import LedgerMain from '../components/ledger/LedgerMain.vue'
+import ClosePeriod from '../components/period/ClosePeriod.vue'
 import VoucherMain from '../components/voucher/VoucherMain.vue'
 import VoucherCreation from '../components/voucher/VoucherCreation.vue'
 import VoucherDetail from '../components/voucher/VoucherDetail.vue'
@@ -64,7 +65,7 @@ const routes: RouteRecordRaw[] = [
           },
         ],
       },
-      // accounts
+      // ledgers
       {
         path: 'sobs/:sobId/periods/:periodId?',
         component: RouterView,
@@ -73,8 +74,13 @@ const routes: RouteRecordRaw[] = [
         children: [
           {
             path: '',
-            name: 'accountMain',
-            component: AccountMain,
+            name: 'ledgerMain',
+            component: LedgerMain,
+          },
+          {
+            path: 'close',
+            name: 'closePeriod',
+            component: ClosePeriod,
           },
         ],
       },

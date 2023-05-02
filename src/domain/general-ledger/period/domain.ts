@@ -32,6 +32,12 @@ class PeriodService {
       return result.data
     })
   }
+
+  public async closePeriod(sobId: string, periodId: string): Promise<Response<void>> {
+    return invokeWithErrorHandler(
+      async () => await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/period/${periodId}/close`)
+    )
+  }
 }
 
 export const PeriodServiceInstance = new PeriodService()

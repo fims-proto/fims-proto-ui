@@ -76,14 +76,19 @@
     "configuration": {
       "title": "名称"
     },
-    "title": "账簿",
+    "accountTitle": "科目",
+    "accountNumber": "科目编号"
+  },
+  "period": {
+    "closeTitle": "结账",
     "periodUnselected": "未选择财务周期",
     "createPeriod": "创建账期",
-    "accountTitle": "科目",
-    "accountNumber": "科目编号",
+    "periodText": "{fiscalYear} 年第 {number} 期"
+  },
+  "ledger": {
+    "title": "账簿",
     "openingBalance": "期初余额",
     "endingBalance": "期末余额",
-    "periodText": "{fiscalYear} 年第 {number} 期",
     "periodDebit": "借",
     "periodCredit": "贷"
   },

@@ -57,7 +57,7 @@ const totalCredit = computed(() =>
 )
 
 const periodNumber = computed(() =>
-  t('account.periodText', {
+  t('period.periodText', {
     fiscalYear: formModel.value.transactionTime.getFullYear(),
     number: formModel.value.transactionTime.getMonth() + 1,
   })

@@ -23,7 +23,7 @@ onMounted(async () => {
     const openPeriod = periods.value?.content.find((period) => period.isCurrent)
     if (openPeriod) {
       router.replace({
-        name: 'accountMain',
+        name: 'ledgerMain',
         params: {
           sobId: props.sobId,
           periodId: openPeriod.id,
@@ -35,7 +35,7 @@ onMounted(async () => {
 })
 
 onBeforeRouteUpdate(async (to) => {
-  if (to.name === 'accountMain' && !to.params['periodId']) {
+  if (to.name === 'ledgerMain' && !to.params['periodId']) {
     return false
   }
 })
@@ -43,7 +43,7 @@ onBeforeRouteUpdate(async (to) => {
 
 <template>
   <BasePage>
-    <template #title>{{ t('account.title') }}</template>
+    <template #title>{{ t('ledger.title') }}</template>
 
     <div class="flex gap-4">
       <div class="flex-none w-80">
