@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { User } from '.'
 import { FIMS_URL } from '../../config'
-import { invokeWithErrorHandler, Response } from '../errorHandler'
+import { invokeWithErrorHandler, Response } from '../error-handler'
 import { KratosService } from '../kratos'
 import { Traits } from './type'
 

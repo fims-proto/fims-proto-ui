@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Ledger, AccountService, Page } from '../../domain'
+import { Ledger, Page, LedgerService } from '../../domain'
 import { ColumnType } from '../reusable/table'
 
 const props = defineProps<{
@@ -24,25 +24,25 @@ const columns: ColumnType[] = [
     path: ['account', 'title'],
   },
   {
-    title: t('account.openingBalance'),
+    title: t('ledger.openingBalance'),
     key: 'openingBalance',
     align: 'right',
     width: 'sm',
   },
   {
-    title: t('account.periodDebit'),
+    title: t('ledger.periodDebit'),
     key: 'periodDebit',
     align: 'right',
     width: 'sm',
   },
   {
-    title: t('account.periodCredit'),
+    title: t('ledger.periodCredit'),
     key: 'periodCredit',
     align: 'right',
     width: 'sm',
   },
   {
-    title: t('account.endingBalance'),
+    title: t('ledger.endingBalance'),
     key: 'endingBalance',
     align: 'right',
     width: 'sm',
@@ -52,7 +52,7 @@ const columns: ColumnType[] = [
 const pageable = ref({ page: 1, size: 10 })
 
 const refresh = async () => {
-  const { data } = await AccountService.getLedgersInPeriod(props.sobId, props.periodId as string, pageable.value)
+  const { data } = await LedgerService.getLedgersInPeriod(props.sobId, props.periodId as string, pageable.value)
   ledgers.value = data
 }
 

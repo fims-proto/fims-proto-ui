@@ -9,13 +9,14 @@ import NotFound from '../components/NotFound.vue'
 import SobMain from '../components/sob/SobMain.vue'
 import SobDetail from '../components/sob/SobDetail.vue'
 import SobCreation from '../components/sob/SobCreation.vue'
-import AccountMain from '../components/account/AccountMain.vue'
+import LedgerMain from '../components/ledger/LedgerMain.vue'
+import ClosePeriod from '../components/period/ClosePeriod.vue'
 import VoucherMain from '../components/voucher/VoucherMain.vue'
 import VoucherCreation from '../components/voucher/VoucherCreation.vue'
 import VoucherDetail from '../components/voucher/VoucherDetail.vue'
 import ExceptionPage from '../components/ExceptionPage.vue'
 import StyleTest from '../components/style-test/StyleTest.vue'
-import { beforeAppEnterHandler, beforeWorkingZoneEnterHandler } from './beforeEnterHandlers'
+import { beforeAppEnterHandler, beforeWorkingZoneEnterHandler } from './before-enter-handlers'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -64,17 +65,22 @@ const routes: RouteRecordRaw[] = [
           },
         ],
       },
-      // accounts
+      // ledgers
       {
-        path: 'sobs/:sobId/periods/:periodId?',
+        path: 'sobs/:sobId',
         component: RouterView,
         props: true,
         beforeEnter: beforeWorkingZoneEnterHandler,
         children: [
           {
-            path: '',
-            name: 'accountMain',
-            component: AccountMain,
+            path: 'periods/:periodId?',
+            name: 'ledgerMain',
+            component: LedgerMain,
+          },
+          {
+            path: 'period/close',
+            name: 'closePeriod',
+            component: ClosePeriod,
           },
         ],
       },

@@ -2,7 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
-import { Period, Page, AccountService } from '../../domain'
+import { Period, Page, PeriodService } from '../../domain'
 
 const props = defineProps<{
   sobId: string
@@ -16,14 +16,14 @@ const periods = ref<Page<Period>>()
 const selectedPeriodId = computed(() => route.params['periodId'] as string)
 
 onMounted(async () => {
-  const { data } = await AccountService.getPeriods(props.sobId)
+  const { data } = await PeriodService.getPeriods(props.sobId)
   periods.value = data
 
   if (!route.params['periodId']) {
     const openPeriod = periods.value?.content.find((period) => period.isCurrent)
     if (openPeriod) {
       router.replace({
-        name: 'accountMain',
+        name: 'ledgerMain',
         params: {
           sobId: props.sobId,
           periodId: openPeriod.id,
@@ -35,7 +35,7 @@ onMounted(async () => {
 })
 
 onBeforeRouteUpdate(async (to) => {
-  if (to.name === 'accountMain' && !to.params['periodId']) {
+  if (to.name === 'ledgerMain' && !to.params['periodId']) {
     return false
   }
 })
@@ -43,7 +43,7 @@ onBeforeRouteUpdate(async (to) => {
 
 <template>
   <BasePage>
-    <template #title>{{ t('account.title') }}</template>
+    <template #title>{{ t('ledger.title') }}</template>
 
     <div class="flex gap-4">
       <div class="flex-none w-80">

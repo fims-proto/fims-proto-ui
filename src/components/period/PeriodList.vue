@@ -18,7 +18,7 @@ const { workingSob } = toRefs(sobStore.state)
 
 const onPeriodSelected = (periodId: string) => {
   router.push({
-    name: 'accountMain',
+    name: 'ledgerMain',
     params: {
       sobId: workingSob.value?.id,
       periodId,
@@ -35,10 +35,10 @@ const onPeriodSelected = (periodId: string) => {
       :active="periodId === period.id"
       @click="onPeriodSelected(period.id)"
     >
-      {{ t('account.periodText', { fiscalYear: period.fiscalYear, number: period.periodNumber }) }}
+      {{ t('period.periodText', { fiscalYear: period.fiscalYear, number: period.periodNumber }) }}
     </BaseListItem>
     <BaseListItem v-if="!periods?.content.length">
-      <BaseButton>{{ t('account.createPeriod') }}</BaseButton>
+      <BaseButton>{{ t('period.createPeriod') }}</BaseButton>
     </BaseListItem>
   </BaseList>
 </template>

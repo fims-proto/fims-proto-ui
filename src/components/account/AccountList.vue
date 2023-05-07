@@ -19,7 +19,7 @@ const columns: ColumnType[] = [
     width: 'md',
   },
   {
-    title: t('account.title'),
+    title: t('ledger.title'),
     path: 'title',
   },
 ]

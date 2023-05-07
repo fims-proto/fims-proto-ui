@@ -1,8 +1,8 @@
 import axios from 'axios'
-import { FIMS_URL } from '../../config'
-import { convertFieldsFromString } from '../dateTypeConverter'
-import { invokeWithErrorHandler, Response } from '../errorHandler'
-import { FieldConversionRecord, Page, Pageable } from '../types'
+import { FIMS_URL } from '../../../config'
+import { convertFieldsFromString } from '../../date-type-converter'
+import { invokeWithErrorHandler, Response } from '../../error-handler'
+import { FieldConversionRecord, Page, Pageable } from '../../types'
 import { LineItem, Voucher, NewVoucher } from './types'
 
 const ITEM_FIELDS: FieldConversionRecord = {
