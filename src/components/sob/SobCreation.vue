@@ -3,9 +3,11 @@ import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { NewSob, SobService } from '../../domain'
+import { useSobStore } from '../../store/sob'
 
 const t = useI18n().t
 const router = useRouter()
+const sobStore = useSobStore()
 
 const { year, month } = getCurrentUTCTime()
 
@@ -23,6 +25,8 @@ const onSubmit = async () => {
   if (exception) {
     return
   }
+
+  sobStore.action.refreshSobs()
 
   router.replace({
     name: 'sobDetail',

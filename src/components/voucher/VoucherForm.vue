@@ -70,8 +70,6 @@ const emptyItem = () => ({
   debit: 0,
 })
 
-const onHeaderTextChange = () => internalLineItems.value.forEach((item) => (item.text = formModel.value.headerText))
-
 const onClearLineItem = (index: number) => internalLineItems.value.splice(index, 1)
 
 const onNewLineItem = () => internalLineItems.value.push(emptyItem())
@@ -80,14 +78,17 @@ const validate = () => {
   return headerFormRef.value?.validate()
 }
 
-const collect = () => ({
-  headerText: formModel.value.headerText.trim(),
-  transactionTime: formModel.value.transactionTime,
-  attachmentQuantity: formModel.value.attachmentQuantity,
-  lineItems: internalLineItems.value,
-  totalDebit: totalDebit.value,
-  totalCredit: totalCredit.value,
-})
+const collect = () => {
+  internalLineItems.value.forEach((item) => (item.text = formModel.value.headerText))
+  return {
+    headerText: formModel.value.headerText.trim(),
+    transactionTime: formModel.value.transactionTime,
+    attachmentQuantity: formModel.value.attachmentQuantity,
+    lineItems: internalLineItems.value,
+    totalDebit: totalDebit.value,
+    totalCredit: totalCredit.value,
+  }
+}
 
 const initialize = () => {
   formModel.value.headerText = props.headerText
@@ -117,7 +118,6 @@ initialize()
           :placeholder="t('voucher.headerTextPlaceholder')"
           required
           class="w-80"
-          @change="onHeaderTextChange"
         />
       </BaseFormItem>
 

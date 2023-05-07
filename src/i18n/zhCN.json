@@ -80,10 +80,15 @@
     "accountNumber": "科目编号"
   },
   "period": {
-    "closeTitle": "结账",
     "periodUnselected": "未选择财务周期",
     "createPeriod": "创建账期",
-    "periodText": "{fiscalYear} 年第 {number} 期"
+    "periodText": "{fiscalYear} 年第 {number} 期",
+    "close": {
+      "title": "结账",
+      "action": "结账",
+      "confirmation": "请确认要结转至下一账期",
+      "success": "结账成功"
+    }
   },
   "ledger": {
     "title": "账簿",

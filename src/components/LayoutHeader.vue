@@ -40,12 +40,11 @@ const navigation = computed(() => {
     })
     items.push({
       key: 'close-period',
-      label: t('period.closeTitle'),
+      label: t('period.close.title'),
       to: {
         name: 'closePeriod',
         params: {
           sobId: workingSob.value?.id,
-          periodId: currentPeriod.value.id,
         },
       },
     })

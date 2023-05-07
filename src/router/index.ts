@@ -67,18 +67,18 @@ const routes: RouteRecordRaw[] = [
       },
       // ledgers
       {
-        path: 'sobs/:sobId/periods/:periodId?',
+        path: 'sobs/:sobId',
         component: RouterView,
         props: true,
         beforeEnter: beforeWorkingZoneEnterHandler,
         children: [
           {
-            path: '',
+            path: 'periods/:periodId?',
             name: 'ledgerMain',
             component: LedgerMain,
           },
           {
-            path: 'close',
+            path: 'period/close',
             name: 'closePeriod',
             component: ClosePeriod,
           },

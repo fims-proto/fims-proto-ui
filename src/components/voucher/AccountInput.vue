@@ -16,13 +16,13 @@ const emit = defineEmits<{
 const { workingSob } = toRefs(useSobStore().state)
 const query = ref('')
 const filteredAccounts = ref<Account[]>([])
-const selectedAccount = ref<Account>()
+const selectedAccount = ref<Partial<Account>>()
 
 watch(
   () => props.modelValue,
   async () => {
     if (!workingSob.value || !props.modelValue) {
-      selectedAccount.value = undefined
+      selectedAccount.value = {}
       return
     }
     const { data } = await AccountService.getAccountByAccountNumber(workingSob.value.id, props.modelValue)

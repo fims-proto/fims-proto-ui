@@ -1,4 +1,4 @@
-import { Period, PeriodService, SobService, StorageService } from '../../domain'
+import { PeriodService, SobService, StorageService } from '../../domain'
 import { ISobState } from './state'
 
 const CURRENT_SOB_KEY = 'CURRENT_SOB'
@@ -7,6 +7,16 @@ function refreshSobs(state: ISobState) {
   return async () => {
     const { data } = await SobService.getAllSods()
     state.sobs = data?.content ?? []
+  }
+}
+
+function refreshPeriod(state: ISobState) {
+  return async () => {
+    if (!state.workingSob) {
+      return
+    }
+    const { data } = await PeriodService.getOpenPeriod(state.workingSob.id)
+    state.currentPeriod = data
   }
 }
 
@@ -24,8 +34,7 @@ function setWorkingSob(state: ISobState) {
       state.workingSob = foundSob
       StorageService.set(CURRENT_SOB_KEY, sobId)
 
-      const { data } = await PeriodService.getOpenPeriod(sobId)
-      state.currentPeriod = data
+      refreshPeriod(state)()
     }
   }
 }
@@ -40,15 +49,11 @@ function loadWorkingSob(state: ISobState) {
   }
 }
 
-function setCurrentPeriod(state: ISobState) {
-  return (period: Period) => (state.currentPeriod = period)
-}
-
 export function createAction(state: ISobState) {
   return {
     refreshSobs: refreshSobs(state),
+    refreshPeriod: refreshPeriod(state),
     setWorkingSob: setWorkingSob(state),
     loadWorkingSob: loadWorkingSob(state),
-    setCurrentPeriod: setCurrentPeriod(state),
   }
 }
