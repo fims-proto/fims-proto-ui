@@ -1,5 +1,5 @@
 import { reactive } from 'vue'
-import { AppNotification } from '../../domain'
+import { type AppNotification } from '../../domain'
 
 export interface INotificationState {
   notifications: AppNotification[]

@@ -1,4 +1,4 @@
-import { inject, InjectionKey, provide } from 'vue'
+import { inject, provide, type InjectionKey } from 'vue'
 
 export interface ListInjection {
   hoverable: boolean

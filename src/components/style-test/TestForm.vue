@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { FormRules } from '../reusable/form'
+import { type FormRules } from '../reusable/form'
 import BaseForm from '../reusable/form/BaseForm.vue'
 
 const modelRef = ref({

@@ -28,7 +28,7 @@ export default defineComponent({ inheritAttrs: false })
     v-else
     ref="inputRef"
     :value="modelValue"
-    :type="$attrs.type as string ?? 'text'"
+    :type="($attrs.type as string) ?? 'text'"
     v-bind="$attrs"
     :class="['appearance-none w-full border-none px-3 py-2', { 'text-right': $attrs.type === 'number' }]"
     @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { ColumnType, PageType } from '.'
-import { Pageable } from '../../../domain'
+import { type ColumnType, type PageType } from '.'
+import { type Pageable } from '../../../domain'
 
 const props = defineProps<{
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

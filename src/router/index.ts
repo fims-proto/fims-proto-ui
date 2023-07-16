@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory, RouteRecordRaw, RouterView } from 'vue-router'
+import { createRouter, createWebHistory, type RouteRecordRaw, RouterView } from 'vue-router'
 import AuthenticationLogin from '../components/user/AuthenticationLogin.vue'
 import AuthenticationLogout from '../components/user/AuthenticationLogout.vue'
 import ProfileSetting from '../components/user/ProfileSetting.vue'

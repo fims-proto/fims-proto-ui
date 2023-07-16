@@ -1,10 +1,10 @@
 import {
-  LoginFlow,
-  SettingsFlow,
-  Session,
-  UpdateLoginFlowBody,
-  UpdateSettingsFlowBody,
-  SuccessfulNativeLogin,
+  type LoginFlow,
+  type SettingsFlow,
+  type Session,
+  type UpdateLoginFlowBody,
+  type UpdateSettingsFlowBody,
+  type SuccessfulNativeLogin,
 } from '@ory/kratos-client'
 import axios, { AxiosError } from 'axios'
 import { kratos } from '../../lib/kratos'
@@ -33,7 +33,7 @@ class KratosService {
 
   public async submitLoginFlow(
     flowId: string,
-    payload: UpdateLoginFlowBody
+    payload: UpdateLoginFlowBody,
   ): Promise<SuccessfulNativeLogin | LoginFlow> {
     try {
       const result = await kratos.updateLoginFlow({ flow: flowId, updateLoginFlowBody: payload })

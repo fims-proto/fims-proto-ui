@@ -1,4 +1,4 @@
-import { FormItemRule } from './interface'
+import { type FormItemRule } from './interface'
 
 export function validate(value: unknown, rule: FormItemRule): true | string {
   if (!rule) {

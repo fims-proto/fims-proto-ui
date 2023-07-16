@@ -2,7 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
-import { Period, Page, PeriodService } from '../../domain'
+import { PeriodService, type Page, type Period } from '../../domain'
 
 const props = defineProps<{
   sobId: string

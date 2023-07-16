@@ -2,8 +2,8 @@
 import Big from 'big.js'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { LineItem, Traits } from '../../domain'
-import { FormRules } from '../reusable/form'
+import { type LineItem, type Traits } from '../../domain'
+import { type FormRules } from '../reusable/form'
 import BaseForm from '../reusable/form/BaseForm.vue'
 
 const props = defineProps<{
@@ -50,17 +50,17 @@ const formRules: FormRules = {
 const internalLineItems = ref<LineItem[]>([])
 
 const totalDebit = computed(() =>
-  internalLineItems.value.reduce((sum, item) => sum.add(Big(item.debit ?? 0)), Big(0)).toNumber()
+  internalLineItems.value.reduce((sum, item) => sum.add(Big(item.debit ?? 0)), Big(0)).toNumber(),
 )
 const totalCredit = computed(() =>
-  internalLineItems.value.reduce((sum, item) => sum.add(Big(item.credit ?? 0)), Big(0)).toNumber()
+  internalLineItems.value.reduce((sum, item) => sum.add(Big(item.credit ?? 0)), Big(0)).toNumber(),
 )
 
 const periodNumber = computed(() =>
   t('period.periodText', {
     fiscalYear: formModel.value.transactionTime.getFullYear(),
     number: formModel.value.transactionTime.getMonth() + 1,
-  })
+  }),
 )
 
 const emptyItem = () => ({

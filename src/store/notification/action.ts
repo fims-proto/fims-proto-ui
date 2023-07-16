@@ -1,5 +1,5 @@
-import { AppNotification } from '../../domain'
-import { INotificationState } from './state'
+import { type AppNotification } from '../../domain'
+import { type INotificationState } from './state'
 
 function push(state: INotificationState) {
   return (notification: AppNotification) => {

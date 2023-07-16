@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Account, AccountService, Page } from '../../domain'
-import { ColumnType } from '../reusable/table'
+import { AccountService, type Account, type Page } from '../../domain'
+import { type ColumnType } from '../reusable/table'
 
 const props = defineProps<{
   sobId: string
@@ -32,7 +32,7 @@ watch(
     const { data } = await AccountService.getAccounts(props.sobId, pageable.value)
     accounts.value = data
   },
-  { immediate: true }
+  { immediate: true },
 )
 </script>
 

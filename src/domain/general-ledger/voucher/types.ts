@@ -1,5 +1,5 @@
-import { User } from '../../user'
-import { Period } from '../period'
+import { type User } from '../../user'
+import { type Period } from '../period'
 
 export interface Voucher {
   sobId: string

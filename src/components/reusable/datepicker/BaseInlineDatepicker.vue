@@ -161,7 +161,7 @@ watch(
     calculateYearList()
     calculateDateList()
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 watch(
@@ -172,7 +172,7 @@ watch(
       displayedYear.value = props.modelValue.getFullYear()
       displayedMonth.value = props.modelValue.getMonth()
     }
-  }
+  },
 )
 </script>
 

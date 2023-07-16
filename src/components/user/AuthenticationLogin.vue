@@ -38,7 +38,12 @@ function buildSumitForm(formValue: formValueType) {
 </script>
 
 <script setup lang="ts">
-import { LoginFlow, UiNodeInputAttributes, UpdateLoginFlowWithPasswordMethod, UiText } from '@ory/kratos-client'
+import {
+  type LoginFlow,
+  type UiNodeInputAttributes,
+  type UiText,
+  type UpdateLoginFlowWithPasswordMethod,
+} from '@ory/kratos-client'
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
@@ -79,7 +84,7 @@ const notify = (flow: LoginFlow) => {
       type: message.type,
       message: message.text,
       duration: 0,
-    })
+    }),
   )
 }
 

@@ -7,5 +7,5 @@ export const kratos = new FrontendApi(
     baseOptions: {
       withCredentials: true,
     },
-  })
+  }),
 )

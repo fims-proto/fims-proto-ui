@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PropType } from 'vue'
+import { type PropType } from 'vue'
 import { VBinder, VTarget, VFollower } from 'vueuc'
 import { provideInterface } from './context'
 

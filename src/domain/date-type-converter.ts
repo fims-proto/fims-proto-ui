@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { FieldConversionRecord } from './types'
+import { type FieldConversionRecord } from './types'
 
 export function convertFieldsFromString(data: any, options: FieldConversionRecord) {
   if (Array.isArray(data)) {

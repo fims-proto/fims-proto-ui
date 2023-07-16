@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Sob, SobService } from '../../domain'
+import { SobService, type Sob } from '../../domain'
 
 const props = defineProps<{
   sobId: string
@@ -18,7 +18,7 @@ watch(
       sobDetail.value = data
     }
   },
-  { immediate: true }
+  { immediate: true },
 )
 </script>
 

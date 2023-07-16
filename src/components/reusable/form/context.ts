@@ -1,5 +1,5 @@
-import { inject, InjectionKey, provide, Ref } from 'vue'
-import { FormRules, FormValidationStatus } from './interface'
+import { inject, provide, type InjectionKey, type Ref } from 'vue'
+import { type FormRules, type FormValidationStatus } from './interface'
 
 // Form injections
 

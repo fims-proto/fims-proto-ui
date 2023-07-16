@@ -1,5 +1,5 @@
-import { User, UserService } from '../../domain'
-import { IUserState } from './state'
+import { type User, UserService } from '../../domain'
+import { type IUserState } from './state'
 
 function setUser(state: IUserState) {
   return (user: User) => {

@@ -3,7 +3,7 @@ export default defineComponent({ inheritAttrs: false })
 </script>
 
 <script setup lang="ts">
-import { defineComponent, PropType, useSlots } from 'vue'
+import { defineComponent, useSlots, type PropType } from 'vue'
 import { injectButtonGroup } from './context'
 
 const props = defineProps({

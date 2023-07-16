@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { provideForm } from './context'
-import { FormRules } from './interface'
+import { type FormRules } from './interface'
 import { get, validate } from './utils'
 
 const props = withDefaults(
@@ -12,7 +12,7 @@ const props = withDefaults(
   {
     model: () => ({}),
     rules: () => ({}),
-  }
+  },
 )
 
 defineEmits<{

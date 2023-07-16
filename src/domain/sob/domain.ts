@@ -1,9 +1,9 @@
 import axios from 'axios'
-import { NewSob, Sob } from './types'
+import { type NewSob, type Sob } from './types'
 import { FIMS_URL } from '../../config'
-import { invokeWithErrorHandler, Response } from '../error-handler'
+import { invokeWithErrorHandler, type Response } from '../error-handler'
 import { convertFieldsFromString } from '../date-type-converter'
-import { FieldConversionRecord, Page } from '../types'
+import { type FieldConversionRecord, type Page } from '../types'
 
 const FIELDS_CONVERSION: FieldConversionRecord = {
   startingPeriodYear: 'number',

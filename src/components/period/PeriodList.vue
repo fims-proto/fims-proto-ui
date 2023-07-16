@@ -2,7 +2,7 @@
 import { toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { Page, Period } from '../../domain'
+import { type Page, type Period } from '../../domain'
 import { useSobStore } from '../../store/sob'
 
 defineProps<{

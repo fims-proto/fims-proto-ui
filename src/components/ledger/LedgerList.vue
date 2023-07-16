@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Ledger, Page, LedgerService } from '../../domain'
-import { ColumnType } from '../reusable/table'
+import { LedgerService, type Ledger, type Page } from '../../domain'
+import { type ColumnType } from '../reusable/table'
 
 const props = defineProps<{
   sobId: string
@@ -81,7 +81,7 @@ defineExpose({
       }
     "
   >
-    <template #bodyCell="{ record, column }: { record: Ledger, column: ColumnType }">
+    <template #bodyCell="{ record, column }: { record: Ledger; column: ColumnType }">
       <template v-if="column.key === 'openingBalance'">
         <span>{{ n(record.openingBalance, 'decimal') }}</span>
       </template>

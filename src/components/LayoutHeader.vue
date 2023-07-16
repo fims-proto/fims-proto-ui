@@ -59,7 +59,7 @@ const period = computed(() =>
         fiscalYear: currentPeriod.value.fiscalYear,
         number: currentPeriod.value.periodNumber,
       })
-    : t('period.periodUnselected')
+    : t('period.periodUnselected'),
 )
 
 const onUserMenuSelected = (key: string) => {

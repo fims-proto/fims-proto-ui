@@ -20,7 +20,7 @@ const props = withDefaults(
     forceInteger: false,
     prefix: undefined,
     suffix: undefined,
-  }
+  },
 )
 
 const emit = defineEmits<{

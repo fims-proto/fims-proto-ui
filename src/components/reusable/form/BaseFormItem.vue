@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { injectForm, provideFormItem } from './context'
-import { FormItemRule, FormValidationStatus } from './interface'
+import { type FormItemRule, type FormValidationStatus } from './interface'
 import { get, validate } from './utils'
 
 const props = withDefaults(
@@ -15,7 +15,7 @@ const props = withDefaults(
   {
     label: undefined,
     path: undefined,
-  }
+  },
 )
 
 const { t } = useI18n()
@@ -31,7 +31,7 @@ props.path &&
     () => {
       const result = Form?.itemValidationState.value[props.path as string]
       result !== undefined && result !== null && updateValidationState(result)
-    }
+    },
   )
 
 const updateValidationState = (state: true | string) => {

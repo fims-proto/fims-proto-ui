@@ -2,7 +2,7 @@
 import { toRefs, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { VoucherService, NewVoucher } from '../../domain'
+import { VoucherService, type NewVoucher } from '../../domain'
 import { useNotificationStore } from '../../store/notification'
 import { useSobStore } from '../../store/sob'
 import { useUserStore } from '../../store/user'
@@ -62,7 +62,7 @@ const saveVoucher = async () => {
 
   toBeCreated.creator = userId.value
   toBeCreated.lineItems = toBeCreated.lineItems.filter(
-    (item) => item.accountNumber.trim() && item.debit.toString() && item.credit.toString()
+    (item) => item.accountNumber.trim() && item.debit.toString() && item.credit.toString(),
   )
 
   if (!toBeCreated.lineItems.length) {

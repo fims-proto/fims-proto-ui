@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { NewSob, SobService } from '../../domain'
+import { SobService, type NewSob } from '../../domain'
 import { useSobStore } from '../../store/sob'
 
 const t = useI18n().t

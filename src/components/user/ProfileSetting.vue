@@ -49,10 +49,10 @@ function buildPasswordForm(uiNodes: UiNode[] | undefined) {
 </script>
 
 <script setup lang="ts">
-import { SettingsFlow, UpdateSettingsFlowBody } from '@ory/kratos-client'
+import { type SettingsFlow, type UpdateSettingsFlowBody } from '@ory/kratos-client'
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { KratosService, UiNode, UiText, UserService } from '../../domain'
+import { KratosService, UserService, type UiNode, type UiText } from '../../domain'
 import { useNotificationStore } from '../../store/notification'
 import { useUserStore } from '../../store/user'
 
@@ -94,7 +94,7 @@ const notify = (flow: SettingsFlow | undefined) => {
       type: message.type,
       message: message.text,
       duration: message.type === 'error' || message.type === 'warning' ? 0 : undefined,
-    })
+    }),
   )
 }
 
