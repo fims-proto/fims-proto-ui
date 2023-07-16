@@ -131,8 +131,3 @@ const onKeyPress = (event: KeyboardEvent) => {
     }}</span>
   </div>
 </template>
-
-<style>
-#pageJumpArea {
-}
-</style>
