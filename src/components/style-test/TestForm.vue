@@ -3,12 +3,24 @@ import { ref } from 'vue'
 import { type FormRules } from '../reusable/form'
 import BaseForm from '../reusable/form/BaseForm.vue'
 
+const editMode = ref<boolean>(true)
+
 const modelRef = ref({
   username: '',
   voucher: {
     headerText: '',
     attachmentNumber: 0,
   },
+  normalText: 'AAA',
+  emailAddress: 'BB@CC.com',
+  password: 'MNDPb4OmOejNetu',
+  lengthWidthHeight: [3, 4, 5],
+  birthday: {
+    year: 1993,
+    month: 5,
+    day: 14,
+  },
+  website: 'www.noah-ladder.top',
 })
 
 const rules: FormRules = {
@@ -39,6 +51,8 @@ const formRef = ref<InstanceType<typeof BaseForm>>()
 
 <template>
   <div class="space-y-8">
+    <BaseButton @click="editMode = !editMode">{{ editMode ? 'Display' : 'Edit' }}</BaseButton>
+
     <h1 class="text-neutral-900">BaseForm validation:</h1>
     <div class="rounded-lg p-4">
       <div class="flex gap-2 mb-2">
@@ -46,7 +60,7 @@ const formRef = ref<InstanceType<typeof BaseForm>>()
         <BaseButton @click="formRef?.resetValidation">Reset Validation</BaseButton>
       </div>
 
-      <BaseForm ref="formRef" :model="modelRef" :rules="rules" class="w-96 flex flex-col gap-4">
+      <BaseForm ref="formRef" :model="modelRef" :rules="rules" :edit="editMode" class="w-96 flex flex-col gap-4">
         <BaseFormItem path="username" label="user name">
           <BaseInput v-model="modelRef.username" />
         </BaseFormItem>
@@ -56,42 +70,49 @@ const formRef = ref<InstanceType<typeof BaseForm>>()
         <BaseFormItem path="voucher.attachmentNumber" label="attachment number">
           <BaseInput v-model="modelRef.voucher.attachmentNumber" html-type="number" :force-integer="true" />
         </BaseFormItem>
-      </BaseForm>
-    </div>
 
-    <h1 class="text-neutral-900">BaseForm:</h1>
-    <div class="rounded-lg p-4">
-      <BaseForm class="max-w-lg flex flex-col gap-4">
         <BaseFormItem label="普通文本">
-          <BaseInput placeholder="say something..." />
+          <BaseInput v-model="modelRef.normalText" placeholder="say something..." />
         </BaseFormItem>
 
         <BaseFormItem label="Email 地址" required>
-          <BaseInput placeholder="快输入..." html-type="email" autocomplete="email" required />
+          <BaseInput
+            v-model="modelRef.emailAddress"
+            placeholder="快输入..."
+            html-type="email"
+            autocomplete="email"
+            required
+          />
         </BaseFormItem>
 
         <BaseFormItem label="密码" required>
-          <BaseInput placeholder="快输入..." html-type="password" autocomplete="current-password" required />
+          <BaseInput
+            v-model="modelRef.password"
+            placeholder="快输入..."
+            html-type="password"
+            autocomplete="current-password"
+            required
+          />
         </BaseFormItem>
 
         <BaseFormItem label="长宽高">
           <BaseInputGroup>
-            <BaseInput hide-label html-type="number" />
-            <BaseInput hide-label html-type="number" />
-            <BaseInput hide-label html-type="number" />
+            <BaseInput v-model="modelRef.lengthWidthHeight[0]" hide-label html-type="number" />
+            <BaseInput v-model="modelRef.lengthWidthHeight[1]" hide-label html-type="number" />
+            <BaseInput v-model="modelRef.lengthWidthHeight[2]" hide-label html-type="number" />
           </BaseInputGroup>
         </BaseFormItem>
 
         <BaseFormItem label="何年何月">
           <BaseInputGroup>
-            <BaseInput hide-label html-type="number" suffix="年" />
-            <BaseInput hide-label html-type="number" suffix="月" />
-            <BaseInput hide-label html-type="number" suffix="日" />
+            <BaseInput v-model="modelRef.birthday.year" hide-label html-type="number" suffix="年" />
+            <BaseInput v-model="modelRef.birthday.month" hide-label html-type="number" suffix="月" />
+            <BaseInput v-model="modelRef.birthday.day" hide-label html-type="number" suffix="日" />
           </BaseInputGroup>
         </BaseFormItem>
 
         <BaseFormItem label="文本前后缀">
-          <BaseInput placeholder="fims" prefix="https://" suffix=".com" />
+          <BaseInput v-model="modelRef.website" placeholder="fims" prefix="https://" suffix=".com" />
         </BaseFormItem>
 
         <BaseFormItem label="控件前后缀_未完成">
@@ -111,7 +132,7 @@ const formRef = ref<InstanceType<typeof BaseForm>>()
           </BaseInput>
         </BaseFormItem>
 
-        <div>
+        <div v-if="editMode">
           <BaseButton html-type="submit" category="primary" class="w-full">
             <template #icon>
               <LockClosedMiniIcon />

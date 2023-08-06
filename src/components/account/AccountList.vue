@@ -15,7 +15,7 @@ const accounts = ref<Page<Account>>()
 const columns: ColumnType[] = [
   {
     title: t('account.accountNumber'),
-    path: 'accountNumber',
+    key: 'accountNumber',
     width: 'md',
   },
   {
@@ -51,5 +51,21 @@ watch(
         pageable.size = target.size ?? 10
       }
     "
-  />
+  >
+    <template #bodyCell="{ record, column }: { record: Account; column: ColumnType }">
+      <template v-if="column.key === 'accountNumber'">
+        <BaseNavLink
+          :to="{
+            name: 'accountDetail',
+            params: {
+              sobId: sobId,
+              accountId: record.id,
+            },
+          }"
+        >
+          {{ record.accountNumber }}
+        </BaseNavLink>
+      </template>
+    </template>
+  </BaseTable>
 </template>

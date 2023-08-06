@@ -1,25 +1,24 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
+import { onBeforeRouteUpdate, useRouter } from 'vue-router'
 import { PeriodService, type Page, type Period } from '../../domain'
 
 const props = defineProps<{
   sobId: string
+  periodId?: string
 }>()
 
 const { t } = useI18n()
-const route = useRoute()
 const router = useRouter()
 
 const periods = ref<Page<Period>>()
-const selectedPeriodId = computed(() => route.params['periodId'] as string)
 
 onMounted(async () => {
   const { data } = await PeriodService.getPeriods(props.sobId)
   periods.value = data
 
-  if (!route.params['periodId']) {
+  if (!props.periodId) {
     const openPeriod = periods.value?.content.find((period) => period.isCurrent)
     if (openPeriod) {
       router.replace({
@@ -47,10 +46,10 @@ onBeforeRouteUpdate(async (to) => {
 
     <div class="flex gap-4">
       <div class="flex-none w-80">
-        <PeriodList :periods="periods" :period-id="selectedPeriodId" />
+        <PeriodList :periods="periods" :period-id="periodId" />
       </div>
       <div class="flex-auto">
-        <LedgerList v-if="selectedPeriodId" :sob-id="sobId" :period-id="selectedPeriodId" />
+        <LedgerList v-if="periodId" :sob-id="sobId" :period-id="periodId" />
       </div>
     </div>
   </BasePage>

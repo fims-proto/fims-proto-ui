@@ -2,12 +2,15 @@
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { SobService, type Sob } from '../../domain'
+import { useRouter } from 'vue-router'
 
 const props = defineProps<{
   sobId: string
+  view?: string
 }>()
 
 const { t } = useI18n()
+const router = useRouter()
 const sobDetail = ref<Sob>()
 
 watch(
@@ -20,12 +23,16 @@ watch(
   },
   { immediate: true },
 )
+
+const tabChanged = (index: number) => {
+  router.push({ name: 'sobDetail', params: { view: index } })
+}
 </script>
 
 <template>
   <BasePage :subtitle="sobDetail?.description">
     <template #title>{{ sobDetail?.name }}</template>
-    <BaseTabs>
+    <BaseTabs :defualt-index="Number(view)" @changed="tabChanged">
       <template #tabs>
         <BaseTabItem>{{ t('sob.detail.basic') }}</BaseTabItem>
         <BaseTabItem>{{ t('sob.detail.accounts') }}</BaseTabItem>

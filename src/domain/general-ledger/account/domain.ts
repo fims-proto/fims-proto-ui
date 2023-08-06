@@ -25,6 +25,13 @@ class AccountService {
     })
   }
 
+  public async getAccountById(sobId: string, id: string): Promise<Response<Account>> {
+    return invokeWithErrorHandler(async () => {
+      const result = await axios.get(`${FIMS_URL}/api/v1/sob/${sobId}/account/${id}`)
+      return convertFieldsFromString(result.data, FIELDS_CONVERSION)
+    })
+  }
+
   public async getAccountByAccountNumber(sobId: string, accountNumber: string): Promise<Response<Account>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(

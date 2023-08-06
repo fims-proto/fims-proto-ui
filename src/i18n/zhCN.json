@@ -78,7 +78,22 @@
       "title": "名称"
     },
     "accountTitle": "科目",
-    "accountNumber": "科目编号"
+    "accountNumber": "科目编号",
+    "superiorAccount": "上级科目",
+    "balanceDirection": "余额方向",
+    "balanceDirectionEnum": {
+      "debit": "借",
+      "credit": "贷"
+    },
+    "accountType": "科目类型",
+    "accountTypeEnum": {
+      "assets": "资产类",
+      "cost": "成本类",
+      "liabilities": "负债类",
+      "equity": "所有者权益类",
+      "profit_and_loss": "损益类",
+      "common": "共同类"
+    }
   },
   "period": {
     "periodUnselected": "未选择财务周期",

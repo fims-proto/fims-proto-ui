@@ -6,6 +6,7 @@ import { type FormRules, type FormValidationStatus } from './interface'
 export interface FormInjection {
   model?: object
   rules?: FormRules
+  edit: Ref<boolean>
   itemValidationState: Ref<Record<string, true | string>>
 }
 

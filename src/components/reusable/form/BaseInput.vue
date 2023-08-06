@@ -4,7 +4,7 @@ export default defineComponent({ inheritAttrs: false })
 
 <script setup lang="ts">
 import { computed, defineComponent, useAttrs, useSlots } from 'vue'
-import { injectFormItem } from './context'
+import { injectForm, injectFormItem } from './context'
 
 const props = withDefaults(
   defineProps<{
@@ -27,11 +27,14 @@ const emit = defineEmits<{
   (event: 'update:modelValue', value: string | Date | number): void
 }>()
 
+const Form = injectForm()
 const FormItem = injectFormItem()
 
 const attrClass = useAttrs()['class']
 const attrExceptClass = Object.assign({}, useAttrs())
 delete attrExceptClass['class'] // remove class from attrs
+
+const edit = computed(() => Form?.edit.value ?? true)
 
 const inputValue = computed(() => {
   if (props.htmlType === 'date' && !!props.modelValue) {
@@ -73,7 +76,8 @@ const errorStatus = () => FormItem?.itemStatus.value === 'error'
 </script>
 
 <template>
-  <span class="group flex items-stretch bg-white -ml-px group-first-of-type:ml-0" :class="attrClass">
+  <!-- for edit -->
+  <span v-if="edit" class="group flex items-stretch bg-white -ml-px group-first-of-type:ml-0" :class="attrClass">
     <span
       v-if="hasPrefix()"
       :class="[
@@ -107,6 +111,19 @@ const errorStatus = () => FormItem?.itemStatus.value === 'error'
         { 'px-2': !$slots['prefix'] },
       ]"
     >
+      <slot name="suffix">{{ suffix }}</slot>
+    </span>
+  </span>
+
+  <!-- for display -->
+  <span v-else class="group flex items-stretch" :class="attrClass">
+    <span class="flex text-sm text-neutral-700 whitespace-nowrap">
+      <slot name="prefix">{{ prefix }}</slot>
+    </span>
+    <span v-bind="attrExceptClass" class="text-sm placeholder-neutral-500">
+      {{ htmlType === 'password' ? '****' : inputValue }}
+    </span>
+    <span class="flex text-sm text-neutral-700 whitespace-nowrap">
       <slot name="suffix">{{ suffix }}</slot>
     </span>
   </span>
