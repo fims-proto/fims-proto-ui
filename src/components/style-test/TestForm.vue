@@ -46,6 +46,27 @@ const rules: FormRules = {
   },
 }
 
+const selectOptions = [
+  {
+    value: '1',
+    label: 'John Wick',
+  },
+  {
+    value: '2',
+    label: 'Jason Bourne',
+  },
+  {
+    value: '3',
+    label: 'Eason Hunt',
+  },
+  {
+    value: '4',
+    label: 'James Bound',
+  },
+]
+const selectedValue = ref(selectOptions[0].value)
+const selectedValues = ref<string[]>([])
+
 const formRef = ref<InstanceType<typeof BaseForm>>()
 </script>
 
@@ -69,6 +90,18 @@ const formRef = ref<InstanceType<typeof BaseForm>>()
         </BaseFormItem>
         <BaseFormItem path="voucher.attachmentNumber" label="attachment number">
           <BaseInput v-model="modelRef.voucher.attachmentNumber" html-type="number" :force-integer="true" />
+        </BaseFormItem>
+
+        <BaseFormItem label="主角">
+          <BaseSelect v-model="selectedValue" :options="selectOptions" />
+        </BaseFormItem>
+
+        <BaseFormItem label="主角团">
+          <BaseSelect v-model="selectedValues" :options="selectOptions" :multiple="true" />
+        </BaseFormItem>
+
+        <BaseFormItem label="没有可选项的反派">
+          <BaseSelect v-model="selectedValues" :options="[]" />
         </BaseFormItem>
 
         <BaseFormItem label="普通文本">

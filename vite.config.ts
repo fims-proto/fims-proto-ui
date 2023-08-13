@@ -24,6 +24,11 @@ function HeroiconsResolver() {
         name: `${name.substring(0, name.length - 9)}Icon`,
         from: '@heroicons/vue/24/solid',
       }
+    } else if (name.endsWith('OutlineIcon')) {
+      return {
+        name: `${name.substring(0, name.length - 11)}Icon`,
+        from: '@heroicons/vue/24/outline',
+      }
     } else if (name.endsWith('MiniIcon')) {
       return {
         name: `${name.substring(0, name.length - 8)}Icon`,

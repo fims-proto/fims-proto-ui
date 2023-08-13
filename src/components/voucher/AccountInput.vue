@@ -82,14 +82,7 @@ const onUpdate = (account: Account) => {
                 :value="config"
                 as="template"
               >
-                <li
-                  :class="[
-                    'p-2 bg-transparent text-sm cursor-pointer',
-                    {
-                      'bg-primary-700 text-white': active,
-                    },
-                  ]"
-                >
+                <li :class="['p-2 text-sm cursor-pointer', active ? 'bg-primary-700 text-white' : 'bg-transparent']">
                   {{ config.accountNumber }} - {{ config.title }}
                 </li>
               </ComboboxOption>

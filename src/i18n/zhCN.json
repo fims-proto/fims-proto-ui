@@ -93,7 +93,8 @@
       "equity": "所有者权益类",
       "profit_and_loss": "损益类",
       "common": "共同类"
-    }
+    },
+    "auxiliaryCategory": "辅助核算"
   },
   "period": {
     "periodUnselected": "未选择财务周期",

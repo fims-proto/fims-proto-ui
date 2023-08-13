@@ -120,7 +120,7 @@ const errorStatus = () => FormItem?.itemStatus.value === 'error'
     <span class="flex text-sm text-neutral-700 whitespace-nowrap">
       <slot name="prefix">{{ prefix }}</slot>
     </span>
-    <span v-bind="attrExceptClass" class="text-sm placeholder-neutral-500">
+    <span v-bind="attrExceptClass" class="text-sm">
       {{ htmlType === 'password' ? '****' : inputValue }}
     </span>
     <span class="flex text-sm text-neutral-700 whitespace-nowrap">
