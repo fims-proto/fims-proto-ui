@@ -12,6 +12,7 @@ const props = defineProps<{
 const { t } = useI18n()
 const router = useRouter()
 const sobDetail = ref<Sob>()
+const tabIndex = ref(Number(props.view))
 
 watch(
   () => props.sobId,
@@ -26,23 +27,32 @@ watch(
 
 const tabChanged = (index: number) => {
   router.push({ name: 'sobDetail', params: { view: index } })
+  tabIndex.value = index
 }
 </script>
 
 <template>
   <BasePage :subtitle="sobDetail?.description">
     <template #title>{{ sobDetail?.name }}</template>
+
     <BaseTabs :defualt-index="Number(view)" @changed="tabChanged">
       <template #tabs>
         <BaseTabItem>{{ t('sob.detail.basic') }}</BaseTabItem>
         <BaseTabItem>{{ t('sob.detail.accounts') }}</BaseTabItem>
+        <BaseTabItem>{{ t('sob.detail.auxiliaries') }}</BaseTabItem>
       </template>
       <template #panels>
         <!-- basic tab -->
         <BaseTabPanel>basic yet empty</BaseTabPanel>
+
         <!-- accounts tab -->
         <BaseTabPanel>
           <AccountList :sob-id="sobId" />
+        </BaseTabPanel>
+
+        <!-- auxiliary tab -->
+        <BaseTabPanel>
+          <AuxiliaryList :sob-id="sobId" />
         </BaseTabPanel>
       </template>
     </BaseTabs>

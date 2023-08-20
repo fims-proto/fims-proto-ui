@@ -98,15 +98,13 @@ const onChanged = (option: SelectOption | SelectOption[]) => {
                   class="flex gap-1 align-baseline px-3 py-2 text-sm"
                   :class="{ 'bg-primary-700 text-white cursor-pointer': active }"
                 >
+                  <span>{{ option.label }}</span>
                   <CheckMiniIcon
                     v-if="selected"
-                    class="w-5 h-5 text-primary-700"
-                    :class="{ 'text-primary-100': active }"
+                    class="w-5 h-5"
+                    :class="[active ? 'text-primary-100' : 'text-primary-700']"
                     aria-hidden="true"
                   />
-                  <!-- placeholder -->
-                  <span v-else class="w-5 h-5 opacity-0" />
-                  <span>{{ option.label }}</span>
                 </li>
               </ListboxOption>
             </template>

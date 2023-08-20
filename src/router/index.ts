@@ -16,8 +16,9 @@ import VoucherCreation from '../components/voucher/VoucherCreation.vue'
 import VoucherDetail from '../components/voucher/VoucherDetail.vue'
 import ExceptionPage from '../components/ExceptionPage.vue'
 import StyleTest from '../components/style-test/StyleTest.vue'
-import { beforeAppEnterHandler, beforeWorkingZoneEnterHandler } from './before-enter-handlers'
 import AccountDetails from '../components/account/AccountDetails.vue'
+import ReportMain from '../components/report/ReportMain.vue'
+import { beforeAppEnterHandler, beforeWorkingZoneEnterHandler } from './before-enter-handlers'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -123,6 +124,20 @@ const routes: RouteRecordRaw[] = [
           },
         ],
       },
+      // reports
+      {
+        path: 'sobs/:sobId/reports',
+        component: RouterView,
+        props: true,
+        beforeEnter: beforeWorkingZoneEnterHandler,
+        children: [
+          {
+            path: '',
+            name: 'reportMain',
+            component: ReportMain,
+          },
+        ],
+      },
     ],
   },
   {
@@ -140,8 +155,10 @@ const routes: RouteRecordRaw[] = [
     ],
   },
   {
-    path: '/styleTest',
+    path: '/styleTest/:view?',
+    name: 'styleTest',
     component: StyleTest,
+    props: true,
   },
   {
     path: '/error',

@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router'
 import { type Page, type Period } from '../../domain'
 import { useSobStore } from '../../store/sob'
 
-defineProps<{
+const props = defineProps<{
   periods?: Page<Period>
   periodId?: string
 }>()
@@ -28,17 +28,16 @@ const onPeriodSelected = (periodId: string) => {
 </script>
 
 <template>
-  <BaseList clickable hoverable>
+  <BaseList :default-item="props.periods?.content.find((p) => p.id === props.periodId)" clickable hoverable>
     <BaseListItem
       v-for="period in periods?.content ?? []"
       :key="period.id"
-      :active="periodId === period.id"
+      :value="period"
       @click="onPeriodSelected(period.id)"
     >
       {{ t('period.periodText', { fiscalYear: period.fiscalYear, number: period.periodNumber }) }}
     </BaseListItem>
-    <BaseListItem v-if="!periods?.content.length">
-      <BaseButton>{{ t('period.createPeriod') }}</BaseButton>
-    </BaseListItem>
+
+    <BaseButton v-if="!periods?.content.length">{{ t('period.createPeriod') }}</BaseButton>
   </BaseList>
 </template>

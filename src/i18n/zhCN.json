@@ -18,7 +18,6 @@
     }
   },
   "common": {
-    "greeting": "你好~ {0} {1}",
     "emptyContent": "什么也没有",
     "description": "描述",
     "year": "年",
@@ -26,7 +25,8 @@
     "userName": "{lastName}{firstName}",
     "confirm": "确认",
     "confirmationText": "再次确认",
-    "mandatoryFieldMissing": "该项目为必填项"
+    "mandatoryFieldMissing": "该项目为必填项",
+    "freeSearch": "搜索..."
   },
   "action": {
     "create": "新建",
@@ -70,7 +70,8 @@
     },
     "detail": {
       "basic": "基本信息",
-      "accounts": "科目设置"
+      "accounts": "科目设置",
+      "auxiliaries": "辅助核算"
     }
   },
   "account": {
@@ -153,5 +154,8 @@
       "success": "凭证保存成功",
       "transactionTimeInvalid": "交易日期不合法"
     }
+  },
+  "report": {
+    "title": "报表"
   }
 }

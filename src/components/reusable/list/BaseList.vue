@@ -1,14 +1,19 @@
 <script setup lang="ts">
-import { provideList } from './context'
+import { ref, toRef } from 'vue'
+import { provideList, type ListOption } from './context'
+import { computed } from 'vue'
 
-const props = defineProps<{
-  hoverable?: boolean
-  clickable?: boolean
-}>()
+const props = defineProps<ListOption>()
+
+const defaultItem = toRef(() => props.defaultItem)
+const selectedItem = ref()
+
+const onSelectItem = (itemValue: unknown) => (selectedItem.value = itemValue)
 
 provideList({
-  hoverable: props.hoverable ?? false,
-  clickable: props.clickable ?? false,
+  options: toRef(props),
+  selectedItem: computed(() => selectedItem.value ?? defaultItem.value),
+  onSelectItem,
 })
 </script>
 

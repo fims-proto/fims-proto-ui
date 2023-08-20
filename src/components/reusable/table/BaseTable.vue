@@ -4,11 +4,11 @@ import { type ColumnType, type PageType } from '.'
 import { type Pageable } from '../../../domain'
 
 const props = defineProps<{
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  dataSource: any[]
+  dataSource: unknown[]
   columns: ColumnType[]
   rowKey?: string
   page?: PageType
+  freeSearch?: boolean
 }>()
 
 defineEmits<{
@@ -53,7 +53,26 @@ const getColumnData = (record: any, col: ColumnType) => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-4">
+  <div class="flex flex-col">
+    <!-- toolbar -->
+    <div class="w-full px-2 flex justify-between">
+      <!-- free search -->
+      <div v-if="freeSearch" class="relative">
+        <input
+          class="appearance-none w-80 py-1 pr-8 text-sm placeholder-neutral-500 border border-b-0 border-neutral-300 rounded-t-lg focus:outline-none focus:ring focus:ring-primary-600/50"
+          :placeholder="t('common.freeSearch')"
+        />
+        <button
+          class="absolute inset-y-0 right-0 flex items-center px-2 rounded-tr-lg text-neutral-400 focus:outline-none focus:ring focus:ring-primary-600/50 hover:text-neutral-700"
+        >
+          <MagnifyingGlassMiniIcon class="w-4 h-4" aria-hidden="true" />
+        </button>
+      </div>
+      <div class="flex gap-1">
+        <slot name="actions" />
+      </div>
+    </div>
+
     <!-- table -->
     <div class="w-full overflow-clip border border-neutral-300 shadow-lg rounded-md">
       <table class="w-full table-fixed">

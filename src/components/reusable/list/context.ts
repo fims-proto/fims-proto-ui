@@ -1,8 +1,15 @@
+import type { Ref } from 'vue'
 import { inject, provide, type InjectionKey } from 'vue'
 
+export type ListOption = {
+  defaultItem?: unknown
+  hoverable?: boolean
+  clickable?: boolean
+}
 export interface ListInjection {
-  hoverable: boolean
-  clickable: boolean
+  options: Ref<ListOption>
+  selectedItem: Ref<unknown>
+  onSelectItem(itemValue: unknown): void
 }
 
 const listInjectionKey = Symbol() as InjectionKey<ListInjection>

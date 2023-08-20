@@ -48,6 +48,16 @@ const navigation = computed(() => {
         },
       },
     })
+    items.push({
+      key: 'report',
+      label: t('report.title'),
+      to: {
+        name: 'reportMain',
+        params: {
+          sobId: workingSob.value?.id,
+        },
+      },
+    })
   }
 
   return items
@@ -112,13 +122,13 @@ const onSobSelected = async (command: string) => {
           </template>
 
           <template #overlay>
+            <BaseDropdownItem command="nav">{{ t('sob.manageSob') }}</BaseDropdownItem>
             <BaseDropdownGroup :title="t('sob.selectSob')">
               <BaseDropdownItem v-for="sob in sobs" :key="sob.id" :command="sob.id">
                 <span>{{ sob.name }}</span>
                 <BaseTag v-if="sob.id === workingSob?.id" color="success">{{ t('sob.current') }}</BaseTag>
               </BaseDropdownItem>
             </BaseDropdownGroup>
-            <BaseDropdownItem command="nav">{{ t('sob.manageSob') }}</BaseDropdownItem>
           </template>
         </BaseDropdown>
       </div>
