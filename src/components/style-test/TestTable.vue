@@ -3,26 +3,46 @@ import { ref, watch } from 'vue'
 import type { ColumnType } from '../reusable/table'
 
 // table
-const tablePage = ref({ currentPage: 1, totalElement: 55, pageSize: 10 })
+const sampleData = (() => {
+  const data = []
+  for (let i = 0; i < 55; i++) {
+    const index = Math.floor(Math.random() * 4)
+    data.push({
+      company: ['Google', 'Facebook', 'Twitter', 'Nokia'][index],
+      contact: ['Donald', 'Michael', 'Trump', 'Json'][index],
+      address: [
+        'No. 699, Wangshang Road, Binjiang District',
+        '1 Infinite Loop Cupertino, CA 95014',
+        '1600 Amphitheatre Parkway Mountain View, CA 94043',
+        'Park Ridge, NJ 07656',
+      ][index],
+      city: ['New York', 'Kuerla', 'Helsinki', 'Cupertino'][index],
+    })
+  }
+  return data
+})()
+
 const tableData = ref<{ company: string; contact: string; address: string; city: string }[]>([])
+const tablePage = ref({ currentPage: 1, totalElement: 55, pageSize: 10 })
+const searchQuery = ref('')
+
 watch(
-  [() => tablePage.value.currentPage, () => tablePage.value.pageSize],
+  [() => tablePage.value.currentPage, () => tablePage.value.pageSize, () => searchQuery.value],
   () => {
-    tableData.value = []
-    for (let i = 0; i < tablePage.value.pageSize; i++) {
-      const index = Math.floor(Math.random() * 4)
-      tableData.value.push({
-        company: ['Google', 'Facebook', 'Twitter', 'Nokia'][index],
-        contact: ['Donald', 'Michael', 'Trump', 'Json'][index],
-        address: [
-          'No. 699, Wangshang Road, Binjiang District',
-          '1 Infinite Loop Cupertino, CA 95014',
-          '	1600 Amphitheatre Parkway Mountain View, CA 94043',
-          'Park Ridge, NJ 07656',
-        ][index],
-        city: ['New York', 'Kuerla', 'Helsinki', 'Cupertino'][index],
-      })
-    }
+    const filteredData = sampleData.filter(
+      (item) =>
+        item.company.includes(searchQuery.value) ||
+        item.contact.includes(searchQuery.value) ||
+        item.address.includes(searchQuery.value) ||
+        item.city.includes(searchQuery.value),
+    )
+
+    tablePage.value.totalElement = filteredData.length
+
+    tableData.value = filteredData.slice(
+      (tablePage.value.currentPage - 1) * tablePage.value.pageSize,
+      Math.min(tablePage.value.totalElement, tablePage.value.currentPage * tablePage.value.pageSize),
+    )
   },
   { immediate: true },
 )
@@ -56,12 +76,27 @@ const tableColumns: ColumnType[] = [
     <BaseTable :data-source="[]" :columns="tableColumns" />
     <br />
 
+    <p>Empty table 2</p>
+    <BaseTable :data-source="[]" :columns="tableColumns" title="空表测试" />
+    <br />
+
+    <p>Empty table 3</p>
+    <BaseTable :data-source="[]" :columns="tableColumns" :free-search="true">
+      <template #actions>
+        <BaseButton category="primary">创建</BaseButton>
+        <BaseButton category="flat">动作</BaseButton>
+      </template>
+    </BaseTable>
+    <br />
+
     <p>Table</p>
     <BaseTable
+      title="完整测试"
       :data-source="tableData"
       :columns="tableColumns"
       :free-search="true"
       :page="tablePage"
+      @search="(query) => (searchQuery = query)"
       @page="
         (pageable) => {
           tablePage.currentPage = pageable.page
@@ -70,8 +105,8 @@ const tableColumns: ColumnType[] = [
       "
     >
       <template #actions>
-        <BaseButton size="S" category="primary">创建</BaseButton>
-        <BaseButton size="S" category="flat">动作</BaseButton>
+        <BaseButton category="primary">创建</BaseButton>
+        <BaseButton category="flat">动作</BaseButton>
       </template>
     </BaseTable>
   </div>

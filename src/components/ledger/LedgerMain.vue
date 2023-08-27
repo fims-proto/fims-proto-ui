@@ -44,13 +44,14 @@ onBeforeRouteUpdate(async (to) => {
   <BasePage>
     <template #title>{{ t('ledger.title') }}</template>
 
-    <div class="flex gap-4">
-      <div class="flex-none w-80">
+    <BaseSplitPage detail-size="L">
+      <template #main>
         <PeriodList :periods="periods" :period-id="periodId" />
-      </div>
-      <div class="flex-auto">
+      </template>
+
+      <template #detail>
         <LedgerList v-if="periodId" :sob-id="sobId" :period-id="periodId" />
-      </div>
-    </div>
+      </template>
+    </BaseSplitPage>
   </BasePage>
 </template>

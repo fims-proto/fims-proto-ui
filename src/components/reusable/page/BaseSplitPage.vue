@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
   detailSize?: 'S' | 'M' | 'L'
-  openDetail: boolean
 }>()
+
+const { t } = useI18n()
 
 const detailFlexBasis = computed(() => {
   switch (props.detailSize) {
@@ -19,15 +21,19 @@ const detailFlexBasis = computed(() => {
 </script>
 
 <template>
-  <div class="flex w-full">
+  <div class="flex gap-4 w-full">
     <!-- master view -->
     <div class="flex-auto">
       <slot name="main" />
     </div>
 
     <!-- detail view -->
-    <div v-show="openDetail" :class="detailFlexBasis">
-      <slot name="detail" />
+    <div :class="detailFlexBasis">
+      <slot name="detail">
+        <div class="w-full h-full flex place-content-center place-items-center text-neutral-600/50">
+          {{ t('common.emptyContent') }}
+        </div>
+      </slot>
     </div>
   </div>
 </template>

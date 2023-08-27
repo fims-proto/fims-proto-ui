@@ -22,3 +22,12 @@ export type AuxiliaryCategory = {
   createdAt: string
   updatedAt: string
 }
+
+export type AuxiliaryAccount = {
+  id: string
+  key: string
+  title: string
+  category: AuxiliaryCategory
+  createdAt: string
+  updatedAt: string
+}

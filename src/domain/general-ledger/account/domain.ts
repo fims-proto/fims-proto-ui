@@ -3,7 +3,7 @@ import { FIMS_URL } from '../../../config'
 import { convertFieldsFromString } from '../../date-type-converter'
 import { invokeWithErrorHandler, type Response } from '../../error-handler'
 import { type FieldConversionRecord, type Page, type Pageable } from '../../types'
-import { type Account, type AuxiliaryCategory } from './types'
+import { type Account, type AuxiliaryAccount, type AuxiliaryCategory } from './types'
 
 const ACCOUNT_FIELDS_CONVERSION: FieldConversionRecord = {
   level: 'number',
@@ -11,7 +11,7 @@ const ACCOUNT_FIELDS_CONVERSION: FieldConversionRecord = {
   updatedAt: 'date',
 }
 
-const AUXILIARY_CATEGORY_FIELDS_CONVERSION: FieldConversionRecord = {
+const AUXILIARY_FIELDS_CONVERSION: FieldConversionRecord = {
   createdAt: 'date',
   updatedAt: 'date',
 }
@@ -69,7 +69,20 @@ class AccountService {
       const result = await axios.get(
         `${FIMS_URL}/api/v1/sob/${sobId}/auxiliaries?$page=${pageable.page}&$size=${pageable.size}`,
       )
-      return convertFieldsFromString(result.data, AUXILIARY_CATEGORY_FIELDS_CONVERSION)
+      return convertFieldsFromString(result.data, AUXILIARY_FIELDS_CONVERSION)
+    })
+  }
+
+  public async getAuxiliaryAccountsByKey(
+    sobId: string,
+    categoryKey: string,
+    pageable: Pageable = { page: 1, size: 10 },
+  ): Promise<Response<Page<AuxiliaryAccount>>> {
+    return invokeWithErrorHandler(async () => {
+      const result = await axios.get(
+        `${FIMS_URL}/api/v1/sob/${sobId}/auxiliary/${categoryKey}/accounts?$page=${pageable.page}&$size=${pageable.size}`,
+      )
+      return convertFieldsFromString(result.data, AUXILIARY_FIELDS_CONVERSION)
     })
   }
 }

@@ -81,16 +81,11 @@ const onUserMenuSelected = (key: string) => {
 }
 
 const onSobSelected = async (command: string) => {
-  if (command === 'nav') {
+  if (command === 'manage') {
     router.push({ name: 'sobMain' })
   } else {
     await sobStore.action.setWorkingSob(command)
-    router.push({
-      name: 'sobDetail',
-      params: {
-        sobId: command,
-      },
-    })
+    router.push({ name: 'home' })
   }
 }
 </script>
@@ -122,7 +117,7 @@ const onSobSelected = async (command: string) => {
           </template>
 
           <template #overlay>
-            <BaseDropdownItem command="nav">{{ t('sob.manageSob') }}</BaseDropdownItem>
+            <BaseDropdownItem command="manage">{{ t('sob.manageSob') }}</BaseDropdownItem>
             <BaseDropdownGroup :title="t('sob.selectSob')">
               <BaseDropdownItem v-for="sob in sobs" :key="sob.id" :command="sob.id">
                 <span>{{ sob.name }}</span>

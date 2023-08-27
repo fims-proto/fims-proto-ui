@@ -47,7 +47,7 @@ const showDetailPage = ref(false)
     class="container flex flex-col gap-2 p-2 mx-auto rounded-md border border-dashed border-neutral-300"
   >
     <span>container</span>
-    <BaseSplitPage :open-detail="showDetailPage" detail-size="L">
+    <BaseSplitPage detail-size="L">
       <template #main>
         <div class="border border-dashed border-error-500">
           <BaseButton @click="showDetailPage = !showDetailPage">Toogle detail page</BaseButton>
