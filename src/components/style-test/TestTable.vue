@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import type { ColumnType } from '../reusable/table'
+import { useNotificationStore } from '../../store/notification'
+
+const notificationStore = useNotificationStore()
 
 // table
 const sampleData = (() => {
@@ -68,6 +71,14 @@ const tableColumns: ColumnType[] = [
     width: 'lg',
   },
 ]
+
+const onRowClick = (data: { company: string; contact: string; address: string; city: string }, i: number) => {
+  notificationStore.action.push({
+    type: 'info',
+    message: `${data.company} on row ${i} clicked`,
+    duration: 2,
+  })
+}
 </script>
 
 <template>
@@ -94,7 +105,8 @@ const tableColumns: ColumnType[] = [
       title="完整测试"
       :data-source="tableData"
       :columns="tableColumns"
-      :free-search="true"
+      free-search
+      row-clickable
       :page="tablePage"
       @search="(query) => (searchQuery = query)"
       @page="
@@ -103,6 +115,7 @@ const tableColumns: ColumnType[] = [
           tablePage.pageSize = pageable.size ?? 10
         }
       "
+      @row-click="onRowClick"
     >
       <template #actions>
         <BaseButton category="primary">创建</BaseButton>

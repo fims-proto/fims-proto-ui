@@ -74,7 +74,7 @@ onMounted(async () => {
         <BaseInput v-model="account.balanceDirection" />
       </BaseFormItem>
 
-      <BaseFormItem :label="t('account.auxiliaryCategory')">
+      <BaseFormItem :label="t('account.auxiliary.category')">
         <BaseSelect v-model="auxiliaryCategories" :options="auxiliaryCategoryOptions" :multiple="true" />
       </BaseFormItem>
     </BaseForm>

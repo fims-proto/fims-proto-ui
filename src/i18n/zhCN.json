@@ -30,6 +30,7 @@
   },
   "action": {
     "create": "新建",
+    "createObject": "新建{object}",
     "saveAndNew": "保存并新增",
     "save": "保存",
     "submit": "提交",
@@ -95,7 +96,13 @@
       "profit_and_loss": "损益类",
       "common": "共同类"
     },
-    "auxiliaryCategory": "辅助核算"
+    "auxiliary": {
+      "key": "编号",
+      "category": "辅助核算",
+      "account": "科目",
+      "title": "名称",
+      "description": "备注"
+    }
   },
   "period": {
     "periodUnselected": "未选择财务周期",

@@ -49,7 +49,7 @@ const showDetailPage = ref(false)
     <span>container</span>
     <BaseSplitPage detail-size="L">
       <template #main>
-        <div class="border border-dashed border-error-500">
+        <div class="w-full border border-dashed border-error-500">
           <BaseButton @click="showDetailPage = !showDetailPage">Toogle detail page</BaseButton>
         </div>
       </template>

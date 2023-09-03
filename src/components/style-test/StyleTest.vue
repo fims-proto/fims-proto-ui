@@ -20,6 +20,7 @@ const onSelect = (view: string) => {
       <BaseLink @click="onSelect('form')">Form</BaseLink>
       <BaseLink @click="onSelect('page')">Page</BaseLink>
       <BaseLink @click="onSelect('table')">Table</BaseLink>
+      <BaseLink @click="onSelect('modal')">Modal</BaseLink>
       <BaseLink @click="onSelect('others')">Others</BaseLink>
     </div>
 
@@ -28,6 +29,7 @@ const onSelect = (view: string) => {
       <TestForm v-if="view === 'form'" />
       <TestPage v-if="view === 'page'" />
       <TestTable v-if="view === 'table'" />
+      <TestModal v-if="view === 'modal'" />
       <OtherElements v-if="view === 'others'" />
     </div>
   </div>

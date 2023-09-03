@@ -18,7 +18,7 @@ const props = withDefaults(
   },
 )
 
-defineEmits<{
+const emit = defineEmits<{
   (event: 'submit'): void
 }>()
 
@@ -43,6 +43,12 @@ const resetValidation = () => {
   }
 }
 
+const onSubmit = () => {
+  if (validateAllItems()) {
+    emit('submit')
+  }
+}
+
 provideForm({
   model: props.model,
   rules: props.rules,
@@ -57,7 +63,7 @@ defineExpose({
 </script>
 
 <template>
-  <form v-if="edit" @submit.prevent.stop="$emit('submit')">
+  <form v-if="edit" @submit.prevent.stop="onSubmit">
     <slot></slot>
   </form>
 

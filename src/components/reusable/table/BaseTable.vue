@@ -11,11 +11,14 @@ const props = defineProps<{
   rowKey?: string
   page?: PageType
   freeSearch?: boolean
+  rowClickable?: boolean
 }>()
 
 const emit = defineEmits<{
   (event: 'page', pageable: Pageable): void
   (event: 'search', query: string): void
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (event: 'row-click', row: any, i: number): void
 }>()
 
 const { t } = useI18n()
@@ -58,6 +61,10 @@ const getColumnData = (record: any, col: ColumnType) => {
 
 const onSearch = () => {
   emit('search', freeSearchQuery.value)
+}
+
+const onRowClick = (row: unknown, i: number) => {
+  props.rowClickable && emit('row-click', row, i)
 }
 </script>
 
@@ -117,6 +124,9 @@ const onSearch = () => {
           v-for="(data, i) in dataSource"
           :key="getRowKey(data)"
           class="rounded-md hover:bg-neutral-200/50 hover:shadow-inner"
+          :class="{ 'cursor-pointer active:bg-neutral-200': rowClickable }"
+          :tabindex="rowClickable ? 0 : -1"
+          @click="onRowClick(data, i)"
         >
           <td
             v-for="column in columns"

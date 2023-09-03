@@ -3,7 +3,13 @@ import { FIMS_URL } from '../../../config'
 import { convertFieldsFromString } from '../../date-type-converter'
 import { invokeWithErrorHandler, type Response } from '../../error-handler'
 import { type FieldConversionRecord, type Page, type Pageable } from '../../types'
-import { type Account, type AuxiliaryAccount, type AuxiliaryCategory } from './types'
+import {
+  type Account,
+  type AuxiliaryAccount,
+  type AuxiliaryCategory,
+  type NewAuxiliaryAccount,
+  type NewAuxiliaryCategory,
+} from './types'
 
 const ACCOUNT_FIELDS_CONVERSION: FieldConversionRecord = {
   level: 'number',
@@ -83,6 +89,22 @@ class AccountService {
         `${FIMS_URL}/api/v1/sob/${sobId}/auxiliary/${categoryKey}/accounts?$page=${pageable.page}&$size=${pageable.size}`,
       )
       return convertFieldsFromString(result.data, AUXILIARY_FIELDS_CONVERSION)
+    })
+  }
+
+  public async createAuxiliaryCategory(sobId: string, category: NewAuxiliaryCategory): Promise<Response<void>> {
+    return invokeWithErrorHandler(async () => {
+      await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/auxiliaries`, category)
+    })
+  }
+
+  public async createAuxiliaryAccount(
+    sobId: string,
+    categoryKey: string,
+    account: NewAuxiliaryAccount,
+  ): Promise<Response<void>> {
+    return invokeWithErrorHandler(async () => {
+      await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/auxiliary/${categoryKey}/accounts`, account)
     })
   }
 }
