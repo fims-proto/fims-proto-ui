@@ -89,12 +89,12 @@
     },
     "accountType": "科目类型",
     "accountTypeEnum": {
-      "assets": "资产类",
-      "cost": "成本类",
-      "liabilities": "负债类",
-      "equity": "所有者权益类",
-      "profit_and_loss": "损益类",
-      "common": "共同类"
+      "assets": "资产",
+      "cost": "成本",
+      "liabilities": "负债",
+      "equity": "所有者权益",
+      "profit_and_loss": "损益",
+      "common": "共同"
     },
     "auxiliary": {
       "key": "编号",

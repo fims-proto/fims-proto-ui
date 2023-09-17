@@ -13,6 +13,13 @@ export type Account = {
   updatedAt: Date
 }
 
+export type UpdateAccount = {
+  title: string
+  levelNumber: number
+  balanceDirection: string
+  catgoryKeys: string[]
+}
+
 export type AuxiliaryCategory = {
   id: string
   sobId: string

@@ -13,11 +13,11 @@ const props = withDefaults(
     forceInteger?: boolean
     prefix?: string
     suffix?: string
+    disabled?: boolean
   }>(),
   {
     modelValue: undefined,
     htmlType: 'text',
-    forceInteger: false,
     prefix: undefined,
     suffix: undefined,
   },
@@ -63,7 +63,6 @@ const onValueUpdate = (event: Event) => {
 
 const onKeyPress = (event: KeyboardEvent) => {
   if (props.forceInteger) {
-    const inputElemt = event.target as HTMLInputElement
     if (/[^0-9]/g.test(event.key)) {
       event.preventDefault()
     }
@@ -77,24 +76,26 @@ const errorStatus = () => FormItem?.itemStatus.value === 'error'
 
 <template>
   <!-- for edit -->
-  <span v-if="edit" class="group flex items-stretch bg-white -ml-px group-first-of-type:ml-0" :class="attrClass">
+  <span v-if="edit" class="group flex items-stretch -ml-px group-first-of-type:ml-0" :class="attrClass">
     <span
       v-if="hasPrefix()"
-      :class="[
-        'flex items-center text-sm text-neutral-700 bg-neutral-100',
-        'border border-neutral-300 whitespace-nowrap group-first-of-type:rounded-l-md',
-        { 'px-2': !$slots['prefix'] },
-      ]"
+      class="flex items-center text-sm text-neutral-700 bg-neutral-100 border border-neutral-300 whitespace-nowrap group-first-of-type:rounded-l-md"
+      :class="{ 'px-2': !$slots['prefix'] }"
     >
       <slot name="prefix">{{ prefix }}</slot>
     </span>
     <input
-      v-bind="attrExceptClass"
+      :disabled="disabled"
+      class="appearance-none w-full text-sm placeholder-neutral-500 border focus:z-10 focus:outline-none focus:ring"
       :class="[
-        'appearance-none w-full text-sm placeholder-neutral-500 border focus:z-10 focus:outline-none focus:ring',
-        errorStatus()
-          ? 'border-error-700 focus:ring-error-700/50 focus:border-error-600'
-          : 'border-neutral-300 hover:border-primary-400 focus:ring-primary-600/50 focus:border-primary-600',
+        disabled
+          ? 'text-neutral-500 border-neutral-300'
+          : [
+              'bg-white',
+              errorStatus()
+                ? 'border-error-700 focus:ring-error-700/50 focus:border-error-600'
+                : 'border-neutral-300 hover:border-primary-400 focus:ring-primary-600/50 focus:border-primary-600',
+            ],
         hasPrefix() ? '-ml-px' : 'group-first-of-type:rounded-l-md',
         hasSuffix() ? '-mr-px' : 'group-last-of-type:rounded-r-md',
       ]"
@@ -105,11 +106,8 @@ const errorStatus = () => FormItem?.itemStatus.value === 'error'
     />
     <span
       v-if="hasSuffix()"
-      :class="[
-        'flex items-center text-sm text-neutral-700 bg-neutral-100',
-        'border border-neutral-300 whitespace-nowrap group-last-of-type:rounded-r-md',
-        { 'px-2': !$slots['prefix'] },
-      ]"
+      class="flex items-center text-sm text-neutral-700 bg-neutral-100 border border-neutral-300 whitespace-nowrap group-last-of-type:rounded-r-md"
+      :class="{ 'px-2': !$slots['prefix'] }"
     >
       <slot name="suffix">{{ suffix }}</slot>
     </span>

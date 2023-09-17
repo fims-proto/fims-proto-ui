@@ -9,6 +9,7 @@ import {
   type AuxiliaryCategory,
   type NewAuxiliaryAccount,
   type NewAuxiliaryCategory,
+  type UpdateAccount,
 } from './types'
 
 const ACCOUNT_FIELDS_CONVERSION: FieldConversionRecord = {
@@ -64,6 +65,12 @@ class AccountService {
         `${FIMS_URL}/api/v1/sob/${sobId}/accounts?$filter=accountNumber startsWith ${serachNumber}&$sort=accountNumber`,
       )
       return convertFieldsFromString(result.data, ACCOUNT_FIELDS_CONVERSION)
+    })
+  }
+
+  public async updateAccount(sobId: string, accountId: string, account: UpdateAccount): Promise<Response<void>> {
+    return invokeWithErrorHandler(async () => {
+      await axios.patch(`${FIMS_URL}/api/v1/sob/${sobId}/account/${accountId}`, account)
     })
   }
 
