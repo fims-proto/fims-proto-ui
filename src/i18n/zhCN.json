@@ -102,6 +102,9 @@
       "account": "科目",
       "title": "名称",
       "description": "备注"
+    },
+    "save": {
+      "success": "科目保存成功"
     }
   },
   "period": {

@@ -9,6 +9,7 @@ import { injectForm, injectFormItem } from './context'
 const props = withDefaults(
   defineProps<{
     modelValue?: string | number | Date
+    modelModifiers?: { uppercase: boolean }
     htmlType?: string
     forceInteger?: boolean
     prefix?: string
@@ -17,6 +18,7 @@ const props = withDefaults(
   }>(),
   {
     modelValue: undefined,
+    modelModifiers: () => ({ uppercase: false }),
     htmlType: 'text',
     prefix: undefined,
     suffix: undefined,
@@ -49,15 +51,16 @@ const inputValue = computed(() => {
 })
 
 const onValueUpdate = (event: Event) => {
-  const val = (event.target as HTMLInputElement).value
+  let val: string | Date | number = (event.target as HTMLInputElement).value
   if (props.htmlType === 'date') {
-    emit('update:modelValue', new Date(val))
+    val = new Date(val)
   } else if (props.htmlType === 'number') {
-    emit('update:modelValue', Number(val))
-  } else {
-    emit('update:modelValue', val)
+    val = Number(val)
+  } else if (props.modelModifiers.uppercase) {
+    val = val.toUpperCase()
   }
 
+  emit('update:modelValue', val)
   FormItem?.handleContentChange()
 }
 

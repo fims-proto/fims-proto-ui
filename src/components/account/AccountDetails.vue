@@ -4,6 +4,7 @@ import { AccountService, usePadLevelNumber, type Account } from '../../domain'
 import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { SelectOption } from '../reusable/form'
+import { useNotificationStore } from '../../store/notification'
 
 const props = defineProps<{
   sobId: string
@@ -11,6 +12,7 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
+const notificationStore = useNotificationStore()
 
 const account = ref<Account>()
 const superiorAccount = ref<Account | undefined>()
@@ -58,12 +60,19 @@ const onSave = async () => {
     return
   }
 
-  await AccountService.updateAccount(props.sobId, props.accountId, {
+  const { exception } = await AccountService.updateAccount(props.sobId, props.accountId, {
     title: account.value.title,
     levelNumber: account.value.numberHierarchy.at(-1) as number,
     balanceDirection: account.value.balanceDirection,
-    catgoryKeys: auxiliaryCategories.value,
+    categoryKeys: auxiliaryCategories.value,
   })
+
+  if (!exception) {
+    notificationStore.action.push({
+      type: 'success',
+      message: t('account.save.success'),
+    })
+  }
 
   editMode.value = false
 

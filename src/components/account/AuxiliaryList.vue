@@ -77,7 +77,6 @@ const initiateAccounts = async () => {
 }
 
 const onCreateCategory = async () => {
-  newCategory.value.key = newCategory.value.key.toUpperCase()
   await AccountService.createAuxiliaryCategory(props.sobId, newCategory.value)
   createCategoryOpened.value = false
   await initiateCategories(newCategory.value.key)
@@ -90,7 +89,6 @@ const onCreateAccount = async () => {
     return
   }
 
-  newAccount.value.key = newAccount.value.key.toUpperCase()
   await AccountService.createAuxiliaryAccount(props.sobId, selectedCategory.value.key, newAccount.value)
   createAccountOpened.value = false
   await initiateAccounts()
@@ -125,7 +123,7 @@ watch(() => selectedCategory.value, initiateAccounts, { immediate: true })
       >
         <BaseForm :model="newCategory" :rules="formRule" class="w-60 grid gap-4" @submit="onCreateCategory">
           <BaseFormItem path="key" :label="t('account.auxiliary.key')" required>
-            <BaseInput v-model.trim="newCategory.key" />
+            <BaseInput v-model.uppercase.trim="newCategory.key" />
           </BaseFormItem>
           <BaseFormItem path="key" :label="t('account.auxiliary.title')" required>
             <BaseInput v-model.trim="newCategory.title" />
@@ -155,14 +153,14 @@ watch(() => selectedCategory.value, initiateAccounts, { immediate: true })
         </template>
       </BaseTable>
 
-      <!-- create category -->
+      <!-- create account -->
       <BaseModal
         v-model:show="createAccountOpened"
         :title="t('action.createObject', { object: selectedCategory?.title })"
       >
         <BaseForm :model="newAccount" :rules="formRule" class="w-60 grid gap-4" @submit="onCreateAccount">
           <BaseFormItem path="key" :label="t('account.auxiliary.key')" required>
-            <BaseInput v-model.trim="newAccount.key" />
+            <BaseInput v-model.uppercase.trim="newAccount.key" />
           </BaseFormItem>
           <BaseFormItem path="key" :label="t('account.auxiliary.title')" required>
             <BaseInput v-model.trim="newAccount.title" />

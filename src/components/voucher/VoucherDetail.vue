@@ -77,7 +77,6 @@ const onSave = async () => {
   notificationStore.action.push({
     type: 'success',
     message: t('voucher.save.success'),
-    duration: 3,
   })
 }
 
@@ -116,7 +115,6 @@ const onAction = async (action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
   notificationStore.action.push({
     type: 'success',
     message: t('voucher.save.success'),
-    duration: 3,
   })
 }
 </script>

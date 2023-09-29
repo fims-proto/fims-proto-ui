@@ -17,7 +17,7 @@ export type UpdateAccount = {
   title: string
   levelNumber: number
   balanceDirection: string
-  catgoryKeys: string[]
+  categoryKeys: string[]
 }
 
 export type AuxiliaryCategory = {

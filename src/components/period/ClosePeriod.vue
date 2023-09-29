@@ -30,7 +30,6 @@ const onClosePeriod = async () => {
   notificationStore.action.push({
     type: 'success',
     message: t('period.close.success'),
-    duration: 3,
   })
 }
 </script>

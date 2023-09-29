@@ -82,7 +82,6 @@ const saveVoucher = async () => {
   notificationStore.action.push({
     type: 'success',
     message: t('voucher.save.success'),
-    duration: 3,
   })
 
   return data
