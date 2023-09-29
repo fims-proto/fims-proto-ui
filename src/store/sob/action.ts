@@ -1,5 +1,5 @@
 import { PeriodService, SobService, StorageService } from '../../domain'
-import { ISobState } from './state'
+import { type ISobState } from './state'
 
 const CURRENT_SOB_KEY = 'CURRENT_SOB'
 

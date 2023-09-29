@@ -1,4 +1,4 @@
-import { RouteLocationNormalized } from 'vue-router'
+import { type RouteLocationNormalized } from 'vue-router'
 import { useSobStore } from '../store/sob'
 import { useUserStore } from '../store/user'
 

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { injectForm, provideFormItem } from './context'
-import { FormItemRule, FormValidationStatus } from './interface'
+import { type FormItemRule, type FormValidationStatus } from './interface'
 import { get, validate } from './utils'
 
 const props = withDefaults(
@@ -15,7 +15,7 @@ const props = withDefaults(
   {
     label: undefined,
     path: undefined,
-  }
+  },
 )
 
 const { t } = useI18n()
@@ -25,13 +25,15 @@ const validationMessage = ref<string>()
 
 const Form = injectForm()
 
+const edit = computed(() => Form?.edit.value ?? true)
+
 props.path &&
   watch(
     () => Form?.itemValidationState.value[props.path as string],
     () => {
       const result = Form?.itemValidationState.value[props.path as string]
       result !== undefined && result !== null && updateValidationState(result)
-    }
+    },
   )
 
 const updateValidationState = (state: true | string) => {
@@ -62,9 +64,9 @@ provideFormItem({
 
 <template>
   <div>
-    <label v-if="!!label" :class="[{ 'sr-only': hideLabel }, 'block text-sm text-neutral-900 mb-2']">
-      <span>{{ label }}</span>
-      <span v-if="required" class="ml-0.5 text-error-700 select-none" aria-hidden="true">*</span>
+    <label v-if="!!label" :class="[{ 'sr-only': hideLabel }, 'block text-sm text-neutral-900/80 mb-2']">
+      <span>{{ label }}:</span>
+      <span v-if="required && edit" class="ml-0.5 text-error-700 font-bold select-none" aria-hidden="true">*</span>
     </label>
     <div>
       <slot></slot>

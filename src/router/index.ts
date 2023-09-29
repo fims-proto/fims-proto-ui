@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory, RouteRecordRaw, RouterView } from 'vue-router'
+import { createRouter, createWebHistory, type RouteRecordRaw, RouterView } from 'vue-router'
 import AuthenticationLogin from '../components/user/AuthenticationLogin.vue'
 import AuthenticationLogout from '../components/user/AuthenticationLogout.vue'
 import ProfileSetting from '../components/user/ProfileSetting.vue'
@@ -16,6 +16,8 @@ import VoucherCreation from '../components/voucher/VoucherCreation.vue'
 import VoucherDetail from '../components/voucher/VoucherDetail.vue'
 import ExceptionPage from '../components/ExceptionPage.vue'
 import StyleTest from '../components/style-test/StyleTest.vue'
+import AccountDetails from '../components/account/AccountDetails.vue'
+import ReportMain from '../components/report/ReportMain.vue'
 import { beforeAppEnterHandler, beforeWorkingZoneEnterHandler } from './before-enter-handlers'
 
 const routes: RouteRecordRaw[] = [
@@ -46,6 +48,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'sobs',
         component: RouterView,
+        props: true,
         children: [
           {
             path: '',
@@ -58,27 +61,40 @@ const routes: RouteRecordRaw[] = [
             component: SobCreation,
           },
           {
-            path: ':sobId',
+            path: ':sobId/:view(\\d+)?',
             name: 'sobDetail',
             component: SobDetail,
-            props: true,
           },
         ],
       },
-      // ledgers
+      // accounts
       {
-        path: 'sobs/:sobId',
+        path: 'sobs/:sobId/accounts',
         component: RouterView,
         props: true,
         beforeEnter: beforeWorkingZoneEnterHandler,
         children: [
           {
-            path: 'periods/:periodId?',
+            path: ':accountId',
+            name: 'accountDetail',
+            component: AccountDetails,
+          },
+        ],
+      },
+      // ledgers
+      {
+        path: 'sobs/:sobId/periods',
+        component: RouterView,
+        props: true,
+        beforeEnter: beforeWorkingZoneEnterHandler,
+        children: [
+          {
+            path: ':periodId?',
             name: 'ledgerMain',
             component: LedgerMain,
           },
           {
-            path: 'period/close',
+            path: 'close',
             name: 'closePeriod',
             component: ClosePeriod,
           },
@@ -108,6 +124,20 @@ const routes: RouteRecordRaw[] = [
           },
         ],
       },
+      // reports
+      {
+        path: 'sobs/:sobId/reports',
+        component: RouterView,
+        props: true,
+        beforeEnter: beforeWorkingZoneEnterHandler,
+        children: [
+          {
+            path: '',
+            name: 'reportMain',
+            component: ReportMain,
+          },
+        ],
+      },
     ],
   },
   {
@@ -125,8 +155,10 @@ const routes: RouteRecordRaw[] = [
     ],
   },
   {
-    path: '/styleTest',
+    path: '/styleTest/:view?',
+    name: 'styleTest',
     component: StyleTest,
+    props: true,
   },
   {
     path: '/error',

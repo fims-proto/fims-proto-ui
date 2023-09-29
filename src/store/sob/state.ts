@@ -1,5 +1,5 @@
 import { reactive } from 'vue'
-import { Period, Sob } from '../../domain'
+import { type Period, type Sob } from '../../domain'
 
 export interface ISobState {
   sobs: Sob[]

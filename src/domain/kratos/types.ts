@@ -1,4 +1,4 @@
-import { UiContainer } from '@ory/kratos-client'
+import { type UiContainer } from '@ory/kratos-client'
 
 export type UiText = {
   context?: object

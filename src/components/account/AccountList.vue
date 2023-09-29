@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Account, AccountService, Page } from '../../domain'
-import { ColumnType } from '../reusable/table'
+import { AccountService, type Account, type Page } from '../../domain'
+import { type ColumnType } from '../reusable/table'
 
 const props = defineProps<{
   sobId: string
@@ -15,7 +15,7 @@ const accounts = ref<Page<Account>>()
 const columns: ColumnType[] = [
   {
     title: t('account.accountNumber'),
-    path: 'accountNumber',
+    key: 'accountNumber',
     width: 'md',
   },
   {
@@ -32,7 +32,7 @@ watch(
     const { data } = await AccountService.getAccounts(props.sobId, pageable.value)
     accounts.value = data
   },
-  { immediate: true }
+  { immediate: true },
 )
 </script>
 
@@ -51,5 +51,21 @@ watch(
         pageable.size = target.size ?? 10
       }
     "
-  />
+  >
+    <template #bodyCell="{ record, column }: { record: Account; column: ColumnType }">
+      <template v-if="column.key === 'accountNumber'">
+        <BaseNavLink
+          :to="{
+            name: 'accountDetail',
+            params: {
+              sobId: sobId,
+              accountId: record.id,
+            },
+          }"
+        >
+          {{ record.accountNumber }}
+        </BaseNavLink>
+      </template>
+    </template>
+  </BaseTable>
 </template>

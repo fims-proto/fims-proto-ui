@@ -4,34 +4,39 @@ export default defineComponent({ inheritAttrs: false })
 
 <script setup lang="ts">
 import { computed, defineComponent, useAttrs, useSlots } from 'vue'
-import { injectFormItem } from './context'
+import { injectForm, injectFormItem } from './context'
 
 const props = withDefaults(
   defineProps<{
     modelValue?: string | number | Date
+    modelModifiers?: { uppercase: boolean }
     htmlType?: string
     forceInteger?: boolean
     prefix?: string
     suffix?: string
+    disabled?: boolean
   }>(),
   {
     modelValue: undefined,
+    modelModifiers: () => ({ uppercase: false }),
     htmlType: 'text',
-    forceInteger: false,
     prefix: undefined,
     suffix: undefined,
-  }
+  },
 )
 
 const emit = defineEmits<{
   (event: 'update:modelValue', value: string | Date | number): void
 }>()
 
+const Form = injectForm()
 const FormItem = injectFormItem()
 
 const attrClass = useAttrs()['class']
 const attrExceptClass = Object.assign({}, useAttrs())
 delete attrExceptClass['class'] // remove class from attrs
+
+const edit = computed(() => Form?.edit.value ?? true)
 
 const inputValue = computed(() => {
   if (props.htmlType === 'date' && !!props.modelValue) {
@@ -46,21 +51,21 @@ const inputValue = computed(() => {
 })
 
 const onValueUpdate = (event: Event) => {
-  const val = (event.target as HTMLInputElement).value
+  let val: string | Date | number = (event.target as HTMLInputElement).value
   if (props.htmlType === 'date') {
-    emit('update:modelValue', new Date(val))
+    val = new Date(val)
   } else if (props.htmlType === 'number') {
-    emit('update:modelValue', Number(val))
-  } else {
-    emit('update:modelValue', val)
+    val = Number(val)
+  } else if (props.modelModifiers.uppercase) {
+    val = val.toUpperCase()
   }
 
+  emit('update:modelValue', val)
   FormItem?.handleContentChange()
 }
 
 const onKeyPress = (event: KeyboardEvent) => {
   if (props.forceInteger) {
-    const inputElemt = event.target as HTMLInputElement
     if (/[^0-9]/g.test(event.key)) {
       event.preventDefault()
     }
@@ -73,24 +78,27 @@ const errorStatus = () => FormItem?.itemStatus.value === 'error'
 </script>
 
 <template>
-  <span class="group flex items-stretch bg-white -ml-px group-first-of-type:ml-0" :class="attrClass">
+  <!-- for edit -->
+  <span v-if="edit" class="group flex items-stretch -ml-px group-first-of-type:ml-0" :class="attrClass">
     <span
       v-if="hasPrefix()"
-      :class="[
-        'flex items-center text-sm text-neutral-700 bg-neutral-100',
-        'border border-neutral-300 whitespace-nowrap group-first-of-type:rounded-l-md',
-        { 'px-2': !$slots['prefix'] },
-      ]"
+      class="flex items-center text-sm text-neutral-700 bg-neutral-100 border border-neutral-300 whitespace-nowrap group-first-of-type:rounded-l-md"
+      :class="{ 'px-2': !$slots['prefix'] }"
     >
       <slot name="prefix">{{ prefix }}</slot>
     </span>
     <input
-      v-bind="attrExceptClass"
+      :disabled="disabled"
+      class="appearance-none w-full text-sm placeholder-neutral-500 border focus:z-10 focus:outline-none focus:ring"
       :class="[
-        'appearance-none w-full text-sm placeholder-neutral-500 border focus:z-10 focus:outline-none focus:ring',
-        errorStatus()
-          ? 'border-error-700 focus:ring-error-700/50 focus:border-error-600'
-          : 'border-neutral-300 hover:border-primary-400 focus:ring-primary-600/50 focus:border-primary-600',
+        disabled
+          ? 'text-neutral-500 border-neutral-300'
+          : [
+              'bg-white',
+              errorStatus()
+                ? 'border-error-700 focus:ring-error-700/50 focus:border-error-600'
+                : 'border-neutral-300 hover:border-primary-400 focus:ring-primary-600/50 focus:border-primary-600',
+            ],
         hasPrefix() ? '-ml-px' : 'group-first-of-type:rounded-l-md',
         hasSuffix() ? '-mr-px' : 'group-last-of-type:rounded-r-md',
       ]"
@@ -101,12 +109,22 @@ const errorStatus = () => FormItem?.itemStatus.value === 'error'
     />
     <span
       v-if="hasSuffix()"
-      :class="[
-        'flex items-center text-sm text-neutral-700 bg-neutral-100',
-        'border border-neutral-300 whitespace-nowrap group-last-of-type:rounded-r-md',
-        { 'px-2': !$slots['prefix'] },
-      ]"
+      class="flex items-center text-sm text-neutral-700 bg-neutral-100 border border-neutral-300 whitespace-nowrap group-last-of-type:rounded-r-md"
+      :class="{ 'px-2': !$slots['prefix'] }"
     >
+      <slot name="suffix">{{ suffix }}</slot>
+    </span>
+  </span>
+
+  <!-- for display -->
+  <span v-else class="group flex items-stretch" :class="attrClass">
+    <span class="flex text-sm text-neutral-700 whitespace-nowrap">
+      <slot name="prefix">{{ prefix }}</slot>
+    </span>
+    <span v-bind="attrExceptClass" class="text-sm">
+      {{ htmlType === 'password' ? '****' : inputValue }}
+    </span>
+    <span class="flex text-sm text-neutral-700 whitespace-nowrap">
       <slot name="suffix">{{ suffix }}</slot>
     </span>
   </span>

@@ -1,10 +1,10 @@
 import { AxiosError } from 'axios'
 import { useNotificationStore } from '../../store/notification'
-import { Response, SlugError } from './types'
+import { type SlugError, type Response } from './types'
 
 export async function invokeWithErrorHandler<T>(
   invoker: () => Promise<T>,
-  errorExtractor: (e: AxiosError) => SlugError = generalErrorExtractor
+  errorExtractor: (e: AxiosError) => SlugError = generalErrorExtractor,
 ): Promise<Response<T>> {
   try {
     return { data: await invoker() }

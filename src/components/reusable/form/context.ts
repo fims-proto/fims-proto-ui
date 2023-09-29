@@ -1,11 +1,12 @@
-import { inject, InjectionKey, provide, Ref } from 'vue'
-import { FormRules, FormValidationStatus } from './interface'
+import { inject, provide, type InjectionKey, type Ref } from 'vue'
+import { type FormRules, type FormValidationStatus } from './interface'
 
 // Form injections
 
 export interface FormInjection {
   model?: object
   rules?: FormRules
+  edit: Ref<boolean>
   itemValidationState: Ref<Record<string, true | string>>
 }
 

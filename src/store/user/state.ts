@@ -1,5 +1,5 @@
 import { reactive } from 'vue'
-import { Traits } from '../../domain'
+import { type Traits } from '../../domain'
 
 export interface IUserState {
   userId: string

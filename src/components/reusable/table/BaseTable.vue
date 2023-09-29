@@ -1,21 +1,29 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { ColumnType, PageType } from '.'
-import { Pageable } from '../../../domain'
+import { type ColumnType, type PageType } from '.'
+import { type Pageable } from '../../../domain'
+import { ref } from 'vue'
 
 const props = defineProps<{
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  dataSource: any[]
+  title?: string
+  dataSource: unknown[]
   columns: ColumnType[]
   rowKey?: string
   page?: PageType
+  freeSearch?: boolean
+  rowClickable?: boolean
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
   (event: 'page', pageable: Pageable): void
+  (event: 'search', query: string): void
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (event: 'row-click', row: any, i: number): void
 }>()
 
 const { t } = useI18n()
+
+const freeSearchQuery = ref('')
 
 const getColumnKey = (col: ColumnType) => {
   if (col.key) {
@@ -50,14 +58,52 @@ const getColumnData = (record: any, col: ColumnType) => {
 
   return value
 }
+
+const onSearch = () => {
+  emit('search', freeSearchQuery.value)
+}
+
+const onRowClick = (row: unknown, i: number) => {
+  props.rowClickable && emit('row-click', row, i)
+}
 </script>
 
 <template>
-  <div class="flex flex-col gap-4">
+  <div class="flex flex-col overflow-clip border border-neutral-300 shadow-lg rounded-md">
+    <!-- toolbar -->
+    <div
+      v-if="title || freeSearch || $slots['actions']"
+      class="w-full py-2 px-4 flex gap-2 justify-end bg-neutral-100 border-b-2 border-neutral-300"
+    >
+      <!-- table title -->
+      <div v-if="title" class="flex-auto font-bold text-lg">{{ title }}</div>
+
+      <!-- free search -->
+      <div v-if="freeSearch" class="relative">
+        <input
+          v-model="freeSearchQuery"
+          class="appearance-none w-80 py-1 pr-8 bg-transparent border-0 placeholder-neutral-500 focus:outline-none focus:ring focus:ring-primary-600/50"
+          :placeholder="t('common.freeSearch')"
+          @keyup.enter="onSearch()"
+        />
+        <button
+          class="absolute inset-y-0 right-0 flex items-center px-2 text-neutral-400 focus:outline-none focus:ring focus:ring-primary-600/50 hover:text-neutral-700"
+          @click="onSearch()"
+        >
+          <MagnifyingGlassMiniIcon class="w-4 h-4" aria-hidden="true" />
+        </button>
+      </div>
+
+      <!-- action buttons -->
+      <div class="flex gap-1">
+        <slot name="actions" />
+      </div>
+    </div>
+
     <!-- table -->
-    <div class="w-full overflow-clip border border-neutral-300 shadow-lg rounded-md">
+    <div class="w-full">
       <table class="w-full table-fixed">
-        <tr class="bg-neutral-100">
+        <tr class="border-b-2 border-neutral-200">
           <th
             v-for="column in columns"
             :key="getColumnKey(column)"
@@ -78,6 +124,9 @@ const getColumnData = (record: any, col: ColumnType) => {
           v-for="(data, i) in dataSource"
           :key="getRowKey(data)"
           class="rounded-md hover:bg-neutral-200/50 hover:shadow-inner"
+          :class="{ 'cursor-pointer active:bg-neutral-200': rowClickable }"
+          :tabindex="rowClickable ? 0 : -1"
+          @click="onRowClick(data, i)"
         >
           <td
             v-for="column in columns"

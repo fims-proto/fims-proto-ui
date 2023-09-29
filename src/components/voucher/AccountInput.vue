@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { toRefs, ref, watch } from 'vue'
 import { VBinder, VTarget, VFollower } from 'vueuc'
-import { Account, AccountService } from '../../domain'
+import { AccountService, type Account } from '../../domain'
 import { useSobStore } from '../../store/sob'
 
 const props = defineProps<{
@@ -28,7 +28,7 @@ watch(
     const { data } = await AccountService.getAccountByAccountNumber(workingSob.value.id, props.modelValue)
     selectedAccount.value = data
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 watch(query, async () => {
@@ -82,14 +82,7 @@ const onUpdate = (account: Account) => {
                 :value="config"
                 as="template"
               >
-                <li
-                  :class="[
-                    'p-2 bg-transparent text-sm cursor-pointer',
-                    {
-                      'bg-primary-700 text-white': active,
-                    },
-                  ]"
-                >
+                <li :class="['p-2 text-sm cursor-pointer', active ? 'bg-primary-700 text-white' : 'bg-transparent']">
                   {{ config.accountNumber }} - {{ config.title }}
                 </li>
               </ComboboxOption>

@@ -2,8 +2,8 @@
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { Voucher, VoucherService, Page, User } from '../../domain'
-import { ColumnType } from '../reusable/table'
+import { VoucherService, type Page, type User, type Voucher } from '../../domain'
+import { type ColumnType } from '../reusable/table'
 
 const props = defineProps<{
   sobId: string
@@ -60,7 +60,7 @@ watch(
     const { data } = await VoucherService.getVouchers(props.sobId, pageable.value)
     vouchers.value = data
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 const getUserName = (user: User) =>
@@ -103,7 +103,7 @@ const onCreate = () => {
         }
       "
     >
-      <template #bodyCell="{ record, column }: { record: Voucher, column: ColumnType }">
+      <template #bodyCell="{ record, column }: { record: Voucher; column: ColumnType }">
         <template v-if="column.key === 'transactionTime'">
           <span>{{ d(record.transactionTime, 'date') }}</span>
         </template>

@@ -1,4 +1,4 @@
-import { inject, provide, ref, Ref } from 'vue'
+import { inject, provide, ref, type Ref } from 'vue'
 
 export interface ButtonGroupInterface {
   insideGroup: Ref<boolean>

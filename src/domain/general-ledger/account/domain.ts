@@ -1,12 +1,24 @@
 import axios from 'axios'
 import { FIMS_URL } from '../../../config'
 import { convertFieldsFromString } from '../../date-type-converter'
-import { invokeWithErrorHandler, Response } from '../../error-handler'
-import { FieldConversionRecord, Page, Pageable } from '../../types'
-import { Account } from './types'
+import { invokeWithErrorHandler, type Response } from '../../error-handler'
+import { type FieldConversionRecord, type Page, type Pageable } from '../../types'
+import {
+  type Account,
+  type AuxiliaryAccount,
+  type AuxiliaryCategory,
+  type NewAuxiliaryAccount,
+  type NewAuxiliaryCategory,
+  type UpdateAccount,
+} from './types'
 
-const FIELDS_CONVERSION: FieldConversionRecord = {
+const ACCOUNT_FIELDS_CONVERSION: FieldConversionRecord = {
   level: 'number',
+  createdAt: 'date',
+  updatedAt: 'date',
+}
+
+const AUXILIARY_FIELDS_CONVERSION: FieldConversionRecord = {
   createdAt: 'date',
   updatedAt: 'date',
 }
@@ -14,23 +26,30 @@ const FIELDS_CONVERSION: FieldConversionRecord = {
 class AccountService {
   public async getAccounts(
     sobId: string,
-    pageable: Pageable = { page: 1, size: 10 }
+    pageable: Pageable = { page: 1, size: 10 },
   ): Promise<Response<Page<Account>>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(
-        `${FIMS_URL}/api/v1/sob/${sobId}/accounts?$sort=accountNumber&$page=${pageable.page}&$size=${pageable.size}`
+        `${FIMS_URL}/api/v1/sob/${sobId}/accounts?$sort=accountNumber&$page=${pageable.page}&$size=${pageable.size}`,
       )
-      convertFieldsFromString(result.data.content, FIELDS_CONVERSION)
+      convertFieldsFromString(result.data.content, ACCOUNT_FIELDS_CONVERSION)
       return result.data
+    })
+  }
+
+  public async getAccountById(sobId: string, id: string): Promise<Response<Account>> {
+    return invokeWithErrorHandler(async () => {
+      const result = await axios.get(`${FIMS_URL}/api/v1/sob/${sobId}/account/${id}`)
+      return convertFieldsFromString(result.data, ACCOUNT_FIELDS_CONVERSION)
     })
   }
 
   public async getAccountByAccountNumber(sobId: string, accountNumber: string): Promise<Response<Account>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(
-        `${FIMS_URL}/api/v1/sob/${sobId}/accounts?$filter=accountNumber eq '${accountNumber}'`
+        `${FIMS_URL}/api/v1/sob/${sobId}/accounts?$filter=accountNumber eq '${accountNumber}'`,
       )
-      convertFieldsFromString(result.data.content, FIELDS_CONVERSION)
+      convertFieldsFromString(result.data.content, ACCOUNT_FIELDS_CONVERSION)
 
       if (result.data.numberOfElements !== 1) {
         throw 'result not unique'
@@ -43,9 +62,56 @@ class AccountService {
   public async getAccountsStartsWithNumber(sobId: string, serachNumber: string): Promise<Response<Page<Account>>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(
-        `${FIMS_URL}/api/v1/sob/${sobId}/accounts?$filter=accountNumber startsWith ${serachNumber}&$sort=accountNumber`
+        `${FIMS_URL}/api/v1/sob/${sobId}/accounts?$filter=accountNumber startsWith ${serachNumber}&$sort=accountNumber`,
       )
-      return convertFieldsFromString(result.data, FIELDS_CONVERSION)
+      return convertFieldsFromString(result.data, ACCOUNT_FIELDS_CONVERSION)
+    })
+  }
+
+  public async updateAccount(sobId: string, accountId: string, account: UpdateAccount): Promise<Response<void>> {
+    return invokeWithErrorHandler(async () => {
+      await axios.patch(`${FIMS_URL}/api/v1/sob/${sobId}/account/${accountId}`, account)
+    })
+  }
+
+  public async getAuxiliaryCategories(
+    sobId: string,
+    pageable: Pageable = { page: 1, size: 10 },
+  ): Promise<Response<Page<AuxiliaryCategory>>> {
+    return invokeWithErrorHandler(async () => {
+      const result = await axios.get(
+        `${FIMS_URL}/api/v1/sob/${sobId}/auxiliaries?$page=${pageable.page}&$size=${pageable.size}`,
+      )
+      return convertFieldsFromString(result.data, AUXILIARY_FIELDS_CONVERSION)
+    })
+  }
+
+  public async getAuxiliaryAccountsByKey(
+    sobId: string,
+    categoryKey: string,
+    pageable: Pageable = { page: 1, size: 10 },
+  ): Promise<Response<Page<AuxiliaryAccount>>> {
+    return invokeWithErrorHandler(async () => {
+      const result = await axios.get(
+        `${FIMS_URL}/api/v1/sob/${sobId}/auxiliary/${categoryKey}/accounts?$page=${pageable.page}&$size=${pageable.size}`,
+      )
+      return convertFieldsFromString(result.data, AUXILIARY_FIELDS_CONVERSION)
+    })
+  }
+
+  public async createAuxiliaryCategory(sobId: string, category: NewAuxiliaryCategory): Promise<Response<void>> {
+    return invokeWithErrorHandler(async () => {
+      await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/auxiliaries`, category)
+    })
+  }
+
+  public async createAuxiliaryAccount(
+    sobId: string,
+    categoryKey: string,
+    account: NewAuxiliaryAccount,
+  ): Promise<Response<void>> {
+    return invokeWithErrorHandler(async () => {
+      await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/auxiliary/${categoryKey}/accounts`, account)
     })
   }
 }

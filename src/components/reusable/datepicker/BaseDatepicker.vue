@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PropType, ref, computed } from 'vue'
+import { ref, computed, type PropType } from 'vue'
 import { VBinder, VFollower, VTarget } from 'vueuc'
 
 const props = defineProps({
@@ -26,7 +26,7 @@ const formattedInputDate = computed(() => {
   return `${year}-${month}-${date}`
 })
 
-const onValueUpdated = (value: string) => {
+const onValueUpdated = (value: string | number | Date) => {
   emit('update:modelValue', new Date(value))
   show.value = false
 }

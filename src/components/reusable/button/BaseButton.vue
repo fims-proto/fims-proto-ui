@@ -3,21 +3,23 @@ export default defineComponent({ inheritAttrs: false })
 </script>
 
 <script setup lang="ts">
-import { defineComponent, PropType, useSlots } from 'vue'
+import { defineComponent, useSlots } from 'vue'
 import { injectButtonGroup } from './context'
 
-const props = defineProps({
-  category: {
-    type: String as PropType<'primary' | 'default' | 'flat'>,
-    default: 'default',
+const props = withDefaults(
+  defineProps<{
+    category?: 'primary' | 'default' | 'flat'
+    htmlType?: 'submit' | 'reset' | 'button'
+    size?: 'S' | 'M'
+    disabled?: boolean
+    busy?: boolean
+  }>(),
+  {
+    category: 'default',
+    htmlType: 'button',
+    size: 'M',
   },
-  htmlType: {
-    type: String as PropType<'submit' | 'reset' | 'button'>,
-    default: 'button',
-  },
-  disabled: Boolean,
-  busy: Boolean,
-})
+)
 
 const slots = useSlots()
 
@@ -31,7 +33,8 @@ const hasSlot = (n: string) => !!slots[n]
 <template>
   <button
     :class="[
-      'group flex gap-1 items-center justify-center',
+      'group flex self-center items-center justify-center',
+      size === 'S' ? 'gap-0.5' : 'gap-1',
 
       insideGroup ? '-ml-px first:m-0 first:rounded-l-md last:rounded-r-md hover:z-10' : 'rounded-md',
 
@@ -71,8 +74,10 @@ const hasSlot = (n: string) => !!slots[n]
     <span
       v-if="hasSlot('icon')"
       :class="[
-        'inline-block w-4 align-text-top',
-        hasSlot('default') ? 'ml-1.5 my-1.5' : 'mx-1.5 my-1.5',
+        'inline-block align-text-top',
+        size === 'S'
+          ? ['w-3', hasSlot('default') ? 'ml-0.5 my-0.5' : 'mx-0.5 my-0.5']
+          : ['w-4', hasSlot('default') ? 'ml-1.5 my-1.5' : 'mx-1.5 my-1.5'],
         is('primary') && (disabled ? 'text-neutral-400' : 'text-primary-300 group-hover:text-primary-200'),
       ]"
       aria-hidden="true"
@@ -81,7 +86,14 @@ const hasSlot = (n: string) => !!slots[n]
     </span>
 
     <!-- text -->
-    <span v-if="hasSlot('default')" :class="['text-sm', hasSlot('icon') ? 'mr-3 my-1.5' : 'mx-3 my-1.5']">
+    <span
+      v-if="hasSlot('default')"
+      :class="[
+        size === 'S'
+          ? ['text-xs', hasSlot('icon') ? 'mr-1.5 my-0.5' : 'mx-1.5 my-0.5']
+          : ['text-sm', hasSlot('icon') ? 'mr-3 my-1.5' : 'mx-3 my-1.5'],
+      ]"
+    >
       <slot></slot>
     </span>
   </button>

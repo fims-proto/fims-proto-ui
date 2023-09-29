@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { vOnClickOutside } from '@vueuse/components'
 import { useI18n } from 'vue-i18n'
-import { Pageable } from '../../../domain'
+import { type Pageable } from '../../../domain'
 
 const props = defineProps<{
   currentPage: number
@@ -131,8 +131,3 @@ const onKeyPress = (event: KeyboardEvent) => {
     }}</span>
   </div>
 </template>
-
-<style>
-#pageJumpArea {
-}
-</style>

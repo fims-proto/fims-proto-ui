@@ -48,6 +48,16 @@ const navigation = computed(() => {
         },
       },
     })
+    items.push({
+      key: 'report',
+      label: t('report.title'),
+      to: {
+        name: 'reportMain',
+        params: {
+          sobId: workingSob.value?.id,
+        },
+      },
+    })
   }
 
   return items
@@ -59,7 +69,7 @@ const period = computed(() =>
         fiscalYear: currentPeriod.value.fiscalYear,
         number: currentPeriod.value.periodNumber,
       })
-    : t('period.periodUnselected')
+    : t('period.periodUnselected'),
 )
 
 const onUserMenuSelected = (key: string) => {
@@ -71,16 +81,11 @@ const onUserMenuSelected = (key: string) => {
 }
 
 const onSobSelected = async (command: string) => {
-  if (command === 'nav') {
+  if (command === 'manage') {
     router.push({ name: 'sobMain' })
   } else {
     await sobStore.action.setWorkingSob(command)
-    router.push({
-      name: 'sobDetail',
-      params: {
-        sobId: command,
-      },
-    })
+    router.push({ name: 'home' })
   }
 }
 </script>
@@ -112,13 +117,13 @@ const onSobSelected = async (command: string) => {
           </template>
 
           <template #overlay>
+            <BaseDropdownItem command="manage">{{ t('sob.manageSob') }}</BaseDropdownItem>
             <BaseDropdownGroup :title="t('sob.selectSob')">
               <BaseDropdownItem v-for="sob in sobs" :key="sob.id" :command="sob.id">
                 <span>{{ sob.name }}</span>
                 <BaseTag v-if="sob.id === workingSob?.id" color="success">{{ t('sob.current') }}</BaseTag>
               </BaseDropdownItem>
             </BaseDropdownGroup>
-            <BaseDropdownItem command="nav">{{ t('sob.manageSob') }}</BaseDropdownItem>
           </template>
         </BaseDropdown>
       </div>

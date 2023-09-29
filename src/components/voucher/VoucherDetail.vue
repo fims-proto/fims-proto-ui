@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Voucher, VoucherService } from '../../domain'
+import { VoucherService, type Voucher } from '../../domain'
 import { useNotificationStore } from '../../store/notification'
 import { useUserStore } from '../../store/user'
 import VoucherForm from './VoucherForm.vue'
@@ -46,7 +46,7 @@ const onSave = async () => {
   }
 
   toBeUpdated.lineItems = toBeUpdated.lineItems.filter(
-    (item) => item.accountNumber.trim() && item.debit.toString() && item.credit.toString()
+    (item) => item.accountNumber.trim() && item.debit.toString() && item.credit.toString(),
   )
 
   if (!toBeUpdated.lineItems.length) {
@@ -64,7 +64,7 @@ const onSave = async () => {
     toBeUpdated.headerText,
     toBeUpdated.transactionTime,
     toBeUpdated.lineItems,
-    userStore.state.userId
+    userStore.state.userId,
   )
 
   if (exception) {
@@ -77,7 +77,6 @@ const onSave = async () => {
   notificationStore.action.push({
     type: 'success',
     message: t('voucher.save.success'),
-    duration: 3,
   })
 }
 
@@ -116,7 +115,6 @@ const onAction = async (action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
   notificationStore.action.push({
     type: 'success',
     message: t('voucher.save.success'),
-    duration: 3,
   })
 }
 </script>

@@ -1,21 +1,24 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { provideForm } from './context'
-import { FormRules } from './interface'
+import { type FormRules } from './interface'
 import { get, validate } from './utils'
+import { computed } from 'vue'
 
 const props = withDefaults(
   defineProps<{
     model?: object
     rules?: FormRules
+    edit?: boolean
   }>(),
   {
     model: () => ({}),
     rules: () => ({}),
-  }
+    edit: true,
+  },
 )
 
-defineEmits<{
+const emit = defineEmits<{
   (event: 'submit'): void
 }>()
 
@@ -40,9 +43,16 @@ const resetValidation = () => {
   }
 }
 
+const onSubmit = () => {
+  if (validateAllItems()) {
+    emit('submit')
+  }
+}
+
 provideForm({
   model: props.model,
   rules: props.rules,
+  edit: computed(() => props.edit),
   itemValidationState: itemValidationState,
 })
 
@@ -53,7 +63,11 @@ defineExpose({
 </script>
 
 <template>
-  <form @submit.prevent.stop="$emit('submit')">
+  <form v-if="edit" @submit.prevent.stop="onSubmit">
     <slot></slot>
   </form>
+
+  <div v-else>
+    <slot></slot>
+  </div>
 </template>

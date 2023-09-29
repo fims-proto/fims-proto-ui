@@ -1,9 +1,9 @@
 import axios from 'axios'
 import { FIMS_URL } from '../../../config'
 import { convertFieldsFromString } from '../../date-type-converter'
-import { invokeWithErrorHandler, Response } from '../../error-handler'
-import { FieldConversionRecord, Page, Pageable } from '../../types'
-import { LineItem, Voucher, NewVoucher } from './types'
+import { invokeWithErrorHandler, type Response } from '../../error-handler'
+import { type FieldConversionRecord, type Page, type Pageable } from '../../types'
+import { type LineItem, type Voucher, type NewVoucher } from './types'
 
 const ITEM_FIELDS: FieldConversionRecord = {
   credit: 'number',
@@ -25,11 +25,11 @@ const VOUCHER_FIELDS: FieldConversionRecord = {
 class VoucherService {
   public async getVouchers(
     sobId: string,
-    pageable: Pageable = { page: 1, size: 10 }
+    pageable: Pageable = { page: 1, size: 10 },
   ): Promise<Response<Page<Voucher>>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(
-        `${FIMS_URL}/api/v1/sob/${sobId}/vouchers?$sort=createdAt&$page=${pageable.page}&$size=${pageable.size}`
+        `${FIMS_URL}/api/v1/sob/${sobId}/vouchers?$sort=createdAt&$page=${pageable.page}&$size=${pageable.size}`,
       )
       convertFieldsFromString(result.data.content, VOUCHER_FIELDS)
       return result.data
@@ -56,7 +56,7 @@ class VoucherService {
     headerText: string,
     transactionTime: Date,
     lineItems: LineItem[],
-    updater: string
+    updater: string,
   ): Promise<Response<void>> {
     return invokeWithErrorHandler(async () => {
       // patch
