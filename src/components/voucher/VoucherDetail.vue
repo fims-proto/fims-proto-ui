@@ -36,16 +36,8 @@ const onSave = async () => {
   }
 
   const toBeUpdated = formRef.value?.collect()
-
-  // validate balance
-  if (toBeUpdated.totalDebit !== toBeUpdated.totalCredit) {
-    notificationStore.action.push({ type: 'error', message: t('voucher.save.notBalanced') })
-    return
-  }
-
-  // valiate line item existence
-  if (!toBeUpdated.lineItems.length) {
-    notificationStore.action.push({ type: 'warning', message: t('voucher.save.emptyItems') })
+  if (!toBeUpdated) {
+    // validation is handled in voucher form
     return
   }
 

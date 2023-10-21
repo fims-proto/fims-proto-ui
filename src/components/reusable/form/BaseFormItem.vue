@@ -75,7 +75,7 @@ provideFormItem({
         <slot></slot>
       </div>
     </label>
-    <span v-if="validationMessage" :style="{ marginLeft: labelWidth }" class="text-xs text-error-800">
+    <span v-if="validationMessage" :style="{ marginLeft: labelWidth }" class="pl-3 text-xs text-error-800">
       {{ validationMessage }}
     </span>
   </div>

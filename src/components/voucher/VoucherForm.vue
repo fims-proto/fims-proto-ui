@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { type FormRules } from '../reusable/form'
 import BaseForm from '../reusable/form/BaseForm.vue'
 import type { VoucherFormInput, VoucherFormLineItem, VoucherFormOutput } from './types'
+import { useNotificationStore } from '../../store/notification'
 
 const props = defineProps<{
   voucher: VoucherFormInput
@@ -12,6 +13,7 @@ const props = defineProps<{
 }>()
 
 const { t, d } = useI18n()
+const notificationStore = useNotificationStore()
 
 const headerFormRef = ref<InstanceType<typeof BaseForm>>()
 const headerFormModel = ref({
@@ -62,12 +64,29 @@ const onNewLineItem = () => internalLineItems.value.push(emptyLineItem())
 
 const validate = () => headerFormRef.value?.validate() ?? false
 
-const collect = (): VoucherFormOutput => {
+const collect = (): VoucherFormOutput | undefined => {
   const collectedLineItems = internalLineItems.value.filter(
     (item) => item.account && (item.credit?.toString() || item.debit?.toString()),
   )
   // populate voucher header text to line item text
   collectedLineItems.forEach((item) => (item.text = headerFormModel.value.headerText))
+
+  // validate balance
+  if (totalDebit.value !== totalCredit.value) {
+    notificationStore.action.push({ type: 'error', message: t('voucher.save.notBalanced') })
+    return
+  }
+
+  // validate line item existence
+  if (!collectedLineItems.length) {
+    notificationStore.action.push({ type: 'warning', message: t('voucher.save.emptyItems') })
+    return
+  }
+
+  if (collectedLineItems.flatMap((item) => item.auxiliaryAccounts).find((a) => !a?.key)) {
+    notificationStore.action.push({ type: 'error', message: t('voucher.save.emptyAuxiliaryAccountKey') })
+    return
+  }
 
   return Object.assign({}, props.voucher, {
     headerText: headerFormModel.value.headerText.trim(),
@@ -90,7 +109,7 @@ onMounted(async () => initialize())
 
 defineExpose<{
   validate: () => boolean
-  collect: () => VoucherFormOutput
+  collect: () => VoucherFormOutput | undefined
   reset: () => void
 }>({
   validate,

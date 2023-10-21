@@ -7,7 +7,7 @@ import { useNotificationStore } from '../../store/notification'
 import { useSobStore } from '../../store/sob'
 import { useUserStore } from '../../store/user'
 import VoucherForm from './VoucherForm.vue'
-import type { VoucherFormInput, VoucherFormOutput } from './types'
+import type { VoucherFormInput } from './types'
 
 const props = defineProps<{
   sobId: string
@@ -43,17 +43,9 @@ const saveVoucher = async () => {
   }
 
   // collect form
-  const voucher: VoucherFormOutput = formRef.value?.collect()
-
-  // validate balance
-  if (voucher.totalDebit !== voucher.totalCredit) {
-    notificationStore.action.push({ type: 'error', message: t('voucher.save.notBalanced') })
-    return
-  }
-
-  // validate line item existence
-  if (!voucher.lineItems.length) {
-    notificationStore.action.push({ type: 'warning', message: t('voucher.save.emptyItems') })
+  const voucher = formRef.value?.collect()
+  if (!voucher) {
+    // validation is handled in voucher form
     return
   }
 
