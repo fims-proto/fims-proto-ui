@@ -17,7 +17,7 @@ const emit = defineEmits<{
   (event: 'update:modelValue', value: number): void
 }>()
 
-const editMode = ref<boolean>(false)
+const editMode = ref(false)
 const inputRef = ref<InstanceType<typeof TabulatedInput>>()
 
 const content = computed(() => {

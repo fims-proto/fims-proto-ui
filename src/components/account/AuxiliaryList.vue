@@ -1,17 +1,15 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import {
   AccountService,
-  type NewAuxiliaryAccount,
+  type CreateAuxiliaryAccountRequest,
   type AuxiliaryAccount,
   type AuxiliaryCategory,
-  type NewAuxiliaryCategory,
+  type CreateAuxiliaryCategoryRequest,
   type Page,
 } from '../../domain'
-import { onMounted } from 'vue'
 import type { ColumnType } from '../reusable/table'
-import { useI18n } from 'vue-i18n'
-import { watch } from 'vue'
 
 const props = defineProps<{
   sobId: string
@@ -31,10 +29,10 @@ const accountColumns: ColumnType[] = [
 const selectedCategory = ref<AuxiliaryCategory>()
 
 const createCategoryOpened = ref(false)
-const newCategory = ref<NewAuxiliaryCategory>({ key: '', title: '' })
+const newCategory = ref<CreateAuxiliaryCategoryRequest>({ key: '', title: '' })
 
 const createAccountOpened = ref(false)
-const newAccount = ref<NewAuxiliaryAccount>({ key: '', title: '' })
+const newAccount = ref<CreateAuxiliaryAccountRequest>({ key: '', title: '' })
 
 const formRule = {
   key: {
@@ -66,7 +64,7 @@ const initiateAccounts = async () => {
     return
   }
 
-  ;({ data: auxiliaryAccounts.value } = await AccountService.getAuxiliaryAccountsByKey(
+  ;({ data: auxiliaryAccounts.value } = await AccountService.getAuxiliaryAccounts(
     props.sobId,
     selectedCategory.value.key,
     {
@@ -140,6 +138,7 @@ watch(() => selectedCategory.value, initiateAccounts, { immediate: true })
         :title="selectedCategory?.title"
         :data-source="auxiliaryAccounts?.content ?? []"
         :columns="accountColumns"
+        :row-key="(aux) => aux.id"
         :page="{
           currentPage: auxiliaryAccounts?.pageNumber ?? 1,
           totalElement: auxiliaryAccounts?.numberOfElements ?? 0,

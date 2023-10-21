@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { AccountService, usePadLevelNumber, type Account } from '../../domain'
-import { onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
-import type { SelectOption } from '../reusable/form'
+import type { SelectItem } from '../reusable/form'
 import { useNotificationStore } from '../../store/notification'
+import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
   sobId: string
@@ -16,26 +15,46 @@ const notificationStore = useNotificationStore()
 
 const account = ref<Account>()
 const superiorAccount = ref<Account | undefined>()
-const accountTypeOptions = ref<SelectOption[]>([
-  { value: 'assets', label: t('account.accountTypeEnum.assets') },
-  { value: 'cost', label: t('account.accountTypeEnum.cost') },
-  { value: 'liabilities', label: t('account.accountTypeEnum.liabilities') },
-  { value: 'equity', label: t('account.accountTypeEnum.equity') },
-  { value: 'profit_and_loss', label: t('account.accountTypeEnum.profit_and_loss') },
-  { value: 'common', label: t('account.accountTypeEnum.common') },
-])
-const balanceDirectionOptions = ref<SelectOption[]>([
-  { value: 'debit', label: t('account.balanceDirectionEnum.debit') },
-  { value: 'credit', label: t('account.balanceDirectionEnum.credit') },
-])
-const auxiliaryCategoryOptions = ref<SelectOption[]>([])
-const auxiliaryCategories = ref<string[]>([])
+const accountTypeOptions = ref<string[]>(['assets', 'cost', 'liabilities', 'equity', 'profit_and_loss', 'common'])
+const balanceDirectionOptions = ref<string[]>(['debit', 'credit'])
+const auxiliaryCategoryOptions = ref<SelectItem[]>([])
+const auxiliaryCategories = ref<SelectItem[]>([])
 const levelNumber = usePadLevelNumber(
   () => account.value?.numberHierarchy.at(-1) as number,
   () => account.value?.level as number,
 )
 
 const editMode = ref<boolean>(false)
+
+const labelAccountType = (v: string | undefined) => {
+  switch (v) {
+    case 'assets':
+      return t('account.accountTypeEnum.assets')
+    case 'cost':
+      return t('account.accountTypeEnum.cost')
+    case 'liabilities':
+      return t('account.accountTypeEnum.liabilities')
+    case 'equity':
+      return t('account.accountTypeEnum.equity')
+    case 'profit_and_loss':
+      return t('account.accountTypeEnum.profit_and_loss')
+    case 'common':
+      return t('account.accountTypeEnum.common')
+    default:
+      return ''
+  }
+}
+
+const labelbalanceDirection = (v: string | undefined) => {
+  switch (v) {
+    case 'debit':
+      return t('account.balanceDirectionEnum.debit')
+    case 'credit':
+      return t('account.balanceDirectionEnum.credit')
+    default:
+      return ''
+  }
+}
 
 const refreshAccount = async () => {
   ;({ data: account.value } = await AccountService.getAccountById(props.sobId, props.accountId))
@@ -47,7 +66,8 @@ const refreshAccount = async () => {
     ))
   }
 
-  auxiliaryCategories.value = account.value?.auxiliaryCategories?.map((category) => category.key) ?? []
+  auxiliaryCategories.value =
+    account.value?.auxiliaryCategories?.map((category) => ({ value: category.key, label: category.title })) ?? []
 }
 
 const onCancel = async () => {
@@ -64,7 +84,7 @@ const onSave = async () => {
     title: account.value.title,
     levelNumber: account.value.numberHierarchy.at(-1) as number,
     balanceDirection: account.value.balanceDirection,
-    categoryKeys: auxiliaryCategories.value,
+    categoryKeys: auxiliaryCategories.value.map((c) => c.value),
   })
 
   if (!exception) {
@@ -130,15 +150,35 @@ onMounted(async () => {
       </BaseFormItem>
 
       <BaseFormItem :label="t('account.accountType')" required>
-        <BaseSelect v-model="account.accountType" :options="accountTypeOptions" disabled />
+        <BaseSelect
+          v-model="account.accountType"
+          :display-value="labelAccountType"
+          :options="accountTypeOptions"
+          :option-key="(opt) => opt"
+          :display-option="labelAccountType"
+          disabled
+        />
       </BaseFormItem>
 
       <BaseFormItem :label="t('account.balanceDirection')" required>
-        <BaseSelect v-model="account.balanceDirection" :options="balanceDirectionOptions" />
+        <BaseSelect
+          v-model="account.balanceDirection"
+          :display-value="labelbalanceDirection"
+          :options="balanceDirectionOptions"
+          :option-key="(opt) => opt"
+          :display-option="labelbalanceDirection"
+        />
       </BaseFormItem>
 
       <BaseFormItem :label="t('account.auxiliary.category')">
-        <BaseSelect v-model="auxiliaryCategories" :options="auxiliaryCategoryOptions" :multiple="true" />
+        <BaseSelect
+          v-model="auxiliaryCategories"
+          :display-value="(v) => v?.label"
+          :options="auxiliaryCategoryOptions"
+          :option-key="(opt) => opt?.value"
+          :display-option="(opt) => opt?.label"
+          multiple
+        />
       </BaseFormItem>
     </BaseForm>
   </BasePage>

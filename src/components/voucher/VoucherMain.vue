@@ -91,6 +91,7 @@ const onCreate = () => {
     <BaseTable
       :data-source="vouchers?.content ?? []"
       :columns="columns"
+      :row-key="(v) => v.id"
       :page="{
         currentPage: vouchers?.pageNumber ?? 1,
         totalElement: vouchers?.numberOfElements ?? 0,

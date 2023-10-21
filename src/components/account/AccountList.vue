@@ -40,6 +40,7 @@ watch(
   <BaseTable
     :data-source="accounts?.content ?? []"
     :columns="columns"
+    :row-key="(account) => account.id"
     :page="{
       currentPage: accounts?.pageNumber ?? 1,
       totalElement: accounts?.numberOfElements ?? 0,

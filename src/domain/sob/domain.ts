@@ -2,7 +2,7 @@ import axios from 'axios'
 import { type NewSob, type Sob } from './types'
 import { FIMS_URL } from '../../config'
 import { invokeWithErrorHandler, type Response } from '../error-handler'
-import { convertFieldsFromString } from '../date-type-converter'
+import { convertFieldsFromString } from '../field-conversion'
 import { type FieldConversionRecord, type Page } from '../types'
 
 const FIELDS_CONVERSION: FieldConversionRecord = {

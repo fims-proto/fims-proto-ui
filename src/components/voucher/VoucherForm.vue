@@ -1,34 +1,25 @@
 <script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
 import Big from 'big.js'
-import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { type LineItem, type Traits } from '../../domain'
 import { type FormRules } from '../reusable/form'
 import BaseForm from '../reusable/form/BaseForm.vue'
+import type { VoucherFormInput, VoucherFormLineItem, VoucherFormOutput } from './types'
 
 const props = defineProps<{
-  headerText: string
-  transactionTime: Date
-  attachmentQuantity: number
-  lineItems: LineItem[]
-  creator: Traits
+  voucher: VoucherFormInput
   disabled?: boolean
-  isReviewed?: boolean
-  isAudited?: boolean
-  isPosted?: boolean
 }>()
 
 const { t, d } = useI18n()
 
 const headerFormRef = ref<InstanceType<typeof BaseForm>>()
-
-const formModel = ref({
+const headerFormModel = ref({
   headerText: '',
   transactionTime: new Date(),
   attachmentQuantity: 0,
 })
-
-const formRules: FormRules = {
+const headerFormRules: FormRules = {
   headerText: {
     validator: (value) => {
       if (!(value as string).trim()) {
@@ -47,7 +38,7 @@ const formRules: FormRules = {
   },
 }
 
-const internalLineItems = ref<LineItem[]>([])
+const internalLineItems = ref<VoucherFormLineItem[]>([])
 
 const totalDebit = computed(() =>
   internalLineItems.value.reduce((sum, item) => sum.add(Big(item.debit ?? 0)), Big(0)).toNumber(),
@@ -58,63 +49,71 @@ const totalCredit = computed(() =>
 
 const periodNumber = computed(() =>
   t('period.periodText', {
-    fiscalYear: formModel.value.transactionTime.getFullYear(),
-    number: formModel.value.transactionTime.getMonth() + 1,
+    fiscalYear: headerFormModel.value.transactionTime.getFullYear(),
+    number: headerFormModel.value.transactionTime.getMonth() + 1,
   }),
 )
 
-const emptyItem = () => ({
-  text: '',
-  accountNumber: '',
-  credit: 0,
-  debit: 0,
-})
+const emptyLineItem = () => ({ text: '', debit: 0, credit: 0 })
 
 const onClearLineItem = (index: number) => internalLineItems.value.splice(index, 1)
 
-const onNewLineItem = () => internalLineItems.value.push(emptyItem())
+const onNewLineItem = () => internalLineItems.value.push(emptyLineItem())
 
-const validate = () => {
-  return headerFormRef.value?.validate()
-}
+const validate = () => headerFormRef.value?.validate() ?? false
 
-const collect = () => {
-  internalLineItems.value.forEach((item) => (item.text = formModel.value.headerText))
-  return {
-    headerText: formModel.value.headerText.trim(),
-    transactionTime: formModel.value.transactionTime,
-    attachmentQuantity: formModel.value.attachmentQuantity,
-    lineItems: internalLineItems.value,
+const collect = (): VoucherFormOutput => {
+  const collectedLineItems = internalLineItems.value.filter(
+    (item) => item.account && (item.credit?.toString() || item.debit?.toString()),
+  )
+  // populate voucher header text to line item text
+  collectedLineItems.forEach((item) => (item.text = headerFormModel.value.headerText))
+
+  return Object.assign({}, props.voucher, {
+    headerText: headerFormModel.value.headerText.trim(),
+    transactionTime: headerFormModel.value.transactionTime,
+    attachmentQuantity: headerFormModel.value.attachmentQuantity,
+    lineItems: collectedLineItems,
     totalDebit: totalDebit.value,
     totalCredit: totalCredit.value,
-  }
+  })
 }
 
-const initialize = () => {
-  formModel.value.headerText = props.headerText
-  formModel.value.transactionTime = props.transactionTime
-  formModel.value.attachmentQuantity = props.attachmentQuantity
-  internalLineItems.value = JSON.parse(JSON.stringify(props.lineItems)) // deep copy
+const initialize = async () => {
+  headerFormModel.value.headerText = props.voucher.headerText
+  headerFormModel.value.transactionTime = props.voucher.transactionTime
+  headerFormModel.value.attachmentQuantity = props.voucher.attachmentQuantity
+  internalLineItems.value = JSON.parse(JSON.stringify(props.voucher.lineItems)) // deep copy
 }
 
-defineExpose({
+onMounted(async () => initialize())
+
+defineExpose<{
+  validate: () => boolean
+  collect: () => VoucherFormOutput
+  reset: () => void
+}>({
   validate,
   collect,
   reset: initialize,
 })
-
-initialize()
 </script>
 
 <template>
   <div class="w-full">
     <!-- header -->
-    <BaseForm ref="headerFormRef" :model="formModel" :rules="formRules" class="flex gap-4 items-baseline">
+    <BaseForm
+      ref="headerFormRef"
+      :model="headerFormModel"
+      :rules="headerFormRules"
+      :disabled="disabled"
+      class="flex gap-4 items-baseline"
+    >
       <!-- header text -->
-      <h1 v-if="disabled" class="font-black">{{ headerText }}</h1>
+      <h1 v-if="disabled" class="font-black">{{ voucher.headerText }}</h1>
       <BaseFormItem v-else path="headerText" required :label="t('voucher.headerText')">
         <BaseInput
-          v-model="formModel.headerText"
+          v-model="headerFormModel.headerText"
           :placeholder="t('voucher.headerTextPlaceholder')"
           required
           class="w-80"
@@ -124,21 +123,21 @@ initialize()
       <span v-if="disabled">{{ periodNumber }}</span>
 
       <!-- transaction time field -->
-      <span v-if="disabled" class="ml-auto">{{ d(formModel.transactionTime, 'short') }}</span>
+      <span v-if="disabled" class="ml-auto">{{ d(headerFormModel.transactionTime, 'short') }}</span>
       <div v-else class="flex gap-2">
         <BaseFormItem path="transactionTime" required :label="t('voucher.transactionTime')">
-          <BaseInput v-model="formModel.transactionTime" html-type="date" required :suffix="periodNumber" />
+          <BaseInput v-model="headerFormModel.transactionTime" html-type="date" required :suffix="periodNumber" />
         </BaseFormItem>
       </div>
 
       <!-- attachment quntity field -->
       <span v-if="disabled">
-        {{ t('voucher.attachmentQuantity') }} {{ formModel.attachmentQuantity }}
+        {{ t('voucher.attachmentQuantity') }} {{ headerFormModel.attachmentQuantity }}
         {{ t('voucher.attachmentQuantityUnit') }}
       </span>
       <BaseFormItem v-else path="attachmentQuantity" :label="t('voucher.attachmentQuantity')">
         <BaseInput
-          v-model="formModel.attachmentQuantity"
+          v-model="headerFormModel.attachmentQuantity"
           class="w-36"
           html-type="number"
           :force-integer="true"
@@ -178,7 +177,11 @@ initialize()
             <MinusCircleMiniIcon class="w-4" />
           </button>
 
-          <AccountInput v-model="item.accountNumber" :disabled="disabled" />
+          <AccountInput
+            v-model:account="item.account"
+            v-model:auxiliary-accounts="item.auxiliaryAccounts"
+            :disabled="disabled"
+          />
         </div>
         <div class="w-72">
           <TabulatedNumber v-model="item.debit" :disabled="disabled" />
@@ -215,7 +218,12 @@ initialize()
     <div class="mt-4">
       <span>
         {{ t('voucher.creator') }}:
-        {{ t('common.userName', { lastName: creator.name?.last, firstName: creator.name?.first }) }}
+        {{
+          t('common.userName', {
+            lastName: voucher.creator?.traits.name?.last,
+            firstName: voucher.creator?.traits.name?.first,
+          })
+        }}
       </span>
     </div>
   </div>

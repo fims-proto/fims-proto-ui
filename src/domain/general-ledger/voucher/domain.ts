@@ -1,26 +1,10 @@
 import axios from 'axios'
 import { FIMS_URL } from '../../../config'
-import { convertFieldsFromString } from '../../date-type-converter'
+import { convertFieldsFromString } from '../../field-conversion'
 import { invokeWithErrorHandler, type Response } from '../../error-handler'
-import { type FieldConversionRecord, type Page, type Pageable } from '../../types'
-import { type LineItem, type Voucher, type NewVoucher } from './types'
-
-const ITEM_FIELDS: FieldConversionRecord = {
-  credit: 'number',
-  debit: 'number',
-  createdAt: 'date',
-  updatedAt: 'date',
-}
-
-const VOUCHER_FIELDS: FieldConversionRecord = {
-  attachmentQuantity: 'number',
-  credit: 'number',
-  debit: 'number',
-  transactionTime: 'date',
-  lineItems: ITEM_FIELDS,
-  createdAt: 'date',
-  updatedAt: 'date',
-}
+import { type Page, type Pageable } from '../../types'
+import { type Voucher, type CreateVoucherRequest, type UpdateVoucherRequest } from './types'
+import { VOUCHER_FIELDS } from '../field-conversion-types'
 
 class VoucherService {
   public async getVouchers(
@@ -43,29 +27,17 @@ class VoucherService {
     })
   }
 
-  public async createVoucher(sobId: string, voucher: NewVoucher): Promise<Response<Voucher>> {
+  public async createVoucher(sobId: string, voucher: CreateVoucherRequest): Promise<Response<Voucher>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/vouchers`, voucher)
       return convertFieldsFromString(result.data, VOUCHER_FIELDS)
     })
   }
 
-  public async updateVoucher(
-    sobId: string,
-    id: string,
-    headerText: string,
-    transactionTime: Date,
-    lineItems: LineItem[],
-    updater: string,
-  ): Promise<Response<void>> {
+  public async updateVoucher(sobId: string, id: string, voucher: UpdateVoucherRequest): Promise<Response<void>> {
     return invokeWithErrorHandler(async () => {
       // patch
-      await axios.patch(`${FIMS_URL}/api/v1/sob/${sobId}/voucher/${id}`, {
-        headerText: headerText,
-        transactionTime: transactionTime,
-        lineItems: lineItems,
-        updater: updater,
-      })
+      await axios.patch(`${FIMS_URL}/api/v1/sob/${sobId}/voucher/${id}`, voucher)
     })
   }
 

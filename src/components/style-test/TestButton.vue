@@ -19,6 +19,7 @@ const onNewNotification = (text?: string) => {
     <div class="flex gap-4">
       <BaseButton @click="onNewNotification('Ta-da!!')">Default</BaseButton>
       <BaseButton category="primary"> Primary </BaseButton>
+      <BaseButton category="alert"> Alert </BaseButton>
       <BaseButton>
         <template #icon>
           <LockClosedMiniIcon />
@@ -30,6 +31,12 @@ const onNewNotification = (text?: string) => {
           <LockClosedMiniIcon />
         </template>
         Primary
+      </BaseButton>
+      <BaseButton category="alert">
+        <template #icon>
+          <LockClosedMiniIcon />
+        </template>
+        Alert
       </BaseButton>
       <BaseButton>
         <template #icon>

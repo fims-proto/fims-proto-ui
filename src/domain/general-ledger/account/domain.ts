@@ -1,27 +1,17 @@
 import axios from 'axios'
 import { FIMS_URL } from '../../../config'
-import { convertFieldsFromString } from '../../date-type-converter'
+import { convertFieldsFromString } from '../../field-conversion'
 import { invokeWithErrorHandler, type Response } from '../../error-handler'
-import { type FieldConversionRecord, type Page, type Pageable } from '../../types'
+import { type Page, type Pageable } from '../../types'
 import {
   type Account,
   type AuxiliaryAccount,
   type AuxiliaryCategory,
-  type NewAuxiliaryAccount,
-  type NewAuxiliaryCategory,
-  type UpdateAccount,
+  type CreateAuxiliaryAccountRequest,
+  type CreateAuxiliaryCategoryRequest,
+  type UpdateAccountRequest,
 } from './types'
-
-const ACCOUNT_FIELDS_CONVERSION: FieldConversionRecord = {
-  level: 'number',
-  createdAt: 'date',
-  updatedAt: 'date',
-}
-
-const AUXILIARY_FIELDS_CONVERSION: FieldConversionRecord = {
-  createdAt: 'date',
-  updatedAt: 'date',
-}
+import { ACCOUNT_FIELDS_CONVERSION, AUXILIARY_FIELDS_CONVERSION } from '../field-conversion-types'
 
 class AccountService {
   public async getAccounts(
@@ -68,7 +58,7 @@ class AccountService {
     })
   }
 
-  public async updateAccount(sobId: string, accountId: string, account: UpdateAccount): Promise<Response<void>> {
+  public async updateAccount(sobId: string, accountId: string, account: UpdateAccountRequest): Promise<Response<void>> {
     return invokeWithErrorHandler(async () => {
       await axios.patch(`${FIMS_URL}/api/v1/sob/${sobId}/account/${accountId}`, account)
     })
@@ -86,7 +76,7 @@ class AccountService {
     })
   }
 
-  public async getAuxiliaryAccountsByKey(
+  public async getAuxiliaryAccounts(
     sobId: string,
     categoryKey: string,
     pageable: Pageable = { page: 1, size: 10 },
@@ -99,7 +89,29 @@ class AccountService {
     })
   }
 
-  public async createAuxiliaryCategory(sobId: string, category: NewAuxiliaryCategory): Promise<Response<void>> {
+  public async getAuxiliaryAccountByKey(
+    sobId: string,
+    categoryKey: string,
+    accountKey: string,
+  ): Promise<Response<AuxiliaryAccount>> {
+    return invokeWithErrorHandler(async () => {
+      const result = await axios.get(
+        `${FIMS_URL}/api/v1/sob/${sobId}/auxiliary/${categoryKey}/accounts?$filter=key eq '${accountKey}'`,
+      )
+      convertFieldsFromString(result.data, AUXILIARY_FIELDS_CONVERSION)
+
+      if (result.data.numberOfElements !== 1) {
+        throw 'result not unique'
+      }
+
+      return result.data.content[0]
+    })
+  }
+
+  public async createAuxiliaryCategory(
+    sobId: string,
+    category: CreateAuxiliaryCategoryRequest,
+  ): Promise<Response<void>> {
     return invokeWithErrorHandler(async () => {
       await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/auxiliaries`, category)
     })
@@ -108,7 +120,7 @@ class AccountService {
   public async createAuxiliaryAccount(
     sobId: string,
     categoryKey: string,
-    account: NewAuxiliaryAccount,
+    account: CreateAuxiliaryAccountRequest,
   ): Promise<Response<void>> {
     return invokeWithErrorHandler(async () => {
       await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/auxiliary/${categoryKey}/accounts`, account)

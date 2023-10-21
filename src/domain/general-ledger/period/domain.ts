@@ -1,18 +1,10 @@
 import axios from 'axios'
 import { FIMS_URL } from '../../../config'
-import { convertFieldsFromString } from '../../date-type-converter'
+import { convertFieldsFromString } from '../../field-conversion'
 import { invokeWithErrorHandler, type Response } from '../../error-handler'
-import { type FieldConversionRecord, type Page, type Pageable } from '../../types'
+import { type Page, type Pageable } from '../../types'
 import { type Period } from './types'
-
-const FIELDS_CONVERSION: FieldConversionRecord = {
-  fiscalYear: 'number',
-  number: 'number',
-  openingTime: 'date',
-  endingTime: 'date',
-  createdAt: 'date',
-  updatedAt: 'date',
-}
+import { PERIOD_FIELDS_CONVERSION } from '../field-conversion-types'
 
 class PeriodService {
   public async getPeriods(sobId: string, pageable: Pageable = { page: 1, size: 10 }): Promise<Response<Page<Period>>> {
@@ -20,7 +12,7 @@ class PeriodService {
       const result = await axios.get(
         `${FIMS_URL}/api/v1/sob/${sobId}/periods?$sort=openingTime desc&$page=${pageable.page}&$size=${pageable.size}`,
       )
-      convertFieldsFromString(result.data.content, FIELDS_CONVERSION)
+      convertFieldsFromString(result.data.content, PERIOD_FIELDS_CONVERSION)
       return result.data
     })
   }
@@ -28,7 +20,7 @@ class PeriodService {
   public async getOpenPeriod(sobId: string): Promise<Response<Period>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(`${FIMS_URL}/api/v1/sob/${sobId}/periods/current`)
-      convertFieldsFromString(result.data, FIELDS_CONVERSION)
+      convertFieldsFromString(result.data, PERIOD_FIELDS_CONVERSION)
       return result.data
     })
   }

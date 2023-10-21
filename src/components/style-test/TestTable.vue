@@ -84,15 +84,15 @@ const onRowClick = (data: { company: string; contact: string; address: string; c
 <template>
   <div class="container mx-auto rounded-lg p-4">
     <p>Empty table</p>
-    <BaseTable :data-source="[]" :columns="tableColumns" />
+    <BaseTable :data-source="[]" :columns="tableColumns" :row-key="() => ''" />
     <br />
 
     <p>Empty table 2</p>
-    <BaseTable :data-source="[]" :columns="tableColumns" title="空表测试" />
+    <BaseTable :data-source="[]" :columns="tableColumns" title="空表测试" :row-key="() => ''" />
     <br />
 
     <p>Empty table 3</p>
-    <BaseTable :data-source="[]" :columns="tableColumns" :free-search="true">
+    <BaseTable :data-source="[]" :columns="tableColumns" :row-key="() => ''" :free-search="true">
       <template #actions>
         <BaseButton category="primary">创建</BaseButton>
         <BaseButton category="flat">动作</BaseButton>
@@ -105,6 +105,7 @@ const onRowClick = (data: { company: string; contact: string; address: string; c
       title="完整测试"
       :data-source="tableData"
       :columns="tableColumns"
+      :row-key="(r) => Object.values(r).join('_')"
       free-search
       row-clickable
       :page="tablePage"

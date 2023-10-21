@@ -3,9 +3,19 @@ import { ref } from 'vue'
 import { type FormRules } from '../reusable/form'
 import BaseForm from '../reusable/form/BaseForm.vue'
 
+type SelectItem = {
+  value: string
+  label: string
+}
+
 const editMode = ref<boolean>(true)
+const labelPlacement = ref<'top' | 'left'>('left')
 
 const modelRef = ref({
+  vendor: {
+    value: '001',
+    label: '大内密探 001',
+  },
   username: '',
   voucher: {
     headerText: '',
@@ -24,6 +34,9 @@ const modelRef = ref({
 })
 
 const rules: FormRules = {
+  vendor: {
+    required: true,
+  },
   username: {
     required: true,
   },
@@ -46,42 +59,57 @@ const rules: FormRules = {
   },
 }
 
-const selectOptions = [
-  {
-    value: '1',
-    label: 'John Wick',
-  },
-  {
-    value: '2',
-    label: 'Jason Bourne',
-  },
-  {
-    value: '3',
-    label: 'Eason Hunt',
-  },
-  {
-    value: '4',
-    label: 'James Bound',
-  },
+const vendors: SelectItem[] = [
+  { value: '001', label: '大内密探 001' },
+  { value: '002', label: '大内密探 002' },
+  { value: '003', label: '大内密探 003' },
+  { value: '004', label: '大内密探 004' },
+  { value: '005', label: '大内密探 005' },
+  { value: '006', label: '大内密探 006' },
+  { value: '007', label: '大内密探 007' },
+  { value: '008', label: '大内密探 008' },
+  { value: '009', label: '大内密探 009' },
 ]
-const selectedValue = ref(selectOptions[0].value)
-const selectedValues = ref<string[]>([])
+const vendorOptions = ref<SelectItem[]>([])
+
+const selectOptions: SelectItem[] = [
+  { value: '1', label: 'John Wick' },
+  { value: '2', label: 'Jason Bourne' },
+  { value: '3', label: 'Eason Hunt' },
+  { value: '4', label: 'James Bound' },
+]
+
+const selectedValue = ref<SelectItem>()
+const selectedValues = ref<SelectItem[]>([])
 
 const formRef = ref<InstanceType<typeof BaseForm>>()
+
+const onVenderQueryChange = (query: string) => {
+  vendorOptions.value = vendors.filter((v) => v.label.includes(query) || v.value.includes(query))
+}
 </script>
 
 <template>
   <div class="space-y-8">
-    <BaseButton @click="editMode = !editMode">{{ editMode ? 'Display' : 'Edit' }}</BaseButton>
-
-    <h1 class="text-neutral-900">BaseForm validation:</h1>
     <div class="rounded-lg p-4">
       <div class="flex gap-2 mb-2">
+        <BaseButton @click="editMode = !editMode">{{ editMode ? 'Display' : 'Edit' }}</BaseButton>
         <BaseButton @click="formRef?.validate">Validate</BaseButton>
         <BaseButton @click="formRef?.resetValidation">Reset Validation</BaseButton>
+        <BaseButton @click="labelPlacement = labelPlacement === 'top' ? 'left' : 'top'">
+          Label placement: {{ labelPlacement }}
+        </BaseButton>
       </div>
 
-      <BaseForm ref="formRef" :model="modelRef" :rules="rules" :edit="editMode" class="w-96 flex flex-col gap-4">
+      <BaseForm
+        ref="formRef"
+        :model="modelRef"
+        :rules="rules"
+        :edit="editMode"
+        :label-placement="labelPlacement"
+        label-width="5rem"
+        class="w-96 flex flex-col gap-4"
+      >
         <BaseFormItem path="username" label="user name">
           <BaseInput v-model="modelRef.username" />
         </BaseFormItem>
@@ -92,16 +120,46 @@ const formRef = ref<InstanceType<typeof BaseForm>>()
           <BaseInput v-model="modelRef.voucher.attachmentNumber" html-type="number" :force-integer="true" />
         </BaseFormItem>
 
+        <BaseFormItem path="vendor" label="Vendor">
+          <BaseAutocomplete
+            v-model="modelRef.vendor"
+            :display-value="(v) => v?.label"
+            :options="vendorOptions"
+            :option-key="(opt) => opt?.value"
+            :display-option="(opt) => opt?.label"
+            @change="onVenderQueryChange"
+          />
+        </BaseFormItem>
+
         <BaseFormItem label="主角">
-          <BaseSelect v-model="selectedValue" :options="selectOptions" />
+          <BaseSelect
+            v-model="selectedValue"
+            :display-value="(v) => v?.label"
+            :options="selectOptions"
+            :option-key="(opt) => opt?.value"
+            :display-option="(opt) => opt?.label"
+          />
         </BaseFormItem>
 
         <BaseFormItem label="主角团">
-          <BaseSelect v-model="selectedValues" :options="selectOptions" :multiple="true" />
+          <BaseSelect
+            v-model="selectedValues"
+            :display-value="(v) => v?.label"
+            :options="selectOptions"
+            :option-key="(opt) => opt?.value"
+            :display-option="(opt) => opt?.label"
+            multiple
+          />
         </BaseFormItem>
 
         <BaseFormItem label="没有可选项的反派">
-          <BaseSelect v-model="selectedValues" :options="[]" />
+          <BaseSelect
+            v-model="selectedValues"
+            :display-value="(v) => v?.label"
+            :options="[]"
+            :option-key="(opt) => opt?.value"
+            :display-option="(opt) => opt?.label"
+          />
         </BaseFormItem>
 
         <BaseFormItem label="普通文本">

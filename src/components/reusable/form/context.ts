@@ -2,11 +2,12 @@ import { inject, provide, type InjectionKey, type Ref } from 'vue'
 import { type FormRules, type FormValidationStatus } from './interface'
 
 // Form injections
-
 export interface FormInjection {
   model?: object
   rules?: FormRules
   edit: Ref<boolean>
+  labelPlacement: Ref<string>
+  labelWidth: Ref<number | string | undefined>
   itemValidationState: Ref<Record<string, true | string>>
 }
 
@@ -21,7 +22,6 @@ export function injectForm() {
 }
 
 // Form item injections
-
 export interface FormItemInjection {
   itemStatus: Ref<FormValidationStatus | undefined>
   handleContentChange: () => void
