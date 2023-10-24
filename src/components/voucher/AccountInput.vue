@@ -132,7 +132,7 @@ watch(
     />
 
     <!-- titles -->
-    <span class="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-neutral-800/50">
+    <span class="absolute right-2 top-1/2 -translate-y-1/2 text-sm">
       {{ [account?.title, auxiliaryAccounts?.map((a) => a.title).join(',')].join(' ') }}
     </span>
 
