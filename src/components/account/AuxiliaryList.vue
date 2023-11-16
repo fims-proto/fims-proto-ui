@@ -123,7 +123,7 @@ watch(() => selectedCategory.value, initiateAccounts, { immediate: true })
           <BaseFormItem path="key" :label="t('account.auxiliary.key')" required>
             <BaseInput v-model.uppercase.trim="newCategory.key" />
           </BaseFormItem>
-          <BaseFormItem path="key" :label="t('account.auxiliary.title')" required>
+          <BaseFormItem path="title" :label="t('account.auxiliary.title')" required>
             <BaseInput v-model.trim="newCategory.title" />
           </BaseFormItem>
           <BaseButton category="primary" html-type="submit" class="justify-self-end">
@@ -145,8 +145,8 @@ watch(() => selectedCategory.value, initiateAccounts, { immediate: true })
           pageSize: auxiliaryAccounts?.pageSize,
         }"
       >
-        <template #actions>
-          <BaseButton v-if="selectedCategory" category="flat" @click="createAccountOpened = true">
+        <template v-if="selectedCategory" #actions>
+          <BaseButton category="flat" @click="createAccountOpened = true">
             {{ t('action.create') }}
           </BaseButton>
         </template>
@@ -161,7 +161,7 @@ watch(() => selectedCategory.value, initiateAccounts, { immediate: true })
           <BaseFormItem path="key" :label="t('account.auxiliary.key')" required>
             <BaseInput v-model.uppercase.trim="newAccount.key" />
           </BaseFormItem>
-          <BaseFormItem path="key" :label="t('account.auxiliary.title')" required>
+          <BaseFormItem path="title" :label="t('account.auxiliary.title')" required>
             <BaseInput v-model.trim="newAccount.title" />
           </BaseFormItem>
           <BaseFormItem path="description" :label="t('account.auxiliary.description')">
