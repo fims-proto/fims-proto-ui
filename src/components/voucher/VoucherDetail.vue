@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { VoucherService, type Voucher } from '../../domain'
+import { VoucherService, type UpdateVoucherRequest } from '../../domain'
 import { useNotificationStore } from '../../store/notification'
 import { useUserStore } from '../../store/user'
 import VoucherForm from './VoucherForm.vue'
+import type { VoucherFormInput } from './types'
 
 const props = defineProps<{
   sobId: string
@@ -15,7 +16,7 @@ const { t } = useI18n()
 const notificationStore = useNotificationStore()
 const userStore = useUserStore()
 
-const voucher = ref<Voucher>()
+const voucher = ref<VoucherFormInput>()
 const formRef = ref<InstanceType<typeof VoucherForm>>()
 const editMode = ref(false)
 
@@ -35,37 +36,28 @@ const onSave = async () => {
   }
 
   const toBeUpdated = formRef.value?.collect()
-
-  if (toBeUpdated.totalDebit !== toBeUpdated.totalCredit) {
-    notificationStore.action.push({
-      type: 'error',
-      message: t('voucher.save.notBalanced'),
-      duration: 5,
-    })
+  if (!toBeUpdated) {
+    // validation is handled in voucher form
     return
   }
 
-  toBeUpdated.lineItems = toBeUpdated.lineItems.filter(
-    (item) => item.accountNumber.trim() && item.debit.toString() && item.credit.toString(),
-  )
-
-  if (!toBeUpdated.lineItems.length) {
-    notificationStore.action.push({
-      type: 'warning',
-      message: t('voucher.save.emptyItems'),
-      duration: 5,
-    })
-    return
+  // convert to request
+  const request: UpdateVoucherRequest = {
+    headerText: toBeUpdated.headerText,
+    attachmentQuantity: toBeUpdated.attachmentQuantity,
+    transactionTime: toBeUpdated.transactionTime,
+    updater: userStore.state.userId,
+    lineItems: toBeUpdated.lineItems.map((item) => ({
+      id: item.id,
+      accountNumber: item.account?.accountNumber ?? '',
+      auxiliaryAccounts: item.auxiliaryAccounts?.map((aux) => ({ categoryKey: aux.category.key, accountKey: aux.key })),
+      text: item.text,
+      credit: item.credit,
+      debit: item.debit,
+    })),
   }
 
-  const { exception } = await VoucherService.updateVoucher(
-    props.sobId,
-    props.voucherId,
-    toBeUpdated.headerText,
-    toBeUpdated.transactionTime,
-    toBeUpdated.lineItems,
-    userStore.state.userId,
-  )
+  const { exception } = await VoucherService.updateVoucher(props.sobId, props.voucherId, request)
 
   if (exception) {
     return
@@ -74,10 +66,7 @@ const onSave = async () => {
   await refreshVoucher()
 
   editMode.value = false
-  notificationStore.action.push({
-    type: 'success',
-    message: t('voucher.save.success'),
-  })
+  notificationStore.action.push({ type: 'success', message: t('voucher.save.success') })
 }
 
 const onCancel = () => {
@@ -86,24 +75,23 @@ const onCancel = () => {
 }
 
 const onAction = async (action: 'audit' | 'cancelAudit' | 'review' | 'cancelReview' | 'post') => {
-  const voucherId = voucher.value?.id as string
   let resp
 
   switch (action) {
     case 'audit':
-      resp = await VoucherService.auditVoucher(props.sobId, voucherId, userStore.state.userId)
+      resp = await VoucherService.auditVoucher(props.sobId, props.voucherId, userStore.state.userId)
       break
     case 'cancelAudit':
-      resp = await VoucherService.cancelAuditVoucher(props.sobId, voucherId, userStore.state.userId)
+      resp = await VoucherService.cancelAuditVoucher(props.sobId, props.voucherId, userStore.state.userId)
       break
     case 'review':
-      resp = await VoucherService.reviewVoucher(props.sobId, voucherId, userStore.state.userId)
+      resp = await VoucherService.reviewVoucher(props.sobId, props.voucherId, userStore.state.userId)
       break
     case 'cancelReview':
-      resp = await VoucherService.cancelReviewVoucher(props.sobId, voucherId, userStore.state.userId)
+      resp = await VoucherService.cancelReviewVoucher(props.sobId, props.voucherId, userStore.state.userId)
       break
     case 'post':
-      resp = await VoucherService.postVoucher(props.sobId, voucherId, userStore.state.userId)
+      resp = await VoucherService.postVoucher(props.sobId, props.voucherId, userStore.state.userId)
   }
 
   if (resp?.exception) {
@@ -112,10 +100,7 @@ const onAction = async (action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
 
   await refreshVoucher()
 
-  notificationStore.action.push({
-    type: 'success',
-    message: t('voucher.save.success'),
-  })
+  notificationStore.action.push({ type: 'success', message: t('voucher.save.success') })
 }
 </script>
 
@@ -154,18 +139,6 @@ const onAction = async (action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
       </BaseButton>
     </template>
 
-    <VoucherForm
-      v-if="voucher"
-      ref="formRef"
-      :disabled="!editMode"
-      :header-text="voucher.headerText"
-      :attachment-quantity="voucher.attachmentQuantity"
-      :transaction-time="voucher.transactionTime"
-      :line-items="voucher.lineItems"
-      :creator="voucher.creator.traits"
-      :is-reviewed="voucher.isReviewed"
-      :is-audited="voucher.isAudited"
-      :is-posted="voucher.isPosted"
-    />
+    <VoucherForm v-if="voucher" ref="formRef" :voucher="voucher" :disabled="!editMode" />
   </BasePage>
 </template>

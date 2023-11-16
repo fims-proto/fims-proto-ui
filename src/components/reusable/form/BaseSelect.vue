@@ -1,53 +1,37 @@
-<script setup lang="ts">
-import type { SelectOption } from '.'
+<script setup lang="ts" generic="T">
 import { VBinder, VTarget, VFollower } from 'vueuc'
 import { injectForm } from './context'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-const props = defineProps<{
-  options: SelectOption[]
-  modelValue: string | string[]
-  multiple?: boolean
+defineProps<{
+  modelValue: T | T[]
   disabled?: boolean
+  multiple?: boolean
+  displayValue: (v: T | undefined) => string | undefined
+  options: (T & { disabled?: boolean })[]
+  optionKey: (opt: T | undefined) => string | undefined
+  displayOption: (opt: T | undefined) => string | undefined
 }>()
 
-const emit = defineEmits<{
-  (event: 'update:modelValue', value: string | string[]): void
+defineEmits<{
+  (event: 'update:modelValue', value: T | T[]): void
 }>()
 
 const { t } = useI18n()
 
 const Form = injectForm()
 const editMode = computed(() => Form?.edit.value ?? true)
-
-const modelOptions = computed(() => {
-  const selectedOptions = props.options.filter((option) =>
-    props.multiple ? props.modelValue.includes(option.value) : props.modelValue === option.value,
-  )
-  return !props.multiple && selectedOptions.length > 0 ? selectedOptions[0] : selectedOptions
-})
-
-const onChanged = (option: SelectOption | SelectOption[]) => {
-  if (Array.isArray(option)) {
-    emit(
-      'update:modelValue',
-      option.map((each) => each.value),
-    )
-  } else {
-    emit('update:modelValue', option.value)
-  }
-}
 </script>
 
 <template>
   <Listbox
     v-if="editMode"
     v-slot="{ open }"
-    :model-value="modelOptions"
+    :model-value="modelValue as object"
     :multiple="multiple"
     :disabled="disabled"
-    @update:model-value="onChanged"
+    @update:model-value="(v) => $emit('update:modelValue', v)"
   >
     <VBinder>
       <VTarget>
@@ -55,9 +39,9 @@ const onChanged = (option: SelectOption | SelectOption[]) => {
           class="flex justify-between align-text-bottom w-full px-3 py-2 text-sm rounded-md border border-neutral-300"
           :class="disabled ? 'text-neutral-500' : 'bg-white hover:border-primary-400'"
         >
-          <span class="truncate">{{
-            Array.isArray(modelOptions) ? modelOptions.map((each) => each.label).join(', ') : modelOptions?.label
-          }}</span>
+          <span class="truncate">
+            {{ Array.isArray(modelValue) ? modelValue.map(displayValue).join(', ') : displayValue(modelValue as T) }}
+          </span>
           <ChevronUpDownMiniIcon class="w-5 h-5 text-neutral-400" aria-hidden="true" />
         </ListboxButton>
       </VTarget>
@@ -77,7 +61,7 @@ const onChanged = (option: SelectOption | SelectOption[]) => {
             <template v-if="options.length > 0">
               <ListboxOption
                 v-for="option in options"
-                :key="option.value"
+                :key="optionKey(option)"
                 v-slot="{ active, selected }"
                 :value="option"
                 :disabled="option.disabled"
@@ -87,7 +71,7 @@ const onChanged = (option: SelectOption | SelectOption[]) => {
                   class="flex gap-1 align-baseline px-3 py-2 text-sm"
                   :class="{ 'bg-primary-700 text-white cursor-pointer': active }"
                 >
-                  <span>{{ option.label }}</span>
+                  <span>{{ displayOption(option) }}</span>
                   <CheckMiniIcon
                     v-if="selected"
                     class="w-5 h-5"
@@ -109,7 +93,7 @@ const onChanged = (option: SelectOption | SelectOption[]) => {
   </Listbox>
 
   <!-- display mode -->
-  <span v-else class="text-sm">{{
-    Array.isArray(modelOptions) ? modelOptions.map((each) => each.label).join(', ') : modelOptions?.label
-  }}</span>
+  <span v-else class="text-sm">
+    {{ Array.isArray(modelValue) ? modelValue.map(displayValue).join(', ') : displayValue(modelValue as T) }}
+  </span>
 </template>

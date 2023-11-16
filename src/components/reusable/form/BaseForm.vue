@@ -1,20 +1,23 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, toRef } from 'vue'
 import { provideForm } from './context'
 import { type FormRules } from './interface'
 import { get, validate } from './utils'
-import { computed } from 'vue'
 
 const props = withDefaults(
   defineProps<{
     model?: object
     rules?: FormRules
     edit?: boolean
+    labelPlacement?: 'top' | 'left'
+    labelWidth?: number | string
   }>(),
   {
     model: () => ({}),
     rules: () => ({}),
     edit: true,
+    labelPlacement: 'top',
+    labelWidth: undefined,
   },
 )
 
@@ -22,7 +25,7 @@ const emit = defineEmits<{
   (event: 'submit'): void
 }>()
 
-const itemValidationState = ref<Record<string, true | string>>({})
+const itemValidationState = ref<{ [path: string]: true | string }>({})
 
 const validateAllItems = (): boolean => {
   let valid = true
@@ -52,7 +55,9 @@ const onSubmit = () => {
 provideForm({
   model: props.model,
   rules: props.rules,
-  edit: computed(() => props.edit),
+  edit: toRef(() => props.edit),
+  labelPlacement: toRef(() => props.labelPlacement),
+  labelWidth: toRef(() => props.labelWidth),
   itemValidationState: itemValidationState,
 })
 

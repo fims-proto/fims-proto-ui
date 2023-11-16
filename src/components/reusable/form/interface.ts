@@ -12,8 +12,7 @@ export type FormRules = {
   [path: string]: FormRules | FormItemRule
 }
 
-export type SelectOption = {
+export type SelectItem = {
   value: string
   label: string
-  disabled?: boolean
 }

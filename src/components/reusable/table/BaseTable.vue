@@ -1,14 +1,14 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends object">
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { type ColumnType, type PageType } from '.'
 import { type Pageable } from '../../../domain'
-import { ref } from 'vue'
 
 const props = defineProps<{
   title?: string
-  dataSource: unknown[]
+  dataSource: T[]
   columns: ColumnType[]
-  rowKey?: string
+  rowKey: (row: T) => string
   page?: PageType
   freeSearch?: boolean
   rowClickable?: boolean
@@ -17,8 +17,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (event: 'page', pageable: Pageable): void
   (event: 'search', query: string): void
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (event: 'row-click', row: any, i: number): void
+  (event: 'row-click', row: T, i: number): void
 }>()
 
 const { t } = useI18n()
@@ -37,9 +36,6 @@ const getColumnKey = (col: ColumnType) => {
   }
   throw 'cannot determine column key'
 }
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const getRowKey = (record: any) => record[props.rowKey ?? 'id']
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getColumnData = (record: any, col: ColumnType) => {
@@ -63,7 +59,7 @@ const onSearch = () => {
   emit('search', freeSearchQuery.value)
 }
 
-const onRowClick = (row: unknown, i: number) => {
+const onRowClick = (row: T, i: number) => {
   props.rowClickable && emit('row-click', row, i)
 }
 </script>
@@ -122,7 +118,7 @@ const onRowClick = (row: unknown, i: number) => {
         </tr>
         <tr
           v-for="(data, i) in dataSource"
-          :key="getRowKey(data)"
+          :key="rowKey(data)"
           class="rounded-md hover:bg-neutral-200/50 hover:shadow-inner"
           :class="{ 'cursor-pointer active:bg-neutral-200': rowClickable }"
           :tabindex="rowClickable ? 0 : -1"
@@ -130,7 +126,7 @@ const onRowClick = (row: unknown, i: number) => {
         >
           <td
             v-for="column in columns"
-            :key="`${getColumnKey(column)}-${getRowKey(data)}`"
+            :key="`${getColumnKey(column)}-${rowKey(data)}`"
             :class="[
               'border-t border-neutral-200 py-2 px-4',
               { 'text-left': column.align === 'left' || !column.align },

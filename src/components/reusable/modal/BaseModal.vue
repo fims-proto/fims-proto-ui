@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { vOnClickOutside } from '@vueuse/components'
+import { onMounted } from 'vue'
+import { onUnmounted } from 'vue'
+import { registerModal, unregisterModal } from '.'
 
-defineProps<{
+const props = defineProps<{
   show: boolean
   title?: string
 }>()
@@ -9,6 +12,11 @@ defineProps<{
 defineEmits<{
   (event: 'update:show', show: boolean): void
 }>()
+
+const modalKey = Math.random().toString(36).slice(-8)
+
+onMounted(() => registerModal(modalKey, () => props.show))
+onUnmounted(() => unregisterModal(modalKey))
 </script>
 
 <template>
@@ -25,12 +33,12 @@ defineEmits<{
     >
       <div
         v-if="show"
-        class="fixed w-screen h-screen top-0 left-0 overflow-hidden bg-neutral-950/50 grid place-content-center"
+        class="fixed w-screen h-screen top-0 left-0 overflow-hidden bg-black/10 grid place-content-center z-[9999]"
         aria-hidden="true"
       >
         <!-- main window -->
-        <div v-on-click-outside="() => $emit('update:show', false)" class="bg-white rounded-lg px-4 py-2 pb-4">
-          <div v-if="title" class="w-full mb-2 text-center">{{ title }}</div>
+        <div v-on-click-outside="() => $emit('update:show', false)" class="bg-white shadow-lg rounded-lg px-6 py-3">
+          <div v-if="title" class="w-full mb-4 text-center">{{ title ?? '' }}</div>
           <slot />
         </div>
       </div>

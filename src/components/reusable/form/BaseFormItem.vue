@@ -1,31 +1,28 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { ref, toRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { injectForm, provideFormItem } from './context'
 import { type FormItemRule, type FormValidationStatus } from './interface'
 import { get, validate } from './utils'
 
-const props = withDefaults(
-  defineProps<{
-    label?: string
-    hideLabel?: boolean
-    required?: boolean
-    path?: string
-  }>(),
-  {
-    label: undefined,
-    path: undefined,
-  },
-)
+const props = defineProps<{
+  label?: string
+  hideLabel?: boolean
+  required?: boolean
+  path?: string
+}>()
 
 const { t } = useI18n()
 
+const Form = injectForm()
+
+const labelRef = ref()
 const itemStatus = ref<FormValidationStatus | undefined>()
 const validationMessage = ref<string>()
 
-const Form = injectForm()
-
-const edit = computed(() => Form?.edit.value ?? true)
+const edit = toRef(() => Form?.edit.value ?? true)
+const topLabel = toRef(() => Form?.labelPlacement.value === 'top')
+const labelWidth = toRef(() => Form?.labelWidth.value ?? 'auto')
 
 props.path &&
   watch(
@@ -64,14 +61,21 @@ provideFormItem({
 
 <template>
   <div>
-    <label v-if="!!label" :class="[{ 'sr-only': hideLabel }, 'block text-sm text-neutral-900/80 mb-2']">
-      <span>{{ label }}:</span>
-      <span v-if="required && edit" class="ml-0.5 text-error-700 font-bold select-none" aria-hidden="true">*</span>
+    <label
+      v-if="!!label"
+      class="flex text-sm text-neutral-900/80"
+      :class="[{ 'sr-only': hideLabel }, topLabel ? 'flex-col gap-2' : 'flex-row gap-3 items-center']"
+    >
+      <div ref="labelRef" :style="{ width: labelWidth }" :class="{ 'text-right': !topLabel }">
+        <span>{{ label }}:</span>
+        <span v-if="required && edit" class="ml-0.5 text-error-700 font-bold select-none" aria-hidden="true">*</span>
+      </div>
+
+      <div class="flex-1">
+        <slot></slot>
+      </div>
     </label>
-    <div>
-      <slot></slot>
-    </div>
-    <span v-if="validationMessage" class="text-xs text-error-800">
+    <span v-if="validationMessage" :style="{ marginLeft: labelWidth }" class="pl-3 text-xs text-error-800">
       {{ validationMessage }}
     </span>
   </div>

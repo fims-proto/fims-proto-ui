@@ -1,23 +1,10 @@
 import axios from 'axios'
 import { FIMS_URL } from '../../../config'
-import { convertFieldsFromString } from '../../date-type-converter'
+import { convertFieldsFromString } from '../../field-conversion'
 import { invokeWithErrorHandler, type Response } from '../../error-handler'
-import { type FieldConversionRecord, type Page, type Pageable } from '../../types'
+import { type Page, type Pageable } from '../../types'
 import { type Ledger } from './types'
-
-const FIELDS_CONVERSION: FieldConversionRecord = {
-  openingBalance: 'number',
-  endingBalance: 'number',
-  periodDebit: 'number',
-  periodCredit: 'number',
-  acount: {
-    level: 'number',
-    createdAt: 'date',
-    updatedAt: 'date',
-  },
-  createdAt: 'date',
-  updatedAt: 'date',
-}
+import { LEDGER_FIELDS_CONVERSION } from '../field-conversion-types'
 
 class LedgerService {
   public async getLedgersInPeriod(
@@ -29,7 +16,7 @@ class LedgerService {
       const result = await axios.get(
         `${FIMS_URL}/api/v1/sob/${sobId}/period/${periodId}/ledgers?$sort=account.accountNumber&$page=${pageable.page}&$size=${pageable.size}`,
       )
-      convertFieldsFromString(result.data.content, FIELDS_CONVERSION)
+      convertFieldsFromString(result.data.content, LEDGER_FIELDS_CONVERSION)
       return result.data
     })
   }

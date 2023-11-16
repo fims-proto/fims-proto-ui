@@ -1,7 +1,8 @@
 import { type User } from '../../user'
+import type { Account, AuxiliaryAccount } from '../account'
 import { type Period } from '../period'
 
-export interface Voucher {
+export type Voucher = {
   sobId: string
   id: string
   headerText: string
@@ -24,20 +25,44 @@ export interface Voucher {
   updatedAt: Date
 }
 
-export interface NewVoucher {
-  attachmentQuantity: number
-  creator: string
-  headerText: string
-  transactionTime: Date
-  voucherType: string
-  lineItems: LineItem[]
-}
-
-export interface LineItem {
-  id?: string
+export type LineItem = {
+  id: string
+  account: Account
+  auxiliaryAccounts?: AuxiliaryAccount[]
   text: string
-  accountId?: string
-  accountNumber: string
   credit: number
   debit: number
+  createdAt: Date
+  updatedAt: Date
+}
+
+export type CreateVoucherRequest = {
+  headerText: string
+  attachmentQuantity: number
+  creator: string
+  voucherType: string
+  transactionTime: Date
+  lineItems: LineItemRequest[]
+}
+
+export type UpdateVoucherRequest = {
+  headerText: string
+  attachmentQuantity: number
+  lineItems: LineItemRequest[]
+  transactionTime: Date
+  updater: string
+}
+
+export type LineItemRequest = {
+  id?: string
+  accountNumber: string
+  auxiliaryAccounts?: AuxiliaryItemRequest[]
+  text: string
+  credit: number
+  debit: number
+}
+
+export type AuxiliaryItemRequest = {
+  categoryKey: string
+  accountKey: string
 }

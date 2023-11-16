@@ -69,6 +69,7 @@ defineExpose({
   <BaseTable
     :data-source="ledgers?.content ?? []"
     :columns="columns"
+    :row-key="(l) => l.id"
     :page="{
       currentPage: ledgers?.pageNumber ?? 1,
       totalElement: ledgers?.numberOfElements ?? 0,
