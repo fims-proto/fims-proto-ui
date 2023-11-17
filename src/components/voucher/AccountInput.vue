@@ -146,7 +146,7 @@ watch(
       leave-to-class="scale-95 -translate-y-2 opacity-0"
     >
       <BaseForm
-        v-if="openAuxiliaryForm"
+        v-show="openAuxiliaryForm"
         ref="auxiliaryFormRef"
         :model="auxiliaryForm.model"
         :rules="auxiliaryForm.rules"

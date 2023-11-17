@@ -12,10 +12,12 @@ export const AUXILIARY_FIELDS_CONVERSION: FieldConversionRecord = {
 }
 
 export const LEDGER_FIELDS_CONVERSION: FieldConversionRecord = {
-  openingBalance: 'number',
-  endingBalance: 'number',
+  openingDebitBalance: 'number',
+  openingCreditBalance: 'number',
   periodDebit: 'number',
   periodCredit: 'number',
+  endingDebitBalance: 'number',
+  endingCreditBalance: 'number',
   acount: ACCOUNT_FIELDS_CONVERSION,
   createdAt: 'date',
   updatedAt: 'date',

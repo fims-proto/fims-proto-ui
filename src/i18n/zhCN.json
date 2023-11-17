@@ -121,10 +121,12 @@
   },
   "ledger": {
     "title": "账簿",
-    "openingBalance": "期初余额",
-    "endingBalance": "期末余额",
+    "openingDebitBalance": "期初借方余额",
+    "openingCreditBalance": "期初贷方余额",
     "periodDebit": "借",
-    "periodCredit": "贷"
+    "periodCredit": "贷",
+    "endingDebitBalance": "期末借方余额",
+    "endingCreditBalance": "期末贷方余额"
   },
   "voucher": {
     "creation": {
