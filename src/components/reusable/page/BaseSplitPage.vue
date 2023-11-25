@@ -13,7 +13,7 @@ const detailFlexBasis = computed(() => {
     case 'S':
       return 'basis-1/4'
     case 'L':
-      return 'basis-3/4'
+      return 'basis-4/5'
     default:
       return 'basis-1/2'
   }

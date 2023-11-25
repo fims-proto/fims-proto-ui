@@ -17,15 +17,20 @@ const columns: ColumnType[] = [
   {
     title: t('account.accountNumber'),
     path: ['account', 'accountNumber'],
-    width: 'md',
   },
   {
     title: t('account.accountTitle'),
     path: ['account', 'title'],
   },
   {
-    title: t('ledger.openingBalance'),
-    key: 'openingBalance',
+    title: t('ledger.openingDebitBalance'),
+    key: 'openingDebitBalance',
+    align: 'right',
+    width: 'sm',
+  },
+  {
+    title: t('ledger.openingCreditBalance'),
+    key: 'openingCreditBalance',
     align: 'right',
     width: 'sm',
   },
@@ -42,8 +47,14 @@ const columns: ColumnType[] = [
     width: 'sm',
   },
   {
-    title: t('ledger.endingBalance'),
-    key: 'endingBalance',
+    title: t('ledger.endingDebitBalance'),
+    key: 'endingDebitBalance',
+    align: 'right',
+    width: 'sm',
+  },
+  {
+    title: t('ledger.endingCreditBalance'),
+    key: 'endingCreditBalance',
     align: 'right',
     width: 'sm',
   },
@@ -83,8 +94,12 @@ defineExpose({
     "
   >
     <template #bodyCell="{ record, column }: { record: Ledger; column: ColumnType }">
-      <template v-if="column.key === 'openingBalance'">
-        <span>{{ n(record.openingBalance, 'decimal') }}</span>
+      <template v-if="column.key === 'openingDebitBalance'">
+        <span>{{ n(record.openingDebitBalance, 'decimal') }}</span>
+      </template>
+
+      <template v-if="column.key === 'openingCreditBalance'">
+        <span>{{ n(record.openingCreditBalance, 'decimal') }}</span>
       </template>
 
       <template v-else-if="column.key === 'periodDebit'">
@@ -95,8 +110,12 @@ defineExpose({
         <span>{{ n(record.periodCredit, 'decimal') }}</span>
       </template>
 
-      <template v-else-if="column.key === 'endingBalance'">
-        <span>{{ n(record.endingBalance, 'decimal') }}</span>
+      <template v-else-if="column.key === 'endingDebitBalance'">
+        <span>{{ n(record.endingDebitBalance, 'decimal') }}</span>
+      </template>
+
+      <template v-else-if="column.key === 'endingCreditBalance'">
+        <span>{{ n(record.endingCreditBalance, 'decimal') }}</span>
       </template>
     </template>
   </BaseTable>
