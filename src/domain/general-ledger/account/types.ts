@@ -1,3 +1,8 @@
+export type AccountClass = {
+  id: string
+  groups: string[]
+}
+
 export type Account = {
   id: string
   sobId: string
@@ -6,7 +11,8 @@ export type Account = {
   accountNumber: string
   numberHierarchy: number[]
   level: number
-  accountType: string
+  class: string
+  group: string
   balanceDirection: string
   auxiliaryCategories: AuxiliaryCategory[]
   createdAt: Date
@@ -37,6 +43,7 @@ export type UpdateAccountRequest = {
   title: string
   levelNumber: number
   balanceDirection: string
+  group: string
   categoryKeys: string[]
 }
 
