@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue'
 import type { ColumnType } from '../reusable/table'
 import { useNotificationStore } from '../../store/notification'
+import { FilterFactory, type Filter } from '../../domain'
 
 const notificationStore = useNotificationStore()
 
@@ -20,26 +21,71 @@ const sampleData = (() => {
         'Park Ridge, NJ 07656',
       ][index],
       city: ['New York', 'Kuerla', 'Helsinki', 'Cupertino'][index],
+      index: i,
     })
   }
   return data
 })()
-
-const tableData = ref<{ company: string; contact: string; address: string; city: string }[]>([])
+interface tableRow {
+  company: string
+  contact: string
+  address: string
+  city: string
+  index: number
+}
+const tableData = ref<tableRow[]>([])
 const tablePage = ref({ currentPage: 1, totalElement: 55, pageSize: 10 })
 const searchQuery = ref('')
-
+const filterEnabled = ref<boolean>(false)
+const factory = new FilterFactory<tableRow>()
+const filtereApiString = ref('')
+const filterModelRef = ref<tableRow>({
+  company: '',
+  contact: '',
+  address: '',
+  city: '',
+  index: -1,
+})
 watch(
-  [() => tablePage.value.currentPage, () => tablePage.value.pageSize, () => searchQuery.value],
+  [
+    () => tablePage.value.currentPage,
+    () => tablePage.value.pageSize,
+    () => searchQuery.value,
+    () => filterEnabled.value,
+    () => [
+      filterModelRef.value.company,
+      filterModelRef.value.city,
+      filterModelRef.value.address,
+      filterModelRef.value.contact,
+    ],
+  ],
   () => {
-    const filteredData = sampleData.filter(
-      (item) =>
-        item.company.includes(searchQuery.value) ||
-        item.contact.includes(searchQuery.value) ||
-        item.address.includes(searchQuery.value) ||
-        item.city.includes(searchQuery.value),
-    )
-
+    const filter = filterEnabled.value
+      ? factory.and(
+          factory.and(
+            factory.stw('company', filterModelRef.value.company),
+            factory.stw('address', filterModelRef.value.address),
+            factory.stw('contact', filterModelRef.value.contact),
+            factory.stw('city', filterModelRef.value.city),
+          ),
+          factory.or(
+            factory.ctn('company', searchQuery.value),
+            factory.ctn('address', searchQuery.value),
+            factory.ctn('city', searchQuery.value),
+            factory.ctn('contact', searchQuery.value),
+          ),
+        )
+      : factory.or(
+          factory.ctn('company', searchQuery.value),
+          factory.ctn('address', searchQuery.value),
+          factory.ctn('city', searchQuery.value),
+          factory.ctn('contact', searchQuery.value),
+        )
+    if (filter) filtereApiString.value = filter.apiFilterString()
+    let filteredData = sampleData
+    if (filter) {
+      filteredData = sampleData.filter(filter.predicate)
+    }
     tablePage.value.totalElement = filteredData.length
 
     tableData.value = filteredData.slice(
@@ -79,6 +125,10 @@ const onRowClick = (data: { company: string; contact: string; address: string; c
     duration: 2,
   })
 }
+
+const onToggleEnableFilter = () => {
+  filterEnabled.value = !filterEnabled.value
+}
 </script>
 
 <template>
@@ -92,7 +142,7 @@ const onRowClick = (data: { company: string; contact: string; address: string; c
     <br />
 
     <p>Empty table 3</p>
-    <BaseTable :data-source="[]" :columns="tableColumns" :row-key="() => ''" :free-search="true">
+    <BaseTable :data-source="[]" :columns="tableColumns" :row-key="() => ''" :free-search="filterEnabled">
       <template #actions>
         <BaseButton category="primary">创建</BaseButton>
         <BaseButton category="flat">动作</BaseButton>
@@ -100,14 +150,19 @@ const onRowClick = (data: { company: string; contact: string; address: string; c
     </BaseTable>
     <br />
 
-    <p>Table</p>
+    <p>
+      Table with Filter-api-string:<br />
+      <span style="background-color: blanchedalmond">{{ filtereApiString }}</span>
+    </p>
     <BaseTable
+      id="filter_test_table"
       title="完整测试"
       :data-source="tableData"
       :columns="tableColumns"
-      :row-key="(r) => Object.values(r).join('_')"
+      :row-key="(r) => r.index.toString()"
       free-search
       row-clickable
+      :filter-enabled="filterEnabled"
       :page="tablePage"
       @search="(query) => (searchQuery = query)"
       @page="
@@ -120,7 +175,13 @@ const onRowClick = (data: { company: string; contact: string; address: string; c
     >
       <template #actions>
         <BaseButton category="primary">创建</BaseButton>
-        <BaseButton category="flat">动作</BaseButton>
+        <BaseButton category="flat" @click="onToggleEnableFilter">筛选</BaseButton>
+      </template>
+      <template #filter="{ column }: { column: ColumnType }">
+        <BaseInput v-if="column.path === 'company'" v-model="filterModelRef.company" />
+        <BaseInput v-if="column.path === 'contact'" v-model="filterModelRef.contact" />
+        <BaseInput v-if="column.path === 'address'" v-model="filterModelRef.address" />
+        <BaseInput v-if="column.path === 'city'" v-model="filterModelRef.city" />
       </template>
     </BaseTable>
   </div>

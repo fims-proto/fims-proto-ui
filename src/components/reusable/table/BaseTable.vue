@@ -12,11 +12,13 @@ const props = defineProps<{
   page?: PageType
   freeSearch?: boolean
   rowClickable?: boolean
+  filterEnabled?: boolean
 }>()
 
 const emit = defineEmits<{
   (event: 'page', pageable: Pageable): void
   (event: 'search', query: string): void
+  // (event: 'filter', filter: Filterable): void
   (event: 'row-click', row: T, i: number): void
 }>()
 
@@ -115,6 +117,20 @@ const onRowClick = (row: T, i: number) => {
           >
             {{ column.title }}
           </th>
+        </tr>
+        <tr v-if="filterEnabled" class="border-b-2 border-neutral-200">
+          <td
+            v-for="column in columns"
+            :key="`${getColumnKey(column)}-filter`"
+            :class="[
+              'border-t border-neutral-200 py-2 px-4',
+              { 'text-left': column.align === 'left' || !column.align },
+              { 'text-right': column.align === 'right' },
+              { 'text-center': column.align === 'center' },
+            ]"
+          >
+            <slot name="filter" :column="column" />
+          </td>
         </tr>
         <tr
           v-for="(data, i) in dataSource"
