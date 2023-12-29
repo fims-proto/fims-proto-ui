@@ -3,6 +3,7 @@ import { FIMS_URL } from '../../../config'
 import { convertFieldsFromString } from '../../field-conversion'
 import { invokeWithErrorHandler, type Response } from '../../error-handler'
 import { type Page, type Pageable } from '../../types'
+import { type Filter } from '../../filter-factory'
 import {
   type Account,
   type AuxiliaryAccount,
@@ -17,10 +18,13 @@ class AccountService {
   public async getAccounts(
     sobId: string,
     pageable: Pageable = { page: 1, size: 10 },
+    filterable?: Filter<Account>,
   ): Promise<Response<Page<Account>>> {
+    const filterContent = filterable?.apiFilterString()
+    const filterStr = filterContent && filterContent != 'true' ? `&$filter=${filterContent}` : ''
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(
-        `${FIMS_URL}/api/v1/sob/${sobId}/accounts?$sort=accountNumber&$page=${pageable.page}&$size=${pageable.size}`,
+        `${FIMS_URL}/api/v1/sob/${sobId}/accounts?$sort=accountNumber&$page=${pageable.page}&$size=${pageable.size}${filterStr}`,
       )
       convertFieldsFromString(result.data.content, ACCOUNT_FIELDS_CONVERSION)
       return result.data
