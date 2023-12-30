@@ -22,20 +22,17 @@ const columns: ColumnType[] = [
     title: t('ledger.title'),
     path: 'title',
   },
-  {
-    title: t('account.accountType'),
-    key: 'accountType',
-  },
 ]
 type AccountTypeSelectItem = {
   type: string
 }
 
-const selectedValues = ref<AccountTypeSelectItem[]>([])
+const selectedAccountType = ref<AccountTypeSelectItem>({ type: 'assets' })
 const selectOptions: AccountTypeSelectItem[] = [
   { type: 'assets' },
   { type: 'cost' },
   { type: 'liabilities' },
+  { type: 'profit_and_loss' },
   { type: 'equity' },
   { type: 'common' },
 ]
@@ -43,7 +40,6 @@ const selectOptions: AccountTypeSelectItem[] = [
 const filterModelRef = ref({
   accountNumber: '',
   title: '',
-  accountTypes: selectedValues.value,
 })
 
 const pageable = ref({ page: 1, size: 10 })
@@ -51,15 +47,13 @@ const filterEnabled = ref(false)
 const filterApply = ref(0)
 const factory = new FilterFactory<Account>()
 watch(
-  [() => pageable.value.page, () => pageable.value.size, () => filterApply.value],
+  [() => pageable.value.page, () => pageable.value.size, () => filterApply.value, () => selectedAccountType.value.type],
   async () => {
-    const selectedType = selectedValues.value.map((item) => item.type)
     const filter = factory.and(
       factory.stw('accountNumber', filterModelRef.value.accountNumber),
       factory.ctn('title', filterModelRef.value.title),
-      factory.in('accountType', selectedType),
+      factory.eq('accountType', selectedAccountType.value.type),
     )
-    console.log(factory.in('accountType', selectedType)?.apiFilterString())
 
     const { data } = await AccountService.getAccounts(props.sobId, pageable.value, filter)
 
@@ -78,6 +72,22 @@ const onApplyFilter = () => {
 </script>
 
 <template>
+  <BaseButtonGroup>
+    <BaseButton
+      v-for="opt in selectOptions"
+      :key="opt.type"
+      :category="opt.type === selectedAccountType.type ? 'primary' : 'default'"
+      @click="
+        () => {
+          selectedAccountType.type = opt.type
+        }
+      "
+      >{{ t('account.accountTypeEnum.' + opt.type) }}</BaseButton
+    >
+  </BaseButtonGroup>
+  <div>
+    <br />
+  </div>
   <BaseTable
     :data-source="accounts?.content ?? []"
     :columns="columns"
@@ -101,17 +111,8 @@ const onApplyFilter = () => {
       <BaseButton v-if="filterEnabled" category="flat" @click="onApplyFilter">应用</BaseButton>
     </template>
     <template #filter="{ column }: { column: ColumnType }">
-      <BaseInput v-if="column.key === 'accountNumber'" v-model="filterModelRef.accountNumber" />
-      <BaseInput v-if="column.path === 'title'" v-model="filterModelRef.title" />
-      <BaseSelect
-        v-if="column.key === 'accountType'"
-        v-model="selectedValues"
-        :display-value="(v) => (v ? t('account.accountTypeEnum.' + v.type) : '')"
-        :options="selectOptions"
-        :option-key="(opt) => opt?.type"
-        :display-option="(opt) => t('account.accountTypeEnum.' + opt?.type)"
-        multiple
-      />
+      <BaseInput v-if="column.key === 'accountNumber'" v-model="filterModelRef.accountNumber" html-type="search" />
+      <BaseInput v-if="column.path === 'title'" v-model="filterModelRef.title" html-type="search" />
     </template>
     <template #bodyCell="{ record, column }: { record: Account; column: ColumnType }">
       <template v-if="column.key === 'accountNumber'">
@@ -126,11 +127,6 @@ const onApplyFilter = () => {
         >
           {{ record.accountNumber }}
         </BaseNavLink>
-      </template>
-      <template v-if="column.key === 'accountType'">
-        <BaseForm>
-          {{ t('account.accountTypeEnum.' + record.accountType) }}
-        </BaseForm>
       </template>
     </template>
   </BaseTable>
