@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue'
 import type { ColumnType } from '../reusable/table'
 import { useNotificationStore } from '../../store/notification'
-import { FilterFactory, type Filter } from '../../domain'
+import { FilterFactory } from '../../domain'
 
 const notificationStore = useNotificationStore()
 

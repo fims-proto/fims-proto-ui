@@ -123,7 +123,8 @@ export class FilterFactory<T> {
         return (item[field] as number | string) === value
       },
       apiFilterString: () => {
-        return `eq(${field as string},${value})`
+        if (typeof value === 'number') return `eq(${field as string},${value})`
+        else return `eq(${field as string},"${value}")`
       },
     }
   }
@@ -142,7 +143,7 @@ export class FilterFactory<T> {
         return (item[field] as number) <= highbound && (item[field] as number) >= lowbound
       },
       apiFilterString: () => {
-        return `btw(${field as string},${lowbound}, ${highbound})`
+        return `btw(${field as string},${lowbound},${highbound})`
       },
     }
   }
@@ -156,7 +157,7 @@ export class FilterFactory<T> {
         return (item[field] as string).startsWith(head)
       },
       apiFilterString: () => {
-        return `stw(${field as string},${head})`
+        return `stw(${field as string},"${head}")`
       },
     }
   }
@@ -170,23 +171,23 @@ export class FilterFactory<T> {
         return (item[field] as string).includes(value)
       },
       apiFilterString: () => {
-        return `ctn(${field as string},${value})`
+        return `ctn(${field as string},"${value}")`
       },
     }
   }
 
   in(field: keyof T, values: (number | string)[] | undefined): Filter<T> | undefined {
     if (typeof values === 'undefined') {
-      return this._true()
+      return undefined
     } else if (values?.length === 0) {
-      return this._false()
+      return this._true()
     }
     return {
       predicate: (item: T) => {
         return values.includes(item[field] as number | string)
       },
       apiFilterString: () => {
-        return `in(${field as string},${values.join(',')})`
+        return `in(${field as string},${'"' + values.join('","') + '"'})`
       },
     }
   }
@@ -216,11 +217,12 @@ export class FilterFactory<T> {
       },
       apiFilterString: () => {
         const nontrivialApiStrings = filters
-          .map((filter) => filter?.apiFilterString())
-          .filter((str: string | undefined) => {
+          .map((filter) => filter?.apiFilterString() as string)
+          .filter((str: string) => {
             return str !== 'true'
           })
         if (nontrivialApiStrings.length === 0) return 'true'
+        if (nontrivialApiStrings.length === 1) return nontrivialApiStrings.at(0) as string
         return 'and(' + nontrivialApiStrings.join(',') + ')'
       },
     }
@@ -251,11 +253,12 @@ export class FilterFactory<T> {
       },
       apiFilterString: () => {
         const nontrivialApiStrings = filters
-          .map((filter) => filter?.apiFilterString())
-          .filter((str: string | undefined) => {
+          .map((filter) => filter?.apiFilterString() as string)
+          .filter((str: string) => {
             return str !== 'false'
           })
         if (nontrivialApiStrings.length === 0) return 'false'
+        if (nontrivialApiStrings.length === 1) return nontrivialApiStrings.at(0) as string
         return 'or(' + nontrivialApiStrings.join(',') + ')'
       },
     }
