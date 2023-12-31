@@ -2,9 +2,8 @@ import { ref, toRefs } from 'vue'
 import { useSobStore } from '../../../store/sob'
 import { watchEffect } from 'vue'
 import { toValue } from 'vue'
-import type { MaybeRefOrGetter } from 'vue'
 
-export function usePadLevelNumber(levelNumer: MaybeRefOrGetter<number>, level: MaybeRefOrGetter<number>) {
+export function usePadLevelNumber(levelNumer: () => number, level: () => number) {
   const res = ref()
   const { workingSob } = toRefs(useSobStore().state)
 

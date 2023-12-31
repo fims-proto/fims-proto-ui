@@ -5,6 +5,7 @@ import { invokeWithErrorHandler, type Response } from '../../error-handler'
 import { type Page, type Pageable } from '../../types'
 import { type Filter } from '../../filter-factory'
 import {
+  type AccountClass,
   type Account,
   type AuxiliaryAccount,
   type AuxiliaryCategory,
@@ -15,6 +16,12 @@ import {
 import { ACCOUNT_FIELDS_CONVERSION, AUXILIARY_FIELDS_CONVERSION } from '../field-conversion-types'
 
 class AccountService {
+  public async getClasses(sobId: string): Promise<Response<AccountClass[]>> {
+    return invokeWithErrorHandler(async () => {
+      return (await axios.get(`${FIMS_URL}/api/v1/sob/${sobId}/account-classes`)).data
+    })
+  }
+
   public async getAccounts(
     sobId: string,
     pageable: Pageable = { page: 1, size: 10 },

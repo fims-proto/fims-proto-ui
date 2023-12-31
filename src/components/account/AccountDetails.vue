@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { AccountService, usePadLevelNumber, type Account } from '../../domain'
+import { AccountService, usePadLevelNumber, type Account, type AccountClass } from '../../domain'
 import type { SelectItem } from '../reusable/form'
 import { useNotificationStore } from '../../store/notification'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, type Ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { computed } from 'vue'
 
 const props = defineProps<{
   sobId: string
@@ -15,7 +16,7 @@ const notificationStore = useNotificationStore()
 
 const account = ref<Account>()
 const superiorAccount = ref<Account | undefined>()
-const accountTypeOptions = ref<string[]>(['assets', 'cost', 'liabilities', 'equity', 'profit_and_loss', 'common'])
+const classesAndGroups = ref<AccountClass[] | undefined>()
 const balanceDirectionOptions = ref<string[]>(['debit', 'credit'])
 const auxiliaryCategoryOptions = ref<SelectItem[]>([])
 const auxiliaryCategories = ref<SelectItem[]>([])
@@ -26,35 +27,10 @@ const levelNumber = usePadLevelNumber(
 
 const editMode = ref<boolean>(false)
 
-const labelAccountType = (v: string | undefined) => {
-  switch (v) {
-    case 'assets':
-      return t('account.accountTypeEnum.assets')
-    case 'cost':
-      return t('account.accountTypeEnum.cost')
-    case 'liabilities':
-      return t('account.accountTypeEnum.liabilities')
-    case 'equity':
-      return t('account.accountTypeEnum.equity')
-    case 'profit_and_loss':
-      return t('account.accountTypeEnum.profit_and_loss')
-    case 'common':
-      return t('account.accountTypeEnum.common')
-    default:
-      return ''
-  }
-}
-
-const labelbalanceDirection = (v: string | undefined) => {
-  switch (v) {
-    case 'debit':
-      return t('account.balanceDirectionEnum.debit')
-    case 'credit':
-      return t('account.balanceDirectionEnum.credit')
-    default:
-      return ''
-  }
-}
+const classOptions: Ref<string[]> = computed(() => classesAndGroups.value?.map((c) => c.id) ?? [])
+const groupOptions: Ref<string[]> = computed(
+  () => classesAndGroups.value?.find((c) => c.id === account.value?.class)?.groups ?? [],
+)
 
 const refreshAccount = async () => {
   ;({ data: account.value } = await AccountService.getAccountById(props.sobId, props.accountId))
@@ -84,6 +60,7 @@ const onSave = async () => {
     title: account.value.title,
     levelNumber: account.value.numberHierarchy.at(-1) as number,
     balanceDirection: account.value.balanceDirection,
+    group: account.value.group,
     categoryKeys: auxiliaryCategories.value.map((c) => c.value),
   })
 
@@ -100,6 +77,8 @@ const onSave = async () => {
 }
 
 onMounted(async () => {
+  classesAndGroups.value = (await AccountService.getClasses(props.sobId)).data
+
   refreshAccount()
 
   const { data: auxiliaryCategoryData } = await AccountService.getAuxiliaryCategories(props.sobId, {
@@ -149,24 +128,34 @@ onMounted(async () => {
         />
       </BaseFormItem>
 
-      <BaseFormItem :label="t('account.accountType')" required>
+      <BaseFormItem :label="t('account.class')" required>
         <BaseSelect
-          v-model="account.accountType"
-          :display-value="labelAccountType"
-          :options="accountTypeOptions"
+          v-model="account.class"
+          :display-value="(v) => t(`account.classEnum.${v}`)"
+          :options="classOptions"
           :option-key="(opt) => opt"
-          :display-option="labelAccountType"
+          :display-option="(v) => t(`account.classEnum.${v}`)"
           disabled
+        />
+      </BaseFormItem>
+
+      <BaseFormItem :label="t('account.group')" required>
+        <BaseSelect
+          v-model="account.group"
+          :display-value="(v) => t(`account.groupEnum.${v}`)"
+          :options="groupOptions"
+          :option-key="(opt) => opt"
+          :display-option="(v) => t(`account.groupEnum.${v}`)"
         />
       </BaseFormItem>
 
       <BaseFormItem :label="t('account.balanceDirection')" required>
         <BaseSelect
           v-model="account.balanceDirection"
-          :display-value="labelbalanceDirection"
+          :display-value="(v) => t(`account.balanceDirectionEnum.${v}`)"
           :options="balanceDirectionOptions"
           :option-key="(opt) => opt"
-          :display-option="labelbalanceDirection"
+          :display-option="(v) => t(`account.balanceDirectionEnum.${v}`)"
         />
       </BaseFormItem>
 
