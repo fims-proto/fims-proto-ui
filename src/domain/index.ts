@@ -7,4 +7,4 @@ export * from './error-handler'
 export { FilterFactory } from './filter-factory'
 export type { Filter } from './filter-factory'
 
-export { StorageServiceInstance as StorageService } from './storage'
+export { StorageServiceInstance as StorageService } from './Storage'
