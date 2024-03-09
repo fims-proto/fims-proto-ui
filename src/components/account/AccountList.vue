@@ -23,18 +23,18 @@ const columns: ColumnType[] = [
     path: 'title',
   },
 ]
-type AccountTypeSelectItem = {
-  type: string
+type AccountClassSelectItem = {
+  class: string
 }
 
-const selectedAccountType = ref<AccountTypeSelectItem>({ type: 'assets' })
-const selectOptions: AccountTypeSelectItem[] = [
-  { type: 'assets' },
-  { type: 'cost' },
-  { type: 'liabilities' },
-  { type: 'profit_and_loss' },
-  { type: 'equity' },
-  { type: 'common' },
+const selectedAccountClass = ref<AccountClassSelectItem>({ class: '1' })
+const selectOptions: AccountClassSelectItem[] = [
+  { class: '1' },
+  { class: '2' },
+  { class: '3' },
+  { class: '4' },
+  { class: '5' },
+  { class: '7' },
 ]
 
 const filterModelRef = ref({
@@ -47,12 +47,17 @@ const filterEnabled = ref(false)
 const filterApply = ref(0)
 const factory = new FilterFactory<Account>()
 watch(
-  [() => pageable.value.page, () => pageable.value.size, () => filterApply.value, () => selectedAccountType.value.type],
+  [
+    () => pageable.value.page,
+    () => pageable.value.size,
+    () => filterApply.value,
+    () => selectedAccountClass.value.class,
+  ],
   async () => {
     const filter = factory.and(
       factory.stw('accountNumber', filterModelRef.value.accountNumber),
       factory.ctn('title', filterModelRef.value.title),
-      factory.eq('accountType', selectedAccountType.value.type),
+      factory.eq('class', selectedAccountClass.value.class),
     )
 
     const { data } = await AccountService.getAccounts(props.sobId, pageable.value, filter)
@@ -75,14 +80,14 @@ const onApplyFilter = () => {
   <BaseButtonGroup>
     <BaseButton
       v-for="opt in selectOptions"
-      :key="opt.type"
-      :category="opt.type === selectedAccountType.type ? 'primary' : 'default'"
+      :key="opt.class"
+      :category="opt.class === selectedAccountClass.class ? 'primary' : 'default'"
       @click="
         () => {
-          selectedAccountType.type = opt.type
+          selectedAccountClass.class = opt.class
         }
       "
-      >{{ t('account.accountTypeEnum.' + opt.type) }}</BaseButton
+      >{{ t('account.classEnum.' + opt.class) }}</BaseButton
     >
   </BaseButtonGroup>
   <div>
