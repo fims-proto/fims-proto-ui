@@ -86,7 +86,10 @@ const onAccountQueryChange = async (query: string) => {
 
 const onAccountUpdate = async (a: AccountInputAccount | undefined) => {
   emit('update:account', a)
-  emit('update:auxiliaryAccounts', a?.auxiliaryCategories?.map((aux) => ({ key: '', title: '', category: aux })))
+  emit(
+    'update:auxiliaryAccounts',
+    a?.auxiliaryCategories?.map((aux) => ({ key: '', title: '', category: aux })),
+  )
 
   await refreshAuxiliaryForm(a, [])
   toggleAuxiliaryForm({ target: true })

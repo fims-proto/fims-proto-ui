@@ -28,22 +28,17 @@ function buildFormValue(flow: LoginFlow): formValueType {
 }
 
 function buildSumitForm(formValue: formValueType) {
-  let result = {} as UpdateLoginFlowWithPasswordMethod
-  result.csrf_token = formValue.csrfToken
-  result.method = formValue.method
-  result.password = formValue.user.password
-  result.password_identifier = formValue.user.email
-  return result
+  return {
+    method: formValue.method,
+    csrf_token: formValue.csrfToken,
+    password: formValue.user.password,
+    password_identifier: formValue.user.email,
+  }
 }
 </script>
 
 <script setup lang="ts">
-import {
-  type LoginFlow,
-  type UiNodeInputAttributes,
-  type UiText,
-  type UpdateLoginFlowWithPasswordMethod,
-} from '@ory/kratos-client'
+import { type LoginFlow, type UiNodeInputAttributes, type UiText, type UpdateLoginFlowBody } from '@ory/kratos-client'
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
@@ -107,7 +102,10 @@ const handleSubmit = async () => {
     return
   }
 
-  const result = await KratosService.submitLoginFlow(formValue.value.flowId, buildSumitForm(formValue.value))
+  const result = await KratosService.submitLoginFlow(
+    formValue.value.flowId,
+    buildSumitForm(formValue.value) as UpdateLoginFlowBody,
+  )
   if ('session' in result) {
     userStore.action.loadUser()
 

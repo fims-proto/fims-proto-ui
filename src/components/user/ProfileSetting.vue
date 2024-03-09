@@ -127,7 +127,7 @@ const handleSubmit = async (formValue: UpdateSettingsFlowBody) => {
 }
 
 const onProfileUpdate = async () => {
-  await handleSubmit(profileFormValue.value)
+  await handleSubmit(profileFormValue.value as UpdateSettingsFlowBody)
   UserService.updateUser(userStore.state.userId, userStore.state.traits)
 }
 </script>
@@ -178,7 +178,7 @@ const onProfileUpdate = async () => {
 
           <!-- password update -->
           <BaseTabPanel class="max-w-xl">
-            <BaseForm class="flex flex-col gap-4" @submit="handleSubmit(passwordFormValue)">
+            <BaseForm class="flex flex-col gap-4" @submit="handleSubmit(passwordFormValue as UpdateSettingsFlowBody)">
               <input v-model="passwordFormValue.csrf_token" type="hidden" />
               <!-- hidden username field for browser autocomplete -->
               <input
