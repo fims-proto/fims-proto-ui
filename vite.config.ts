@@ -6,6 +6,7 @@ import { HeadlessUiResolver, VueUseComponentsResolver } from 'unplugin-vue-compo
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => {
   const config: UserConfig = {
+    envDir: './env',
     plugins: [
       vue(),
       Components({
