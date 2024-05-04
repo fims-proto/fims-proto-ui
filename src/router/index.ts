@@ -18,13 +18,14 @@ import ExceptionPage from '../components/ExceptionPage.vue'
 import StyleTest from '../components/style-test/StyleTest.vue'
 import AccountDetails from '../components/account/AccountDetails.vue'
 import ReportMain from '../components/report/ReportMain.vue'
-import { beforeAppEnterHandler, beforeWorkingZoneEnterHandler } from './before-enter-handlers'
+import { verifyCurrentUser, loadWorkingSob, updateWorkingSob } from './before-enter-handlers'
+import Register from '../components/user/Register.vue'
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/ui',
     component: LayoutPage,
-    beforeEnter: beforeAppEnterHandler,
+    beforeEnter: [verifyCurrentUser, loadWorkingSob],
     children: [
       // home
       {
@@ -72,7 +73,7 @@ const routes: RouteRecordRaw[] = [
         path: 'sobs/:sobId/accounts',
         component: RouterView,
         props: true,
-        beforeEnter: beforeWorkingZoneEnterHandler,
+        beforeEnter: updateWorkingSob,
         children: [
           {
             path: ':accountId',
@@ -86,7 +87,7 @@ const routes: RouteRecordRaw[] = [
         path: 'sobs/:sobId/periods',
         component: RouterView,
         props: true,
-        beforeEnter: beforeWorkingZoneEnterHandler,
+        beforeEnter: updateWorkingSob,
         children: [
           {
             path: ':periodId?',
@@ -105,7 +106,7 @@ const routes: RouteRecordRaw[] = [
         path: 'sobs/:sobId/vouchers',
         component: RouterView,
         props: true,
-        beforeEnter: beforeWorkingZoneEnterHandler,
+        beforeEnter: updateWorkingSob,
         children: [
           {
             path: '',
@@ -129,7 +130,7 @@ const routes: RouteRecordRaw[] = [
         path: 'sobs/:sobId/reports',
         component: RouterView,
         props: true,
-        beforeEnter: beforeWorkingZoneEnterHandler,
+        beforeEnter: updateWorkingSob,
         children: [
           {
             path: '',
@@ -151,6 +152,11 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'logout',
         component: AuthenticationLogout,
+      },
+      {
+        path: 'register',
+        name: 'register',
+        component: Register,
       },
     ],
   },

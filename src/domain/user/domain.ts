@@ -18,6 +18,7 @@ class UserService {
         },
         email: session?.identity?.traits.email,
       },
+      recoveryLogin: session?.authentication_methods?.some((a) => a.method === 'link_recovery') || false,
     }
   }
 
@@ -26,16 +27,6 @@ class UserService {
     if (url) {
       location.href = url
     }
-  }
-
-  public async whoIs(userId: string): Promise<Response<User>> {
-    return invokeWithErrorHandler(async () => {
-      const result = await axios.get(`${FIMS_URL}/api/v1/user/${userId}`)
-      return {
-        id: result.data.id,
-        traits: result.data.traits,
-      }
-    })
   }
 
   public async updateUser(userId: string, traits: Traits): Promise<Response<void>> {

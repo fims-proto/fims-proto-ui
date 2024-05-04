@@ -1,64 +1,13 @@
-<script lang="ts">
-interface profileFormType {
-  csrf_token: string
-  method: string
-  traits: {
-    email: string
-    name: {
-      first: string
-      last: string
-    }
-  }
-}
-
-interface passwordFormType {
-  csrf_token: string
-  method: string
-  password: string
-}
-
-function filterNodes(group: string, flow: SettingsFlow | undefined) {
-  return flow?.ui.nodes.filter((node) => node.group == 'default' || node.group == group)
-}
-
-function getValue(attr: string, uiNodes: UiNode[] | undefined) {
-  return uiNodes?.find((node) => node.attributes.name == attr)?.attributes.value
-}
-
-function buildProfileForm(uiNodes: UiNode[] | undefined) {
-  return {
-    csrf_token: getValue('csrf_token', uiNodes) ?? '',
-    method: getValue('method', uiNodes) ?? '',
-    traits: {
-      email: getValue('traits.email', uiNodes) ?? '',
-      name: {
-        first: getValue('traits.name.first', uiNodes) ?? '',
-        last: getValue('traits.name.last', uiNodes) ?? '',
-      },
-    },
-  }
-}
-
-function buildPasswordForm(uiNodes: UiNode[] | undefined) {
-  return {
-    csrf_token: getValue('csrf_token', uiNodes) ?? '',
-    method: getValue('method', uiNodes) ?? '',
-    password: getValue('password', uiNodes) ?? '',
-  }
-}
-</script>
-
 <script setup lang="ts">
 import { type SettingsFlow, type UpdateSettingsFlowBody } from '@ory/kratos-client'
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { KratosService, UserService, type UiNode, type UiText } from '../../domain'
-import { useNotificationStore } from '../../store/notification'
+import { KratosService, UserService, type UiNode } from '../../domain'
 import { useUserStore } from '../../store/user'
+import { buildPasswordForm, buildProfileForm, notify, type passwordFormType, type profileFormType } from './helpers'
 
 const { t } = useI18n()
 const userStore = useUserStore()
-const notificationStore = useNotificationStore()
 
 const formBusy = ref(true)
 
@@ -68,40 +17,12 @@ const profileFormValue = ref<profileFormType>({
   method: '',
   traits: { email: '', name: { first: '', last: '' } },
 })
-const passwordFormValue = ref<passwordFormType>({ csrf_token: '', method: '', password: '' })
-
-const notify = (flow: SettingsFlow | undefined) => {
-  const convertMessageType = (type: string) => {
-    switch (type) {
-      case 'error':
-      case 'info':
-      case 'success':
-      case 'warning':
-        return type
-      default:
-        return 'error'
-    }
-  }
-  const createMessage = (message: UiText) => ({
-    type: convertMessageType(message.type),
-    text: message.text,
-  })
-
-  let messages = flow?.ui.messages?.map(createMessage) ?? []
-  messages = messages.concat(flow?.ui.nodes.flatMap((node) => node.messages).map(createMessage) ?? [])
-  messages.forEach((message) =>
-    notificationStore.action.push({
-      type: message.type,
-      message: message.text,
-      duration: message.type === 'error' || message.type === 'warning' ? 0 : undefined,
-    }),
-  )
-}
+const passwordFormValue = ref<passwordFormType>({ csrf_token: '', method: '', email: '', password: '' })
 
 onMounted(async () => {
   flow.value = await KratosService.initSettingFlow()
-  profileFormValue.value = buildProfileForm(filterNodes('profile', flow.value) as UiNode[])
-  passwordFormValue.value = buildPasswordForm(filterNodes('password', flow.value) as UiNode[])
+  profileFormValue.value = buildProfileForm(flow.value)
+  passwordFormValue.value = buildPasswordForm(flow.value)
   formBusy.value = false
   notify(flow.value)
 })
@@ -109,17 +30,13 @@ onMounted(async () => {
 const handleSubmit = async (formValue: UpdateSettingsFlowBody) => {
   formBusy.value = true
   if (!flow.value) {
-    notificationStore.action.push({
-      type: 'error',
-      message: 'should not happen: no flow id',
-      duration: 0,
-    })
+    alert('should not happen: no flow id')
     return
   }
 
   flow.value = await KratosService.submitSettingFlow(flow.value?.id, formValue)
-  profileFormValue.value = buildProfileForm(filterNodes('profile', flow.value) as UiNode[])
-  passwordFormValue.value = buildPasswordForm(filterNodes('password', flow.value) as UiNode[])
+  profileFormValue.value = buildProfileForm(flow.value)
+  passwordFormValue.value = buildPasswordForm(flow.value)
   formBusy.value = false
   notify(flow.value)
 
@@ -128,7 +45,7 @@ const handleSubmit = async (formValue: UpdateSettingsFlowBody) => {
 
 const onProfileUpdate = async () => {
   await handleSubmit(profileFormValue.value as UpdateSettingsFlowBody)
-  UserService.updateUser(userStore.state.userId, userStore.state.traits)
+  UserService.updateUser(userStore.state.user.id, userStore.state.user.traits)
 }
 </script>
 
@@ -182,7 +99,7 @@ const onProfileUpdate = async () => {
               <input v-model="passwordFormValue.csrf_token" type="hidden" />
               <!-- hidden username field for browser autocomplete -->
               <input
-                v-model="profileFormValue.traits.email"
+                v-model="passwordFormValue.email"
                 type="text"
                 name="email"
                 autocomplete="email"

@@ -16,7 +16,7 @@ const props = defineProps<{
 const { t } = useI18n()
 const router = useRouter()
 const notificationStore = useNotificationStore()
-const { userId, traits } = toRefs(useUserStore().state)
+const { user } = useUserStore().state
 const { workingSob } = toRefs(useSobStore().state)
 
 const formRef = ref<InstanceType<typeof VoucherForm>>()
@@ -26,7 +26,7 @@ const emptyVoucher = () => ({
   transactionTime: new Date(),
   attachmentQuantity: 0,
   voucherType: 'general_voucher',
-  creator: { id: userId.value, traits: traits.value },
+  creator: { id: user.id, traits: user.traits },
   lineItems: Array(4).fill({ text: '', debit: 0, credit: 0 }),
 })
 

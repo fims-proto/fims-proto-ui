@@ -14,7 +14,7 @@ const props = defineProps<{
 
 const { t } = useI18n()
 const notificationStore = useNotificationStore()
-const userStore = useUserStore()
+const { user } = useUserStore().state
 
 const voucher = ref<VoucherFormInput>()
 const formRef = ref<InstanceType<typeof VoucherForm>>()
@@ -46,7 +46,7 @@ const onSave = async () => {
     headerText: toBeUpdated.headerText,
     attachmentQuantity: toBeUpdated.attachmentQuantity,
     transactionTime: toBeUpdated.transactionTime,
-    updater: userStore.state.userId,
+    updater: user.id,
     lineItems: toBeUpdated.lineItems.map((item) => ({
       id: item.id,
       accountNumber: item.account?.accountNumber ?? '',
@@ -79,19 +79,19 @@ const onAction = async (action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
 
   switch (action) {
     case 'audit':
-      resp = await VoucherService.auditVoucher(props.sobId, props.voucherId, userStore.state.userId)
+      resp = await VoucherService.auditVoucher(props.sobId, props.voucherId, user.id)
       break
     case 'cancelAudit':
-      resp = await VoucherService.cancelAuditVoucher(props.sobId, props.voucherId, userStore.state.userId)
+      resp = await VoucherService.cancelAuditVoucher(props.sobId, props.voucherId, user.id)
       break
     case 'review':
-      resp = await VoucherService.reviewVoucher(props.sobId, props.voucherId, userStore.state.userId)
+      resp = await VoucherService.reviewVoucher(props.sobId, props.voucherId, user.id)
       break
     case 'cancelReview':
-      resp = await VoucherService.cancelReviewVoucher(props.sobId, props.voucherId, userStore.state.userId)
+      resp = await VoucherService.cancelReviewVoucher(props.sobId, props.voucherId, user.id)
       break
     case 'post':
-      resp = await VoucherService.postVoucher(props.sobId, props.voucherId, userStore.state.userId)
+      resp = await VoucherService.postVoucher(props.sobId, props.voucherId, user.id)
   }
 
   if (resp?.exception) {

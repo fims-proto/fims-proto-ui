@@ -1,19 +1,20 @@
 import { reactive } from 'vue'
-import { type Traits } from '../../domain'
+import { type User } from '../../domain'
 
 export interface IUserState {
-  userId: string
-  traits: Traits
+  user: User
 }
 
 export const UserState: IUserState = {
-  userId: '',
-  traits: {
-    name: {
-      first: '',
-      last: '',
+  user: {
+    id: '',
+    traits: {
+      name: {
+        first: '',
+        last: '',
+      },
+      email: '',
     },
-    email: '',
   },
 }
 

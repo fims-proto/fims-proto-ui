@@ -9,4 +9,5 @@ export interface Traits {
 export interface User {
   id: string
   traits: Traits
+  recoveryLogin?: boolean
 }
