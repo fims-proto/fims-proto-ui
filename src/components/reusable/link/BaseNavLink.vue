@@ -14,6 +14,7 @@ defineProps({
 </script>
 
 <template>
+  <!-- @vue-ignore -->
   <RouterLink v-slot="{ href, navigate }" v-bind="$props" custom>
     <BaseLink v-bind="$attrs" :href="href" @click="navigate">
       <slot></slot>

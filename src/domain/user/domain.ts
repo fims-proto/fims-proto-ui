@@ -10,13 +10,13 @@ class UserService {
     const session = await KratosService.whoAmI()
 
     return {
-      id: session?.identity.id ?? '',
+      id: session?.identity?.id ?? '',
       traits: {
         name: {
-          first: session?.identity.traits.name?.first,
-          last: session?.identity.traits.name?.last,
+          first: session?.identity?.traits.name?.first,
+          last: session?.identity?.traits.name?.last,
         },
-        email: session?.identity.traits.email,
+        email: session?.identity?.traits.email,
       },
     }
   }

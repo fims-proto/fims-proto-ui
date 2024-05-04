@@ -155,7 +155,6 @@ const onToggleEnableFilter = () => {
       <span style="background-color: blanchedalmond">{{ filtereApiString }}</span>
     </p>
     <BaseTable
-      id="filter_test_table"
       title="完整测试"
       :data-source="tableData"
       :columns="tableColumns"

@@ -48,7 +48,7 @@ class AccountService {
   public async getAccountByAccountNumber(sobId: string, accountNumber: string): Promise<Response<Account>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(
-        `${FIMS_URL}/api/v1/sob/${sobId}/accounts?$filter=accountNumber eq '${accountNumber}'`,
+        `${FIMS_URL}/api/v1/sob/${sobId}/accounts?$filter=eq(accountNumber,"${accountNumber}")`,
       )
       convertFieldsFromString(result.data.content, ACCOUNT_FIELDS_CONVERSION)
 
@@ -63,7 +63,7 @@ class AccountService {
   public async getAccountsStartsWithNumber(sobId: string, serachNumber: string): Promise<Response<Page<Account>>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(
-        `${FIMS_URL}/api/v1/sob/${sobId}/accounts?$filter=accountNumber startsWith ${serachNumber}&$sort=accountNumber`,
+        `${FIMS_URL}/api/v1/sob/${sobId}/accounts?$filter=stw(accountNumber,"${serachNumber}")&$sort=accountNumber`,
       )
       return convertFieldsFromString(result.data, ACCOUNT_FIELDS_CONVERSION)
     })
@@ -107,7 +107,7 @@ class AccountService {
   ): Promise<Response<AuxiliaryAccount>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(
-        `${FIMS_URL}/api/v1/sob/${sobId}/auxiliary/${categoryKey}/accounts?$filter=key eq '${accountKey}'`,
+        `${FIMS_URL}/api/v1/sob/${sobId}/auxiliary/${categoryKey}/accounts?$filter=eq(key,"${accountKey}")`,
       )
       convertFieldsFromString(result.data, AUXILIARY_FIELDS_CONVERSION)
 
