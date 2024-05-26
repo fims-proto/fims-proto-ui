@@ -1,5 +1,10 @@
 import { type UiContainer } from '@ory/kratos-client'
 
+export interface KratosResponse<T> {
+  ok: boolean
+  data: T
+}
+
 export type UiText = {
   context?: object
   id: number

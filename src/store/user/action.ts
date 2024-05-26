@@ -3,20 +3,15 @@ import { type IUserState } from './state'
 
 function setUser(state: IUserState) {
   return (user: User) => {
-    mapUser(user, state)
+    state.user = user
   }
 }
 
 function loadUser(state: IUserState) {
   return async () => {
-    console.log('Updating current user')
-    mapUser(await UserService.whoAmI(), state)
+    console.log('Setting current user')
+    state.user = await UserService.whoAmI()
   }
-}
-
-function mapUser(source: User, target: IUserState) {
-  target.userId = source.id
-  target.traits = source.traits
 }
 
 export function createAction(state: IUserState) {

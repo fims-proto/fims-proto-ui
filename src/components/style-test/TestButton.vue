@@ -18,8 +18,8 @@ const onNewNotification = (text?: string) => {
     <!-- normal buttons -->
     <div class="flex gap-4">
       <BaseButton @click="onNewNotification('Ta-da!!')">Default</BaseButton>
-      <BaseButton category="primary"> Primary </BaseButton>
-      <BaseButton category="alert"> Alert </BaseButton>
+      <BaseButton category="primary">Primary</BaseButton>
+      <BaseButton category="alert">Alert</BaseButton>
       <BaseButton>
         <template #icon>
           <LockClosedMiniIcon />
@@ -45,7 +45,7 @@ const onNewNotification = (text?: string) => {
       </BaseButton>
       <!-- disabled -->
       <BaseButton disabled>Default</BaseButton>
-      <BaseButton disabled category="primary"> Primary </BaseButton>
+      <BaseButton disabled category="primary">Primary</BaseButton>
       <BaseButton disabled>
         <template #icon>
           <LockClosedMiniIcon />
@@ -130,6 +130,21 @@ const onNewNotification = (text?: string) => {
       <BaseConfirmationButton category="primary" @click="onNewNotification('Ta-da after confirmation!!')">
         重要事件
       </BaseConfirmationButton>
+    </div>
+    <br />
+
+    <!-- loading -->
+    <div class="flex gap-4">
+      <BaseButton busy>Default</BaseButton>
+      <BaseButton busy category="primary">Primary</BaseButton>
+      <BaseButton busy category="alert">Alert</BaseButton>
+      <BaseButton busy category="flat">Flat</BaseButton>
+      <BaseButton busy category="primary" class="w-64">
+        <template #icon>
+          <LockClosedMiniIcon />
+        </template>
+        <span>固定宽度居中</span>
+      </BaseButton>
     </div>
   </div>
 </template>

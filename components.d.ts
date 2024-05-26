@@ -85,6 +85,7 @@ declare module 'vue' {
     PeriodList: typeof import('./src/components/period/PeriodList.vue')['default']
     PlusCircleMiniIcon: typeof import('@heroicons/vue/20/solid')['PlusCircleIcon']
     ProfileSetting: typeof import('./src/components/user/ProfileSetting.vue')['default']
+    RegisterUser: typeof import('./src/components/user/RegisterUser.vue')['default']
     ReportMain: typeof import('./src/components/report/ReportMain.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

@@ -18,13 +18,22 @@ import ExceptionPage from '../components/ExceptionPage.vue'
 import StyleTest from '../components/style-test/StyleTest.vue'
 import AccountDetails from '../components/account/AccountDetails.vue'
 import ReportMain from '../components/report/ReportMain.vue'
-import { beforeAppEnterHandler, beforeWorkingZoneEnterHandler } from './before-enter-handlers'
+import { verifyCurrentUser, loadWorkingSob, updateWorkingSob, verifyNotLoggedIn } from './before-enter-handlers'
+import RegisterUser from '../components/user/RegisterUser.vue'
+
+/**
+ * In some cases, we need to browser redirect to home page.
+ * Prefer to use browser redirect, so that backend gateway can do the session verification and redirect to login if needed.
+ */
+export function goHome() {
+  window.location.replace('/ui')
+}
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/ui',
     component: LayoutPage,
-    beforeEnter: beforeAppEnterHandler,
+    beforeEnter: [verifyCurrentUser, loadWorkingSob],
     children: [
       // home
       {
@@ -72,7 +81,7 @@ const routes: RouteRecordRaw[] = [
         path: 'sobs/:sobId/accounts',
         component: RouterView,
         props: true,
-        beforeEnter: beforeWorkingZoneEnterHandler,
+        beforeEnter: updateWorkingSob,
         children: [
           {
             path: ':accountId',
@@ -86,7 +95,7 @@ const routes: RouteRecordRaw[] = [
         path: 'sobs/:sobId/periods',
         component: RouterView,
         props: true,
-        beforeEnter: beforeWorkingZoneEnterHandler,
+        beforeEnter: updateWorkingSob,
         children: [
           {
             path: ':periodId?',
@@ -105,7 +114,7 @@ const routes: RouteRecordRaw[] = [
         path: 'sobs/:sobId/vouchers',
         component: RouterView,
         props: true,
-        beforeEnter: beforeWorkingZoneEnterHandler,
+        beforeEnter: updateWorkingSob,
         children: [
           {
             path: '',
@@ -129,7 +138,7 @@ const routes: RouteRecordRaw[] = [
         path: 'sobs/:sobId/reports',
         component: RouterView,
         props: true,
-        beforeEnter: beforeWorkingZoneEnterHandler,
+        beforeEnter: updateWorkingSob,
         children: [
           {
             path: '',
@@ -146,11 +155,19 @@ const routes: RouteRecordRaw[] = [
     children: [
       {
         path: 'login',
+        name: 'login',
         component: AuthenticationLogin,
       },
       {
         path: 'logout',
+        name: 'logout',
         component: AuthenticationLogout,
+      },
+      {
+        path: 'register',
+        name: 'register',
+        beforeEnter: verifyNotLoggedIn,
+        component: RegisterUser,
       },
     ],
   },

@@ -2,12 +2,16 @@
 import { ref } from 'vue'
 import { type FormRules } from '../reusable/form'
 import BaseForm from '../reusable/form/BaseForm.vue'
+import { useNotificationStore } from '../../store/notification'
 
 type SelectItem = {
   value: string
   label: string
 }
 
+const notificationStore = useNotificationStore()
+
+const busy = ref<boolean>(false)
 const editMode = ref<boolean>(true)
 const labelPlacement = ref<'top' | 'left'>('left')
 
@@ -87,6 +91,13 @@ const formRef = ref<InstanceType<typeof BaseForm>>()
 const onVenderQueryChange = (query: string) => {
   vendorOptions.value = vendors.filter((v) => v.label.includes(query) || v.value.includes(query))
 }
+
+const onSubmit = () => {
+  notificationStore.action.push({
+    type: 'success',
+    message: 'Form submitted',
+  })
+}
 </script>
 
 <template>
@@ -99,6 +110,7 @@ const onVenderQueryChange = (query: string) => {
         <BaseButton @click="labelPlacement = labelPlacement === 'top' ? 'left' : 'top'">
           Label placement: {{ labelPlacement }}
         </BaseButton>
+        <BaseButton @click="busy = !busy">Form is {{ busy ? 'busy' : 'not busy' }}</BaseButton>
       </div>
 
       <BaseForm
@@ -106,9 +118,11 @@ const onVenderQueryChange = (query: string) => {
         :model="modelRef"
         :rules="rules"
         :edit="editMode"
+        :busy="busy"
         :label-placement="labelPlacement"
         label-width="5rem"
         class="w-96 flex flex-col gap-4"
+        @submit="onSubmit"
       >
         <BaseFormItem path="username" label="user name">
           <BaseInput v-model="modelRef.username" />

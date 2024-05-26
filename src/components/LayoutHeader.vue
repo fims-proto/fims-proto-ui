@@ -12,7 +12,7 @@ const sobStore = useSobStore()
 const userStore = useUserStore()
 
 const { sobs, workingSob, currentPeriod } = toRefs(sobStore.state)
-const { traits: userInfo } = toRefs(userStore.state)
+const { traits: userInfo } = toRefs(userStore.state.user)
 
 const navigation = computed(() => {
   const items = []
