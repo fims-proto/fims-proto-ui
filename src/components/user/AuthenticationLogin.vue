@@ -136,7 +136,11 @@ const handleSubmit = async () => {
       </div>
 
       <!-- form -->
-      <BaseForm class="flex flex-col gap-4 px-12 py-8 bg-white shadow-lg rounded-lg" @submit="handleSubmit">
+      <BaseForm
+        class="flex flex-col gap-4 px-12 py-8 bg-white shadow-lg rounded-lg"
+        :busy="formBusy"
+        @submit="handleSubmit"
+      >
         <input v-model="formValue.csrfToken" type="hidden" />
         <BaseFormItem :label="t('user.email')" required>
           <BaseInput
@@ -159,7 +163,7 @@ const handleSubmit = async () => {
         </BaseFormItem>
 
         <div>
-          <BaseButton html-type="submit" category="primary" class="w-full">
+          <BaseButton html-type="submit" category="primary" :busy="formBusy" class="w-full">
             <template #icon>
               <LockClosedMiniIcon />
             </template>

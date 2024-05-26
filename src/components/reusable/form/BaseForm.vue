@@ -11,6 +11,7 @@ const props = withDefaults(
     edit?: boolean
     labelPlacement?: 'top' | 'left'
     labelWidth?: number | string
+    busy?: boolean
   }>(),
   {
     model: () => ({}),
@@ -47,7 +48,7 @@ const resetValidation = () => {
 }
 
 const onSubmit = () => {
-  if (validateAllItems()) {
+  if (validateAllItems() && !props.busy) {
     emit('submit')
   }
 }

@@ -19,7 +19,7 @@ import StyleTest from '../components/style-test/StyleTest.vue'
 import AccountDetails from '../components/account/AccountDetails.vue'
 import ReportMain from '../components/report/ReportMain.vue'
 import { verifyCurrentUser, loadWorkingSob, updateWorkingSob, verifyNotLoggedIn } from './before-enter-handlers'
-import Register from '../components/user/Register.vue'
+import RegisterUser from '../components/user/RegisterUser.vue'
 
 /**
  * In some cases, we need to browser redirect to home page.
@@ -167,7 +167,7 @@ const routes: RouteRecordRaw[] = [
         path: 'register',
         name: 'register',
         beforeEnter: verifyNotLoggedIn,
-        component: Register,
+        component: RegisterUser,
       },
     ],
   },

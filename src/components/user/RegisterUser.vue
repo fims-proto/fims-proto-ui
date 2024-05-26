@@ -43,7 +43,7 @@ onMounted(async () => {
   }
 
   flow.value = data
-  passwordFormValue.value = { ...buildPasswordForm(flow.value), ...{ confirmPassword: '' } }
+  passwordFormValue.value = { ...buildPasswordForm(flow.value), confirmPassword: '' }
   formBusy.value = false
   notify(flow.value)
 })
@@ -57,7 +57,7 @@ const handleSubmit = async (formValue: UpdateSettingsFlowBody) => {
   formBusy.value = true
   const { ok, data } = await KratosService.submitSettingFlow(flow.value?.id, formValue)
   flow.value = data
-  passwordFormValue.value = { ...buildPasswordForm(flow.value), ...{ confirmPassword: '' } }
+  passwordFormValue.value = { ...buildPasswordForm(flow.value), confirmPassword: '' }
   formBusy.value = false
   notify(flow.value)
   if (ok) {
@@ -81,6 +81,7 @@ const handleSubmit = async (formValue: UpdateSettingsFlowBody) => {
         class="flex flex-col gap-4"
         :model="passwordFormValue"
         :rules="formRule"
+        :busy="formBusy"
         @submit="handleSubmit(passwordFormValue as UpdateSettingsFlowBody)"
       >
         <input v-model="passwordFormValue.csrf_token" type="hidden" />
@@ -103,7 +104,7 @@ const handleSubmit = async (formValue: UpdateSettingsFlowBody) => {
             autocomplete="new-password"
           />
         </BaseFormItem>
-        <BaseButton class="w-full" html-type="submit" category="primary">
+        <BaseButton class="w-full" html-type="submit" category="primary" :busy="formBusy">
           <template #icon>
             <LockClosedMiniIcon />
           </template>

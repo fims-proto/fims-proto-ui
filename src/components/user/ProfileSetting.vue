@@ -2,7 +2,7 @@
 import { type SettingsFlow, type UpdateSettingsFlowBody } from '@ory/kratos-client'
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { KratosService, UserService, type UiNode } from '../../domain'
+import { KratosService, UserService } from '../../domain'
 import { useUserStore } from '../../store/user'
 import { buildPasswordForm, buildProfileForm, notify, type passwordFormType, type profileFormType } from './helpers'
 
@@ -20,7 +20,7 @@ const profileFormValue = ref<profileFormType>({
 const passwordFormValue = ref<passwordFormType>({ csrf_token: '', method: '', email: '', password: '' })
 
 onMounted(async () => {
-  flow.value = await KratosService.initSettingFlow()
+  ;({ data: flow.value } = await KratosService.initSettingFlow())
   profileFormValue.value = buildProfileForm(flow.value)
   passwordFormValue.value = buildPasswordForm(flow.value)
   formBusy.value = false
@@ -61,7 +61,7 @@ const onProfileUpdate = async () => {
         <template #panels>
           <!-- profile update -->
           <BaseTabPanel class="max-w-xl">
-            <BaseForm class="flex flex-col gap-4" @submit="onProfileUpdate">
+            <BaseForm class="flex flex-col gap-4" :busy="formBusy" @submit="onProfileUpdate">
               <input v-model="profileFormValue.csrf_token" type="hidden" />
               <BaseFormItem :label="t('user.email')" required>
                 <BaseInput
@@ -84,7 +84,7 @@ const onProfileUpdate = async () => {
                   :placeholder="t('user.firstnameInputPlaceholder')"
                 />
               </BaseFormItem>
-              <BaseButton html-type="submit" category="primary">
+              <BaseButton html-type="submit" category="primary" :busy="formBusy">
                 <template #icon>
                   <LockClosedMiniIcon />
                 </template>
@@ -95,7 +95,11 @@ const onProfileUpdate = async () => {
 
           <!-- password update -->
           <BaseTabPanel class="max-w-xl">
-            <BaseForm class="flex flex-col gap-4" @submit="handleSubmit(passwordFormValue as UpdateSettingsFlowBody)">
+            <BaseForm
+              class="flex flex-col gap-4"
+              :busy="formBusy"
+              @submit="handleSubmit(passwordFormValue as UpdateSettingsFlowBody)"
+            >
               <input v-model="passwordFormValue.csrf_token" type="hidden" />
               <!-- hidden username field for browser autocomplete -->
               <input
@@ -114,7 +118,7 @@ const onProfileUpdate = async () => {
                   required
                 />
               </BaseFormItem>
-              <BaseButton html-type="submit" category="primary">
+              <BaseButton html-type="submit" category="primary" :busy="formBusy">
                 <template #icon>
                   <LockClosedMiniIcon />
                 </template>

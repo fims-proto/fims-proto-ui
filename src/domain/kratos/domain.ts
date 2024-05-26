@@ -6,7 +6,7 @@ import {
   type UpdateSettingsFlowBody,
   type SuccessfulNativeLogin,
 } from '@ory/kratos-client'
-import axios, { AxiosError } from 'axios'
+import { AxiosError } from 'axios'
 import { kratos } from '../../lib/kratos'
 import type { KratosResponse } from './types'
 
