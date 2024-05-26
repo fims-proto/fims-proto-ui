@@ -34,7 +34,7 @@ const handleSubmit = async (formValue: UpdateSettingsFlowBody) => {
     return
   }
 
-  flow.value = await KratosService.submitSettingFlow(flow.value?.id, formValue)
+  ;({ data: flow.value } = await KratosService.submitSettingFlow(flow.value?.id, formValue))
   profileFormValue.value = buildProfileForm(flow.value)
   passwordFormValue.value = buildPasswordForm(flow.value)
   formBusy.value = false

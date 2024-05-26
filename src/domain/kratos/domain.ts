@@ -8,16 +8,20 @@ import {
 } from '@ory/kratos-client'
 import axios, { AxiosError } from 'axios'
 import { kratos } from '../../lib/kratos'
+import type { KratosResponse } from './types'
 
 class KratosService {
-  public async whoAmI(): Promise<Session | undefined> {
+  public async whoAmI(): Promise<KratosResponse<Session | undefined>> {
     try {
-      const result = await kratos.toSession()
-
-      return result.data
+      return {
+        ok: true,
+        data: (await kratos.toSession()).data,
+      }
     } catch (error) {
-      if (!axios.isAxiosError(error)) {
-        console.error(error)
+      console.error('session checking failed', error)
+      return {
+        ok: false,
+        data: undefined,
       }
     }
   }
@@ -43,18 +47,36 @@ class KratosService {
     }
   }
 
-  public async initSettingFlow(): Promise<SettingsFlow | undefined> {
-    const result = await kratos.createBrowserSettingsFlow()
-
-    return result.data
+  public async initSettingFlow(): Promise<KratosResponse<SettingsFlow | undefined>> {
+    try {
+      return {
+        ok: true,
+        data: (await kratos.createBrowserSettingsFlow()).data,
+      }
+    } catch (error) {
+      console.error('initiating setting flow failed', error)
+      return {
+        ok: false,
+        data: undefined,
+      }
+    }
   }
 
-  public async submitSettingFlow(flowId: string, payload: UpdateSettingsFlowBody): Promise<SettingsFlow> {
+  public async submitSettingFlow(
+    flowId: string,
+    payload: UpdateSettingsFlowBody,
+  ): Promise<KratosResponse<SettingsFlow>> {
     try {
       const result = await kratos.updateSettingsFlow({ flow: flowId, updateSettingsFlowBody: payload })
-      return result.data
+      return {
+        ok: true,
+        data: result.data,
+      }
     } catch (error) {
-      return (error as AxiosError).response?.data as SettingsFlow
+      return {
+        ok: false,
+        data: (error as AxiosError).response?.data as SettingsFlow,
+      }
     }
   }
 

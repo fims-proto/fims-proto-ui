@@ -7,6 +7,7 @@ export interface Traits {
 }
 
 export interface User {
+  loggedIn?: boolean
   id: string
   traits: Traits
   recoveryLogin?: boolean

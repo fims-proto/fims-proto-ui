@@ -18,8 +18,16 @@ import ExceptionPage from '../components/ExceptionPage.vue'
 import StyleTest from '../components/style-test/StyleTest.vue'
 import AccountDetails from '../components/account/AccountDetails.vue'
 import ReportMain from '../components/report/ReportMain.vue'
-import { verifyCurrentUser, loadWorkingSob, updateWorkingSob } from './before-enter-handlers'
+import { verifyCurrentUser, loadWorkingSob, updateWorkingSob, verifyNotLoggedIn } from './before-enter-handlers'
 import Register from '../components/user/Register.vue'
+
+/**
+ * In some cases, we need to browser redirect to home page.
+ * Prefer to use browser redirect, so that backend gateway can do the session verification and redirect to login if needed.
+ */
+export function goHome() {
+  window.location.replace('/ui')
+}
 
 const routes: RouteRecordRaw[] = [
   {
@@ -147,15 +155,18 @@ const routes: RouteRecordRaw[] = [
     children: [
       {
         path: 'login',
+        name: 'login',
         component: AuthenticationLogin,
       },
       {
         path: 'logout',
+        name: 'logout',
         component: AuthenticationLogout,
       },
       {
         path: 'register',
         name: 'register',
+        beforeEnter: verifyNotLoggedIn,
         component: Register,
       },
     ],

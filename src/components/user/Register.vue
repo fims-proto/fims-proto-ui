@@ -5,8 +5,11 @@ import { KratosService } from '../../domain'
 import { buildPasswordForm, notify, type passwordFormType } from './helpers'
 import { useI18n } from 'vue-i18n'
 import type { FormRules } from '../reusable/form'
+import { useRouter } from 'vue-router'
+import { goHome } from '../../router'
 
 const { t } = useI18n()
+const router = useRouter()
 
 interface formModel extends passwordFormType {
   confirmPassword: string
@@ -15,7 +18,6 @@ interface formModel extends passwordFormType {
 const formBusy = ref(true)
 const flow = ref<SettingsFlow | undefined>()
 const passwordFormValue = ref<formModel>({ csrf_token: '', method: '', email: '', password: '', confirmPassword: '' })
-const confirmPassword = ref<string>()
 
 const formRule: FormRules = {
   password: {
@@ -33,7 +35,14 @@ const formRule: FormRules = {
 }
 
 onMounted(async () => {
-  flow.value = await KratosService.initSettingFlow()
+  const { ok, data } = await KratosService.initSettingFlow()
+  if (!ok) {
+    console.warn('cannot initiate setting flow, redirect to home page')
+    goHome()
+    return
+  }
+
+  flow.value = data
   passwordFormValue.value = { ...buildPasswordForm(flow.value), ...{ confirmPassword: '' } }
   formBusy.value = false
   notify(flow.value)
@@ -46,10 +55,14 @@ const handleSubmit = async (formValue: UpdateSettingsFlowBody) => {
   }
 
   formBusy.value = true
-  flow.value = await KratosService.submitSettingFlow(flow.value?.id, formValue)
+  const { ok, data } = await KratosService.submitSettingFlow(flow.value?.id, formValue)
+  flow.value = data
   passwordFormValue.value = { ...buildPasswordForm(flow.value), ...{ confirmPassword: '' } }
   formBusy.value = false
   notify(flow.value)
+  if (ok) {
+    router.replace({ name: 'login' })
+  }
 }
 </script>
 
