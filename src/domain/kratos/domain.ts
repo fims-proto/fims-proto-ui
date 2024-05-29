@@ -38,12 +38,17 @@ class KratosService {
   public async submitLoginFlow(
     flowId: string,
     payload: UpdateLoginFlowBody,
-  ): Promise<SuccessfulNativeLogin | LoginFlow> {
+  ): Promise<KratosResponse<SuccessfulNativeLogin | LoginFlow>> {
     try {
-      const result = await kratos.updateLoginFlow({ flow: flowId, updateLoginFlowBody: payload })
-      return result.data
+      return {
+        ok: true,
+        data: (await kratos.updateLoginFlow({ flow: flowId, updateLoginFlowBody: payload })).data,
+      }
     } catch (error) {
-      return (error as AxiosError).response?.data as LoginFlow
+      return {
+        ok: false,
+        data: (error as AxiosError).response?.data as LoginFlow,
+      }
     }
   }
 

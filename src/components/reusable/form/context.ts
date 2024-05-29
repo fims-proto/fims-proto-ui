@@ -3,7 +3,7 @@ import { type FormRules, type FormValidationStatus } from './interface'
 
 // Form injections
 export interface FormInjection {
-  model?: object
+  model?: Ref<object>
   rules?: FormRules
   edit: Ref<boolean>
   labelPlacement: Ref<string>

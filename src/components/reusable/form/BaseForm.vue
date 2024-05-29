@@ -54,7 +54,7 @@ const onSubmit = () => {
 }
 
 provideForm({
-  model: props.model,
+  model: toRef(() => props.model),
   rules: props.rules,
   edit: toRef(() => props.edit),
   labelPlacement: toRef(() => props.labelPlacement),

@@ -106,6 +106,7 @@ declare module 'vue' {
     TestPage: typeof import('./src/components/style-test/TestPage.vue')['default']
     TestTable: typeof import('./src/components/style-test/TestTable.vue')['default']
     TheNotificationPanel: typeof import('./src/components/TheNotificationPanel.vue')['default']
+    UpdatePassword: typeof import('./src/components/user/UpdatePassword.vue')['default']
     VoucherCreation: typeof import('./src/components/voucher/VoucherCreation.vue')['default']
     VoucherDetail: typeof import('./src/components/voucher/VoucherDetail.vue')['default']
     VoucherForm: typeof import('./src/components/voucher/VoucherForm.vue')['default']
