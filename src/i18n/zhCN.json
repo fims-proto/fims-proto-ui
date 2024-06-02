@@ -71,6 +71,9 @@
     "selectSob": "请选择工作账套",
     "manageSob": "账套管理",
     "current": "当前",
+    "error": {
+      "invalidAccountCodeLength": "科目级次不能少于 2 或者多于 10"
+    },
     "creation": {
       "title": "新建账套"
     },

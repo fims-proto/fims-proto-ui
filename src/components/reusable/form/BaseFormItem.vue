@@ -57,6 +57,10 @@ provideFormItem({
   itemStatus,
   handleContentChange: validateItem,
 })
+
+defineExpose({
+  validate: validateItem,
+})
 </script>
 
 <template>

@@ -104,6 +104,7 @@ const errorStatus = () => FormItem?.itemStatus.value === 'error'
       ]"
       :value="inputValue"
       :type="htmlType"
+      v-bind="attrExceptClass"
       @keypress="onKeyPress"
       @input="onValueUpdate"
     />
