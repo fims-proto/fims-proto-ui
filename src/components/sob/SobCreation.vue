@@ -7,7 +7,7 @@ import { useSobStore } from '../../store/sob'
 import type { FormRules } from '../reusable/form'
 import BaseFormItem from '../reusable/form/BaseFormItem.vue'
 
-const t = useI18n().t
+const { t } = useI18n()
 const router = useRouter()
 const sobStore = useSobStore()
 

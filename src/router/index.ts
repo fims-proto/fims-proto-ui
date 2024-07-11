@@ -20,6 +20,7 @@ import AccountDetails from '../components/account/AccountDetails.vue'
 import ReportMain from '../components/report/ReportMain.vue'
 import { verifyCurrentUser, loadWorkingSob, updateWorkingSob, verifyNotLoggedIn } from './before-enter-handlers'
 import RegisterUser from '../components/user/RegisterUser.vue'
+import LedgersInitialization from '../components/sob/LedgersInitialization.vue'
 
 /**
  * In some cases, we need to browser redirect to home page.
@@ -68,6 +69,11 @@ const routes: RouteRecordRaw[] = [
             path: 'new',
             name: 'sobCreation',
             component: SobCreation,
+          },
+          {
+            path: ':sobId/init',
+            name: 'ledgersInitialization',
+            component: LedgersInitialization,
           },
           {
             path: ':sobId/:view(\\d+)?',

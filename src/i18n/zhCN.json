@@ -18,7 +18,7 @@
     }
   },
   "common": {
-    "emptyContent": "什么也没有",
+    "emptyContent": "空",
     "description": "描述",
     "year": "年",
     "month": "月",
@@ -76,6 +76,10 @@
     },
     "creation": {
       "title": "新建账套"
+    },
+    "ledgersInitialization": {
+      "title": "初始化账簿",
+      "firstPeriod": "启用期间: {periodText}"
     },
     "detail": {
       "basic": "基本信息",
