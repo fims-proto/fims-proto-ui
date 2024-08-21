@@ -6,15 +6,17 @@
     "dev": "vite",
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
-    "lint": "eslint --ext .js,.ts,.vue src",
-    "checkfmt": "prettier --check src/",
-    "fmt": "prettier --write src/"
+    "build-only": "vite build",
+    "type-check": "vue-tsc --build --force",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
+    "format": "prettier --write src/"
   },
   "dependencies": {
     "@headlessui/vue": "^1.7.19",
     "@heroicons/vue": "^2.1.3",
     "@ory/kratos-client": "^1.1.0",
     "@tailwindcss/forms": "^0.5.7",
+    "@tanstack/vue-table": "^8.20.1",
     "@vueuse/components": "^10.9.0",
     "@vueuse/core": "^10.9.0",
     "@vueuse/integrations": "^10.9.0",
@@ -27,6 +29,7 @@
     "vueuc": "^0.4.58"
   },
   "devDependencies": {
+    "@rushstack/eslint-patch": "^1.8.0",
     "@types/big.js": "^6.2.2",
     "@typescript-eslint/eslint-plugin": "^7.4.0",
     "@typescript-eslint/parser": "^7.4.0",

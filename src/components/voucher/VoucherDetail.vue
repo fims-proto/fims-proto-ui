@@ -109,11 +109,7 @@ const onAction = async (action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
     <template #title>{{ voucher?.documentNumber }}</template>
 
     <template #extra>
-      <BaseButton
-        v-if="!editMode"
-        :disabled="editMode || voucher?.isAudited || voucher?.isReviewed"
-        @click="editMode = true"
-      >
+      <BaseButton :disabled="editMode || voucher?.isAudited || voucher?.isReviewed" @click="editMode = true">
         {{ t('action.edit') }}
       </BaseButton>
       <BaseButton v-if="editMode" category="primary" @click="onSave">{{ t('action.save') }}</BaseButton>
