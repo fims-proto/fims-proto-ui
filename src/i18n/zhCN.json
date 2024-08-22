@@ -79,7 +79,8 @@
     },
     "ledgersInitialization": {
       "title": "初始化账簿",
-      "firstPeriod": "启用期间: {periodText}"
+      "firstPeriod": "启用期间: {periodText}",
+      "updated": "科目余额已更新"
     },
     "detail": {
       "basic": "基本信息",

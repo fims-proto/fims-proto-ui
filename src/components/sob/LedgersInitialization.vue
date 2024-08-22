@@ -3,11 +3,12 @@ import { h, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { FlexRender, createColumnHelper, useVueTable, getCoreRowModel, getExpandedRowModel } from '@tanstack/vue-table'
 import { LedgerService, SobService, type Ledger, type Period, type Sob } from '../../domain'
+import { useNotificationStore } from '../../store/notification'
 
-interface LedgerTree extends Ledger {
+interface LedgerNode extends Ledger {
   openingBalance: number
-  children: LedgerTree[]
-  parent?: LedgerTree
+  children: LedgerNode[]
+  parent?: LedgerNode
 }
 
 const props = defineProps<{
@@ -15,15 +16,15 @@ const props = defineProps<{
 }>()
 
 const { t, n } = useI18n()
+const notificationStore = useNotificationStore()
 
 const editMode = ref(false)
 const sob = ref<Sob>()
 const firstPeriod = ref<Period>()
-const rawLedgers = ref<Ledger[]>([])
-const ledgerMap = ref<{ [name: string]: LedgerTree }>({}) // key: account id
-const ledgerTree = ref<LedgerTree[]>([])
+const ledgerMap = ref<{ [name: string]: LedgerNode }>({}) // key: account id
+const ledgerTree = ref<LedgerNode[]>([])
 
-const columnHelper = createColumnHelper<LedgerTree>()
+const columnHelper = createColumnHelper<LedgerNode>()
 
 const columns = [
   columnHelper.display({
@@ -63,22 +64,14 @@ const columns = [
     id: 'openingBalance',
     header: t('ledger.openingBalance'),
     cell: ({ getValue, row: { original } }) => {
-      const initialValue = getValue()
-      console.log(`cell: ${initialValue}`)
-
       if (!editMode.value || !original.account.isLeaf) {
-        return n(initialValue, 'decimal')
+        return n(getValue(), 'decimal')
       }
-
-      const inputValue = ref(initialValue)
 
       return h('input', {
         type: 'number',
-        value: inputValue.value,
-        onInput: (e: Event) => {
-          inputValue.value = Number((e.target as HTMLInputElement)?.value)
-          onOpeningBalanceChange(original.account.id, inputValue.value)
-        },
+        value: getValue(),
+        onChange: (e: Event) => updateBalance(original.account.id, Number((e.target as HTMLInputElement)?.value)),
       })
     },
   }),
@@ -86,7 +79,9 @@ const columns = [
 
 const table = useVueTable({
   columns,
-  data: ledgerTree,
+  get data() {
+    return ledgerTree.value
+  },
   initialState: {
     expanded: true,
   },
@@ -103,16 +98,15 @@ onMounted(async () => {
 
 const initialize = async () => {
   const { data } = await LedgerService.getFirstPeriodLedgers(props.sobId)
+  const rawLedgers = data?.ledgers || []
   firstPeriod.value = data?.period
-  rawLedgers.value = data?.ledgers || []
-
   ledgerMap.value = {}
 
   const startTime = performance.now()
 
-  rawLedgers.value.sort((rl1, rl2) => rl1.account.level - rl2.account.level)
+  rawLedgers.sort((rl1, rl2) => rl1.account.level - rl2.account.level)
 
-  for (const rl of rawLedgers.value) {
+  for (const rl of rawLedgers) {
     // cache into map
     let lt = ledgerMap.value[rl.accountId]
     if (!lt) {
@@ -141,45 +135,50 @@ const initialize = async () => {
     lt.parent = slt
   }
 
-  console.log(`Build ledger map took ${performance.now() - startTime} ms`)
-
   renderLedgerTree()
+
+  console.info(`Initializing ledger tree took ${performance.now() - startTime} ms`)
 }
 
-const renderLedgerTree = () => {
+const updateBalance = (accountId: string, value: number) => {
   const startTime = performance.now()
 
-  const res = []
-
-  for (const [, l] of Object.entries(ledgerMap.value)) {
-    if (l.account.level === 1) {
-      res.push(l)
-    }
-  }
-
-  console.log(`Build ledger tree took ${performance.now() - startTime} ms`)
-
-  ledgerTree.value = res
-}
-
-const onOpeningBalanceChange = (accountId: string, value: number) => {
   ledgerMap.value[accountId].openingBalance = value
-  console.log(`updated to ${ledgerMap.value[accountId].openingBalance}`)
 
+  // update parent
   let parent = ledgerMap.value[accountId].parent
   while (parent) {
     parent.openingBalance = parent.children.reduce((acc, child) => acc + child.openingBalance, 0)
-    console.log(`parent updated to ${parent.openingBalance}`)
-
     parent = parent.parent
   }
-  // renderLedgerTree()
-  ledgerTree.value = []
-  console.log('clear ledgerTree')
+
+  renderLedgerTree()
+
+  console.info(`Updating ledger tree took ${performance.now() - startTime} ms`)
 }
 
-const onSave = () => {
-  console.log(ledgerMap.value)
+const renderLedgerTree = () =>
+  (ledgerTree.value = Object.entries(ledgerMap.value)
+    .filter(([, l]) => l.account.level === 1)
+    .map(([, l]) => l))
+
+const onSave = async () => {
+  const ledgerItems = Object.entries(ledgerMap.value)
+    .map(([, l]) => l)
+    .filter((l) => l.account.isLeaf)
+    .map((l) => ({
+      accountNumber: l.account.accountNumber,
+      openingBalance: l.openingBalance,
+    }))
+
+  const { exception } = await LedgerService.initializeLedgers(props.sobId, { ledgers: ledgerItems })
+  if (!exception) {
+    editMode.value = false
+  }
+  notificationStore.action.push({
+    type: 'success',
+    message: t('sob.ledgersInitialization.updated'),
+  })
 }
 
 const onCancel = async () => {

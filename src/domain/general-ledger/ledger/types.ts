@@ -21,3 +21,12 @@ export interface PeriodAndLedgers {
   period: Period
   ledgers: Ledger[]
 }
+
+export interface InitializeLedgersRequest {
+  ledgers: InitializeLedgerItem[]
+}
+
+export interface InitializeLedgerItem {
+  accountNumber: string
+  openingBalance: number
+}
