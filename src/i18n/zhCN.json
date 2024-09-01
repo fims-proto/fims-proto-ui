@@ -85,7 +85,8 @@
     "detail": {
       "basic": "基本信息",
       "accounts": "科目设置",
-      "auxiliaries": "辅助核算"
+      "auxiliaries": "辅助核算",
+      "initialize": "初始化余额"
     }
   },
   "account": {
