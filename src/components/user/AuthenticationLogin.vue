@@ -45,6 +45,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { KratosService } from '../../domain'
 import { useNotificationStore } from '../../store/notification'
 import { useUserStore } from '../../store/user'
+import type { FormRules } from '../reusable/form'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -53,6 +54,14 @@ const userStore = useUserStore()
 const notificationStore = useNotificationStore()
 
 const formValue = ref<formValueType>({ flowId: '', method: '', user: { email: '', password: '' }, csrfToken: '' })
+const formRule: FormRules = {
+  'user.email': {
+    required: true,
+  },
+  'user.password': {
+    required: true,
+  },
+}
 const formBusy = ref(true)
 
 const notify = (flow: LoginFlow) => {
@@ -102,11 +111,11 @@ const handleSubmit = async () => {
     return
   }
 
-  const result = await KratosService.submitLoginFlow(
+  const { ok, data: result } = await KratosService.submitLoginFlow(
     formValue.value.flowId,
     buildSumitForm(formValue.value) as UpdateLoginFlowBody,
   )
-  if ('session' in result) {
+  if (ok) {
     userStore.action.loadUser()
 
     const returnTo = route.query['return_to'] as string
@@ -119,9 +128,9 @@ const handleSubmit = async () => {
     return
   }
   // otherwise, flow is retured
-  formValue.value = buildFormValue(result)
+  formValue.value = buildFormValue(result as LoginFlow)
   formBusy.value = false
-  notify(result)
+  notify(result as LoginFlow)
 }
 </script>
 
@@ -137,12 +146,14 @@ const handleSubmit = async () => {
 
       <!-- form -->
       <BaseForm
-        class="flex flex-col gap-4 px-12 py-8 bg-white shadow-lg rounded-lg"
+        :model="formValue"
+        :rules="formRule"
         :busy="formBusy"
+        class="flex flex-col gap-4 px-12 py-8 bg-white shadow-lg rounded-lg"
         @submit="handleSubmit"
       >
         <input v-model="formValue.csrfToken" type="hidden" />
-        <BaseFormItem :label="t('user.email')" required>
+        <BaseFormItem :label="t('user.email')" path="user.email" required>
           <BaseInput
             v-model="formValue.user.email"
             :placeholder="t('user.emailInputPlaceholder')"
@@ -152,7 +163,7 @@ const handleSubmit = async () => {
           />
         </BaseFormItem>
 
-        <BaseFormItem :label="t('user.password')" required>
+        <BaseFormItem :label="t('user.password')" path="user.password" required>
           <BaseInput
             v-model="formValue.user.password"
             :placeholder="t('user.passwordInputPlaceholder')"

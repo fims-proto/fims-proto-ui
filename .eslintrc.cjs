@@ -1,4 +1,6 @@
 /* eslint-disable no-undef */
+/* eslint-env node */
+
 module.exports = {
   root: true,
   parser: 'vue-eslint-parser', // for .vue

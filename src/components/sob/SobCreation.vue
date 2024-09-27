@@ -4,8 +4,10 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { SobService, type NewSob } from '../../domain'
 import { useSobStore } from '../../store/sob'
+import type { FormRules } from '../reusable/form'
+import BaseFormItem from '../reusable/form/BaseFormItem.vue'
 
-const t = useI18n().t
+const { t } = useI18n()
 const router = useRouter()
 const sobStore = useSobStore()
 
@@ -17,8 +19,27 @@ const newSob = ref<NewSob>({
   baseCurrency: 'CNY',
   startingPeriodYear: year,
   startingPeriodMonth: month,
-  accountsCodeLength: [4, 2, 2, 2],
+  accountsCodeLength: [4, 2, 2],
 })
+const formRules: FormRules = {
+  name: {
+    required: true,
+  },
+  baseCurrency: {
+    required: true,
+  },
+  accountsCodeLength: {
+    required: true,
+    validator: (value) => {
+      if ((value as Array<number>).length < 2 || (value as Array<number>).length > 10) {
+        return Error('sob.error.invalidAccountCodeLength')
+      }
+      return true
+    },
+  },
+}
+
+const codeLengthItemRef = ref<InstanceType<typeof BaseFormItem>>()
 
 const onSubmit = async () => {
   const { data, exception } = await SobService.createSob(newSob.value)
@@ -34,8 +55,10 @@ const onSubmit = async () => {
   })
 }
 
-const onExtend = () => newSob.value.accountsCodeLength.push(3)
-const onShorten = () => newSob.value.accountsCodeLength.pop()
+const onLengthChange = (direction: '+' | '-') => {
+  direction === '+' ? newSob.value.accountsCodeLength.push(2) : newSob.value.accountsCodeLength.pop()
+  codeLengthItemRef.value?.validate()
+}
 </script>
 
 <script lang="ts">
@@ -52,16 +75,16 @@ function getCurrentUTCTime() {
   <BasePage>
     <template #title>{{ t('sob.creation.title') }}</template>
     <div>
-      <BaseForm class="w-full max-w-2xl flex flex-col gap-4" @submit="onSubmit">
-        <BaseFormItem :label="t('sob.name')" required>
+      <BaseForm class="w-full max-w-2xl flex flex-col gap-4" :model="newSob" :rules="formRules" @submit="onSubmit">
+        <BaseFormItem :label="t('sob.name')" path="name" required>
           <BaseInput v-model="newSob.name" required />
         </BaseFormItem>
 
-        <BaseFormItem :label="t('common.description')">
+        <BaseFormItem :label="t('common.description')" path="description">
           <BaseInput v-model="newSob.description" />
         </BaseFormItem>
 
-        <BaseFormItem :label="t('sob.baseCurrency')" required>
+        <BaseFormItem :label="t('sob.baseCurrency')" path="baseCurrency" required>
           <BaseInput v-model="newSob.baseCurrency" />
         </BaseFormItem>
 
@@ -88,7 +111,7 @@ function getCurrentUTCTime() {
           </BaseInputGroup>
         </BaseFormItem>
 
-        <BaseFormItem :label="t('sob.accountCodeLength')" required>
+        <BaseFormItem ref="codeLengthItemRef" :label="t('sob.accountCodeLength')" path="accountsCodeLength" required>
           <div class="flex gap-2">
             <BaseInputGroup>
               <BaseInput
@@ -105,8 +128,8 @@ function getCurrentUTCTime() {
             </BaseInputGroup>
 
             <BaseButtonGroup>
-              <BaseButton @click="onShorten">-</BaseButton>
-              <BaseButton @click="onExtend">+</BaseButton>
+              <BaseButton @click="onLengthChange('-')">-</BaseButton>
+              <BaseButton @click="onLengthChange('+')">+</BaseButton>
             </BaseButtonGroup>
           </div>
         </BaseFormItem>

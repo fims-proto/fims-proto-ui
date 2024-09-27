@@ -47,7 +47,7 @@ const validateItem = () => {
   if (!props.path) {
     return
   }
-  const value = get<unknown>(Form?.model, props.path)
+  const value = get<unknown>(Form?.model?.value, props.path)
   const rule = get<FormItemRule>(Form?.rules, props.path)
 
   updateValidationState(validate(value, rule))
@@ -56,6 +56,10 @@ const validateItem = () => {
 provideFormItem({
   itemStatus,
   handleContentChange: validateItem,
+})
+
+defineExpose({
+  validate: validateItem,
 })
 </script>
 

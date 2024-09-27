@@ -18,7 +18,7 @@
     }
   },
   "common": {
-    "emptyContent": "什么也没有",
+    "emptyContent": "空",
     "description": "描述",
     "year": "年",
     "month": "月",
@@ -71,13 +71,22 @@
     "selectSob": "请选择工作账套",
     "manageSob": "账套管理",
     "current": "当前",
+    "error": {
+      "invalidAccountCodeLength": "科目级次不能少于 2 或者多于 10"
+    },
     "creation": {
       "title": "新建账套"
+    },
+    "ledgersInitialization": {
+      "title": "初始化账簿",
+      "firstPeriod": "启用期间: {periodText}",
+      "updated": "科目余额已更新"
     },
     "detail": {
       "basic": "基本信息",
       "accounts": "科目设置",
-      "auxiliaries": "辅助核算"
+      "auxiliaries": "辅助核算",
+      "initialize": "初始化余额"
     }
   },
   "account": {
@@ -142,6 +151,7 @@
   },
   "ledger": {
     "title": "账簿",
+    "openingBalance": "期初余额",
     "openingDebitBalance": "期初借方余额",
     "openingCreditBalance": "期初贷方余额",
     "periodDebit": "借",

@@ -10,6 +10,7 @@ export type Account = {
   title: string
   accountNumber: string
   numberHierarchy: number[]
+  isLeaf: boolean
   level: number
   class: string
   group: string

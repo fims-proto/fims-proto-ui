@@ -43,7 +43,17 @@ const tabChanged = (index: number) => {
       </template>
       <template #panels>
         <!-- basic tab -->
-        <BaseTabPanel>basic yet empty</BaseTabPanel>
+        <BaseTabPanel>
+          <p>basic yet empty</p>
+          <BaseNavLink
+            :to="{
+              name: 'ledgersInitialization',
+              params: { sobId: sobId },
+            }"
+          >
+            {{ t('sob.detail.initialize') }}
+          </BaseNavLink>
+        </BaseTabPanel>
 
         <!-- accounts tab -->
         <BaseTabPanel>

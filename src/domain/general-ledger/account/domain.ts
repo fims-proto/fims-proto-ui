@@ -31,7 +31,7 @@ class AccountService {
     const filterStr = filterContent && filterContent != 'true' ? `&$filter=${filterContent}` : ''
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(
-        `${FIMS_URL}/api/v1/sob/${sobId}/accounts?$sort=accountNumber&$page=${pageable.page}&$size=${pageable.size}${filterStr}`,
+        `${FIMS_URL}/api/v1/sob/${sobId}/search-accounts?$sort=accountNumber&$page=${pageable.page}&$size=${pageable.size}${filterStr}`,
       )
       convertFieldsFromString(result.data.content, ACCOUNT_FIELDS_CONVERSION)
       return result.data
