@@ -1,0 +1,12 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.json",
+  "compilerOptions": {
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@domain/*": ["src/domain/*"],
+      "@store/*": ["src/store/*"],
+      "@i18n": ["src/i18n/index.ts"]
+    }
+  }
+}

@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  .text-primary-color {
+    @apply text-primary-500 dark:text-primary-400;
+  }
+
+  .border-color {
+    @apply border-slate-200 dark:border-zinc-700;
+  }
+}
