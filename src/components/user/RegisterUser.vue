@@ -1,3 +1,7 @@
+<script setup lang="ts">
+import UpdatePassword from './UpdatePassword.vue'
+</script>
+
 <template>
   <!-- container -->
   <div class="flex h-screen w-full items-center justify-center bg-neutral-50">

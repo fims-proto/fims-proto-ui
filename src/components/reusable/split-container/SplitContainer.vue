@@ -5,7 +5,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="flex h-full w-full gap-8">
+  <div class="flex w-full gap-8">
     <div :class="[detailOpen ? 'w-4/12' : 'w-full']">
       <slot name="list" :detail-open="detailOpen"></slot>
     </div>

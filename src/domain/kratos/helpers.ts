@@ -23,8 +23,8 @@ export function mapSession(kratosSession: KratosSession): Session {
   return {
     id: kratosSession.identity?.id,
     name: {
-      first: kratosSession.identity?.traits.name.first,
-      last: kratosSession.identity?.traits.name.last,
+      first: kratosSession.identity?.traits.name?.first,
+      last: kratosSession.identity?.traits.name?.last,
     },
     email: kratosSession.identity?.traits.email,
     authenticationMethod: lastAuthenticationMethod,
