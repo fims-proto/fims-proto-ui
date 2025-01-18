@@ -29,7 +29,6 @@ import InputNumber from 'primevue/inputnumber'
 import InputText from 'primevue/inputtext'
 import Message from 'primevue/message'
 import Menu from 'primevue/menu'
-import Menubar from 'primevue/menubar'
 import RadioButton from 'primevue/radiobutton'
 import RadioButtonGroup from 'primevue/radiobuttongroup'
 import SelectButton from 'primevue/selectbutton'
@@ -62,7 +61,6 @@ app.component('DatePicker', DatePicker)
 app.component('InputText', InputText)
 app.component('Message', Message)
 app.component('Menu', Menu)
-app.component('Menubar', Menubar)
 app.component('RadioButton', RadioButton)
 app.component('RadioButtonGroup', RadioButtonGroup)
 app.component('SelectButton', SelectButton)

@@ -3,11 +3,23 @@
 @tailwind utilities;
 
 @layer base {
+  .text-color {
+    @apply text-slate-700 dark:text-white;
+  }
+
+  .text-hover-color {
+    @apply text-slate-800 dark:text-white;
+  }
+
   .text-primary-color {
     @apply text-primary-500 dark:text-primary-400;
   }
 
   .border-color {
     @apply border-slate-200 dark:border-zinc-700;
+  }
+
+  .divide-color {
+    @apply divide-slate-200 dark:divide-zinc-700;
   }
 }

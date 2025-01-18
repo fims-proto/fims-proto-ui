@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { AccountInputAccount, AccountInputAuxiliaryAccount, VoucherForm, VoucherFormLineItem } from './types'
 import { AppLabel } from '../reusable/form'
 import { useRouter } from 'vue-router'
 import { injectContext } from './context'
-import ConfirmButton from '../reusable/confirm-button/ConfirmButton.vue'
 import { AccountInput } from '../reusable/account-input'
 import { useUserStore } from '@store/user'
 import { useToastStore } from '@store/toast'
@@ -16,6 +15,8 @@ import {
   type LineItemRequest,
   type Voucher,
 } from '@domain/general-ledger'
+import { ObjectPage, type ActionItem } from '../reusable/object-page'
+import { confirm } from '../reusable/confirm-button'
 
 const props = defineProps<{
   sobId: string
@@ -43,6 +44,55 @@ const emptyVoucher = (): VoucherForm => ({
 
 const voucher = ref<Voucher>()
 const voucherForm = ref<VoucherForm>(emptyVoucher())
+const voucherActions = computed((): ActionItem[] => [
+  {
+    label: t('action.edit'),
+    condition: () => !!props.voucherId,
+    disabled: () => editMode.value || voucher.value?.isAudited || voucher.value?.isReviewed,
+    command: () => (editMode.value = true),
+  },
+  {
+    label: t('action.saveAndNew'),
+    condition: () => editMode.value && !props.voucherId,
+    command: () => onSave(false),
+  },
+  {
+    label: t('action.save'),
+    condition: () => editMode.value,
+    command: () => onSave(true),
+  },
+  {
+    label: t('action.cancel'),
+    condition: () => editMode.value,
+    command: onCancel,
+  },
+  {
+    label: t('voucher.audit'),
+    condition: () => !!props.voucherId && !voucher.value?.isAudited && !editMode.value,
+    command: () => onAction('audit'),
+  },
+  {
+    label: t('voucher.cancelAudit'),
+    condition: () => !!props.voucherId && voucher.value?.isAudited && !editMode.value,
+    command: (e) => confirm(e, { accept: () => onAction('cancelAudit') }),
+  },
+  {
+    label: t('voucher.review'),
+    condition: () => !!props.voucherId && !voucher.value?.isReviewed && !editMode.value,
+    command: () => onAction('review'),
+  },
+  {
+    label: t('voucher.cancelReview'),
+    condition: () => !!props.voucherId && voucher.value?.isReviewed && !editMode.value,
+    command: (e) => confirm(e, { accept: () => onAction('cancelReview') }),
+  },
+  {
+    label: t('voucher.post'),
+    condition: () =>
+      !!props.voucherId && voucher.value?.isReviewed && voucher.value.isAudited && !voucher.value.isPosted,
+    command: () => onAction('post'),
+  },
+])
 
 watch(() => props.voucherId, load, { immediate: true })
 
@@ -213,71 +263,52 @@ async function onAction(action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
 </script>
 
 <template>
-  <div class="flex flex-col gap-4">
-    <!-- action buttons -->
-    <div class="flex justify-end gap-2">
-      <Button
-        v-if="voucherId"
-        :disabled="editMode || voucher?.isAudited || voucher?.isReviewed"
-        :label="t('action.edit')"
-        @click="editMode = true"
-      />
-      <Button v-if="editMode && !voucherId" :label="t('action.saveAndNew')" @click="onSave(false)" />
-      <Button v-if="editMode" :label="t('action.save')" @click="onSave(true)" />
-      <Button v-if="editMode" text :label="t('action.cancel')" @click="onCancel" />
-      <Button
-        v-if="voucherId && !voucher?.isAudited"
-        :disabled="editMode"
-        :label="t('voucher.audit')"
-        @click="onAction('audit')"
-      />
-      <ConfirmButton
-        v-if="voucherId && voucher?.isAudited"
-        :disabled="editMode"
-        :label="t('voucher.cancelAudit')"
-        @accept="onAction('cancelAudit')"
-      />
-      <Button
-        v-if="voucherId && !voucher?.isReviewed"
-        :disabled="editMode"
-        :label="t('voucher.review')"
-        @click="onAction('review')"
-      />
-      <ConfirmButton
-        v-if="voucherId && voucher?.isReviewed"
-        :disabled="editMode"
-        :label="t('voucher.cancelReview')"
-        @accept="onAction('cancelReview')"
-      />
-      <Button
-        v-if="voucherId && voucher?.isReviewed && voucher.isAudited && !voucher.isPosted"
-        :label="t('voucher.post')"
-        @click="onAction('post')"
-      />
-    </div>
+  <ObjectPage :title="voucherForm.headerText" :actions="voucherActions" @close="router.push({ name: 'voucherMain' })">
+    <template #attributes>
+      <!-- voucher edit form -->
+      <div v-if="editMode" class="flex flex-col gap-2">
+        <div class="flex gap-4">
+          <div class="flex grow flex-col gap-1">
+            <AppLabel for="header-text-input" required>{{ t('voucher.headerText') }}</AppLabel>
+            <InputText id="header-text-input" v-model="voucherForm.headerText" fluid />
+          </div>
 
-    <!-- voucher edit form -->
-    <div v-if="editMode" class="flex flex-col gap-2">
-      <!-- voucher header info -->
-      <div class="flex gap-4">
-        <div class="flex grow flex-col gap-1">
-          <AppLabel for="header-text-input" required>{{ t('voucher.headerText') }}</AppLabel>
-          <InputText id="header-text-input" v-model="voucherForm.headerText" fluid />
-        </div>
+          <div class="flex flex-col gap-1">
+            <AppLabel for="transaction-time-input" required>{{ t('voucher.transactionTime') }}</AppLabel>
+            <DatePicker v-model="voucherForm.transactionTime" input-id="transaction-time-input" show-button-bar />
+          </div>
 
-        <div class="flex flex-col gap-1">
-          <AppLabel for="transaction-time-input" required>{{ t('voucher.transactionTime') }}</AppLabel>
-          <DatePicker v-model="voucherForm.transactionTime" input-id="transaction-time-input" show-button-bar />
-        </div>
-
-        <div class="flex flex-col gap-1">
-          <AppLabel for="attachment-quantity-input" required>{{ t('voucher.attachmentQuantity') }}</AppLabel>
-          <InputNumber v-model="voucherForm.attachmentQuantity" input-id="attachment-quantity-input" fluid />
+          <div class="flex flex-col gap-1">
+            <AppLabel for="attachment-quantity-input" required>{{ t('voucher.attachmentQuantity') }}</AppLabel>
+            <InputNumber v-model="voucherForm.attachmentQuantity" input-id="attachment-quantity-input" fluid />
+          </div>
         </div>
       </div>
 
-      <!-- line items -->
-      <DataTable :value="voucherForm.lineItems">
+      <!-- voucher display -->
+      <div v-else-if="voucher">
+        <div class="flex justify-between">
+          <div class="flex gap-2">
+            <span>{{ t('voucher.headerText') }}:</span>
+            <span>{{ voucher.headerText }}</span>
+          </div>
+
+          <div class="flex gap-2">
+            <span>{{ t('voucher.transactionTime') }}:</span>
+            <span>{{ d(voucher.transactionTime, 'short') }}</span>
+          </div>
+
+          <div class="flex gap-2">
+            <span>{{ t('voucher.attachmentQuantity') }}:</span>
+            <span>{{ voucher.attachmentQuantity }}</span>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <template #extra>
+      <!-- voucher edit form -->
+      <DataTable v-if="editMode" :value="voucherForm.lineItems">
         <Column :exportable="false" style="width: 8rem">
           <template #body="{ index }">
             <Button
@@ -338,30 +369,9 @@ async function onAction(action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
           </template>
         </Column>
       </DataTable>
-    </div>
 
-    <!-- voucher display -->
-    <div v-else-if="voucher">
-      <!-- voucher header info -->
-      <div class="flex justify-between">
-        <div class="flex gap-2">
-          <span>{{ t('voucher.headerText') }}:</span>
-          <span>{{ voucher.headerText }}</span>
-        </div>
-
-        <div class="flex gap-2">
-          <span>{{ t('voucher.transactionTime') }}:</span>
-          <span>{{ d(voucher.transactionTime, 'short') }}</span>
-        </div>
-
-        <div class="flex gap-2">
-          <span>{{ t('voucher.attachmentQuantity') }}:</span>
-          <span>{{ voucher.attachmentQuantity }}</span>
-        </div>
-      </div>
-
-      <!-- line items -->
-      <DataTable :value="voucher.lineItems">
+      <!-- voucher display -->
+      <DataTable v-else-if="voucher" :value="voucher.lineItems">
         <Column :header="t('voucher.account')">
           <template #body="{ data }">
             <div v-if="data.account" class="flex flex-col gap-2">
@@ -397,6 +407,6 @@ async function onAction(action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
           </div>
         </template>
       </DataTable>
-    </div>
-  </div>
+    </template>
+  </ObjectPage>
 </template>

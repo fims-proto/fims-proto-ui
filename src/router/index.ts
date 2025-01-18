@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory, type RouteRecordRaw, RouterView } from 'vue-router'
 import { verifyCurrentUser, loadWorkingSob, updateWorkingSob, verifyNotLoggedIn } from './before-enter-handlers'
 import NotImplemented from '../components/NotImplemented.vue'
-import AppLayout from '../components/AppLayout.vue'
+import AppLayout from '../components/layout/AppLayout.vue'
 import AuthenticationLogin from '../components/user/AuthenticationLogin.vue'
 import AuthenticationLogout from '../components/user/AuthenticationLogout.vue'
 import ProfileSetting from '../components/user/ProfileSetting.vue'

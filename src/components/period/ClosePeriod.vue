@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { useSobStore } from '@store/sob'
 import { useToastStore } from '@store/toast'
 import { PeriodService } from '@domain/general-ledger'
-import ConfirmButton from '../reusable/confirm-button/ConfirmButton.vue'
+import { confirm } from '../reusable/confirm-button'
 
 const props = defineProps<{
   sobId: string
@@ -43,10 +43,10 @@ const onClosePeriod = async () => {
         })
       }}
     </p>
-    <ConfirmButton
+    <Button
       :label="t('period.close.action')"
       :message="t('period.close.confirmation')"
-      @accept="onClosePeriod"
+      @click="(e) => confirm(e, { accept: onClosePeriod })"
     />
   </div>
 </template>
