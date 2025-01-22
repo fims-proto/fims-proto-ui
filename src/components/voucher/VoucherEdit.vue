@@ -17,6 +17,7 @@ import {
 } from '@domain/general-ledger'
 import { ObjectPage, type ActionItem } from '../reusable/object-page'
 import { confirm } from '../reusable/confirm-button'
+import { Grid, GridItem } from '../reusable/grid'
 
 const props = defineProps<{
   sobId: string
@@ -47,8 +48,7 @@ const voucherForm = ref<VoucherForm>(emptyVoucher())
 const voucherActions = computed((): ActionItem[] => [
   {
     label: t('action.edit'),
-    condition: () => !!props.voucherId,
-    disabled: () => editMode.value || voucher.value?.isAudited || voucher.value?.isReviewed,
+    condition: () => !!props.voucherId && !editMode.value,
     command: () => (editMode.value = true),
   },
   {
@@ -263,47 +263,44 @@ async function onAction(action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
 </script>
 
 <template>
-  <ObjectPage :title="voucherForm.headerText" :actions="voucherActions" @close="router.push({ name: 'voucherMain' })">
+  <ObjectPage
+    :title="voucherForm.documentNumber ?? t('voucher.creation.title')"
+    :actions="voucherActions"
+    @close="router.push({ name: 'voucherMain' })"
+  >
     <template #attributes>
       <!-- voucher edit form -->
-      <div v-if="editMode" class="flex flex-col gap-2">
-        <div class="flex gap-4">
-          <div class="flex grow flex-col gap-1">
-            <AppLabel for="header-text-input" required>{{ t('voucher.headerText') }}</AppLabel>
-            <InputText id="header-text-input" v-model="voucherForm.headerText" fluid />
-          </div>
-
-          <div class="flex flex-col gap-1">
-            <AppLabel for="transaction-time-input" required>{{ t('voucher.transactionTime') }}</AppLabel>
-            <DatePicker v-model="voucherForm.transactionTime" input-id="transaction-time-input" show-button-bar />
-          </div>
-
-          <div class="flex flex-col gap-1">
-            <AppLabel for="attachment-quantity-input" required>{{ t('voucher.attachmentQuantity') }}</AppLabel>
-            <InputNumber v-model="voucherForm.attachmentQuantity" input-id="attachment-quantity-input" fluid />
-          </div>
+      <Grid v-if="editMode" class="flex gap-4">
+        <div class="flex grow flex-col gap-1">
+          <AppLabel for="header-text-input" required>{{ t('voucher.headerText') }}</AppLabel>
+          <InputText id="header-text-input" v-model="voucherForm.headerText" fluid />
         </div>
-      </div>
+
+        <div class="flex flex-col gap-1">
+          <AppLabel for="transaction-time-input" required>{{ t('voucher.transactionTime') }}</AppLabel>
+          <DatePicker v-model="voucherForm.transactionTime" input-id="transaction-time-input" show-button-bar />
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <AppLabel for="attachment-quantity-input" required>{{ t('voucher.attachmentQuantity') }}</AppLabel>
+          <InputNumber v-model="voucherForm.attachmentQuantity" input-id="attachment-quantity-input" fluid />
+        </div>
+      </Grid>
 
       <!-- voucher display -->
-      <div v-else-if="voucher">
-        <div class="flex justify-between">
-          <div class="flex gap-2">
-            <span>{{ t('voucher.headerText') }}:</span>
-            <span>{{ voucher.headerText }}</span>
-          </div>
+      <Grid v-else-if="voucher">
+        <GridItem :label="t('voucher.headerText')">
+          {{ voucher.headerText }}
+        </GridItem>
 
-          <div class="flex gap-2">
-            <span>{{ t('voucher.transactionTime') }}:</span>
-            <span>{{ d(voucher.transactionTime, 'short') }}</span>
-          </div>
+        <GridItem :label="t('voucher.transactionTime')">
+          {{ d(voucher.transactionTime, 'short') }}
+        </GridItem>
 
-          <div class="flex gap-2">
-            <span>{{ t('voucher.attachmentQuantity') }}:</span>
-            <span>{{ voucher.attachmentQuantity }}</span>
-          </div>
-        </div>
-      </div>
+        <GridItem :label="t('voucher.attachmentQuantity')">
+          {{ voucher.attachmentQuantity }}
+        </GridItem>
+      </Grid>
     </template>
 
     <template #extra>

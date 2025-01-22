@@ -22,6 +22,6 @@ watch(
 
 <template>
   <RouterView />
-  <Toast />
+  <Toast position="top-center" />
   <ConfirmPopup />
 </template>

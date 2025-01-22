@@ -7,7 +7,7 @@ const route = useRoute()
 </script>
 
 <template>
-  <SplitContainer :detail-open="route.name === 'sobDetail'">
+  <SplitContainer :detail-open="route.name === 'sobDetail' || route.name === 'sobNew'">
     <template #list>
       <SobList />
     </template>

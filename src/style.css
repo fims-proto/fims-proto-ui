@@ -7,12 +7,16 @@
     @apply text-slate-700 dark:text-white;
   }
 
-  .text-hover-color {
-    @apply text-slate-800 dark:text-white;
+  .text-secondary-color {
+    @apply text-slate-500 dark:text-slate-400;
   }
 
   .text-primary-color {
     @apply text-primary-500 dark:text-primary-400;
+  }
+
+  .text-hover-color {
+    @apply text-slate-800 dark:text-white;
   }
 
   .border-color {

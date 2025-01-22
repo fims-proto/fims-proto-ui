@@ -59,6 +59,9 @@
   "sob": {
     "listTitle": "账套 ({0})",
     "title": "账套",
+    "creation": {
+      "title": "新建账套"
+    },
     "sobUnselected": "未选择账套",
     "name": "公司名称",
     "baseCurrency": "本位币",
@@ -69,9 +72,6 @@
     "current": "当前",
     "error": {
       "invalidAccountCodeLength": "科目级次不能少于 2 或者多于 10"
-    },
-    "creation": {
-      "title": "新建账套"
     },
     "ledgerInitialize": {
       "title": "初始化账簿",

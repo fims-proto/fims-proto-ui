@@ -16,9 +16,9 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <div class="flex flex-col gap-4 rounded-md bg-white p-4 shadow-md">
+  <div class="flex flex-col gap-8 rounded-md bg-white shadow-md">
     <!-- header -->
-    <div class="flex flex-col gap-2">
+    <div class="flex flex-col gap-8 p-4">
       <div class="flex items-center justify-between gap-2">
         <div class="flex items-center gap-1">
           <Button icon="pi pi-angle-left" text rounded :aria-label="t('action.close')" @click="$emit('close')" />
@@ -45,12 +45,12 @@ const { t } = useI18n()
         <span>{{ subtitle }}</span>
       </div>
 
-      <div>
+      <div class="px-3">
         <slot name="attributes"></slot>
       </div>
     </div>
 
-    <div>
+    <div class="border-color border-t p-4">
       <slot name="extra"></slot>
     </div>
   </div>

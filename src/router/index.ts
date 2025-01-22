@@ -8,7 +8,6 @@ import ProfileSetting from '../components/user/ProfileSetting.vue'
 import RegisterUser from '../components/user/RegisterUser.vue'
 import SobMain from '../components/sob/SobMain.vue'
 import SobEdit from '../components/sob/SobEdit.vue'
-import SobDetail from '../components/sob/SobDetail.vue'
 import LedgerInitialize from '../components/sob/LedgerInitialize.vue'
 import VoucherMain from '../components/voucher/VoucherMain.vue'
 import VoucherEdit from '../components/voucher/VoucherEdit.vue'
@@ -60,18 +59,18 @@ const routes: RouteRecordRaw[] = [
             path: 'new',
             name: 'sobNew',
             component: SobEdit,
-            props: { editMode: 'create' },
-          },
-          {
-            path: ':sobId/init',
-            name: 'ledgerInitialize',
-            component: LedgerInitialize,
             props: true,
           },
           {
             path: ':sobId/:view(\\d+)?',
             name: 'sobDetail',
-            component: SobDetail,
+            component: SobEdit,
+            props: true,
+          },
+          {
+            path: ':sobId/init',
+            name: 'ledgerInitialize',
+            component: LedgerInitialize,
             props: true,
           },
         ],
