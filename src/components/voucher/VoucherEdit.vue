@@ -337,19 +337,17 @@ async function onAction(action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
                 @change="(a) => onAccountSelect(a, data)"
               />
 
-              <InputGroup
-                v-if="data.auxiliaryAccounts"
-                v-for="(category, index) in data.account?.auxiliaryCategories"
-                :key="category.key"
-              >
-                <InputGroupAddon>{{ category.title }}</InputGroupAddon>
-                <Select
-                  v-model="data.auxiliaryAccounts[index]"
-                  :options="auxiliaryAccountOptions[category.key]"
-                  :option-label="(item) => `${item.key} ${item.title}`"
-                  fluid
-                />
-              </InputGroup>
+              <template v-if="data.auxiliaryAccounts">
+                <InputGroup v-for="(category, index) in data.account?.auxiliaryCategories" :key="category.key">
+                  <InputGroupAddon>{{ category.title }}</InputGroupAddon>
+                  <Select
+                    v-model="data.auxiliaryAccounts[index]"
+                    :options="auxiliaryAccountOptions[category.key]"
+                    :option-label="(item) => `${item.key} ${item.title}`"
+                    fluid
+                  />
+                </InputGroup>
+              </template>
             </div>
           </template>
         </Column>

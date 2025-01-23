@@ -31,16 +31,6 @@ watch(() => props.sobId, refresh, { immediate: true })
 
 <template>
   <DataTable :value="accounts ?? []">
-    <template #header>
-      <div class="flex flex-wrap items-center justify-between gap-2">
-        <span>{{ t('account.listTitle', [accounts?.length]) }}</span>
-        <Button
-          as="router-link"
-          :label="t('sob.detail.initialize')"
-          :to="{ name: 'ledgerInitialize', params: { sobId } }"
-        />
-      </div>
-    </template>
     <Column :header="t('account.accountNumber')" field="accountNumber" />
     <Column :header="t('account.accountTitle')" field="title" />
     <Column :exportable="false">

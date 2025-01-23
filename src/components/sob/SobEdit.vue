@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
+import { type FormInstance } from '@primevue/forms'
+import { zodResolver } from '@primevue/forms/resolvers/zod'
+import { z } from 'zod'
 import { useSobStore } from '@store/sob'
 import { SobService, type Sob } from '@domain/sob'
 import { Grid, GridItem } from '../reusable/grid'
 import { ObjectPage, type ActionItem } from '../reusable/object-page'
-import { type FormItemState, type FormRules } from '../reusable/form'
-import { AppForm, AppLabel } from '../reusable/form'
 import AccountList from './AccountList.vue'
 import AuxiliaryMain from './AuxiliaryMain.vue'
 
@@ -36,7 +37,13 @@ const EMPTY_SOB = {
 
 const sob = ref<Sob>(EMPTY_SOB)
 const editMode = ref<'create' | 'update' | 'display'>('display')
+const formRef = useTemplateRef<FormInstance>('form')
 const sobActions = computed((): ActionItem[] => [
+  {
+    label: t('sob.detail.initialize'),
+    condition: () => editMode.value === 'display' && !!props.sobId,
+    command: () => router.push({ name: 'ledgerInitialize', params: { sobId: props.sobId } }),
+  },
   {
     label: t('action.edit'),
     condition: () => editMode.value === 'display',
@@ -45,7 +52,7 @@ const sobActions = computed((): ActionItem[] => [
   {
     label: t('action.save'),
     condition: () => editMode.value != 'display',
-    command: onSubmit,
+    command: () => formRef.value?.submit(),
   },
   {
     label: t('action.cancel'),
@@ -54,24 +61,18 @@ const sobActions = computed((): ActionItem[] => [
   },
 ])
 
-const itemState = ref<FormItemState>({})
-const formRules: FormRules = {
-  name: {
-    required: true,
-  },
-  baseCurrency: {
-    required: true,
-  },
-  accountsCodeLength: {
-    required: true,
-    validator: (value) => {
-      if ((value as Array<number>).length < 2 || (value as Array<number>).length > 10) {
-        return Error('sob.error.invalidAccountCodeLength')
-      }
-      return true
-    },
-  },
-}
+const resolver = ref(
+  zodResolver(
+    z.object({
+      name: z.string(),
+      description: z.string().optional(),
+      baseCurrency: z.string(),
+      startingPeriodYear: z.number(),
+      startingPeriodMonth: z.number(),
+      accountsCodeLength: z.array(z.number()).min(2).max(10),
+    }),
+  ),
+)
 
 const refreshSob = async () => {
   if (props.sobId) {
@@ -85,12 +86,12 @@ const refreshSob = async () => {
 
 watch(() => props.sobId, refreshSob, { immediate: true })
 
-function onLengthChange(direction: '+' | '-') {
-  if (direction === '+' && sob.value.accountsCodeLength.length < 10) {
-    sob.value.accountsCodeLength.push(2)
+function onLengthChange(direction: '+' | '-', arr: number[]) {
+  if (direction === '+' && arr.length < 10) {
+    arr.push(2)
   }
-  if (direction === '-' && sob.value.accountsCodeLength.length > 2) {
-    sob.value.accountsCodeLength.pop()
+  if (direction === '-' && arr.length > 2) {
+    arr.pop()
   }
 }
 
@@ -134,86 +135,73 @@ async function onCancel() {
       </Grid>
 
       <!-- edit mode -->
-      <AppForm
-        v-else
-        :model="sob"
-        :rules="formRules"
-        class="flex flex-col"
-        @submit="onSubmit"
-        @item-state-change="(newState: FormItemState) => (itemState = newState)"
-      >
-        <AppLabel required for="sob-name-input">{{ t('sob.name') }}</AppLabel>
-        <InputText
-          id="sob-name-input"
-          v-model="sob.name"
-          :invalid="itemState['name']?.invalid"
-          aria-describedby="sob-name-help"
-          class="w-full"
-        />
-        <small v-if="itemState['name']?.message" id="sob-name-help">
-          {{ t(itemState['name'].message) }}
-        </small>
+      <Form v-else ref="form" :resolver :initial-values="sob" @submit="onSubmit">
+        <Grid>
+          <FormField v-slot="$field" as-child name="name">
+            <GridItem :label="t('sob.name')" required pt:label:for="sob-name-input">
+              <InputText id="sob-name-input" aria-describedby="sob-name-help" />
+              <Message v-if="$field?.invalid" id="sob-name-help" severity="error" size="small" variant="simple">
+                {{ $field.error?.message }}
+              </Message>
+            </GridItem>
+          </FormField>
 
-        <AppLabel for="sob-description-input">{{ t('common.description') }}</AppLabel>
-        <InputText
-          id="sob-description-input"
-          v-model="sob.description"
-          :disabled="editMode === 'update'"
-          class="w-full"
-        />
+          <FormField as-child name="description">
+            <GridItem :label="t('common.description')" pt:label:for="sob-description-input">
+              <InputText id="sob-description-input" :disabled="editMode === 'update'" />
+            </GridItem>
+          </FormField>
 
-        <AppLabel required for="sob-currency-input">{{ t('sob.baseCurrency') }}</AppLabel>
-        <InputText
-          id="sob-currency-input"
-          v-model="sob.baseCurrency"
-          :invalid="itemState['sob.baseCurrency']?.invalid"
-          :disabled="editMode === 'update'"
-          aria-describedby="sob-currency-help"
-          class="w-full"
-        />
-        <small v-if="itemState['baseCurrency']?.message" id="sob-currency-help">
-          {{ t(itemState['baseCurrency'].message) }}
-        </small>
+          <FormField v-slot="$field" as-child name="baseCurrency">
+            <GridItem :label="t('sob.baseCurrency')" required pt:label:for="sob-currency-input">
+              <InputText
+                id="sob-currency-input"
+                aria-describedby="sob-currency-help"
+                :disabled="editMode === 'update'"
+              />
+              <Message v-if="$field?.invalid" id="sob-currency-help" severity="error" size="small" variant="simple">
+                {{ $field.error?.message }}
+              </Message>
+            </GridItem>
+          </FormField>
 
-        <AppLabel required>{{ t('sob.startingPeriod') }}</AppLabel>
-        <InputGroup>
-          <InputGroupAddon>{{ t('common.year') }}</InputGroupAddon>
-          <InputNumber
-            v-model="sob.startingPeriodYear"
-            input-id="sob-year"
-            :min="2020"
-            :max="3000"
-            :use-grouping="false"
-            :disabled="editMode === 'update'"
-            fluid
-          />
-          <InputGroupAddon>{{ t('common.month') }}</InputGroupAddon>
-          <InputNumber
-            v-model="sob.startingPeriodMonth"
-            input-id="sob-month"
-            :min="1"
-            :max="12"
-            :disabled="editMode === 'update'"
-            fluid
-          />
-        </InputGroup>
+          <GridItem :label="t('sob.startingPeriod')" required>
+            <InputGroup>
+              <InputGroupAddon>
+                <span class="text-sm">{{ t('common.year') }}</span>
+              </InputGroupAddon>
+              <InputNumber
+                name="startingPeriodYear"
+                :min="2020"
+                :max="3000"
+                :use-grouping="false"
+                :disabled="editMode === 'update'"
+              />
+              <InputGroupAddon>
+                <span class="text-sm">{{ t('common.month') }}</span>
+              </InputGroupAddon>
+              <InputNumber name="startingPeriodMonth" :min="1" :max="12" :disabled="editMode === 'update'" />
+            </InputGroup>
+          </GridItem>
 
-        <AppLabel required>{{ t('sob.accountCodeLength') }}</AppLabel>
-        <InputGroup>
-          <Button icon="pi pi-minus" @click="onLengthChange('-')" />
-          <Button icon="pi pi-plus" @click="onLengthChange('+')" />
-          <InputNumber
-            v-for="(_, index) in sob.accountsCodeLength"
-            :key="`sob-new-accounts-code-length-${index}`"
-            v-model="sob.accountsCodeLength[index]"
-            :input-id="`sob-new-accounts-code-length-${index}`"
-            :min="1"
-            :max="6"
-          />
-        </InputGroup>
-
-        <Button v-if="editMode === 'create'" :label="t('action.submit')" type="submit" />
-      </AppForm>
+          <FormField v-slot="$field" as-child name="accountsCodeLength">
+            <GridItem :label="t('sob.accountCodeLength')" required>
+              <InputGroup>
+                <Button icon="pi pi-minus" @click="onLengthChange('-', $field.value)" />
+                <Button icon="pi pi-plus" @click="onLengthChange('+', $field.value)" />
+                <InputNumber
+                  v-for="(_, index) in $field.value"
+                  :key="`sob-accounts-code-length-${index}`"
+                  v-model="$field.value[index]"
+                  :input-id="`sob-accounts-code-length-${index}`"
+                  :min="1"
+                  :max="6"
+                />
+              </InputGroup>
+            </GridItem>
+          </FormField>
+        </Grid>
+      </Form>
     </template>
 
     <template v-if="sobId" #extra>
