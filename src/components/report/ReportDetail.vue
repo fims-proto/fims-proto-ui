@@ -189,7 +189,7 @@ function onExpansionToggle(id: string) {
                   class="flex items-center gap-1"
                   @click="onExpansionToggle(data.id)"
                 >
-                  <i class="pi pi-file-edit !text-xs" />
+                  <i class="pi pi-file-edit text-xs!" />
                   <span>{{ t('action.edit') }}</span>
                 </button>
                 <!-- detail button -->
@@ -198,7 +198,7 @@ function onExpansionToggle(id: string) {
                   class="flex items-center gap-1"
                   @click="onExpansionToggle(data.id)"
                 >
-                  <i class="pi pi-search !text-xs" />
+                  <i class="pi pi-search text-xs!" />
                   <span>{{ t('action.detail') }}</span>
                 </button>
               </div>
