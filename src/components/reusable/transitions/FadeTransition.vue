@@ -1,0 +1,12 @@
+<template>
+  <Transition
+    enter-from-class="opacity-0"
+    enter-active-class="transition-opacity"
+    enter-to-class=""
+    leave-from-class=""
+    leave-active-class="transition-opacity"
+    leave-to-class="opacity-0"
+  >
+    <slot></slot>
+  </Transition>
+</template>

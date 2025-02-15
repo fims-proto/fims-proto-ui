@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { RouterView } from 'vue-router'
 import { SplitContainer } from '../reusable/split-container'
-import VoucherList from './VoucherList.vue'
+import ReportList from './ReportList.vue'
 import { provideContext } from './context'
 
 defineProps<{
@@ -15,9 +15,9 @@ provideContext({
 </script>
 
 <template>
-  <SplitContainer :open="$route.name === 'voucherDetail' || $route.name === 'voucherNew'">
-    <template #left="{ open }">
-      <VoucherList :sob-id="sobId" :lite="open" />
+  <SplitContainer :open="$route.name === 'reportDetail'" right-size="full">
+    <template #left>
+      <ReportList :sob-id="sobId" />
     </template>
 
     <template #right>

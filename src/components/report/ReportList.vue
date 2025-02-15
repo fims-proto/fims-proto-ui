@@ -6,6 +6,7 @@ import type { Page } from '@domain/types'
 import type { DataTablePageEvent } from 'primevue/datatable'
 import { FilterFactory } from '@domain/filter'
 import { useRouter } from 'vue-router'
+import { injectContext } from './context'
 
 const props = defineProps<{
   sobId: string
@@ -14,11 +15,16 @@ const props = defineProps<{
 const { t } = useI18n()
 const factory = new FilterFactory<Report>()
 const router = useRouter()
+const context = injectContext()
 
 const reports = ref<Page<Report>>()
 const pageable = ref({ page: 1, size: 10 })
 const classFilter = ref('balance_sheet')
 const classOptions = ref(['balance_sheet', 'income_statement'])
+
+if (context?.refreshList) {
+  context.refreshList.value = load
+}
 
 watch([() => pageable.value, classFilter], load, { immediate: true })
 

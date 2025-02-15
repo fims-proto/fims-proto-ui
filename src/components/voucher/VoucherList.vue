@@ -32,7 +32,7 @@ if (context?.refreshList) {
 }
 
 watch(currentPeriod, defaultSelectedPeriod, { immediate: true })
-watch([pageable, selectedPeriod], load, { immediate: true })
+watch([pageable.value, selectedPeriod], load, { immediate: true })
 watch(periodsPageable.value, loadPeriods, { immediate: true })
 
 function defaultSelectedPeriod() {
@@ -71,8 +71,8 @@ function onSelect(selected?: Voucher) {
 <template>
   <div>
     <DataTable
-      :value="vouchers?.content"
       v-model:selection="selectedVoucher"
+      :value="vouchers?.content"
       selection-mode="single"
       meta-key-selection
       data-key="id"
@@ -111,13 +111,13 @@ function onSelect(selected?: Voucher) {
 
       <Column v-if="!lite" :header="t('voucher.amount')">
         <template #body="{ data }: { data: Voucher }">
-          <span>{{ n(data.debit, 'decimal') }}</span>
+          <span class="text-nowrap">{{ n(data.debit, 'decimal') }}</span>
         </template>
       </Column>
 
       <Column v-if="!lite" :header="t('voucher.creator')">
         <template #body="{ data }: { data: Voucher }">
-          <span>
+          <span class="text-nowrap">
             {{ t('user.fullname', { last: data.creator.traits.name?.last, first: data.creator.traits.name?.first }) }}
           </span>
         </template>
@@ -125,17 +125,19 @@ function onSelect(selected?: Voucher) {
 
       <Column v-if="!lite" :header="t('voucher.transactionTime')" field="transactionTime">
         <template #body="{ data }: { data: Voucher }">
-          <span>{{ d(data.transactionTime, 'short') }}</span>
+          <span class="text-nowrap">{{ d(data.transactionTime, 'short') }}</span>
         </template>
       </Column>
 
       <Column v-if="!lite" :header="t('common.status')">
         <template #body="{ data }: { data: Voucher }">
-          <div class="flex gap-1">
-            <Tag v-if="data.isAudited" severity="success" :value="t('voucher.isAudited')" />
-            <Tag v-else severity="warn" :value="t('voucher.notAudited')" />
-            <Tag v-if="data.isReviewed" severity="success" :value="t('voucher.isReviewed')" />
-            <Tag v-else severity="warn" :value="t('voucher.notReviewed')" />
+          <div class="flex flex-nowrap gap-1">
+            <Tag v-if="data.isAudited" severity="success" :value="t('voucher.isAudited')" class="text-nowrap" />
+            <Tag v-else severity="warn" :value="t('voucher.notAudited')" class="text-nowrap" />
+            <Tag v-if="data.isReviewed" severity="success" :value="t('voucher.isReviewed')" class="text-nowrap" />
+            <Tag v-else severity="warn" :value="t('voucher.notReviewed')" class="text-nowrap" />
+            <Tag v-if="data.isPosted" severity="success" :value="t('voucher.isPosted')" class="text-nowrap" />
+            <Tag v-else severity="warn" :value="t('voucher.notPosted')" class="text-nowrap" />
           </div>
         </template>
       </Column>

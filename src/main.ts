@@ -15,36 +15,39 @@ import 'primeicons/primeicons.css'
 import Preset from './preset'
 
 // components from PrimeVue
+import {
+  AutoComplete,
+  Button,
+  ButtonGroup,
+  Card,
+  Column,
+  ColumnGroup,
+  ConfirmPopup,
+  DataTable,
+  DatePicker,
+  Drawer,
+  Dialog,
+  InputGroup,
+  InputGroupAddon,
+  InputNumber,
+  InputText,
+  Menu,
+  Message,
+  MultiSelect,
+  RadioButton,
+  RadioButtonGroup,
+  Row,
+  Select,
+  SelectButton,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Tag,
+  Toast,
+} from 'primevue'
 import { Form, FormField } from '@primevue/forms'
-import AutoComplete from 'primevue/autocomplete'
-import Button from 'primevue/button'
-import Card from 'primevue/card'
-import ConfirmPopup from 'primevue/confirmpopup'
-import Dialog from 'primevue/dialog'
-import DataView from 'primevue/dataview'
-import DatePicker from 'primevue/datepicker'
-import InputGroup from 'primevue/inputgroup'
-import InputGroupAddon from 'primevue/inputgroupaddon'
-import InputNumber from 'primevue/inputnumber'
-import InputText from 'primevue/inputtext'
-import Message from 'primevue/message'
-import Menu from 'primevue/menu'
-import RadioButton from 'primevue/radiobutton'
-import RadioButtonGroup from 'primevue/radiobuttongroup'
-import SelectButton from 'primevue/selectbutton'
-import Tabs from 'primevue/tabs'
-import TabList from 'primevue/tablist'
-import Tab from 'primevue/tab'
-import TabPanels from 'primevue/tabpanels'
-import TabPanel from 'primevue/tabpanel'
-import Tag from 'primevue/tag'
-import Toast from 'primevue/toast'
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
-import ColumnGroup from 'primevue/columngroup'
-import Row from 'primevue/row'
-import Select from 'primevue/select'
-import MultiSelect from 'primevue/multiselect'
 
 const app = createApp(App)
 
@@ -53,11 +56,13 @@ app.component('Form', Form)
 app.component('FormField', FormField)
 app.component('AutoComplete', AutoComplete)
 app.component('Button', Button)
+app.component('ButtonGroup', ButtonGroup)
 app.component('Card', Card)
 app.component('ConfirmPopup', ConfirmPopup)
 app.component('Dialog', Dialog)
 app.component('DataView', DataView)
 app.component('DatePicker', DatePicker)
+app.component('Drawer', Drawer)
 app.component('InputText', InputText)
 app.component('Message', Message)
 app.component('Menu', Menu)

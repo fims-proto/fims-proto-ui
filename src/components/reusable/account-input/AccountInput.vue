@@ -34,7 +34,7 @@ const classOptions = ref(['1', '2', '3', '4', '5', '7'])
 const tableQuery = ref<string>()
 const factory = new FilterFactory<Account>()
 
-watch(() => props.accountId, load)
+watch(() => props.accountId, load, { immediate: true })
 watch([tablePageable.value, classFilter, tableQuery], loadHelpTable)
 
 async function load() {
@@ -46,7 +46,7 @@ async function load() {
 }
 
 async function loadHelpTable() {
-  if (!helpOpen) {
+  if (!helpOpen.value) {
     return
   }
 
@@ -83,10 +83,8 @@ async function onSearchAccount(event: AutoCompleteCompleteEvent) {
 }
 
 async function onHelpTableOpen() {
-  if (!tableOptions.value) {
-    await loadHelpTable()
-  }
   helpOpen.value = true
+  await loadHelpTable()
 }
 
 async function onHelpTablePage(page: DataTablePageEvent) {
@@ -109,6 +107,7 @@ async function onAccountChange() {
         :suggestions="inputOptions"
         :invalid="invalid"
         force-selection
+        fluid
         @complete="onSearchAccount"
         @update:model-value="onAccountChange"
         @clear="
@@ -130,8 +129,8 @@ async function onAccountChange() {
   <!-- input help dialog -->
   <Dialog v-model:visible="helpOpen" :header="t('account.selectAccountTitle')" modal @after-hide="resetTableFilter">
     <DataTable
-      :value="tableOptions?.content"
       v-model:selection="account"
+      :value="tableOptions?.content"
       selection-mode="single"
       meta-key-selection
       data-key="id"
@@ -144,11 +143,11 @@ async function onAccountChange() {
       @update:selection="onAccountChange"
     >
       <template #header>
-        <div class="flex gap-2">
+        <div class="flex flex-wrap gap-2">
           <InputText v-model="tableQuery" type="text" />
           <SelectButton v-model="classFilter" :options="classOptions">
             <template #option="{ option }">
-              <span>{{ t(`account.classEnum.${option}`) }}</span>
+              <span class="text-nowrap">{{ t(`account.classEnum.${option}`) }}</span>
             </template>
           </SelectButton>
         </div>

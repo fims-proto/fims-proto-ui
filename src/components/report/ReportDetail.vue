@@ -2,15 +2,26 @@
 import { ref, computed, toRefs, watch } from 'vue'
 import { ReportService, type Item, type Report } from '@domain/report'
 import { useI18n } from 'vue-i18n'
+import { z } from 'zod'
+import { zodResolver } from '@primevue/forms/resolvers/zod'
 import type { Entry, Header } from './types'
 import { buildReportHeaders, buildReportEntries } from './helper'
-import { PeriodService, type Period } from '@domain/general-ledger'
-import { AppForm, AppLabel } from '../reusable/form'
+import { PeriodSchema, PeriodService, type Period } from '@domain/general-ledger'
 import type { Page } from '@domain/types'
 import { useSobStore } from '@store/sob'
 import { useRouter } from 'vue-router'
 import { useToastStore } from '@store/toast'
 import ItemDetail from './ItemDetail.vue'
+import { ObjectPage, type ActionItem } from '../reusable/object-page'
+import { GridContainer, GridItem } from '../reusable/grid'
+import { injectContext } from './context'
+
+const GenerateReportSchema = z.object({
+  title: z.string().nonempty().optional(),
+  period: PeriodSchema.optional(),
+  amountTypes: z.array(z.string()).optional(),
+})
+type GenerateReport = z.infer<typeof GenerateReportSchema>
 
 const props = defineProps<{
   sobId: string
@@ -21,13 +32,15 @@ const { t, n } = useI18n()
 const { currentPeriod } = toRefs(useSobStore().state)
 const router = useRouter()
 const toast = useToastStore()
+const context = injectContext()
 
 const report = ref<Report>()
 const reportHeaders = ref<Header[]>([])
 const reportEntries = ref<Entry[][]>([])
 const expendedEntries = ref<{ [key: string]: boolean }>({})
 const generateDialog = ref(false)
-const generateReportModel = ref<{ title?: string; amountTypes?: string[]; period?: Period }>({})
+const generateReportModel = ref<GenerateReport>({})
+const resolver = zodResolver(GenerateReportSchema)
 const periods = ref<Page<Period>>()
 const periodOptions = ref<Period[]>([])
 const periodSelectLoading = ref(false)
@@ -40,6 +53,18 @@ const periodText = computed(
       number: report.value.period.periodNumber,
     }),
 )
+const actions = computed((): ActionItem[] => [
+  {
+    label: t('report.btn.generate'),
+    command: onGenerateDialogOpen,
+    condition: () => report.value?.template,
+  },
+  {
+    label: t('report.btn.regenerate'),
+    command: onRegenerate,
+    condition: () => !report.value?.template,
+  },
+])
 
 watch(() => props.reportId, load, { immediate: true })
 
@@ -91,22 +116,23 @@ function onPeriodSelect() {
   }
 }
 
-async function onGenerate() {
-  if (!generateReportModel.value.period || !report.value) {
+async function onGenerate({ values }: { values: GenerateReport }) {
+  if (!values.period || !report.value) {
     return
   }
 
   const { data: newReport, exception } = await ReportService.generateReport(props.sobId, report.value.id, {
-    title: generateReportModel.value.title,
-    amountTypes: generateReportModel.value.amountTypes,
-    periodFiscalYear: generateReportModel.value.period.fiscalYear,
-    periodNumber: generateReportModel.value.period.periodNumber,
+    title: values.title,
+    amountTypes: values.amountTypes,
+    periodFiscalYear: values.period.fiscalYear,
+    periodNumber: values.period.periodNumber,
   })
   if (exception) {
     return
   }
   generateDialog.value = false
   toast.action.add({ severity: 'success', detail: t('report.msg.generateCompleted') })
+  context?.refreshList.value()
 
   router.push({
     name: 'reportDetail',
@@ -144,130 +170,144 @@ function onExpansionToggle(id: string) {
 </script>
 
 <template>
-  <div v-if="report">
-    <div class="mb-4 flex w-full items-baseline gap-2">
-      <h1>{{ report.title }}</h1>
-      <Tag v-if="report.template" :value="t('report.template')" severity="info" class="ml-1" />
-      <span>{{ periodText }}</span>
-      <div class="ml-auto">
-        <Button v-if="report.template" :label="t('report.btn.generate')" @click="onGenerateDialogOpen" />
-        <Button v-else :label="t('report.btn.regenerate')" @click="onRegenerate" />
-      </div>
-    </div>
+  <ObjectPage v-if="report" :title="report.title" :actions @close="$router.push({ name: 'reportMain' })">
+    <template #header>
+      <Tag v-if="report.template" :value="t('report.template')" severity="info" />
+      <Tag v-else :value="periodText" severity="info" />
+    </template>
 
-    <div class="flex">
-      <DataTable
-        v-for="(header, tableIndex) in reportHeaders"
-        :key="tableIndex"
-        v-model:expanded-rows="expendedEntries"
-        :value="reportEntries[tableIndex]"
-        data-key="id"
-        show-gridlines
-        size="small"
-        class="flex-1"
-      >
-        <Column :header="header.title">
-          <template #body="{ data, index: rowIndex }: { data: Entry; index: number }">
-            <div :class="['group flex text-nowrap', { 'select-none opacity-0': !data.text }]">
-              <!-- indentation and prefix -->
-              <div class="text-right" :style="{ width: `${data.indentation}rem` }">
-                <span
-                  v-if="data.isBreakdownItem"
-                  :class="{ 'select-none opacity-0': reportEntries[tableIndex][rowIndex - 1]?.isBreakdownItem }"
-                >
-                  {{ t('report.chart.breakdown') }}
-                </span>
-                <span v-if="data.displaySumFactor">{{ t(`report.chart.sumFactorEnum.${data.sumFactor}`) }}</span>
-              </div>
-              <!-- text -->
-              <span>{{ data.text || '空' }}</span>
-              <!-- actions -->
-              <div class="text-primary-color invisible ml-2 flex items-center text-sm group-hover:visible">
-                <!-- edit button -->
-                <button
-                  v-if="report.template && data.isEditable"
-                  class="flex items-center gap-1"
-                  @click="onExpansionToggle(data.id)"
-                >
-                  <i class="pi pi-file-edit text-xs!" />
-                  <span>{{ t('action.edit') }}</span>
-                </button>
-                <!-- detail button -->
-                <button
-                  v-if="!report.template && data.isEditable"
-                  class="flex items-center gap-1"
-                  @click="onExpansionToggle(data.id)"
-                >
-                  <i class="pi pi-search text-xs!" />
-                  <span>{{ t('action.detail') }}</span>
-                </button>
-              </div>
-            </div>
-          </template>
-        </Column>
-
-        <Column :header="header.lineNumber" class="w-16">
-          <template #body="{ data }: { data: Entry }">
-            {{ data.lineNumber }}
-          </template>
-        </Column>
-
-        <Column
-          v-for="(amountTypeTitle, atIndex) in header.amountTypes"
-          :key="amountTypeTitle"
-          :header="amountTypeTitle"
-          class="text-right"
+    <template #extra>
+      <div class="flex">
+        <DataTable
+          v-for="(header, tableIndex) in reportHeaders"
+          :key="tableIndex"
+          v-model:expanded-rows="expendedEntries"
+          :value="reportEntries[tableIndex]"
+          data-key="id"
+          show-gridlines
+          size="small"
+          class="flex-1"
         >
-          <template #body="{ data }: { data: Entry }">
-            {{ data.amounts && data.amounts[atIndex] ? n(data.amounts[atIndex], 'decimal') : '' }}
+          <Column :header="header.title">
+            <template #body="{ data, index: rowIndex }: { data: Entry; index: number }">
+              <div :class="['group flex text-nowrap', { 'opacity-0 select-none': !data.text }]">
+                <!-- indentation and prefix -->
+                <div class="text-right" :style="{ width: `${data.indentation}rem` }">
+                  <span
+                    v-if="data.isBreakdownItem"
+                    :class="{ 'opacity-0 select-none': reportEntries[tableIndex][rowIndex - 1]?.isBreakdownItem }"
+                  >
+                    {{ t('report.chart.breakdown') }}
+                  </span>
+                  <span v-if="data.displaySumFactor">{{ t(`report.chart.sumFactorEnum.${data.sumFactor}`) }}</span>
+                </div>
+                <!-- text -->
+                <span>{{ data.text || '空' }}</span>
+                <!-- actions -->
+                <div class="text-primary-color invisible ml-2 flex items-center text-sm group-hover:visible">
+                  <!-- edit button -->
+                  <button
+                    v-if="report.template && data.isEditable"
+                    class="flex items-center gap-1"
+                    @click="onExpansionToggle(data.id)"
+                  >
+                    <i class="pi pi-file-edit text-xs!" />
+                    <span>{{ t('action.edit') }}</span>
+                  </button>
+                  <!-- detail button -->
+                  <button
+                    v-if="!report.template && data.isEditable"
+                    class="flex items-center gap-1"
+                    @click="onExpansionToggle(data.id)"
+                  >
+                    <i class="pi pi-search text-xs!" />
+                    <span>{{ t('action.detail') }}</span>
+                  </button>
+                </div>
+              </div>
+            </template>
+          </Column>
+
+          <Column :header="header.lineNumber" class="w-16">
+            <template #body="{ data }: { data: Entry }">
+              {{ data.lineNumber }}
+            </template>
+          </Column>
+
+          <Column
+            v-for="(amountTypeTitle, atIndex) in header.amountTypes"
+            :key="amountTypeTitle"
+            :header="amountTypeTitle"
+            class="text-right"
+          >
+            <template #body="{ data }: { data: Entry }">
+              {{ data.amounts && data.amounts[atIndex] ? n(data.amounts[atIndex], 'decimal') : '' }}
+            </template>
+          </Column>
+
+          <template #expansion="{ data }: { data: Item }">
+            <ItemDetail
+              :sob-id="sobId"
+              :report-id="report.id"
+              :report-class="report.class"
+              :report-is-template="report.template"
+              :amount-types="header.amountTypes"
+              :item="data"
+              @close="onExpansionToggle(data.id)"
+              @update="onItemUpdate(data.id)"
+            />
           </template>
-        </Column>
+        </DataTable>
+      </div>
+    </template>
+  </ObjectPage>
 
-        <template #expansion="{ data }: { data: Item }">
-          <ItemDetail
-            :sob-id="sobId"
-            :report-id="report.id"
-            :report-class="report.class"
-            :report-is-template="report.template"
-            :amount-types="header.amountTypes"
-            :item="data"
-            @close="onExpansionToggle(data.id)"
-            @update="onItemUpdate(data.id)"
-          />
-        </template>
-      </DataTable>
-    </div>
-  </div>
+  <Dialog
+    v-model:visible="generateDialog"
+    :header="t('report.btn.generate')"
+    :modal="true"
+    :closable="false"
+    class="w-full md:w-fit md:min-w-96"
+  >
+    <Form :initial-values="generateReportModel" :resolver class="flex flex-col gap-4" @submit="onGenerate">
+      <GridContainer :column="1">
+        <FormField name="title">
+          <GridItem :label="t('report.title')" required pt:label:for="report-title-input">
+            <InputText id="report-title-input" fluid />
+          </GridItem>
+        </FormField>
 
-  <Dialog v-model:visible="generateDialog" :header="t('report.btn.generate')" :modal="true" :closable="false">
-    <AppForm :model="generateReportModel" class="flex flex-col gap-2" @submit="onGenerate">
-      <AppLabel for="report-title-input">{{ t('report.title') }}</AppLabel>
-      <InputText id="report-title-input" v-model="generateReportModel.title" class="w-full" />
+        <FormField v-slot="{ value }: { value?: string[] }" name="amountTypes">
+          <GridItem :label="t('report.amountType')">
+            <span>{{ value?.map((at) => t(`report.amountTypeEnum.${at}`)).join(', ') }}</span>
+          </GridItem>
+        </FormField>
 
-      <label>{{ t('report.amountType') }}</label>
-      <span>{{ generateReportModel.amountTypes?.map((at) => t(`report.amountTypeEnum.${at}`)).join(', ') }}</span>
-
-      <AppLabel required>{{ t('report.period') }}</AppLabel>
-      <Select
-        v-model="generateReportModel.period"
-        :options="periodOptions"
-        :option-label="(p: Period) => t('period.periodText', { fiscalYear: p.fiscalYear, number: p.periodNumber })"
-        :virtual-scroller-options="{
-          lazy: true,
-          onLazyLoad: onLoadPeriods,
-          itemSize: periods?.pageSize,
-          showLoader: true,
-          loading: periodSelectLoading,
-          delay: 250,
-        }"
-        class="w-full"
-        @change="onPeriodSelect"
-      />
-
-      <div class="flex justify-end gap-2">
+        <FormField name="period">
+          <GridItem :label="t('report.period')">
+            <Select
+              :options="periodOptions"
+              :option-label="
+                (p: Period) => t('period.periodText', { fiscalYear: p.fiscalYear, number: p.periodNumber })
+              "
+              :virtual-scroller-options="{
+                lazy: true,
+                onLazyLoad: onLoadPeriods,
+                itemSize: periods?.pageSize,
+                showLoader: true,
+                loading: periodSelectLoading,
+                delay: 250,
+              }"
+              fluid
+              @change="onPeriodSelect"
+            />
+          </GridItem>
+        </FormField>
+      </GridContainer>
+      <div class="mt-2 flex justify-end gap-2">
         <Button :label="t('action.cancel')" text severity="secondary" @click="generateDialog = false" />
         <Button :label="t('action.save')" type="submit" />
       </div>
-    </AppForm>
+    </Form>
   </Dialog>
 </template>

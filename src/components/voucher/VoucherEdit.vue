@@ -17,7 +17,7 @@ import {
 } from '@domain/general-ledger'
 import { ObjectPage, type ActionItem } from '../reusable/object-page'
 import { confirm } from '../reusable/confirm-button'
-import { Grid, GridItem } from '../reusable/grid'
+import { GridContainer, GridItem } from '../reusable/grid'
 
 const props = defineProps<{
   sobId: string
@@ -222,7 +222,7 @@ async function onSave(openCreated?: boolean) {
 
 async function onCancel() {
   if (!props.voucherId) {
-    router.back()
+    router.push({ name: 'voucherMain' })
     return
   }
   editMode.value = false
@@ -270,7 +270,7 @@ async function onAction(action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
   >
     <template #attributes>
       <!-- voucher edit form -->
-      <Grid v-if="editMode" class="flex gap-4">
+      <GridContainer v-if="editMode" class="flex gap-4">
         <div class="flex grow flex-col gap-1">
           <AppLabel for="header-text-input" required>{{ t('voucher.headerText') }}</AppLabel>
           <InputText id="header-text-input" v-model="voucherForm.headerText" fluid />
@@ -285,10 +285,10 @@ async function onAction(action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
           <AppLabel for="attachment-quantity-input" required>{{ t('voucher.attachmentQuantity') }}</AppLabel>
           <InputNumber v-model="voucherForm.attachmentQuantity" input-id="attachment-quantity-input" fluid />
         </div>
-      </Grid>
+      </GridContainer>
 
       <!-- voucher display -->
-      <Grid v-else-if="voucher">
+      <GridContainer v-else-if="voucher">
         <GridItem :label="t('voucher.headerText')">
           {{ voucher.headerText }}
         </GridItem>
@@ -300,34 +300,47 @@ async function onAction(action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
         <GridItem :label="t('voucher.attachmentQuantity')">
           {{ voucher.attachmentQuantity }}
         </GridItem>
-      </Grid>
+
+        <GridItem :label="t('common.status')" span="full">
+          <div class="flex gap-1">
+            <Tag v-if="voucher.isAudited" severity="success" :value="t('voucher.isAudited')" />
+            <Tag v-else severity="warn" :value="t('voucher.notAudited')" />
+            <Tag v-if="voucher.isReviewed" severity="success" :value="t('voucher.isReviewed')" />
+            <Tag v-else severity="warn" :value="t('voucher.notReviewed')" />
+            <Tag v-if="voucher.isPosted" severity="success" :value="t('voucher.isPosted')" />
+            <Tag v-else severity="warn" :value="t('voucher.notPosted')" />
+          </div>
+        </GridItem>
+      </GridContainer>
     </template>
 
     <template #extra>
       <!-- voucher edit form -->
       <DataTable v-if="editMode" :value="voucherForm.lineItems">
-        <Column :exportable="false" style="width: 8rem">
+        <Column :exportable="false">
           <template #body="{ index }">
-            <Button
-              icon="pi pi-plus"
-              text
-              rounded
-              :aria-label="t('action.add')"
-              :disabled="voucherForm.lineItems.length > 48"
-              @click="onAddLineItem(index + 1)"
-            />
-            <Button
-              icon="pi pi-minus"
-              text
-              rounded
-              :aria-label="t('action.remove')"
-              :disabled="voucherForm.lineItems.length === 1"
-              @click="onRemoveLineItem(index)"
-            />
+            <ButtonGroup>
+              <Button
+                icon="pi pi-plus"
+                text
+                rounded
+                :aria-label="t('action.add')"
+                :disabled="voucherForm.lineItems.length > 48"
+                @click="onAddLineItem(index + 1)"
+              />
+              <Button
+                icon="pi pi-minus"
+                text
+                rounded
+                :aria-label="t('action.remove')"
+                :disabled="voucherForm.lineItems.length === 1"
+                @click="onRemoveLineItem(index)"
+              />
+            </ButtonGroup>
           </template>
         </Column>
 
-        <Column :header="t('voucher.account')">
+        <Column :header="t('voucher.account')" style="min-width: 12rem">
           <template #body="{ data }: { data: VoucherFormLineItem }">
             <div class="flex flex-col gap-2">
               <AccountInput
@@ -352,15 +365,15 @@ async function onAction(action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
           </template>
         </Column>
 
-        <Column :header="t('voucher.debit')">
+        <Column :header="t('voucher.debit')" style="min-width: 12rem">
           <template #body="{ data }">
-            <InputNumber v-model="data.debit" :min="0" :min-fraction-digits="2" :max-fraction-digits="2" />
+            <InputNumber v-model="data.debit" :min="0" :min-fraction-digits="2" :max-fraction-digits="2" fluid />
           </template>
         </Column>
 
-        <Column :header="t('voucher.credit')">
+        <Column :header="t('voucher.credit')" style="min-width: 12rem">
           <template #body="{ data }">
-            <InputNumber v-model="data.credit" :min="0" :min-fraction-digits="2" :max-fraction-digits="2" />
+            <InputNumber v-model="data.credit" :min="0" :min-fraction-digits="2" :max-fraction-digits="2" fluid />
           </template>
         </Column>
       </DataTable>
@@ -369,7 +382,7 @@ async function onAction(action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
       <DataTable v-else-if="voucher" :value="voucher.lineItems">
         <Column :header="t('voucher.account')">
           <template #body="{ data }">
-            <div v-if="data.account" class="flex flex-col gap-2">
+            <div v-if="data.account" class="flex flex-col gap-2 text-nowrap">
               <span>{{ data.account.accountNumber }} {{ data.account.title }}</span>
               <span
                 v-for="(category, index) in data.account.auxiliaryCategories"
@@ -383,21 +396,21 @@ async function onAction(action: 'audit' | 'cancelAudit' | 'review' | 'cancelRevi
           </template>
         </Column>
 
-        <Column :header="t('voucher.debit')">
+        <Column :header="t('voucher.debit')" style="width: 12rem">
           <template #body="{ data }">
-            <span>{{ data.debit ? n(data.debit, 'decimal') : '' }}</span>
+            <span class="text-nowrap">{{ data.debit ? n(data.debit, 'decimal') : '' }}</span>
           </template>
         </Column>
 
-        <Column :header="t('voucher.credit')">
+        <Column :header="t('voucher.credit')" style="width: 12rem">
           <template #body="{ data }">
-            <span>{{ data.credit ? n(data.credit, 'decimal') : '' }}</span>
+            <span class="text-nowrap">{{ data.credit ? n(data.credit, 'decimal') : '' }}</span>
           </template>
         </Column>
 
         <template #footer>
-          <div class="flex justify-end gap-2">
-            <span class="bold">{{ t('common.total') }}</span>
+          <div class="flex gap-2">
+            <span class="font-bold">{{ t('common.total') }}:</span>
             <span>{{ n(voucher.debit, 'decimal') }}</span>
           </div>
         </template>

@@ -16,6 +16,7 @@
     "@ory/client": "^1.16.2",
     "@primevue/forms": "^4.2.5",
     "@primevue/themes": "^4.2.5",
+    "@vueuse/core": "^12.5.0",
     "axios": "^1.7.9",
     "primeicons": "^7.0.0",
     "primelocale": "^1.4.0",

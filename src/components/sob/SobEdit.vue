@@ -7,7 +7,7 @@ import { zodResolver } from '@primevue/forms/resolvers/zod'
 import { z } from 'zod'
 import { useSobStore } from '@store/sob'
 import { SobService, type Sob } from '@domain/sob'
-import { Grid, GridItem } from '../reusable/grid'
+import { GridContainer, GridItem } from '../reusable/grid'
 import { ObjectPage, type ActionItem } from '../reusable/object-page'
 import AccountList from './AccountList.vue'
 import AuxiliaryMain from './AuxiliaryMain.vue'
@@ -114,6 +114,10 @@ async function onSubmit() {
 }
 
 async function onCancel() {
+  if (!props.sobId) {
+    router.push({ name: 'sobMain' })
+    return
+  }
   editMode.value = 'display'
 }
 </script>
@@ -126,20 +130,22 @@ async function onCancel() {
   >
     <template #attributes>
       <!-- display mode -->
-      <Grid v-if="editMode === 'display'">
+      <GridContainer v-if="editMode === 'display'" :column="{ sm: 1, md: 3 }">
         <GridItem :label="t('sob.name')">{{ sob.name }}</GridItem>
         <GridItem :label="t('common.description')">{{ sob.description }}</GridItem>
         <GridItem :label="t('sob.baseCurrency')">{{ sob.baseCurrency }}</GridItem>
-        <GridItem :label="t('sob.startingPeriod')">{{ sob.startingPeriodYear }}-{{ sob.startingPeriodMonth }}</GridItem>
-        <GridItem :label="t('sob.accountCodeLength')">{{ sob.accountsCodeLength.join('-') }}</GridItem>
-      </Grid>
+        <GridItem span="full" :label="t('sob.startingPeriod')">
+          {{ sob.startingPeriodYear }}-{{ sob.startingPeriodMonth }}
+        </GridItem>
+        <GridItem span="full" :label="t('sob.accountCodeLength')">{{ sob.accountsCodeLength.join('-') }}</GridItem>
+      </GridContainer>
 
       <!-- edit mode -->
       <Form v-else ref="form" :resolver :initial-values="sob" @submit="onSubmit">
-        <Grid>
+        <GridContainer :column="{ sm: 1, md: 3 }">
           <FormField v-slot="$field" as-child name="name">
             <GridItem :label="t('sob.name')" required pt:label:for="sob-name-input">
-              <InputText id="sob-name-input" aria-describedby="sob-name-help" />
+              <InputText id="sob-name-input" aria-describedby="sob-name-help" fluid />
               <Message v-if="$field?.invalid" id="sob-name-help" severity="error" size="small" variant="simple">
                 {{ $field.error?.message }}
               </Message>
@@ -148,7 +154,7 @@ async function onCancel() {
 
           <FormField as-child name="description">
             <GridItem :label="t('common.description')" pt:label:for="sob-description-input">
-              <InputText id="sob-description-input" :disabled="editMode === 'update'" />
+              <InputText id="sob-description-input" :disabled="editMode === 'update'" fluid />
             </GridItem>
           </FormField>
 
@@ -158,6 +164,7 @@ async function onCancel() {
                 id="sob-currency-input"
                 aria-describedby="sob-currency-help"
                 :disabled="editMode === 'update'"
+                fluid
               />
               <Message v-if="$field?.invalid" id="sob-currency-help" severity="error" size="small" variant="simple">
                 {{ $field.error?.message }}
@@ -165,7 +172,7 @@ async function onCancel() {
             </GridItem>
           </FormField>
 
-          <GridItem :label="t('sob.startingPeriod')" required>
+          <GridItem span="full" :label="t('sob.startingPeriod')" required>
             <InputGroup>
               <InputGroupAddon>
                 <span class="text-sm">{{ t('common.year') }}</span>
@@ -185,7 +192,7 @@ async function onCancel() {
           </GridItem>
 
           <FormField v-slot="$field" as-child name="accountsCodeLength">
-            <GridItem :label="t('sob.accountCodeLength')" required>
+            <GridItem span="full" :label="t('sob.accountCodeLength')" required>
               <InputGroup>
                 <Button icon="pi pi-minus" @click="onLengthChange('-', $field.value)" />
                 <Button icon="pi pi-plus" @click="onLengthChange('+', $field.value)" />
@@ -200,7 +207,7 @@ async function onCancel() {
               </InputGroup>
             </GridItem>
           </FormField>
-        </Grid>
+        </GridContainer>
       </Form>
     </template>
 

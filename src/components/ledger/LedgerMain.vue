@@ -1,22 +1,20 @@
 <script setup lang="ts">
-import { RouterView, useRoute } from 'vue-router'
+import { RouterView } from 'vue-router'
 import { SplitContainer } from '../reusable/split-container'
 import PeriodList from './PeriodList.vue'
 
 defineProps<{
   sobId: string
 }>()
-
-const route = useRoute()
 </script>
 
 <template>
-  <SplitContainer :detail-open="route.name === 'ledgerList'">
-    <template #list>
+  <SplitContainer :open="$route.name === 'ledgerList'" right-size="full">
+    <template #left>
       <PeriodList :sob-id="sobId" />
     </template>
 
-    <template #detail>
+    <template #right>
       <RouterView />
     </template>
   </SplitContainer>

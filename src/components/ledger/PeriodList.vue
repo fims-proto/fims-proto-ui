@@ -22,7 +22,8 @@ async function load() {
   periods.value = (await PeriodService.getPeriods(props.sobId, pageable.value)).data
 }
 
-function onSelect(selected: Period) {
+function onSelect(selected?: Period) {
+  if (!selected) return
   router.push({
     name: 'ledgerList',
     params: {
@@ -36,8 +37,8 @@ function onSelect(selected: Period) {
 <template>
   <div>
     <DataTable
-      :value="periods?.content"
       v-model:selection="selectedPeriod"
+      :value="periods?.content"
       selection-mode="single"
       meta-key-selection
       data-key="id"

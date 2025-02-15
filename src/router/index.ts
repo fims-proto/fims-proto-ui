@@ -14,8 +14,8 @@ import VoucherEdit from '../components/voucher/VoucherEdit.vue'
 import LedgerMain from '../components/ledger/LedgerMain.vue'
 import LedgerList from '../components/ledger/LedgerList.vue'
 import ClosePeriod from '../components/period/ClosePeriod.vue'
-import ReportList from '../components/report/ReportList.vue'
 import ReportDetail from '../components/report/ReportDetail.vue'
+import ReportMain from '../components/report/ReportMain.vue'
 
 /**
  * In some cases, we need to browser redirect to home page.
@@ -122,15 +122,11 @@ const routes: RouteRecordRaw[] = [
       // reports
       {
         path: 'sobs/:sobId/reports',
-        component: RouterView,
+        name: 'reportMain',
+        component: ReportMain,
         beforeEnter: updateWorkingSob,
+        props: true,
         children: [
-          {
-            path: '',
-            name: 'reportList',
-            component: ReportList,
-            props: true,
-          },
           {
             path: ':reportId',
             name: 'reportDetail',

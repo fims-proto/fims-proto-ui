@@ -1,13 +1,22 @@
 <script setup lang="ts">
 import { computed, ref, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+import { useRouter, type RouteLocationRaw } from 'vue-router'
 import { useSobStore } from '@store/sob'
 import { useUserStore } from '@store/user'
 import { UserService } from '@domain/user'
 import type { MenuItem } from 'primevue/menuitem'
 import type { MenuItem as AppMenuItem } from './AppMenu.vue'
 import AppMenu from './AppMenu.vue'
+import AppLogo from './AppLogo.vue'
+
+defineProps<{
+  closeCallback?: () => void
+}>()
+
+const emit = defineEmits<{
+  (event: 'close'): void
+}>()
 
 const { t } = useI18n()
 const router = useRouter()
@@ -33,7 +42,7 @@ const sobMenuItems = computed((): MenuItem[] =>
   [
     {
       label: t('sob.manageSob'),
-      command: () => router.push({ name: 'sobMain' }),
+      command: () => routeTo({ name: 'sobMain' }),
       icon: 'pi pi-shop',
     },
     {
@@ -44,7 +53,7 @@ const sobMenuItems = computed((): MenuItem[] =>
       label: s.name,
       command: async () => {
         await sobStore.action.setWorkingSob(s.id)
-        router.push({ name: 'home' })
+        routeTo({ name: 'home' })
       },
       icon: 'pi pi-check',
       current: s.id === workingSob.value?.id,
@@ -53,31 +62,32 @@ const sobMenuItems = computed((): MenuItem[] =>
   ),
 )
 
-const menuItems = computed((): AppMenuItem[] => {
-  if (!currentPeriod.value) []
-  return [
-    {
-      label: t('voucher.title'),
-      icon: 'pi pi-receipt',
-      command: () => router.push({ name: 'voucherMain', params: { sobId: workingSob.value?.id } }),
-    },
-    {
-      label: t('ledger.title'),
-      icon: 'pi pi-book',
-      command: () => router.push({ name: 'ledgerMain', params: { sobId: workingSob.value?.id } }),
-    },
-    {
-      label: t('period.close.title'),
-      icon: 'pi pi-file-check',
-      command: () => router.push({ name: 'closePeriod', params: { sobId: workingSob.value?.id } }),
-    },
-    {
-      label: t('report.subjectName'),
-      icon: 'pi pi-table',
-      command: () => router.push({ name: 'reportList', params: { sobId: workingSob.value?.id } }),
-    },
-  ]
-})
+const menuItems = computed((): AppMenuItem[] =>
+  currentPeriod.value
+    ? [
+        {
+          label: t('voucher.title'),
+          icon: 'pi pi-receipt',
+          command: () => routeTo({ name: 'voucherMain', params: { sobId: workingSob.value?.id } }),
+        },
+        {
+          label: t('ledger.title'),
+          icon: 'pi pi-book',
+          command: () => routeTo({ name: 'ledgerMain', params: { sobId: workingSob.value?.id } }),
+        },
+        {
+          label: t('period.close.title'),
+          icon: 'pi pi-file-check',
+          command: () => routeTo({ name: 'closePeriod', params: { sobId: workingSob.value?.id } }),
+        },
+        {
+          label: t('report.subjectName'),
+          icon: 'pi pi-table',
+          command: () => routeTo({ name: 'reportList', params: { sobId: workingSob.value?.id } }),
+        },
+      ]
+    : [],
+)
 
 const footerMenuItems: AppMenuItem[] = [
   {
@@ -88,7 +98,7 @@ const footerMenuItems: AppMenuItem[] = [
   {
     label: userInfo.value.name?.first ?? '',
     icon: 'pi pi-user',
-    command: () => router.push({ name: 'profile' }),
+    command: () => routeTo({ name: 'profile' }),
   },
   {
     label: t('user.logout'),
@@ -96,21 +106,36 @@ const footerMenuItems: AppMenuItem[] = [
     command: () => UserService.logout(),
   },
 ]
+
+function routeTo(to: RouteLocationRaw) {
+  router.push(to)
+  emit('close')
+}
 </script>
 
 <template>
-  <div class="flex h-full w-full flex-col gap-2">
+  <div class="flex h-full w-full flex-col gap-2 p-4 md:w-64">
     <!-- Logo -->
-    <RouterLink :to="{ name: 'home' }" class="flex flex-col px-2 font-serif text-2xl font-extrabold text-slate-700">
-      fims
-    </RouterLink>
+    <div class="flex justify-between">
+      <a @click="routeTo({ name: 'home' })">
+        <AppLogo />
+      </a>
+      <Button
+        v-if="closeCallback"
+        icon="pi pi-times"
+        variant="text"
+        rounded
+        :aria-label="t('action.close')"
+        @click="closeCallback"
+      />
+    </div>
 
     <!-- SoB and Period selection -->
     <button
-      @click="(e) => sobMenu.toggle(e)"
       class="group flex flex-col rounded-md p-2 transition hover:bg-slate-300 active:opacity-90"
+      @click="(e) => sobMenu.toggle(e)"
     >
-      <span class="text-bold text-color text-pretty text-left">{{ sobText }}</span>
+      <span class="text-bold text-color text-left text-pretty">{{ sobText }}</span>
       <span v-if="currentPeriod" class="text-sm opacity-70">{{ periodText }}</span>
     </button>
     <Menu id="overlay-menu" ref="sobMenu" :model="sobMenuItems" :popup="true">

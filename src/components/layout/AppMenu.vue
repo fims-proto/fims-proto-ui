@@ -14,11 +14,11 @@ export type MenuItem = {
 <template>
   <div>
     <ul class="flex flex-col gap-1">
-      <li v-for="item in model">
+      <li v-for="item in model" :key="item.label">
         <a
           tabindex="-1"
+          class="text-color hover:text-hover-color group flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 transition select-none hover:bg-slate-300"
           @click="item.command"
-          class="text-color hover:text-hover-color group flex cursor-pointer select-none items-center gap-2 rounded-md px-2 py-1 transition hover:bg-slate-300"
         >
           <i v-if="item.icon" :class="item.icon" class="text-slate-400 transition-colors group-hover:text-slate-500" />
           <span>{{ item.label }}</span>

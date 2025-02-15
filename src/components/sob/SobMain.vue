@@ -1,18 +1,16 @@
 <script setup lang="ts">
-import { RouterView, useRoute } from 'vue-router'
+import { RouterView } from 'vue-router'
 import { SplitContainer } from '../reusable/split-container'
 import SobList from './SobList.vue'
-
-const route = useRoute()
 </script>
 
 <template>
-  <SplitContainer :detail-open="route.name === 'sobDetail' || route.name === 'sobNew'">
-    <template #list>
+  <SplitContainer :open="$route.name === 'sobDetail' || $route.name === 'sobNew'">
+    <template #left>
       <SobList />
     </template>
 
-    <template #detail>
+    <template #right>
       <RouterView />
     </template>
   </SplitContainer>

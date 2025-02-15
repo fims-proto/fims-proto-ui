@@ -11,7 +11,7 @@ import {
   type Item,
 } from '@domain/report'
 import { AccountInput } from '../reusable/account-input'
-import type { FormulaInput, Header, ItemInput } from './types'
+import type { FormulaInput, ItemInput } from './types'
 import { useToastStore } from '@store/toast'
 
 const props = defineProps<{

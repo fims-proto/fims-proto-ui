@@ -100,8 +100,8 @@ watch(selectedCategory, initiateAccounts, { immediate: true })
 </script>
 
 <template>
-  <SplitContainer :detail-open="!!selectedCategory">
-    <template #list>
+  <SplitContainer :open="!!selectedCategory">
+    <template #left>
       <!-- auxiliary categroy -->
       <div>
         <Button :label="t('action.create')" @click="onOpenDialog('category')" />
@@ -117,7 +117,7 @@ watch(selectedCategory, initiateAccounts, { immediate: true })
       </DataView>
     </template>
 
-    <template #detail>
+    <template #right>
       <DataTable :value="auxiliaryAccounts?.content">
         <template #header>
           <div class="flex flex-wrap items-center justify-between gap-2">
