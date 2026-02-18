@@ -1,4 +1,4 @@
-import { Configuration, FrontendApi } from '@ory/kratos-client'
+import { Configuration, FrontendApi } from '@ory/client'
 import { KRATOS_URL } from '../config'
 
 export const kratos = new FrontendApi(

@@ -1,26 +1,25 @@
-import { createRouter, createWebHistory, type RouteRecordRaw, RouterView } from 'vue-router'
-import AuthenticationLogin from '../components/user/AuthenticationLogin.vue'
-import AuthenticationLogout from '../components/user/AuthenticationLogout.vue'
-import ProfileSetting from '../components/user/ProfileSetting.vue'
-import LayoutPage from '../components/LayoutPage.vue'
-import HomePage from '../components/HomePage.vue'
-import AboutUs from '../components/AboutUs.vue'
-import NotFound from '../components/NotFound.vue'
-import SobMain from '../components/sob/SobMain.vue'
-import SobDetail from '../components/sob/SobDetail.vue'
-import SobCreation from '../components/sob/SobCreation.vue'
-import LedgerMain from '../components/ledger/LedgerMain.vue'
-import ClosePeriod from '../components/period/ClosePeriod.vue'
-import VoucherMain from '../components/voucher/VoucherMain.vue'
-import VoucherCreation from '../components/voucher/VoucherCreation.vue'
-import VoucherDetail from '../components/voucher/VoucherDetail.vue'
-import ExceptionPage from '../components/ExceptionPage.vue'
-import StyleTest from '../components/style-test/StyleTest.vue'
-import AccountDetails from '../components/account/AccountDetails.vue'
-import ReportMain from '../components/report/ReportMain.vue'
-import { verifyCurrentUser, loadWorkingSob, updateWorkingSob, verifyNotLoggedIn } from './before-enter-handlers'
-import RegisterUser from '../components/user/RegisterUser.vue'
-import LedgersInitialization from '../components/sob/LedgersInitialization.vue'
+import { createRouter, createWebHistory, RouterView, type RouteRecordRaw } from 'vue-router'
+import { loadWorkingSob, updateWorkingSob, verifyCurrentUser } from './before-enter-handlers'
+import { protectUnsavedChanges } from './before-leave-handlers'
+import AppLayout from '@/components/AppLayout.vue'
+import NotImplementedPage from '@/components/pages/NotImplementedPage.vue'
+import ExceptionPage from '@/components/pages/ExceptionPage.vue'
+import NotFoundPage from '@/components/pages/NotFoundPage.vue'
+import AuthenticationLogin from '@/components/user/AuthenticationLogin.vue'
+import AuthenticationLogout from '@/components/user/AuthenticationLogout.vue'
+import ProfileSetting from '@/components/user/ProfileSetting.vue'
+import SobDetail from '@/components/sob/SobDetail.vue'
+import SobList from '@/components/sob/SobList.vue'
+import AccountList from '@/components/account/AccountList.vue'
+import AccountDetail from '@/components/account/AccountDetail.vue'
+import AuxiliaryCategoryList from '@/components/account/AuxiliaryCategoryList.vue'
+import AuxiliaryCategoryDetail from '@/components/account/AuxiliaryCategoryDetail.vue'
+import LedgerInitialize from '@/components/ledger/LedgerInitialize.vue'
+import LedgerList from '@/components/ledger/LedgerList.vue'
+import VoucherList from '@/components/voucher/VoucherList.vue'
+import VoucherDetail from '@/components/voucher/VoucherDetail.vue'
+import ReportList from '@/components/report/ReportList.vue'
+import ReportDetail from '@/components/report/ReportDetail.vue'
 
 /**
  * In some cases, we need to browser redirect to home page.
@@ -33,123 +32,236 @@ export function goHome() {
 const routes: RouteRecordRaw[] = [
   {
     path: '/ui',
-    component: LayoutPage,
-    beforeEnter: [verifyCurrentUser, loadWorkingSob],
+    beforeEnter: [verifyCurrentUser, loadWorkingSob, updateWorkingSob],
+    component: AppLayout,
     children: [
       // home
       {
         path: '',
         name: 'home',
-        component: HomePage,
+        components: {
+          main: NotImplementedPage,
+        },
       },
       // about
       {
         path: 'about',
         name: 'about',
-        component: AboutUs,
+        components: {
+          main: NotImplementedPage,
+        },
       },
       // profile
       {
         path: 'profile/settings',
         name: 'profile',
-        component: ProfileSetting,
+        components: {
+          main: ProfileSetting,
+        },
       },
       // sobs
       {
         path: 'sobs',
-        component: RouterView,
-        props: true,
         children: [
           {
             path: '',
-            name: 'sobMain',
-            component: SobMain,
+            name: 'sobList',
+            components: {
+              list: SobList,
+              main: NotImplementedPage,
+            },
           },
           {
             path: 'new',
-            name: 'sobCreation',
-            component: SobCreation,
+            name: 'sobNew',
+            props: { list: false, main: true },
+            components: {
+              list: SobList,
+              main: SobDetail,
+            },
           },
           {
-            path: ':sobId/init',
-            name: 'ledgersInitialization',
-            component: LedgersInitialization,
-          },
-          {
-            path: ':sobId/:view(\\d+)?',
+            path: ':sobId',
             name: 'sobDetail',
-            component: SobDetail,
+            props: { list: false, main: true },
+            components: {
+              list: SobList,
+              main: SobDetail,
+            },
           },
         ],
       },
       // accounts
       {
         path: 'sobs/:sobId/accounts',
-        component: RouterView,
-        props: true,
-        beforeEnter: updateWorkingSob,
         children: [
+          {
+            path: '',
+            name: 'accountList',
+            props: { list: (route) => ({ sobId: route.params.sobId }) },
+            components: {
+              list: AccountList,
+            },
+          },
+          {
+            path: 'new',
+            name: 'accountNew',
+            meta: {
+              listPanelSize: 60,
+              mainPanelSize: 40,
+            },
+            props: {
+              list: (route) => ({ sobId: route.params.sobId }),
+              main: (route) => ({ sobId: route.params.sobId }),
+            },
+            components: {
+              list: AccountList,
+              main: AccountDetail,
+            },
+          },
           {
             path: ':accountId',
             name: 'accountDetail',
-            component: AccountDetails,
+            meta: {
+              listPanelSize: 60,
+              mainPanelSize: 40,
+            },
+            props: {
+              list: (route) => ({ sobId: route.params.sobId }),
+              main: (route) => ({ sobId: route.params.sobId, accountId: route.params.accountId }),
+            },
+            components: {
+              list: AccountList,
+              main: AccountDetail,
+            },
           },
         ],
       },
-      // ledgers
+      // auxiliaries
       {
-        path: 'sobs/:sobId/periods',
-        component: RouterView,
-        props: true,
-        beforeEnter: updateWorkingSob,
+        path: 'sobs/:sobId/auxiliaries',
+        beforeEnter: [verifyCurrentUser, loadWorkingSob, updateWorkingSob],
         children: [
           {
-            path: ':periodId?',
-            name: 'ledgerMain',
-            component: LedgerMain,
+            path: '',
+            name: 'auxiliaryList',
+            props: { list: (route) => ({ sobId: route.params.sobId }) },
+            components: {
+              list: AuxiliaryCategoryList,
+            },
           },
           {
-            path: 'close',
-            name: 'closePeriod',
-            component: ClosePeriod,
+            path: ':categoryKey',
+            name: 'auxiliaryDetail',
+            props: {
+              list: (route) => ({ sobId: route.params.sobId }),
+              main: (route) => ({ sobId: route.params.sobId, categoryKey: route.params.categoryKey }),
+            },
+            components: {
+              list: AuxiliaryCategoryList,
+              main: AuxiliaryCategoryDetail,
+            },
           },
         ],
+      },
+      // ledger initialization
+      {
+        path: 'sobs/:sobId/initialize',
+        name: 'ledgerInitialize',
+        beforeEnter: [verifyCurrentUser, loadWorkingSob, updateWorkingSob],
+        props: {
+          main: (route) => ({ sobId: route.params.sobId }),
+        },
+        components: {
+          main: LedgerInitialize,
+        },
+      },
+      // ledgers
+      {
+        path: 'sobs/:sobId/ledgers',
+        name: 'ledgerView',
+        beforeEnter: [verifyCurrentUser, loadWorkingSob, updateWorkingSob],
+        props: {
+          main: (route) => ({ sobId: route.params.sobId }),
+        },
+        components: {
+          main: LedgerList,
+        },
       },
       // vouchers
       {
         path: 'sobs/:sobId/vouchers',
-        component: RouterView,
-        props: true,
-        beforeEnter: updateWorkingSob,
+        beforeEnter: [verifyCurrentUser, loadWorkingSob, updateWorkingSob],
         children: [
           {
             path: '',
-            name: 'voucherMain',
-            component: VoucherMain,
+            name: 'voucherList',
+            props: { list: (route) => ({ sobId: route.params.sobId }) },
+            components: {
+              list: VoucherList,
+            },
           },
           {
             path: 'new',
-            name: 'voucherCreation',
-            component: VoucherCreation,
+            name: 'voucherNew',
+            meta: {
+              listPanelSize: 30,
+              mainPanelSize: 70,
+            },
+            props: {
+              list: (route) => ({ sobId: route.params.sobId }),
+              main: (route) => ({ sobId: route.params.sobId }),
+            },
+            components: {
+              list: VoucherList,
+              main: VoucherDetail,
+            },
           },
           {
             path: ':voucherId',
             name: 'voucherDetail',
-            component: VoucherDetail,
+            meta: {
+              listPanelSize: 30,
+              mainPanelSize: 70,
+            },
+            props: {
+              list: (route) => ({ sobId: route.params.sobId }),
+              main: (route) => ({ sobId: route.params.sobId, voucherId: route.params.voucherId }),
+            },
+            components: {
+              list: VoucherList,
+              main: VoucherDetail,
+            },
           },
         ],
       },
-      // reports
       {
         path: 'sobs/:sobId/reports',
-        component: RouterView,
-        props: true,
-        beforeEnter: updateWorkingSob,
+        beforeEnter: [verifyCurrentUser, loadWorkingSob, updateWorkingSob],
         children: [
           {
             path: '',
-            name: 'reportMain',
-            component: ReportMain,
+            name: 'reportList',
+            props: { list: (route) => ({ sobId: route.params.sobId }) },
+            components: {
+              list: ReportList,
+            },
+          },
+          {
+            path: ':reportId',
+            name: 'reportDetail',
+            meta: {
+              listPanelSize: 30,
+              mainPanelSize: 70,
+            },
+            props: {
+              list: (route) => ({ sobId: route.params.sobId }),
+              main: (route) => ({ sobId: route.params.sobId, reportId: route.params.reportId }),
+            },
+            components: {
+              list: ReportList,
+              main: ReportDetail,
+            },
           },
         ],
       },
@@ -169,19 +281,14 @@ const routes: RouteRecordRaw[] = [
         name: 'logout',
         component: AuthenticationLogout,
       },
-      {
-        path: 'register',
-        name: 'register',
-        beforeEnter: verifyNotLoggedIn,
-        component: RegisterUser,
-      },
+      // TODO user registration
+      // {
+      //   path: 'register',
+      //   name: 'register',
+      //   beforeEnter: verifyNotLoggedIn,
+      //   component: RegisterUser,
+      // },
     ],
-  },
-  {
-    path: '/styleTest/:view?',
-    name: 'styleTest',
-    component: StyleTest,
-    props: true,
   },
   {
     path: '/error',
@@ -190,7 +297,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/:pathMatch(.*)*',
-    component: NotFound,
+    component: NotFoundPage,
   },
 ]
 
@@ -198,6 +305,8 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
 })
+
+router.beforeEach(protectUnsavedChanges)
 
 router.onError((...args) => {
   console.log(args)

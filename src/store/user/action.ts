@@ -1,4 +1,4 @@
-import { type User, UserService } from '../../domain'
+import { UserService, type User } from '@/services/user'
 import { type IUserState } from './state'
 
 function setUser(state: IUserState) {

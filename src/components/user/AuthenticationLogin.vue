@@ -1,120 +1,31 @@
-<script lang="ts">
-interface formValueType {
-  flowId: string
-  method: string
-  user: {
-    email: string
-    password: string
-  }
-  csrfToken: string
-}
-
-function buildFormValue(flow: LoginFlow): formValueType {
-  const getValue = (attr: string) =>
-    (
-      flow.ui.nodes.find((node) => (node.attributes as UiNodeInputAttributes).name == attr)
-        ?.attributes as UiNodeInputAttributes
-    ).value
-
-  return {
-    flowId: flow.id,
-    method: getValue('method'),
-    user: {
-      email: getValue('identifier') ?? '',
-      password: getValue('password') ?? '',
-    },
-    csrfToken: getValue('csrf_token'),
-  }
-}
-
-function buildSumitForm(formValue: formValueType) {
-  return {
-    method: formValue.method,
-    csrf_token: formValue.csrfToken,
-    password: formValue.user.password,
-    password_identifier: formValue.user.email,
-  }
-}
-</script>
-
 <script setup lang="ts">
-import { type LoginFlow, type UiNodeInputAttributes, type UiText, type UpdateLoginFlowBody } from '@ory/kratos-client'
-import { ref, onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { onMounted, ref } from 'vue'
+import { useUserStore } from '@/store/user'
 import { useRoute, useRouter } from 'vue-router'
-import { KratosService } from '../../domain'
-import { useNotificationStore } from '../../store/notification'
-import { useUserStore } from '../../store/user'
-import type { FormRules } from '../reusable/form'
+import { KratosService, type PasswordFlow } from '@/services/kratos'
 
-const { t } = useI18n()
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+
+const userStore = useUserStore()
 const route = useRoute()
 const router = useRouter()
-const userStore = useUserStore()
-const notificationStore = useNotificationStore()
 
-const formValue = ref<formValueType>({ flowId: '', method: '', user: { email: '', password: '' }, csrfToken: '' })
-const formRule: FormRules = {
-  'user.email': {
-    required: true,
-  },
-  'user.password': {
-    required: true,
-  },
-}
-const formBusy = ref(true)
-
-const notify = (flow: LoginFlow) => {
-  const convertMessageType = (type: string) => {
-    switch (type) {
-      case 'error':
-      case 'info':
-      case 'success':
-      case 'warning':
-        return type
-      default:
-        return 'error'
-    }
-  }
-  const createMessage = (message: UiText) => ({
-    type: convertMessageType(message.type),
-    text: message.text,
-  })
-
-  let messages = flow.ui.messages?.map(createMessage) ?? []
-  messages = messages.concat(flow.ui.nodes.flatMap((node) => node.messages).map(createMessage) ?? [])
-  messages.forEach((message) =>
-    notificationStore.action.push({
-      type: message.type,
-      message: message.text,
-      duration: 0,
-    }),
-  )
-}
+const formValue = ref<PasswordFlow>({ flowId: '', method: 'password', identifier: '', password: '', csrfToken: '' })
 
 onMounted(async () => {
-  const result = await KratosService.initLoginFlow()
-
-  formValue.value = buildFormValue(result)
-  formBusy.value = false
-  notify(result)
+  formValue.value = (await KratosService.initLoginFlow()).data as PasswordFlow
 })
 
-const handleSubmit = async () => {
-  formBusy.value = true
+async function onSubmit() {
   if (!formValue.value.flowId) {
-    notificationStore.action.push({
-      type: 'error',
-      message: 'should not happen: no flow id',
-      duration: 0,
-    })
+    alert('should not happen: no flow id')
     return
   }
 
-  const { ok, data: result } = await KratosService.submitLoginFlow(
-    formValue.value.flowId,
-    buildSumitForm(formValue.value) as UpdateLoginFlowBody,
-  )
+  const { ok, data: formResponse } = await KratosService.submitLoginFlow(formValue.value)
   if (ok) {
     userStore.action.loadUser()
 
@@ -124,64 +35,50 @@ const handleSubmit = async () => {
     } else {
       router.replace({ name: 'home' })
     }
-    notificationStore.action.clear()
     return
   }
-  // otherwise, flow is retured
-  formValue.value = buildFormValue(result as LoginFlow)
-  formBusy.value = false
-  notify(result as LoginFlow)
+  // otherwise, flow is returned
+  formValue.value = formResponse as PasswordFlow
 }
 </script>
 
 <template>
-  <!-- container -->
-  <div class="w-full h-screen flex items-center justify-center bg-neutral-50">
-    <!-- wrapper -->
-    <div class="w-full max-w-md py-12 px-4 space-y-8">
-      <!-- header -->
-      <div>
-        <h1 class="text-center text-3xl font-extrabold text-primary-900">Login</h1>
-      </div>
-
-      <!-- form -->
-      <BaseForm
-        :model="formValue"
-        :rules="formRule"
-        :busy="formBusy"
-        class="flex flex-col gap-4 px-12 py-8 bg-white shadow-lg rounded-lg"
-        @submit="handleSubmit"
-      >
-        <input v-model="formValue.csrfToken" type="hidden" />
-        <BaseFormItem :label="t('user.email')" path="user.email" required>
-          <BaseInput
-            v-model="formValue.user.email"
-            :placeholder="t('user.emailInputPlaceholder')"
-            html-type="email"
-            autocomplete="email"
-            required
-          />
-        </BaseFormItem>
-
-        <BaseFormItem :label="t('user.password')" path="user.password" required>
-          <BaseInput
-            v-model="formValue.user.password"
-            :placeholder="t('user.passwordInputPlaceholder')"
-            html-type="password"
-            autocomplete="current-password"
-            required
-          />
-        </BaseFormItem>
-
-        <div>
-          <BaseButton html-type="submit" category="primary" :busy="formBusy" class="w-full">
-            <template #icon>
-              <LockClosedMiniIcon />
-            </template>
-            <span>{{ t('user.login') }}</span>
-          </BaseButton>
-        </div>
-      </BaseForm>
-    </div>
+  <div class="flex h-screen w-full items-center justify-center">
+    <Card class="w-full max-w-md space-y-8 px-4 py-12">
+      <CardHeader>
+        <CardTitle>fims</CardTitle>
+        <CardDescription>{{ $t('user.loginPrompt') }}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form @submit.prevent="onSubmit">
+          <div class="flex flex-col gap-6">
+            <div class="grid gap-3">
+              <Label for="email">{{ $t('user.email') }}</Label>
+              <Input
+                id="email"
+                v-model="formValue.identifier"
+                type="email"
+                placeholder="m@example.com"
+                required
+                autocomplete="username webauthn"
+              />
+            </div>
+            <div class="grid gap-3">
+              <Label for="password">{{ $t('user.password') }}</Label>
+              <Input
+                id="password"
+                v-model="formValue.password"
+                type="password"
+                required
+                autocomplete="current-password"
+              />
+            </div>
+            <div class="flex flex-col gap-3">
+              <Button type="submit" class="w-full">{{ $t('user.login') }}</Button>
+            </div>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   </div>
 </template>

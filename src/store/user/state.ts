@@ -1,5 +1,5 @@
+import type { User } from '@/services/user'
 import { reactive } from 'vue'
-import { type User } from '../../domain'
 
 export interface IUserState {
   user: User

@@ -1,105 +1,89 @@
 <script setup lang="ts">
-import type { SettingsFlow, UpdateSettingsFlowBody } from '@ory/kratos-client'
-import { onMounted, ref } from 'vue'
-import { KratosService } from '../../domain'
-import { buildPasswordForm, notify, type passwordFormType } from './helpers'
+import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { FormRules } from '../reusable/form'
 import { useRouter } from 'vue-router'
-import { goHome } from '../../router'
+import { toTypedSchema } from '@vee-validate/zod'
+import { useForm, Field as VeeField } from 'vee-validate'
+import z from 'zod'
+
+import { Field, FieldLabel, FieldError } from '@/components/ui/field'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+
+import { KratosService, type PasswordFlow } from '@/services/kratos'
 
 const { t } = useI18n()
 const router = useRouter()
 
-interface formModel extends passwordFormType {
-  confirmPassword: string
-}
+const formSchema = toTypedSchema(
+  z
+    .object({
+      flowId: z.string(),
+      method: z.literal('password'),
+      identifier: z.string().email(),
+      password: z.string(),
+      confirmPassword: z.string(),
+      csrfToken: z.string(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t('user.passwordNotSame'),
+      path: ['confirmPassword'],
+    }),
+)
 
-const formBusy = ref(true)
-const flow = ref<SettingsFlow | undefined>()
-const passwordForm = ref<formModel>({ csrf_token: '', method: '', email: '', password: '', confirmPassword: '' })
-
-const formRule: FormRules = {
-  password: {
-    required: true,
-  },
-  confirmPassword: {
-    required: true,
-    validator: (value) => {
-      if (value !== passwordForm.value.password) {
-        return Error('user.passwordNotSame')
-      }
-      return true
-    },
-  },
-}
-
-onMounted(async () => {
-  const { ok, data } = await KratosService.initSettingFlow()
-  if (!ok) {
-    console.warn('cannot initiate setting flow, redirect to home page')
-    goHome()
-    return
-  }
-
-  flow.value = data
-  passwordForm.value = { ...buildPasswordForm(flow.value), confirmPassword: '' }
-  formBusy.value = false
-  notify(flow.value)
+const form = useForm({
+  validationSchema: formSchema,
 })
 
-const handleSubmit = async (formValue: UpdateSettingsFlowBody) => {
-  if (!flow.value) {
-    alert('should not happen: no flow id')
-    return
-  }
+onMounted(async () => {
+  form.resetForm(
+    {
+      values: { ...((await KratosService.initPasswordSettingFlow()).data as PasswordFlow), confirmPassword: '' },
+    },
+    { force: true },
+  )
+})
 
-  formBusy.value = true
-  const { ok, data } = await KratosService.submitSettingFlow(flow.value?.id, formValue)
-  flow.value = data
-  passwordForm.value = { ...buildPasswordForm(flow.value), confirmPassword: '' }
-  formBusy.value = false
-  notify(flow.value)
+const onSubmit = form.handleSubmit(async (values, { resetForm }) => {
+  const { ok, data: flowResponse } = await KratosService.submitPasswordSettingFlow(values as PasswordFlow)
   if (ok) {
     router.replace({ name: 'login' })
+    return
   }
-}
+  resetForm({
+    values: { ...(flowResponse as PasswordFlow), confirmPassword: '' },
+  })
+})
 </script>
 
 <template>
-  <!-- form -->
-  <BaseForm
-    :model="passwordForm"
-    :rules="formRule"
-    :busy="formBusy"
-    class="flex flex-col gap-4"
-    @submit="handleSubmit(passwordForm as UpdateSettingsFlowBody)"
-  >
-    <input v-model="passwordForm.csrf_token" type="hidden" />
-    <BaseFormItem path="email" :label="t('user.email')">
-      <BaseInput v-model="passwordForm.email" disabled />
-    </BaseFormItem>
-    <BaseFormItem path="password" :label="t('user.newPassword')" required>
-      <BaseInput
-        v-model="passwordForm.password"
-        :placeholder="t('user.passwordInputPlaceholder')"
-        html-type="password"
-        autocomplete="new-password"
-      />
-    </BaseFormItem>
-    <BaseFormItem path="confirmPassword" :label="t('user.confirmNewPassword')" required>
-      <BaseInput
-        v-model="passwordForm.confirmPassword"
-        :placeholder="t('user.confirmPasswordInputPlaceholder')"
-        html-type="password"
-        autocomplete="new-password"
-      />
-    </BaseFormItem>
-    <BaseButton class="w-full" html-type="submit" category="primary" :busy="formBusy">
-      <template #icon>
-        <LockClosedMiniIcon />
-      </template>
-      <span>{{ t('action.submit') }}</span>
-    </BaseButton>
-  </BaseForm>
+  <form class="flex flex-col gap-4" @submit.prevent="onSubmit">
+    <VeeField v-slot="{ componentField, errorMessage }" name="identifier">
+      <Field>
+        <FieldLabel for="identifier">{{ t('user.email') }}</FieldLabel>
+        <Input id="identifier" type="email" disabled autocomplete="username" v-bind="componentField" />
+        <FieldError>{{ errorMessage }}</FieldError>
+      </Field>
+    </VeeField>
+
+    <VeeField v-slot="{ componentField, errorMessage }" name="password">
+      <Field>
+        <FieldLabel for="password">{{ t('user.newPassword') }}</FieldLabel>
+        <Input id="password" type="password" required autocomplete="new-password" v-bind="componentField" />
+        <FieldError>{{ errorMessage }}</FieldError>
+      </Field>
+    </VeeField>
+
+    <VeeField v-slot="{ componentField, errorMessage }" name="confirmPassword">
+      <Field>
+        <FieldLabel for="confirmPassword">{{ t('user.confirmNewPassword') }}</FieldLabel>
+        <Input id="confirmPassword" type="password" required autocomplete="new-password" v-bind="componentField" />
+        <FieldError>{{ errorMessage }}</FieldError>
+      </Field>
+    </VeeField>
+
+    <div class="flex justify-end pt-2">
+      <Button type="submit">{{ t('action.submit') }}</Button>
+    </div>
+  </form>
 </template>
