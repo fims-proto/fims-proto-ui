@@ -255,6 +255,13 @@ table.*                     - data table UI (search, filter, sort)
 
 ## Code Style Guidelines
 
+When asked to plan or implement changes, start with the simplest approach that follows existing patterns in the codebase. Do NOT over-engineer, create wrapper components, or introduce new abstractions unless explicitly requested. Look for existing patterns first and reuse them.
+
+When asked for backend-only or frontend-only analysis, stay strictly within that boundary. Do not include suggestions or changes for the other side unless explicitly asked.
+Add under a top-level ## Debugging & Bug Fixes section
+
+Before implementing a fix for a bug, create a brief plan and confirm the approach. Do not jump straight into coding a fix without understanding the root cause first. When debugging, avoid rapid-fire guessing — instead, methodically trace the data flow.
+
 ### Code Style & Readability
 
 - **Inline trivial functions**
