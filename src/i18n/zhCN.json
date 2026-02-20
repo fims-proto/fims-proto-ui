@@ -16,37 +16,27 @@
     "confirmationHeader": "请注意",
     "confirmationText": "再次确认",
     "unsavedChangedConfirmationText": "你有未保存的修改，确定要离开吗？",
-    "mandatoryFieldMissing": "不能为空",
     "requestCompleted": "请求成功",
     "requestFailed": "请求失败",
     "total": "合计",
     "status": "状态",
-    "settings": "设置",
-    "loadMore": "加载更多 ({loaded}/{total})",
-    "noMoreData": "已加载全部数据",
+    "loadMore": "加载更多 ({0}/{1})",
+    "loading": "加载中...",
+    "loadingFinished": "已加载全部 {0} 条",
     "noResults": "没有找到结果",
-    "createPage": "新建",
-    "detailPage": "详情",
     "pleaseSelect": "请选择",
     "createdAt": "创建时间",
-    "comingSoon": "功能开发中...",
     "msg": {
       "invalidDateFormat": "无效的日期格式"
     }
   },
   "action": {
-    "create": "新建",
-    "createObject": "新建{object}",
-    "saveAndNew": "保存并新增",
-    "save": "保存",
-    "submit": "提交",
-    "close": "关闭",
     "edit": "编辑",
+    "save": "保存",
+    "create": "新建",
+    "close": "关闭",
     "cancel": "取消",
-    "add": "新增",
-    "remove": "移除",
     "delete": "删除",
-    "inputHelp": "帮助选择",
     "detail": "详情"
   },
   "nav": {
@@ -62,19 +52,13 @@
     "desc": "降序",
     "hide": "隐藏",
     "search": "搜索...",
-    "selectedCount": "已选 {count} 项",
+    "selectedCount": "已选 {0} 项",
     "clearFilters": "清除过滤器",
     "reset": "重置",
     "view": "视图",
     "toggleColumns": "切换列",
     "expandAll": "展开全部",
-    "collapseAll": "收起全部",
-    "loadMore": "加载更多 ({displayed}/{total})",
-    "loading": "加载中...",
-    "loadingFinished": "已加载全部 {total} 条"
-  },
-  "landing": {
-    "title": "首页"
+    "collapseAll": "收起全部"
   },
   "user": {
     "loginPrompt": "在下面输入您的电子邮件以登录到您的帐户",
@@ -82,15 +66,9 @@
     "password": "密码",
     "firstname": "名字",
     "lastname": "姓氏",
-    "fullname": "{last}{first}",
     "newPassword": "新密码",
     "confirmNewPassword": "密码确认",
     "passwordNotSame": "密码不一致",
-    "emailInputPlaceholder": "E-Mail 地址",
-    "passwordInputPlaceholder": "密码",
-    "confirmPasswordInputPlaceholder": "再次输入密码",
-    "firstnameInputPlaceholder": "名字",
-    "lastnameInputPlaceholder": "姓氏",
     "login": "登入",
     "logout": "登出"
   },
@@ -103,44 +81,21 @@
   "sob": {
     "listTitle": "账套 ({0})",
     "title": "账套",
-    "creation": {
-      "title": "新建账套"
-    },
     "sobUnselected": "未选择账套",
     "name": "公司名称",
     "baseCurrency": "本位币",
     "startingPeriod": "启用期间",
     "accountCodeLength": "科目级次编码长度",
-    "selectSob": "请选择工作账套",
     "manageSob": "账套管理",
-    "current": "当前",
-    "error": {
-      "invalidAccountCodeLength": "科目级次不能少于 2 或者多于 10"
-    },
     "validation": {
       "lengthCannotDecrease": "第 {0} 级科目位数不能从 {1} 减少到 {2}"
-    },
-    "ledgerInitialize": {
-      "title": "初始化账簿",
-      "firstPeriod": "启用期间: {periodText}",
-      "updated": "科目余额已更新"
-    },
-    "detail": {
-      "basic": "基本信息",
-      "accounts": "科目设置",
-      "auxiliaries": "辅助核算",
-      "initialize": "初始化余额"
     },
     "msg": {
       "saveSuccess": "账套保存成功"
     }
   },
   "account": {
-    "selectAccountTitle": "选择科目",
-    "selectAccountDialogTitle": "选择账户",
-    "selectAccountDialogDescription": "点击明细账户进行选择",
     "listTitle": "科目 ({0})",
-    "createTitle": "新建科目",
     "accountTitle": "科目",
     "accountNumber": "科目编号",
     "levelNumber": "本级编码",
@@ -181,38 +136,24 @@
       "701": "共同"
     },
     "auxiliary": {
-      "categoryListTitle": "辅助核算 ({0})",
-      "accountListTitle": "{0} ({1})",
-      "nonSelectedAccountListTitle": "未选择辅助核算",
-      "key": "编号",
       "category": "辅助核算",
       "selectAuxiliaryCategories": "选择辅助核算类别",
-      "noAuxiliaryCategories": "无辅助核算",
-      "account": "科目",
-      "title": "名称",
-      "description": "备注"
+      "noAuxiliaryCategories": "无辅助核算"
     },
     "msg": {
-      "accountNumberNotNumber": "科目编号必须为数字",
-      "saveSuccess": "科目保存成功"
-    },
-    "validation": {
-      "invalidLevel": "无效的科目级次",
-      "levelNumberOutOfRange": "本级编码必须在 1 到 {max} 之间"
+      "saveSuccess": "科目保存成功",
+      "levelNumberOutOfRange": "本级编码必须在 1 到 {0} 之间",
+      "invalidLevel": "无效的科目级次"
     }
   },
   "period": {
     "periodUnselected": "未选择财务周期",
-    "createPeriod": "创建账期",
     "title": "账期",
     "current": "当前",
     "closed": "已结账",
-    "periodText": "{fiscalYear} 年第 {number} 期",
+    "periodText": "{0} 年第 {1} 期",
     "close": {
-      "title": "结账",
-      "action": "结账",
-      "confirmation": "请确认要结转至下一账期",
-      "success": "结账成功"
+      "title": "结账"
     }
   },
   "ledger": {
@@ -227,7 +168,7 @@
     "balanceDirection": "余额方向",
     "initialize": {
       "title": "初始化期初余额",
-      "firstPeriod": "启用期间：{periodText}",
+      "firstPeriod": "启用期间：{0}",
       "periodClosed": "该期间已结账，无法修改期初余额",
       "totalDebit": "借方合计",
       "totalCredit": "贷方合计",
@@ -261,7 +202,6 @@
       "categorySaveSuccess": "类别保存成功",
       "accountSaveSuccess": "辅助核算保存成功",
       "updateNotSupported": "暂不支持更新",
-      "categoryNotFound": "未找到该类别",
       "keyImmutable": "创建后编号不可修改",
       "createCategoryDescription": "创建新的辅助核算类别，编号创建后不可修改",
       "createAccountDescription": "创建新的辅助核算项，编号创建后不可修改",
@@ -277,27 +217,21 @@
     "number": "编号",
     "headerText": "凭证摘要",
     "headerTextPlaceholder": "记一笔...",
-    "summary": "摘要",
     "account": "会计科目",
     "amount": "发生金额",
     "debit": "借方金额",
     "credit": "贷方金额",
-    "type": "记账凭证",
     "attachmentQuantity": "附单据",
     "attachmentQuantityUnit": "张",
     "transactionDate": "日期",
     "creator": "制单人",
-    "newLineItem": "新增",
     "lineItems": "分录",
     "lineItem": {
-      "text": "摘要",
       "bothEmpty": "未填写金额",
       "bothFilled": "借方和贷方不能同时填写",
       "decimalPrecision": "金额最多保留两位小数",
-      "auxiliaryAccounts": "辅助核算",
       "errorPrefix": "第 {0} 行分录"
     },
-    "auxiliaryAccountsPlaceholder": "待实现",
     "debitTotal": "借",
     "creditTotal": "贷",
     "balanced": "平衡",
@@ -318,15 +252,12 @@
     "post": "登账",
     "notPosted": "未登账",
     "isPosted": "已登账",
-    "save": {
+    "msg": {
       "emptyHeaderText": "摘要不能为空",
       "notBalanced": "借贷不平衡",
-      "emptyItems": "行项目不能为空",
       "emptyAuxiliaryAccountKey": "未填写辅助核算",
       "minTwoItems": "至少需要两条分录",
-      "success": "凭证保存成功"
-    },
-    "workflow": {
+      "success": "凭证保存成功",
       "confirmCancelAudit": "确认取消审核？",
       "confirmCancelReview": "确认取消复核？",
       "confirmPost": "确认登账？此操作不可撤销。",
@@ -388,15 +319,13 @@
     "btn": {
       "generate": "生成报表",
       "regenerate": "重新生成",
-      "editTemplate": "编辑模板",
       "editItem": "编辑项目",
       "viewItem": "查看项目",
       "addItem": "添加项目",
       "insertBefore": "在前面插入",
       "insertChild": "插入子项",
       "insertAfter": "在后面插入",
-      "addFormula": "新增公式",
-      "removeFormula": "删除"
+      "addFormula": "新增公式"
     },
     "msg": {
       "generateCompleted": "成功报表生成",
@@ -405,9 +334,6 @@
       "templateUpdateCompleted": "报表模板更新成功",
       "updateSuccessButRegenerateFailed": "报表更新成功，但重新计算失败",
       "textIsRequired": "文本不能为空",
-      "itemUpdated": "项目更新成功",
-      "itemUpdateSuccess": "项目更新成功，报表已重新生成",
-      "formulasRequired": "数据源为公式时，至少需要一个公式",
       "accountRequired": "请选择科目",
       "confirmDeleteItem": "确定要删除此项目吗？此操作无法撤销。",
       "validationFailed": "验证失败，请检查输入内容"
@@ -419,8 +345,6 @@
     },
     "chart": {
       "lineNumber": "行次",
-      "leadingEntry": "{0}:",
-      "totalEntry": "{0}合计",
       "breakdown": "其中：",
       "sumFactorEnum": {
         "1": "加：",

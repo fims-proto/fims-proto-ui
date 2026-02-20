@@ -69,7 +69,7 @@ function createFormSchema(accountCodeLength: readonly number[]) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['levelNumber'],
-        message: t('account.validation.invalidLevel'),
+        message: t('account.msg.invalidLevel'),
       })
       return
     }
@@ -80,7 +80,7 @@ function createFormSchema(accountCodeLength: readonly number[]) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['levelNumber'],
-        message: t('account.validation.levelNumberOutOfRange', { max: maxValue }),
+        message: t('account.msg.levelNumberOutOfRange', [maxValue]),
       })
     }
   })
@@ -294,7 +294,7 @@ function toggleCategorySelection(categoryKey: string, update: (value: string[]) 
 
 <template>
   <PageFrame
-    :secondary-title="props.accountId ? $t('common.detailPage') : $t('common.createPage')"
+    :secondary-title="props.accountId ? $t('action.detail') : $t('action.create')"
     :dirty-indicator="form.meta.value.dirty"
   >
     <template #end>
@@ -582,7 +582,7 @@ function toggleCategorySelection(categoryKey: string, update: (value: string[]) 
                         @click.stop="toggleCategorySelection(category.key, onUpdate)"
                       >
                         <X class="h-3 w-3" />
-                        <span class="sr-only">{{ $t('action.remove') }}</span>
+                        <span class="sr-only">{{ $t('action.delete') }}</span>
                       </button>
                     </Badge>
                   </TooltipTrigger>

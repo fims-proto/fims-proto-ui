@@ -154,12 +154,12 @@ const table = useVueTable({
     <!-- load more footer -->
     <div v-show="hasMore && !!rowCount">
       <Button variant="secondary" class="w-full font-normal" @click="emit('loadMore')">
-        {{ isLoading ? $t('table.loading') : $t('table.loadMore', { displayed: data.length, total: rowCount }) }}
+        {{ isLoading ? $t('common.loading') : $t('common.loadMore', [data.length, rowCount]) }}
       </Button>
     </div>
     <!-- loading finished sign -->
     <div v-show="!hasMore && !!rowCount" class="text-muted-foreground py-2 text-center text-sm">
-      {{ $t('table.loadingFinished', { total: rowCount }) }}
+      {{ $t('common.loadingFinished', [rowCount]) }}
     </div>
   </div>
 </template>

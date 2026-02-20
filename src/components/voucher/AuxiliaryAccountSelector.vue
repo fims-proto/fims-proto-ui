@@ -122,7 +122,7 @@ const displayText = computed(() => {
           </CommandGroup>
           <CommandGroup v-if="hasMore">
             <CommandItem :value="{ label: 'Load more' }" class="justify-center text-center" @select="loadMore">
-              {{ isLoading ? $t('common.loading') : $t('common.loadMore') }}
+              {{ isLoading ? $t('common.loading') : $t('common.loadMore', [currentPage, totalPages]) }}
             </CommandItem>
           </CommandGroup>
         </CommandList>

@@ -92,10 +92,7 @@ const isBalanceSheet = computed(() => displayData.value?.class === 'balance_shee
 // Computed: period display text
 const periodText = computed(() => {
   if (!report.value?.period) return null
-  return t('period.periodText', {
-    fiscalYear: report.value.period.fiscalYear,
-    number: report.value.period.periodNumber,
-  })
+  return t('period.periodText', [report.value.period.fiscalYear, report.value.period.periodNumber])
 })
 
 watch(() => props.reportId, reset, { immediate: true })

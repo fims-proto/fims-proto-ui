@@ -107,17 +107,17 @@ const LineItemSchema = z
       return requiredCategories.every((category) => item.auxiliaryAccounts?.[category.key])
     },
     {
-      message: t('voucher.save.emptyAuxiliaryAccountKey'),
+      message: t('voucher.msg.emptyAuxiliaryAccountKey'),
     },
   )
 
 const VoucherFormSchema = z
   .object({
-    headerText: z.string().min(1, { message: t('voucher.save.emptyHeaderText') }),
+    headerText: z.string().min(1, { message: t('voucher.msg.emptyHeaderText') }),
     attachmentQuantity: z.number().int().min(0),
     transactionDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: t('common.msg.invalidDateFormat') }),
     lineItems: z.array(LineItemSchema).refine((items) => items.filter((item) => item.account).length >= 2, {
-      message: t('voucher.save.minTwoItems'),
+      message: t('voucher.msg.minTwoItems'),
     }),
   })
   .refine(
@@ -127,7 +127,7 @@ const VoucherFormSchema = z
       return Math.abs(debitTotal - creditTotal) < 0.001
     },
     {
-      message: t('voucher.save.notBalanced'),
+      message: t('voucher.msg.notBalanced'),
     },
   )
 
@@ -284,7 +284,7 @@ const onSubmit = form.handleSubmit(async (values) => {
     const { data, exception } = await VoucherService.createVoucher(props.sobId, request)
     if (exception || !data) return
 
-    toastStore.action.success(t('voucher.save.success'))
+    toastStore.action.success(t('voucher.msg.success'))
     unsavedChanges.action.disableProtection()
     bus.emit()
 
@@ -309,7 +309,7 @@ const onSubmit = form.handleSubmit(async (values) => {
     const { exception } = await VoucherService.updateVoucher(props.sobId, props.voucherId, request)
     if (exception) return
 
-    toastStore.action.success(t('voucher.save.success'))
+    toastStore.action.success(t('voucher.msg.success'))
     unsavedChanges.action.disableProtection()
     bus.emit()
 
@@ -353,7 +353,7 @@ async function handleAudit() {
   if (!props.voucherId) return
   const { exception } = await VoucherService.auditVoucher(props.sobId, props.voucherId, userStore.state.user.id)
   if (exception) return
-  toastStore.action.success(t('voucher.workflow.auditSuccess'))
+  toastStore.action.success(t('voucher.msg.auditSuccess'))
   bus.emit()
   await load()
 }
@@ -362,7 +362,7 @@ async function handleCancelAudit() {
   if (!props.voucherId) return
   confirmationStore.action.confirm({
     title: t('voucher.audit'),
-    message: t('voucher.workflow.confirmCancelAudit'),
+    message: t('voucher.msg.confirmCancelAudit'),
     onConfirm: async () => {
       const { exception } = await VoucherService.cancelAuditVoucher(
         props.sobId,
@@ -370,7 +370,7 @@ async function handleCancelAudit() {
         userStore.state.user.id,
       )
       if (exception) return
-      toastStore.action.success(t('voucher.workflow.cancelAuditSuccess'))
+      toastStore.action.success(t('voucher.msg.cancelAuditSuccess'))
       bus.emit()
       await load()
     },
@@ -381,7 +381,7 @@ async function handleReview() {
   if (!props.voucherId) return
   const { exception } = await VoucherService.reviewVoucher(props.sobId, props.voucherId, userStore.state.user.id)
   if (exception) return
-  toastStore.action.success(t('voucher.workflow.reviewSuccess'))
+  toastStore.action.success(t('voucher.msg.reviewSuccess'))
   bus.emit()
   await load()
 }
@@ -390,7 +390,7 @@ async function handleCancelReview() {
   if (!props.voucherId) return
   confirmationStore.action.confirm({
     title: t('voucher.review'),
-    message: t('voucher.workflow.confirmCancelReview'),
+    message: t('voucher.msg.confirmCancelReview'),
     onConfirm: async () => {
       const { exception } = await VoucherService.cancelReviewVoucher(
         props.sobId,
@@ -398,7 +398,7 @@ async function handleCancelReview() {
         userStore.state.user.id,
       )
       if (exception) return
-      toastStore.action.success(t('voucher.workflow.cancelReviewSuccess'))
+      toastStore.action.success(t('voucher.msg.cancelReviewSuccess'))
       bus.emit()
       await load()
     },
@@ -409,11 +409,11 @@ async function handlePost() {
   if (!props.voucherId) return
   confirmationStore.action.confirm({
     title: t('voucher.post'),
-    message: t('voucher.workflow.confirmPost'),
+    message: t('voucher.msg.confirmPost'),
     onConfirm: async () => {
       const { exception } = await VoucherService.postVoucher(props.sobId, props.voucherId!, userStore.state.user.id)
       if (exception) return
-      toastStore.action.success(t('voucher.workflow.postSuccess'))
+      toastStore.action.success(t('voucher.msg.postSuccess'))
       bus.emit()
       await load()
     },

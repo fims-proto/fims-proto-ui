@@ -60,7 +60,7 @@ watch(
 )
 
 function getPeriodText(period: Period): string {
-  return t('period.periodText', { fiscalYear: period.fiscalYear, number: period.periodNumber })
+  return t('period.periodText', [period.fiscalYear, period.periodNumber])
 }
 
 function handlePeriodChange(periodId: unknown) {

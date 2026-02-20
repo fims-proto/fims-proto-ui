@@ -35,7 +35,7 @@ const { workingSob, currentPeriod } = toRefs(sobStore.state)
 const sobText = computed(() => (workingSob.value ? workingSob.value.name : t('sob.sobUnselected')))
 const periodText = computed(() =>
   currentPeriod.value
-    ? t('period.periodText', { fiscalYear: currentPeriod.value.fiscalYear, number: currentPeriod.value.periodNumber })
+    ? t('period.periodText', [currentPeriod.value.fiscalYear, currentPeriod.value.periodNumber])
     : t('period.periodUnselected'),
 )
 

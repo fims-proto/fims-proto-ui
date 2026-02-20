@@ -39,10 +39,7 @@ const columns = computed(() => createColumns(isEditing.value, onBalanceChange))
 
 const periodText = computed(() => {
   if (!period.value) return ''
-  return t('period.periodText', {
-    fiscalYear: period.value.fiscalYear,
-    number: period.value.periodNumber,
-  })
+  return t('period.periodText', [period.value.fiscalYear, period.value.periodNumber])
 })
 
 // Calculate trial balance - only count root level accounts (一级科目)
@@ -192,7 +189,7 @@ async function onSave() {
     <template #start>
       <div class="flex items-center gap-2">
         <span class="text-muted-foreground text-sm">
-          {{ $t('ledger.initialize.firstPeriod', { periodText }) }}
+          {{ $t('ledger.initialize.firstPeriod', [periodText]) }}
         </span>
         <Badge v-if="isPeriodClosed" variant="secondary">
           {{ $t('period.closed') }}
