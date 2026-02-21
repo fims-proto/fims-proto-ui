@@ -42,9 +42,18 @@
   "nav": {
     "scenarios": "场景",
     "settings": "设置",
-    "account": "科目",
-    "auxiliary": "辅助核算",
-    "initialize": "初始化余额",
+    "transaction": "交易",
+    "ledgerExplorer": "分析",
+    "explorer": {
+      "overview": "总览",
+      "account": "按科目",
+      "dimension": "按维度"
+    },
+    "report": "报表",
+    "periodReview": "期间",
+    "chartOfAccounts": "科目",
+    "dimension": "维度",
+    "initialize": "期初余额",
     "profile": "账户"
   },
   "table": {
@@ -103,8 +112,8 @@
     "superiorAccount": "上级科目",
     "noSuperiorAccount": "没有上级科目",
     "balanceDirection": "余额方向",
-    "searchPlaceholder": "搜索账户...",
-    "notFound": "未找到账户",
+    "searchPlaceholder": "搜索科目...",
+    "notFound": "未找到科目",
     "balanceDirectionEnum": {
       "debit": "借",
       "credit": "贷"
@@ -136,9 +145,9 @@
       "701": "共同"
     },
     "auxiliary": {
-      "category": "辅助核算",
-      "selectAuxiliaryCategories": "选择辅助核算类别",
-      "noAuxiliaryCategories": "无辅助核算"
+      "category": "维度",
+      "selectAuxiliaryCategories": "选择维度类别",
+      "noAuxiliaryCategories": "无维度"
     },
     "msg": {
       "saveSuccess": "科目保存成功",
@@ -151,14 +160,10 @@
     "title": "账期",
     "current": "当前",
     "closed": "已结账",
-    "periodText": "{0} 年第 {1} 期",
-    "close": {
-      "title": "结账"
-    }
+    "periodText": "{0} 年第 {1} 期"
   },
   "ledger": {
-    "title": "账簿",
-    "listTitle": "账簿 ({0})",
+    "title": "账簿总览",
     "noPeriodMessage": "没有可用的账期，请先初始化账簿",
     "openingBalance": "期初余额",
     "interimBalance": "本期发生额",
@@ -182,30 +187,30 @@
     }
   },
   "auxiliary": {
-    "categoryListTitle": "辅助核算类别 ({0})",
-    "categoryDetail": "类别详情",
-    "categoryKey": "类别编号",
-    "categoryTitle": "类别名称",
-    "accountsTitle": "辅助核算项 ({0})",
+    "categoryListTitle": "维度 ({0})",
+    "categoryDetail": "维度详情",
+    "categoryKey": "编号",
+    "categoryTitle": "名称",
+    "accountsTitle": "成员 ({0})",
     "accountKey": "编号",
     "accountTitle": "名称",
     "description": "描述",
-    "createCategory": "新建类别",
-    "createAccount": "新建辅助核算",
-    "viewAccount": "查看辅助核算",
+    "createCategory": "新建维度",
+    "createAccount": "新建维度成员",
+    "viewAccount": "查看维度成员",
     "isStandard": "类型",
     "standard": "标准",
     "custom": "自定义",
-    "selectAccount": "选择辅助核算",
-    "noAuxiliaryAccounts": "无辅助核算项",
+    "selectAccount": "选择维度成员",
+    "noAuxiliaryAccounts": "无维度成员",
     "msg": {
-      "categorySaveSuccess": "类别保存成功",
-      "accountSaveSuccess": "辅助核算保存成功",
+      "categorySaveSuccess": "维度保存成功",
+      "accountSaveSuccess": "维度成员保存成功",
       "updateNotSupported": "暂不支持更新",
       "keyImmutable": "创建后编号不可修改",
-      "createCategoryDescription": "创建新的辅助核算类别，编号创建后不可修改",
-      "createAccountDescription": "创建新的辅助核算项，编号创建后不可修改",
-      "viewAccountDescription": "查看辅助核算项详情"
+      "createCategoryDescription": "创建新的维度，编号创建后不可修改",
+      "createAccountDescription": "创建新的维度成员，编号创建后不可修改",
+      "viewAccountDescription": "查看维度成员详情"
     }
   },
   "voucher": {
@@ -213,7 +218,6 @@
     "creation": {
       "title": "新建凭证"
     },
-    "title": "凭证",
     "number": "编号",
     "headerText": "凭证摘要",
     "headerTextPlaceholder": "记一笔...",
@@ -255,7 +259,7 @@
     "msg": {
       "emptyHeaderText": "摘要不能为空",
       "notBalanced": "借贷不平衡",
-      "emptyAuxiliaryAccountKey": "未填写辅助核算",
+      "emptyAuxiliaryAccountKey": "未填写维度成员",
       "minTwoItems": "至少需要两条分录",
       "success": "凭证保存成功",
       "confirmCancelAudit": "确认取消审核？",

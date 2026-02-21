@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
 import { toRefs } from 'vue'
 
 import {
   BookOpenCheck,
-  BookText,
+  ChartLine,
   FileSpreadsheet,
   GitBranch,
+  HandCoins,
   Network,
-  NotebookText,
   RefreshCcwDot,
 } from 'lucide-vue-next'
 import type { SidebarProps } from '@/components/ui/sidebar'
@@ -25,47 +24,61 @@ const props = withDefaults(defineProps<SidebarProps>(), {
 })
 
 const { t } = useI18n()
-const router = useRouter()
 const { workingSob } = toRefs(useSobStore().state)
 
 const data = {
   scenarios: [
     {
-      title: t('voucher.title'),
-      icon: NotebookText,
-      action: () => router.push({ name: 'voucherList', params: { sobId: workingSob.value?.id } }),
+      title: t('nav.transaction'),
+      icon: HandCoins,
+      to: { name: 'voucherList', params: { sobId: workingSob.value?.id } },
     },
     {
-      title: t('ledger.title'),
-      icon: BookText,
-      action: () => router.push({ name: 'ledgerView', params: { sobId: workingSob.value?.id } }),
-    },
-    {
-      title: t('period.close.title'),
-      icon: BookOpenCheck,
-      action: () => {},
-    },
-    {
-      title: t('report.subjectName'),
+      title: t('nav.report'),
       icon: FileSpreadsheet,
-      action: () => router.push({ name: 'reportList', params: { sobId: workingSob.value?.id } }),
+      to: { name: 'reportList', params: { sobId: workingSob.value?.id } },
+    },
+    {
+      title: t('nav.periodReview'),
+      icon: BookOpenCheck,
+      // TODO: to be implemented
+      to: { name: 'home' },
+    },
+    {
+      title: t('nav.ledgerExplorer'),
+      icon: ChartLine,
+      defaultOpen: true,
+      subItems: [
+        {
+          title: t('nav.explorer.overview'),
+          to: { name: 'ledgerOverview', params: { sobId: workingSob.value?.id } },
+        },
+        {
+          title: t('nav.explorer.account'),
+          to: { name: 'accountExplorer', params: { sobId: workingSob.value?.id } },
+        },
+        {
+          title: t('nav.explorer.dimension'),
+          to: { name: 'dimensionExplorer', params: { sobId: workingSob.value?.id } },
+        },
+      ],
     },
   ],
   settings: [
     {
-      title: t('nav.account'),
+      title: t('nav.chartOfAccounts'),
       icon: Network,
-      action: () => router.push({ name: 'accountList', params: { sobId: workingSob.value?.id } }),
+      to: { name: 'accountList', params: { sobId: workingSob.value?.id } },
     },
     {
-      title: t('nav.auxiliary'),
+      title: t('nav.dimension'),
       icon: GitBranch,
-      action: () => router.push({ name: 'auxiliaryList', params: { sobId: workingSob.value?.id } }),
+      to: { name: 'auxiliaryList', params: { sobId: workingSob.value?.id } },
     },
     {
       title: t('nav.initialize'),
       icon: RefreshCcwDot,
-      action: () => router.push({ name: 'ledgerInitialize', params: { sobId: workingSob.value?.id } }),
+      to: { name: 'ledgerInitialize', params: { sobId: workingSob.value?.id } },
     },
   ],
 }

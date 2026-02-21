@@ -38,7 +38,7 @@ async function loadLedgers(periodId: string) {
 </script>
 
 <template>
-  <PageFrame :title="$t('ledger.listTitle', [ledgers.length])" no-scroll>
+  <PageFrame :title="$t('ledger.title')" no-scroll>
     <template #end>
       <PeriodSelector :sob-id="sobId" @period-change="loadLedgers" />
     </template>

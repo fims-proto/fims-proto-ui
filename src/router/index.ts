@@ -15,7 +15,9 @@ import AccountDetail from '@/components/account/AccountDetail.vue'
 import AuxiliaryCategoryList from '@/components/account/AuxiliaryCategoryList.vue'
 import AuxiliaryCategoryDetail from '@/components/account/AuxiliaryCategoryDetail.vue'
 import LedgerInitialize from '@/components/ledger/LedgerInitialize.vue'
-import LedgerList from '@/components/ledger/LedgerList.vue'
+import LedgerOverview from '@/components/ledger/LedgerOverview.vue'
+import AccountExplorer from '@/components/ledger/AccountExplorer.vue'
+import DimensionExplorer from '@/components/ledger/DimensionExplorer.vue'
 import VoucherList from '@/components/voucher/VoucherList.vue'
 import VoucherDetail from '@/components/voucher/VoucherDetail.vue'
 import ReportList from '@/components/report/ReportList.vue'
@@ -91,9 +93,21 @@ const routes: RouteRecordRaw[] = [
           },
         ],
       },
-      // accounts
+      // ledger initialization
       {
-        path: 'sobs/:sobId/accounts',
+        path: 'sobs/:sobId/initialize',
+        name: 'ledgerInitialize',
+        beforeEnter: [verifyCurrentUser, loadWorkingSob, updateWorkingSob],
+        props: {
+          main: (route) => ({ sobId: route.params.sobId }),
+        },
+        components: {
+          main: LedgerInitialize,
+        },
+      },
+      // chart of accounts
+      {
+        path: 'sobs/:sobId/coa',
         children: [
           {
             path: '',
@@ -137,9 +151,9 @@ const routes: RouteRecordRaw[] = [
           },
         ],
       },
-      // auxiliaries
+      // dimensions
       {
-        path: 'sobs/:sobId/auxiliaries',
+        path: 'sobs/:sobId/dimensions',
         beforeEnter: [verifyCurrentUser, loadWorkingSob, updateWorkingSob],
         children: [
           {
@@ -164,33 +178,46 @@ const routes: RouteRecordRaw[] = [
           },
         ],
       },
-      // ledger initialization
-      {
-        path: 'sobs/:sobId/initialize',
-        name: 'ledgerInitialize',
-        beforeEnter: [verifyCurrentUser, loadWorkingSob, updateWorkingSob],
-        props: {
-          main: (route) => ({ sobId: route.params.sobId }),
-        },
-        components: {
-          main: LedgerInitialize,
-        },
-      },
       // ledgers
       {
-        path: 'sobs/:sobId/ledgers',
-        name: 'ledgerView',
+        path: 'sobs/:sobId/explorer',
         beforeEnter: [verifyCurrentUser, loadWorkingSob, updateWorkingSob],
-        props: {
-          main: (route) => ({ sobId: route.params.sobId }),
-        },
-        components: {
-          main: LedgerList,
-        },
+        children: [
+          {
+            path: 'overview',
+            name: 'ledgerOverview',
+            props: {
+              main: (route) => ({ sobId: route.params.sobId }),
+            },
+            components: {
+              main: LedgerOverview,
+            },
+          },
+          {
+            path: 'account',
+            name: 'accountExplorer',
+            props: {
+              main: (route) => ({ sobId: route.params.sobId }),
+            },
+            components: {
+              main: AccountExplorer,
+            },
+          },
+          {
+            path: 'dimension',
+            name: 'dimensionExplorer',
+            props: {
+              main: (route) => ({ sobId: route.params.sobId }),
+            },
+            components: {
+              main: DimensionExplorer,
+            },
+          },
+        ],
       },
-      // vouchers
+      // transactions
       {
-        path: 'sobs/:sobId/vouchers',
+        path: 'sobs/:sobId/transactions',
         beforeEnter: [verifyCurrentUser, loadWorkingSob, updateWorkingSob],
         children: [
           {
