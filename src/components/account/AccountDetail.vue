@@ -519,7 +519,7 @@ function toggleCategorySelection(categoryKey: string, update: (value: string[]) 
                   </template>
                 </Button>
               </PopoverTrigger>
-              <PopoverContent class="w-[300px] p-0" align="start">
+              <PopoverContent class="w-75 p-0" align="start">
                 <Command>
                   <CommandInput :placeholder="$t('account.auxiliary.category')" />
                   <CommandList>

@@ -87,7 +87,7 @@ const data = {
 <template>
   <Sidebar v-bind="props">
     <SidebarHeader
-      class="flex h-[64px] content-center justify-center border-b transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-[50px]"
+      class="flex h-16 content-center justify-center border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12.5"
     >
       <SobSwitcher />
     </SidebarHeader>

@@ -82,7 +82,7 @@ function loadMore() {
 
 <template>
   <Select :model-value="selectedPeriodId" @update:model-value="handlePeriodChange">
-    <SelectTrigger class="w-[200px]">
+    <SelectTrigger class="w-50">
       <SelectValue :placeholder="$t('ledger.noPeriodMessage')" />
     </SelectTrigger>
     <SelectContent>
