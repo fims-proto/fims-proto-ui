@@ -12,12 +12,10 @@ export const AUXILIARY_FIELDS_CONVERSION: FieldConversionRecord = {
 }
 
 export const LEDGER_FIELDS_CONVERSION: FieldConversionRecord = {
-  openingDebitBalance: 'number',
-  openingCreditBalance: 'number',
+  openingAmount: 'number',
   periodDebit: 'number',
   periodCredit: 'number',
-  endingDebitBalance: 'number',
-  endingCreditBalance: 'number',
+  endingAmount: 'number',
   account: ACCOUNT_FIELDS_CONVERSION,
   createdAt: 'date',
   updatedAt: 'date',
@@ -32,8 +30,7 @@ export const PERIOD_FIELDS_CONVERSION: FieldConversionRecord = {
 
 export const ITEM_FIELDS: FieldConversionRecord = {
   account: ACCOUNT_FIELDS_CONVERSION,
-  credit: 'number',
-  debit: 'number',
+  amount: 'number',
   createdAt: 'date',
   updatedAt: 'date',
 }
@@ -41,8 +38,7 @@ export const ITEM_FIELDS: FieldConversionRecord = {
 export const VOUCHER_FIELDS: FieldConversionRecord = {
   period: PERIOD_FIELDS_CONVERSION,
   attachmentQuantity: 'number',
-  credit: 'number',
-  debit: 'number',
+  amount: 'number',
   lineItems: ITEM_FIELDS,
   createdAt: 'date',
   updatedAt: 'date',

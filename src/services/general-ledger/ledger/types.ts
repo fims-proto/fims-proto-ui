@@ -5,12 +5,10 @@ export interface Ledger {
   id: string
   sobId: string
   accountId: string
-  openingDebitBalance: number
-  openingCreditBalance: number
+  openingAmount: number
   periodDebit: number
   periodCredit: number
-  endingDebitBalance: number
-  endingCreditBalance: number
+  endingAmount: number
   account: Account
   periodId: string
   updatedAt: Date

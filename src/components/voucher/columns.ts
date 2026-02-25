@@ -54,7 +54,7 @@ export const fullColumns: ColumnDef<Voucher>[] = [
     },
   },
   {
-    accessorKey: 'debit',
+    accessorKey: 'amount',
     header: ({ column }) =>
       h(DataTableColumnHeader<Voucher>, {
         column: column,
@@ -63,7 +63,7 @@ export const fullColumns: ColumnDef<Voucher>[] = [
       }),
     cell: ({ row }) => {
       const data = row.original
-      return h('span', { class: 'text-nowrap font-mono' }, i18n.global.n(data.debit, 'decimal'))
+      return h('span', { class: 'text-nowrap font-mono' }, i18n.global.n(data.amount || 0, 'decimal'))
     },
     meta: {
       columnName: i18n.global.t('voucher.amount'),
@@ -213,7 +213,7 @@ export const compactColumns: ColumnDef<Voucher>[] = [
     },
   },
   {
-    accessorKey: 'debit',
+    accessorKey: 'amount',
     header: ({ column }) =>
       h(DataTableColumnHeader<Voucher>, {
         column: column,
@@ -222,7 +222,7 @@ export const compactColumns: ColumnDef<Voucher>[] = [
       }),
     cell: ({ row }) => {
       const data = row.original
-      return h('span', { class: 'text-nowrap font-mono' }, i18n.global.n(data.debit, 'decimal'))
+      return h('span', { class: 'text-nowrap font-mono' }, i18n.global.n(data.amount || 0, 'decimal'))
     },
     meta: {
       columnName: i18n.global.t('voucher.amount'),

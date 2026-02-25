@@ -252,11 +252,11 @@ export const viewColumns: ColumnDef<LedgerTreeNode>[] = [
     },
     columns: [
       {
-        accessorKey: 'openingDebitBalance',
+        accessorKey: 'openingAmount',
         header: i18n.global.t('ledger.debit'),
         cell: ({ row }) => {
-          const value = row.original.openingDebitBalance
-          return value ? h('span', { class: 'text-nowrap text-right' }, i18n.global.n(value, 'decimal')) : null
+          const amount = row.original.openingAmount || 0
+          return amount > 0 ? h('span', { class: 'text-nowrap text-right' }, i18n.global.n(amount, 'decimal')) : null
         },
         enableSorting: false,
         meta: {
@@ -265,11 +265,11 @@ export const viewColumns: ColumnDef<LedgerTreeNode>[] = [
         },
       },
       {
-        accessorKey: 'openingCreditBalance',
+        accessorKey: 'openingAmount',
         header: i18n.global.t('ledger.credit'),
         cell: ({ row }) => {
-          const value = row.original.openingCreditBalance
-          return value ? h('span', { class: 'text-nowrap text-right' }, i18n.global.n(value, 'decimal')) : null
+          const amount = row.original.openingAmount || 0
+          return amount < 0 ? h('span', { class: 'text-nowrap text-right' }, i18n.global.n(Math.abs(amount), 'decimal')) : null
         },
         enableSorting: false,
         meta: {
@@ -324,11 +324,11 @@ export const viewColumns: ColumnDef<LedgerTreeNode>[] = [
     },
     columns: [
       {
-        accessorKey: 'endingDebitBalance',
+        accessorKey: 'endingAmount',
         header: i18n.global.t('ledger.debit'),
         cell: ({ row }) => {
-          const value = row.original.endingDebitBalance
-          return value ? h('span', { class: 'text-nowrap text-right' }, i18n.global.n(value, 'decimal')) : null
+          const amount = row.original.endingAmount || 0
+          return amount > 0 ? h('span', { class: 'text-nowrap text-right' }, i18n.global.n(amount, 'decimal')) : null
         },
         enableSorting: false,
         meta: {
@@ -337,11 +337,11 @@ export const viewColumns: ColumnDef<LedgerTreeNode>[] = [
         },
       },
       {
-        accessorKey: 'endingCreditBalance',
+        accessorKey: 'endingAmount',
         header: i18n.global.t('ledger.credit'),
         cell: ({ row }) => {
-          const value = row.original.endingCreditBalance
-          return value ? h('span', { class: 'text-nowrap text-right' }, i18n.global.n(value, 'decimal')) : null
+          const amount = row.original.endingAmount || 0
+          return amount < 0 ? h('span', { class: 'text-nowrap text-right' }, i18n.global.n(Math.abs(amount), 'decimal')) : null
         },
         enableSorting: false,
         meta: {

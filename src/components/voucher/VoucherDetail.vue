@@ -56,44 +56,22 @@ const LineItemSchema = z
     _key: z.string(),
     account: z.custom<Account>().optional(),
     text: z.string(),
-    debit: z
-      .number()
-      .min(0)
-      .refine((val) => Number.isInteger(val * 100), {
-        message: t('voucher.lineItem.decimalPrecision'),
-      }),
-    credit: z
-      .number()
-      .min(0)
-      .refine((val) => Number.isInteger(val * 100), {
-        message: t('voucher.lineItem.decimalPrecision'),
-      }),
+    amount: z.number().refine((val) => Number.isInteger(val * 100), {
+      message: t('voucher.lineItem.decimalPrecision'),
+    }),
     auxiliaryAccounts: z.record(z.custom<AuxiliaryAccount>()).optional(),
   })
   .refine(
     (item) => {
-      // If no account selected, allow both debit and credit to be 0 (empty row)
+      // If no account selected, allow amount to be 0 (empty row)
       if (!item.account) {
         return true
       }
-      // At least one of debit or credit must be filled
-      return item.debit > 0 || item.credit > 0
+      // Amount must not be 0 for non-empty rows
+      return item.amount !== 0
     },
     {
       message: t('voucher.lineItem.bothEmpty'),
-    },
-  )
-  .refine(
-    (item) => {
-      // If no account selected, skip validation (empty row)
-      if (!item.account) {
-        return true
-      }
-      // Debit and credit cannot both be filled
-      return !(item.debit > 0 && item.credit > 0)
-    },
-    {
-      message: t('voucher.lineItem.bothFilled'),
     },
   )
   .refine(
@@ -122,9 +100,8 @@ const VoucherFormSchema = z
   })
   .refine(
     (data) => {
-      const debitTotal = data.lineItems.reduce((sum, item) => sum + (item.debit || 0), 0)
-      const creditTotal = data.lineItems.reduce((sum, item) => sum + (item.credit || 0), 0)
-      return Math.abs(debitTotal - creditTotal) < 0.001
+      const amountTotal = data.lineItems.reduce((sum, item) => sum + (item.amount || 0), 0)
+      return Math.abs(amountTotal) < 0.001
     },
     {
       message: t('voucher.msg.notBalanced'),
@@ -138,8 +115,7 @@ type VoucherFormValues = z.infer<typeof VoucherFormSchema>
 const EMPTY_LINE_ITEM: Omit<FormLineItem, '_key'> = {
   account: undefined,
   text: '',
-  debit: 0,
-  credit: 0,
+  amount: 0,
 }
 
 const EMPTY_VOUCHER: VoucherFormValues = {
@@ -158,11 +134,22 @@ const form = useForm({
 })
 
 // Computed totals
-const debitTotal = computed(() => (form.values.lineItems ?? []).reduce((sum, item) => sum + (item.debit || 0), 0))
+const debitTotal = computed(() =>
+  (form.values.lineItems ?? [])
+    .filter((item) => item.amount && item.amount > 0)
+    .reduce((sum, item) => sum + item.amount, 0),
+)
 
-const creditTotal = computed(() => (form.values.lineItems ?? []).reduce((sum, item) => sum + (item.credit || 0), 0))
+const creditTotal = computed(() =>
+  (form.values.lineItems ?? [])
+    .filter((item) => item.amount && item.amount < 0)
+    .reduce((sum, item) => sum + Math.abs(item.amount), 0),
+)
 
-const isBalanced = computed(() => Math.abs(debitTotal.value - creditTotal.value) < 0.001)
+const isBalanced = computed(() => {
+  const amountTotal = (form.values.lineItems ?? []).reduce((sum, item) => sum + (item.amount || 0), 0)
+  return Math.abs(amountTotal) < 0.001
+})
 
 const title = computed(() => (props.voucherId ? voucher.value?.documentNumber : t('voucher.creation.title')))
 
@@ -195,14 +182,6 @@ function removeLineItem(index: number) {
   )
 }
 
-function amountInEdit(value: number | undefined) {
-  return value ? value : ''
-}
-
-function amountInDisplay(value: number | undefined) {
-  return value ? n(value, 'decimal') : ''
-}
-
 // Load voucher data
 async function load() {
   if (props.voucherId) {
@@ -225,12 +204,13 @@ async function load() {
             auxiliaryAccounts[aux.category.key] = aux
           })
         }
+        // Convert signed amount to debit/credit for display
+        const amount = item.amount || 0
         return {
           _key: crypto.randomUUID(),
           account: item.account,
           text: item.text,
-          debit: item.debit,
-          credit: item.credit,
+          amount: amount,
           auxiliaryAccounts: Object.entries(auxiliaryAccounts).length > 0 ? auxiliaryAccounts : undefined,
         }
       }),
@@ -264,8 +244,7 @@ const onSubmit = form.handleSubmit(async (values) => {
     return {
       accountNumber: item.account!.accountNumber,
       text: values.headerText,
-      debit: item.debit,
-      credit: item.credit,
+      amount: item.amount || 0,
       auxiliaryAccounts: auxiliaryAccountsArray,
     }
   })
@@ -607,9 +586,9 @@ async function handlePost() {
             <TableHeader>
               <TableRow>
                 <TableHead class="w-12">#</TableHead>
-                <TableHead class="w-[200px]">{{ $t('voucher.account') }}</TableHead>
-                <TableHead class="w-[150px]">{{ $t('voucher.debit') }}</TableHead>
-                <TableHead class="w-[150px]">{{ $t('voucher.credit') }}</TableHead>
+                <TableHead class="w-50">{{ $t('voucher.account') }}</TableHead>
+                <TableHead class="w-37.5">{{ $t('voucher.debit') }}</TableHead>
+                <TableHead class="w-37.5">{{ $t('voucher.credit') }}</TableHead>
                 <TableHead v-if="isEditing" class="w-12"></TableHead>
               </TableRow>
             </TableHeader>
@@ -670,40 +649,44 @@ async function handlePost() {
 
                   <!-- Debit -->
                   <TableCell class="align-top">
-                    <VeeField v-slot="{ field }" :name="`lineItems[${index}].debit`">
+                    <VeeField v-slot="{ field }" :name="`lineItems[${index}].amount`">
                       <template v-if="isEditing">
                         <Input
                           :id="useId()"
                           type="number"
                           step="0.01"
                           min="0"
-                          :model-value="amountInEdit(field.value)"
+                          :model-value="field.value && field.value > 0 ? field.value : ''"
                           class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                           @update:model-value="(val) => field.onChange(Number(val) || 0)"
                         />
                       </template>
                       <template v-else>
-                        <span class="text-sm">{{ amountInDisplay(field.value) }}</span>
+                        <span class="text-sm">{{
+                          field.value && field.value > 0 ? n(field.value, 'decimal') : ''
+                        }}</span>
                       </template>
                     </VeeField>
                   </TableCell>
 
                   <!-- Credit -->
                   <TableCell class="align-top">
-                    <VeeField v-slot="{ field }" :name="`lineItems[${index}].credit`">
+                    <VeeField v-slot="{ field }" :name="`lineItems[${index}].amount`">
                       <template v-if="isEditing">
                         <Input
                           :id="useId()"
                           type="number"
                           step="0.01"
                           min="0"
-                          :model-value="amountInEdit(field.value)"
+                          :model-value="field.value && field.value < 0 ? Math.abs(field.value) : ''"
                           class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                          @update:model-value="(val) => field.onChange(Number(val) || 0)"
+                          @update:model-value="(val) => field.onChange(val ? -Number(val) || 0 : 0)"
                         />
                       </template>
                       <template v-else>
-                        <span class="text-sm">{{ amountInDisplay(field.value) }}</span>
+                        <span class="text-sm">{{
+                          field.value && field.value < 0 ? n(Math.abs(field.value), 'decimal') : ''
+                        }}</span>
                       </template>
                     </VeeField>
                   </TableCell>

@@ -11,8 +11,7 @@ export type Voucher = {
   documentNumber: string
   voucherType: string
   attachmentQuantity: number
-  debit: number
-  credit: number
+  amount: number
   creator: User
   auditor: User
   reviewer: User
@@ -31,8 +30,7 @@ export type LineItem = {
   account: Account
   auxiliaryAccounts?: AuxiliaryAccount[]
   text: string
-  credit: number
-  debit: number
+  amount: number
   createdAt: Date
   updatedAt: Date
 }
@@ -59,8 +57,7 @@ export type LineItemRequest = {
   accountNumber: string
   auxiliaryAccounts?: AuxiliaryItemRequest[]
   text: string
-  credit: number
-  debit: number
+  amount: number
 }
 
 export type AuxiliaryItemRequest = {

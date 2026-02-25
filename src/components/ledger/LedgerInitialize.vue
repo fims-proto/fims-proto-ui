@@ -98,13 +98,11 @@ function onBalanceChange(ledger: LedgerTreeNode, value: number) {
   // Update the leaf account balance
   ledger.openingBalance = value || 0
 
-  // Update the appropriate debit/credit field
+  // Update the signed amount based on balance direction
   if (ledger.account.balanceDirection === 'debit') {
-    ledger.openingDebitBalance = ledger.openingBalance
-    ledger.openingCreditBalance = 0
+    ledger.openingAmount = value || 0
   } else {
-    ledger.openingCreditBalance = ledger.openingBalance
-    ledger.openingDebitBalance = 0
+    ledger.openingAmount = -(value || 0)
   }
 
   // Recalculate parent balances
@@ -161,10 +159,15 @@ async function onSave() {
     const leafLedgers = allLedgers.filter((ledger) => ledger.account.isLeaf)
 
     const request = {
-      ledgers: leafLedgers.map((ledger) => ({
-        accountNumber: ledger.account.accountNumber,
-        openingBalance: ledger.openingBalance,
-      })),
+      ledgers: leafLedgers.map((ledger) => {
+        // For credit accounts, negate the balance to represent credit
+        const openingBalance =
+          ledger.account.balanceDirection === 'credit' ? -(ledger.openingBalance || 0) : ledger.openingBalance || 0
+        return {
+          accountNumber: ledger.account.accountNumber,
+          openingBalance,
+        }
+      }),
     }
 
     const { exception } = await LedgerService.initializeLedgers(props.sobId, request)

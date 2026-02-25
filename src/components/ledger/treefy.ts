@@ -12,8 +12,8 @@ export function treefyLedgers(ledgers: Ledger[]): LedgerTreeNode[] {
 
   // Initialize all nodes with children array and openingBalance
   ledgers.forEach((ledger) => {
-    const openingBalance =
-      ledger.account.balanceDirection === 'debit' ? ledger.openingDebitBalance : ledger.openingCreditBalance
+    // Convert signed openingAmount to positive openingBalance for editing
+    const openingBalance = Math.abs(ledger.openingAmount || 0)
 
     map.set(ledger.accountId, {
       ...ledger,
@@ -45,15 +45,16 @@ export function calculateParentBalances(nodes: LedgerTreeNode[]): void {
       calculateParentBalances(node.children)
 
       // Sum all children's opening balances
-      node.openingBalance = node.children.reduce((sum, child) => sum + child.openingBalance, 0)
+      const childrenSum = node.children.reduce((sum, child) => sum + child.openingBalance, 0)
 
-      // Update the appropriate debit/credit balance based on account direction
+      // Set parent's opening balance (positive for editing)
+      node.openingBalance = childrenSum
+
+      // Set parent's openingAmount (signed, maintaining sign based on balance direction)
       if (node.account.balanceDirection === 'debit') {
-        node.openingDebitBalance = node.openingBalance
-        node.openingCreditBalance = 0
+        node.openingAmount = childrenSum
       } else {
-        node.openingCreditBalance = node.openingBalance
-        node.openingDebitBalance = 0
+        node.openingAmount = -childrenSum
       }
     }
   })
