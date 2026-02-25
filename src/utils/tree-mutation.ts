@@ -51,12 +51,8 @@ export interface TreeInsertionOptions<TItem, TOutput = TItem> {
 export function insertItemInTree<
   TSection extends TreeNode<TSection, TStoredItem>,
   TInputItem extends { level: number },
-  TStoredItem extends { level: number } = TInputItem
->(
-  sections: TSection[],
-  itemToInsert: TInputItem,
-  options: TreeInsertionOptions<TInputItem, TStoredItem>
-): boolean {
+  TStoredItem extends { level: number } = TInputItem,
+>(sections: TSection[], itemToInsert: TInputItem, options: TreeInsertionOptions<TInputItem, TStoredItem>): boolean {
   const { findReference, transformItem, position } = options
 
   for (const section of sections) {
@@ -115,13 +111,10 @@ export function insertItemInTree<
  * )
  * ```
  */
-export function updateItemInTree<
-  TSection extends TreeNode<TSection, TItem>,
-  TItem
->(
+export function updateItemInTree<TSection extends TreeNode<TSection, TItem>, TItem>(
   sections: TSection[],
   findItem: (item: TItem) => boolean,
-  updateFn: (item: TItem) => TItem
+  updateFn: (item: TItem) => TItem,
 ): boolean {
   for (const section of sections) {
     // Skip sections without items
@@ -166,12 +159,9 @@ export function updateItemInTree<
  * )
  * ```
  */
-export function deleteItemFromTree<
-  TSection extends TreeNode<TSection, TItem>,
-  TItem
->(
+export function deleteItemFromTree<TSection extends TreeNode<TSection, TItem>, TItem>(
   sections: TSection[],
-  findItem: (item: TItem) => boolean
+  findItem: (item: TItem) => boolean,
 ): boolean {
   for (const section of sections) {
     // Skip sections without items
@@ -217,10 +207,7 @@ export function deleteItemFromTree<
  * // (after items at levels 2, 2, which are descendants)
  * ```
  */
-function findIndexAfterDescendants<T extends { level: number }>(
-  items: T[],
-  refIndex: number
-): number {
+function findIndexAfterDescendants<T extends { level: number }>(items: T[], refIndex: number): number {
   const refItem = items[refIndex]
   if (!refItem) return refIndex + 1
 

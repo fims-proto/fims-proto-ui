@@ -269,7 +269,9 @@ export const viewColumns: ColumnDef<LedgerTreeNode>[] = [
         header: i18n.global.t('ledger.credit'),
         cell: ({ row }) => {
           const amount = row.original.openingAmount || 0
-          return amount < 0 ? h('span', { class: 'text-nowrap text-right' }, i18n.global.n(Math.abs(amount), 'decimal')) : null
+          return amount < 0
+            ? h('span', { class: 'text-nowrap text-right' }, i18n.global.n(Math.abs(amount), 'decimal'))
+            : null
         },
         enableSorting: false,
         meta: {
@@ -341,7 +343,9 @@ export const viewColumns: ColumnDef<LedgerTreeNode>[] = [
         header: i18n.global.t('ledger.credit'),
         cell: ({ row }) => {
           const amount = row.original.endingAmount || 0
-          return amount < 0 ? h('span', { class: 'text-nowrap text-right' }, i18n.global.n(Math.abs(amount), 'decimal')) : null
+          return amount < 0
+            ? h('span', { class: 'text-nowrap text-right' }, i18n.global.n(Math.abs(amount), 'decimal'))
+            : null
         },
         enableSorting: false,
         meta: {
