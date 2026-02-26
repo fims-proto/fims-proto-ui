@@ -17,6 +17,7 @@ import { Check, ChevronsUpDown, Plus } from 'lucide-vue-next'
 import { LoadButton } from '@/components/common/list'
 
 import { useSobStore } from '@/store/sob'
+import { usePeriodStore } from '@/store/period'
 import type { Page } from '@/services/types'
 import { SobService, type Sob } from '@/services/sob'
 import { SOB_CHANGED } from '@/services/event'
@@ -25,13 +26,15 @@ const { t } = useI18n()
 const { isMobile } = useSidebar()
 const router = useRouter()
 const sobStore = useSobStore()
+const periodStore = usePeriodStore()
 const bus = useEventBus(SOB_CHANGED)
 
 const sobs = ref<Sob[]>([])
 const page = ref<Page<Sob>>()
 const pageable = ref({ page: 1, size: 10 })
 
-const { workingSob, currentPeriod } = toRefs(sobStore.state)
+const { workingSob } = toRefs(sobStore.state)
+const { currentPeriod } = toRefs(periodStore.state)
 const sobText = computed(() => (workingSob.value ? workingSob.value.name : t('sob.sobUnselected')))
 const periodText = computed(() =>
   currentPeriod.value

@@ -1,20 +1,10 @@
 import { SobService } from '@/services/sob'
-import { PeriodService } from '@/services/general-ledger'
 import { StorageService } from '@/services/storage'
 import { useAccountStore } from '@/store/account'
+import { usePeriodStore } from '@/store/period'
 import { type ISobState } from './state'
 
 const CURRENT_SOB_KEY = 'CURRENT_SOB'
-
-function refreshPeriod(state: ISobState) {
-  return async () => {
-    if (!state.workingSob) {
-      return
-    }
-    const { data } = await PeriodService.getOpenPeriod(state.workingSob.id)
-    state.currentPeriod = data
-  }
-}
 
 function setWorkingSob(state: ISobState) {
   return async (sobId: string) => {
@@ -30,7 +20,7 @@ function setWorkingSob(state: ISobState) {
       state.workingSob = data
       StorageService.set(CURRENT_SOB_KEY, sobId)
 
-      refreshPeriod(state)()
+      usePeriodStore().action.refreshPeriods(sobId)
       useAccountStore().action.refreshAccounts(sobId)
     }
   }
@@ -47,7 +37,6 @@ function loadWorkingSob(state: ISobState) {
 
 export function createAction(state: ISobState) {
   return {
-    refreshPeriod: refreshPeriod(state),
     setWorkingSob: setWorkingSob(state),
     loadWorkingSob: loadWorkingSob(state),
   }

@@ -7,6 +7,8 @@ function refreshAccounts(state: IAccountState) {
       state.allAccounts = []
       return
     }
+    console.log('Refreshing accounts')
+
     const { data, exception } = await AccountService.getAccounts(sobId)
     if (exception) {
       return

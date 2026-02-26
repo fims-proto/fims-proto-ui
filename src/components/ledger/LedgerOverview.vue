@@ -8,7 +8,7 @@ import PeriodSelector from '@/components/period/PeriodSelector.vue'
 import { viewColumns } from './columns'
 import { treefyLedgers, type LedgerTreeNode } from './treefy'
 import { LedgerService } from '@/services/general-ledger/ledger'
-import { CLASS_OPTIONS } from '@/services/general-ledger'
+import { CLASS_OPTIONS, type Period } from '@/services/general-ledger'
 
 const props = defineProps<{
   sobId: string
@@ -18,16 +18,16 @@ const ledgers = ref<LedgerTreeNode[]>([])
 const isLoading = ref(false)
 const selectedPeriodId = ref<string>()
 
-async function loadLedgers(periodId: string) {
-  if (!periodId) {
+async function loadLedgers(period: Period) {
+  if (!period) {
     ledgers.value = []
     return
   }
 
-  selectedPeriodId.value = periodId
+  selectedPeriodId.value = period.id
   isLoading.value = true
   try {
-    const response = await LedgerService.getLedgersInPeriod(props.sobId, periodId, { page: 1, size: 1000 })
+    const response = await LedgerService.getLedgersInPeriod(props.sobId, period.id, { page: 1, size: 1000 })
     if (response.data?.content) {
       ledgers.value = treefyLedgers(response.data.content)
     }
@@ -40,7 +40,7 @@ async function loadLedgers(periodId: string) {
 <template>
   <PageFrame :title="$t('ledger.title')" no-scroll>
     <template #end>
-      <PeriodSelector :sob-id="sobId" @period-change="loadLedgers" />
+      <PeriodSelector :sob-id="sobId" @period-selected="loadLedgers" />
     </template>
 
     <DataTable

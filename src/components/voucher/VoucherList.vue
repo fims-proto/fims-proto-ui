@@ -9,7 +9,7 @@ import { DataTable } from '@/components/common/data-table'
 import PeriodSelector from '@/components/period/PeriodSelector.vue'
 
 import { fullColumns, compactColumns } from './columns'
-import { VoucherService, type Voucher } from '@/services/general-ledger'
+import { VoucherService, type Period, type Voucher } from '@/services/general-ledger'
 import type { Page } from '@/services/types'
 import { FilterFactory } from '@/services/filter'
 import { VOUCHER_CHANGED } from '@/services/event'
@@ -87,8 +87,8 @@ function handleRowClick(row: Voucher) {
   })
 }
 
-function handlePeriodChange(periodId: string) {
-  selectedPeriodId.value = periodId
+function handlePeriodChange(period: Period) {
+  selectedPeriodId.value = period.id
 }
 
 function handleCreate() {
@@ -104,7 +104,7 @@ function handleCreate() {
 <template>
   <PageFrame :title="$t('voucher.listTitle', [page?.numberOfElements ?? 0])">
     <template #end>
-      <PeriodSelector :sob-id="sobId" @period-change="handlePeriodChange" />
+      <PeriodSelector :sob-id="sobId" @period-selected="handlePeriodChange" />
       <Button @click="handleCreate">{{ $t('action.create') }}</Button>
     </template>
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { ref, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import {
@@ -11,53 +11,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { LoadButton } from '@/components/common/list'
 import { Badge } from '@/components/ui/badge'
 
-import { PeriodService } from '@/services/general-ledger/period'
 import type { Period } from '@/services/general-ledger'
-import type { Page } from '@/services/types'
-import { useSobStore } from '@/store/sob'
+import { usePeriodStore } from '@/store/period'
 
-const props = defineProps<{
+defineProps<{
   sobId: string
 }>()
 
 const emit = defineEmits<{
-  periodChange: [periodId: string]
   periodSelected: [period: Period]
 }>()
 
 const { t } = useI18n()
-const sobStore = useSobStore()
+const periodStore = usePeriodStore()
+const { allPeriods: periods, currentPeriod } = toRefs(periodStore.state)
 
-const periods = ref<Period[]>([])
-const page = ref<Page<Period>>()
-const pageable = ref({ page: 1, size: 20 })
-const selectedPeriodId = ref<string>()
-
-const currentPeriodId = computed(() => sobStore.state.currentPeriod?.id)
-
-watch(
-  pageable.value,
-  async () => {
-    page.value = (await PeriodService.getPeriods(props.sobId, pageable.value)).data
-    periods.value = periods.value.concat(page.value?.content ?? [])
-
-    // Auto-select current period on first load
-    if (pageable.value.page === 1 && currentPeriodId.value && !selectedPeriodId.value) {
-      selectedPeriodId.value = currentPeriodId.value
-      emit('periodChange', currentPeriodId.value)
-
-      // Also emit the full period object
-      const period = periods.value.find((p) => p.id === currentPeriodId.value)
-      if (period) {
-        emit('periodSelected', period)
-      }
-    }
-  },
-  { immediate: true },
-)
+// Local selected state managed by component
+const selectedPeriodId = ref<string | undefined>()
 
 function getPeriodText(period: Period): string {
   return t('period.periodText', [period.fiscalYear, period.periodNumber])
@@ -66,17 +38,11 @@ function getPeriodText(period: Period): string {
 function handlePeriodChange(periodId: unknown) {
   if (!periodId || typeof periodId !== 'string') return
   selectedPeriodId.value = periodId
-  emit('periodChange', periodId)
 
-  // Also emit the full period object
   const period = periods.value.find((p) => p.id === periodId)
   if (period) {
     emit('periodSelected', period)
   }
-}
-
-function loadMore() {
-  pageable.value.page++
 }
 </script>
 
@@ -91,7 +57,7 @@ function loadMore() {
         <SelectItem v-for="period in periods" :key="period.id" :value="period.id">
           <div class="flex items-center gap-2">
             <span>{{ getPeriodText(period) }}</span>
-            <Badge v-if="period.id === currentPeriodId" variant="default" class="text-xs">
+            <Badge v-if="period.id === currentPeriod?.id" variant="default" class="text-xs">
               {{ $t('period.current') }}
             </Badge>
             <Badge v-if="period.isClosed" variant="secondary" class="text-xs">
@@ -99,12 +65,6 @@ function loadMore() {
             </Badge>
           </div>
         </SelectItem>
-        <LoadButton
-          v-if="page && periods.length < page.numberOfElements"
-          :loaded="periods.length"
-          :total="page.numberOfElements"
-          @click="loadMore"
-        />
       </SelectGroup>
     </SelectContent>
   </Select>

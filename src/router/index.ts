@@ -97,7 +97,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'sobs/:sobId/initialize',
         name: 'ledgerInitialize',
-        beforeEnter: [verifyCurrentUser, loadWorkingSob, updateWorkingSob],
+        beforeEnter: [loadWorkingSob, updateWorkingSob],
         props: {
           main: (route) => ({ sobId: route.params.sobId }),
         },
@@ -154,7 +154,7 @@ const routes: RouteRecordRaw[] = [
       // dimensions
       {
         path: 'sobs/:sobId/dimensions',
-        beforeEnter: [verifyCurrentUser, loadWorkingSob, updateWorkingSob],
+        beforeEnter: [loadWorkingSob, updateWorkingSob],
         children: [
           {
             path: '',
@@ -181,7 +181,7 @@ const routes: RouteRecordRaw[] = [
       // ledgers
       {
         path: 'sobs/:sobId/explorer',
-        beforeEnter: [verifyCurrentUser, loadWorkingSob, updateWorkingSob],
+        beforeEnter: [loadWorkingSob, updateWorkingSob],
         children: [
           {
             path: 'overview',
@@ -218,7 +218,7 @@ const routes: RouteRecordRaw[] = [
       // transactions
       {
         path: 'sobs/:sobId/transactions',
-        beforeEnter: [verifyCurrentUser, loadWorkingSob, updateWorkingSob],
+        beforeEnter: [loadWorkingSob, updateWorkingSob],
         children: [
           {
             path: '',
@@ -264,7 +264,7 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: 'sobs/:sobId/reports',
-        beforeEnter: [verifyCurrentUser, loadWorkingSob, updateWorkingSob],
+        beforeEnter: [loadWorkingSob, updateWorkingSob],
         children: [
           {
             path: '',
