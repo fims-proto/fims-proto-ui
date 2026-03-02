@@ -160,7 +160,11 @@
     "title": "账期",
     "current": "当前",
     "closed": "已结账",
-    "periodText": "{0} 年第 {1} 期"
+    "periodText": "{0} 年第 {1} 期",
+    "periodTextShort": "{0}-{1}",
+    "startPeriod": "开始",
+    "endPeriod": "结束",
+    "rangeSeparator": "至"
   },
   "ledger": {
     "title": "账簿总览",

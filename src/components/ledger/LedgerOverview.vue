@@ -40,7 +40,7 @@ async function loadLedgers(period: Period) {
 <template>
   <PageFrame :title="$t('ledger.title')" no-scroll>
     <template #end>
-      <PeriodSelector :sob-id="sobId" @period-selected="loadLedgers" />
+      <PeriodSelector :sob-id="sobId" mode="range" @period-selected="loadLedgers" />
     </template>
 
     <DataTable
