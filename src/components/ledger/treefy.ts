@@ -24,8 +24,8 @@ export function treefyLedgers(ledgers: Ledger[]): LedgerTreeNode[] {
 
   // Build tree structure based on account parent relationships
   map.forEach((node) => {
-    if (node.account.superiorAccountId) {
-      const parent = map.get(node.account.superiorAccountId)
+    if (node.superiorAccountId) {
+      const parent = map.get(node.superiorAccountId)
       if (parent) {
         parent.children.push(node)
       }
@@ -51,13 +51,28 @@ export function calculateParentBalances(nodes: LedgerTreeNode[]): void {
       node.openingBalance = childrenSum
 
       // Set parent's openingAmount (signed, maintaining sign based on balance direction)
-      if (node.account.balanceDirection === 'debit') {
+      if (node.balanceDirection === 'debit') {
         node.openingAmount = childrenSum
       } else {
         node.openingAmount = -childrenSum
       }
     }
   })
+}
+
+// Check if a single ledger node has any balance or activity
+function hasBalance(node: LedgerTreeNode): boolean {
+  return node.openingAmount !== 0 || node.periodDebit !== 0 || node.periodCredit !== 0 || node.endingAmount !== 0
+}
+
+// Filter tree to only include nodes with balance or activity (and their ancestors)
+export function filterLedgersByBalance(nodes: LedgerTreeNode[]): LedgerTreeNode[] {
+  return nodes
+    .map((node) => ({
+      ...node,
+      children: filterLedgersByBalance(node.children),
+    }))
+    .filter((node) => node.children.length > 0 || hasBalance(node))
 }
 
 // Flatten tree back to array for iteration

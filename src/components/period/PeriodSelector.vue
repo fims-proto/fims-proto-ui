@@ -159,10 +159,9 @@ function emitRange() {
 
 const rangeTriggerText = computed(() => {
   if (!startPeriod.value || !endPeriod.value) return t('period.periodUnselected')
-  const startFull = t('period.periodText', [startPeriod.value.fiscalYear, startPeriod.value.periodNumber])
-  const start = t('period.periodTextShort', [startPeriod.value.fiscalYear, startPeriod.value.periodNumber])
-  const end = t('period.periodTextShort', [endPeriod.value.fiscalYear, endPeriod.value.periodNumber])
-  if (start === end) return startFull
+  const start = t('period.periodText', [startPeriod.value.fiscalYear, startPeriod.value.periodNumber])
+  const end = t('period.periodText', [endPeriod.value.fiscalYear, endPeriod.value.periodNumber])
+  if (start === end) return start
   return `${start} ${t('period.rangeSeparator')} ${end}`
 })
 </script>
@@ -197,12 +196,9 @@ const rangeTriggerText = computed(() => {
   <template v-else>
     <Popover>
       <PopoverTrigger as-child>
-        <Button variant="outline" class="relative h-9 min-w-48 justify-start font-normal">
-          {{ rangeTriggerText }}
-          <ChevronDown
-            class="absolute top-1/2 right-3.5 size-4 -translate-y-1/2 opacity-50 select-none"
-            aria-hidden="true"
-          />
+        <Button variant="outline" class="flex h-9 min-w-50 items-center justify-between gap-2 font-normal">
+          <span>{{ rangeTriggerText }}</span>
+          <ChevronDown class="size-4 opacity-50 select-none" aria-hidden="true" />
         </Button>
       </PopoverTrigger>
 

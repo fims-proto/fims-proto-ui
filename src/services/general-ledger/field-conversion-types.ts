@@ -15,10 +15,8 @@ export const LEDGER_FIELDS_CONVERSION: FieldConversionRecord = {
   openingAmount: 'number',
   periodDebit: 'number',
   periodCredit: 'number',
+  periodAmount: 'number',
   endingAmount: 'number',
-  account: ACCOUNT_FIELDS_CONVERSION,
-  createdAt: 'date',
-  updatedAt: 'date',
 }
 
 export const PERIOD_FIELDS_CONVERSION: FieldConversionRecord = {

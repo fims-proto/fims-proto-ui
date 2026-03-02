@@ -53,6 +53,7 @@ const handleRowClick = (row: Account) => {
       ]"
       :get-sub-rows="(row) => row.children"
       :on-row-click="handleRowClick"
+      initial-expanded
     />
   </PageFrame>
 </template>

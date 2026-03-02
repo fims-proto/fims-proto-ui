@@ -39,7 +39,9 @@ const globalFilter = ref('')
 const sorting = ref<SortingState>([])
 const columnFilters = ref<ColumnFiltersState>([])
 const columnVisibility = ref<VisibilityState>({})
-const expanded = ref<ExpandedState>(typeof props.initialExpanded === 'boolean' ? true : (props.initialExpanded ?? {}))
+const expanded = ref<ExpandedState>(
+  props.initialExpanded === true ? true : typeof props.initialExpanded === 'object' ? props.initialExpanded : {},
+)
 
 const expandAll = () => {
   table.toggleAllRowsExpanded(true)

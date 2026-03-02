@@ -14,7 +14,7 @@ export function createColumns(
 ): ColumnDef<LedgerTreeNode>[] {
   return [
     {
-      accessorKey: 'account.accountNumber',
+      accessorKey: 'accountNumber',
       header: ({ column }) =>
         h(DataTableColumnHeader<LedgerTreeNode>, {
           column: column,
@@ -28,7 +28,7 @@ export function createColumns(
             class: 'text-nowrap',
             style: { marginLeft: `${row.depth * 1}rem` },
           },
-          data.account.accountNumber,
+          data.accountNumber,
         )
       },
       meta: {
@@ -36,7 +36,7 @@ export function createColumns(
       },
     },
     {
-      accessorKey: 'account.title',
+      accessorKey: 'accountTitle',
       header: ({ column }) =>
         h(DataTableColumnHeader<LedgerTreeNode>, {
           column: column,
@@ -50,7 +50,7 @@ export function createColumns(
     },
     {
       id: 'class',
-      accessorKey: 'account.class',
+      accessorKey: 'accountClass',
       header: ({ column }) =>
         h(DataTableColumnHeader<LedgerTreeNode>, {
           column: column,
@@ -63,7 +63,7 @@ export function createColumns(
           {
             class: 'text-nowrap',
           },
-          i18n.global.t(`account.classEnum.${data.account.class}`),
+          i18n.global.t(`account.classEnum.${data.accountClass}`),
         )
       },
       filterFn: (row, id, value) => {
@@ -75,7 +75,7 @@ export function createColumns(
       },
     },
     {
-      accessorKey: 'account.balanceDirection',
+      accessorKey: 'balanceDirection',
       header: ({ column }) =>
         h(DataTableColumnHeader<LedgerTreeNode>, {
           column: column,
@@ -83,7 +83,7 @@ export function createColumns(
         }),
       cell: ({ row }) => {
         const data = row.original
-        const direction = data.account.balanceDirection
+        const direction = data.balanceDirection
         const label = i18n.global.t(`account.balanceDirectionEnum.${direction}`)
         return h(
           Badge,
@@ -110,7 +110,7 @@ export function createColumns(
         }),
       cell: ({ row }) => {
         const data = row.original
-        const isLeaf = data.account.isLeaf
+        const isLeaf = data.isLeaf
 
         // In edit mode, show input for leaf accounts, readonly for parents
         if (isEditing && isLeaf) {
@@ -182,7 +182,7 @@ export const viewColumns: ColumnDef<LedgerTreeNode>[] = [
     },
   },
   {
-    accessorKey: 'account.accountNumber',
+    accessorKey: 'accountNumber',
     header: ({ column }) =>
       h(DataTableColumnHeader<LedgerTreeNode>, {
         column: column,
@@ -196,7 +196,7 @@ export const viewColumns: ColumnDef<LedgerTreeNode>[] = [
           class: 'text-nowrap',
           style: { marginLeft: `${row.depth * 1}rem` },
         },
-        data.account.accountNumber,
+        data.accountNumber,
       )
     },
     enableSorting: false,
@@ -205,7 +205,7 @@ export const viewColumns: ColumnDef<LedgerTreeNode>[] = [
     },
   },
   {
-    accessorKey: 'account.title',
+    accessorKey: 'accountTitle',
     header: ({ column }) =>
       h(DataTableColumnHeader<LedgerTreeNode>, {
         column: column,
@@ -219,7 +219,7 @@ export const viewColumns: ColumnDef<LedgerTreeNode>[] = [
   },
   {
     id: 'class',
-    accessorKey: 'account.class',
+    accessorKey: 'accountClass',
     header: ({ column }) =>
       h(DataTableColumnHeader<LedgerTreeNode>, {
         column: column,
@@ -232,7 +232,7 @@ export const viewColumns: ColumnDef<LedgerTreeNode>[] = [
         {
           class: 'text-nowrap',
         },
-        i18n.global.t(`account.classEnum.${data.account.class}`),
+        i18n.global.t(`account.classEnum.${data.accountClass}`),
       )
     },
     filterFn: (row, id, value) => {

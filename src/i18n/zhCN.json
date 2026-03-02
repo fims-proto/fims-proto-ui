@@ -161,7 +161,6 @@
     "current": "当前",
     "closed": "已结账",
     "periodText": "{0} 年第 {1} 期",
-    "periodTextShort": "{0}-{1}",
     "startPeriod": "开始",
     "endPeriod": "结束",
     "rangeSeparator": "至"
@@ -170,7 +169,7 @@
     "title": "账簿总览",
     "noPeriodMessage": "没有可用的账期，请先初始化账簿",
     "openingBalance": "期初余额",
-    "interimBalance": "本期发生额",
+    "interimBalance": "期间发生额",
     "endingBalance": "期末余额",
     "debit": "借",
     "credit": "贷",

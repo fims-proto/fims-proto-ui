@@ -48,11 +48,11 @@ const trialBalance = computed(() => {
   const rootLedgers = ledgerTree.value
 
   const debitTotal = rootLedgers
-    .filter((ledger) => ledger.account.balanceDirection === 'debit')
+    .filter((ledger) => ledger.balanceDirection === 'debit')
     .reduce((sum, ledger) => sum + ledger.openingBalance, 0)
 
   const creditTotal = rootLedgers
-    .filter((ledger) => ledger.account.balanceDirection === 'credit')
+    .filter((ledger) => ledger.balanceDirection === 'credit')
     .reduce((sum, ledger) => sum + ledger.openingBalance, 0)
 
   const difference = Math.abs(debitTotal - creditTotal)
@@ -69,7 +69,7 @@ const trialBalance = computed(() => {
 const isDirty = computed(() => {
   const currentData = JSON.stringify(
     flattenTree(ledgerTree.value).map((l) => ({
-      id: l.id,
+      id: l.accountId,
       balance: l.openingBalance,
     })),
   )
@@ -99,7 +99,7 @@ function onBalanceChange(ledger: LedgerTreeNode, value: number) {
   ledger.openingBalance = value || 0
 
   // Update the signed amount based on balance direction
-  if (ledger.account.balanceDirection === 'debit') {
+  if (ledger.balanceDirection === 'debit') {
     ledger.openingAmount = value || 0
   } else {
     ledger.openingAmount = -(value || 0)
@@ -126,7 +126,7 @@ async function load() {
     // Save original state for dirty checking
     originalData.value = JSON.stringify(
       flattenTree(ledgerTree.value).map((l) => ({
-        id: l.id,
+        id: l.accountId,
         balance: l.openingBalance,
       })),
     )
@@ -156,15 +156,15 @@ async function onSave() {
   try {
     // Collect only leaf account balances
     const allLedgers = flattenTree(ledgerTree.value)
-    const leafLedgers = allLedgers.filter((ledger) => ledger.account.isLeaf)
+    const leafLedgers = allLedgers.filter((ledger) => ledger.isLeaf)
 
     const request = {
       ledgers: leafLedgers.map((ledger) => {
         // For credit accounts, negate the balance to represent credit
         const openingBalance =
-          ledger.account.balanceDirection === 'credit' ? -(ledger.openingBalance || 0) : ledger.openingBalance || 0
+          ledger.balanceDirection === 'credit' ? -(ledger.openingBalance || 0) : ledger.openingBalance || 0
         return {
-          accountNumber: ledger.account.accountNumber,
+          accountNumber: ledger.accountNumber,
           openingBalance,
         }
       }),
