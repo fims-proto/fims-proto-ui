@@ -33,6 +33,18 @@ export const ITEM_FIELDS: FieldConversionRecord = {
   updatedAt: 'date',
 }
 
+export const LEDGER_ENTRY_FIELDS_CONVERSION: FieldConversionRecord = {
+  amount: 'number',
+}
+
+export const AUXILIARY_LEDGER_FIELDS_CONVERSION: FieldConversionRecord = {
+  openingAmount: 'number',
+  periodDebit: 'number',
+  periodCredit: 'number',
+  periodAmount: 'number',
+  endingAmount: 'number',
+}
+
 export const VOUCHER_FIELDS: FieldConversionRecord = {
   period: PERIOD_FIELDS_CONVERSION,
   attachmentQuantity: 'number',

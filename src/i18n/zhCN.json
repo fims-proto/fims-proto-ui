@@ -174,6 +174,23 @@
     "debit": "借",
     "credit": "贷",
     "balanceDirection": "余额方向",
+    "explorer": {
+      "title": "科目分析",
+      "noAccountSelected": "请先选择科目",
+      "noDimension": "不按维度",
+      "openingBalance": "期初余额",
+      "periodDebit": "期间借方",
+      "periodCredit": "期间贷方",
+      "endingBalance": "期末余额",
+      "runningBalance": "余额",
+      "date": "日期",
+      "voucherNumber": "凭证号",
+      "entryText": "摘要",
+      "debitAmount": "借方",
+      "creditAmount": "贷方",
+      "dimension": "维度",
+      "dimensionMember": "维度成员"
+    },
     "initialize": {
       "title": "初始化期初余额",
       "firstPeriod": "启用期间：{0}",

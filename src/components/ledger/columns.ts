@@ -1,4 +1,5 @@
 import { h, useId } from 'vue'
+import { RouterLink } from 'vue-router'
 import i18n from '@/i18n'
 import type { ColumnDef } from '@tanstack/vue-table'
 import { DataTableColumnHeader } from '@/components/common/data-table'
@@ -211,6 +212,17 @@ export const viewColumns: ColumnDef<LedgerTreeNode>[] = [
         column: column,
         title: i18n.global.t('account.accountTitle'),
       }),
+    cell: ({ row }) => {
+      const data = row.original
+      return h(RouterLink, {
+        to: {
+          name: 'accountExplorer',
+          params: { sobId: data.sobId },
+          query: { accountId: data.accountId },
+        },
+        class: 'hover:underline font-medium',
+      }, () => data.accountTitle)
+    },
     enableSorting: false,
     enableHiding: false,
     meta: {

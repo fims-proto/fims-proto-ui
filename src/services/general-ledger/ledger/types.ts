@@ -30,3 +30,32 @@ export interface InitializeLedgerItem {
   accountNumber: string
   openingBalance: number
 }
+
+export interface LedgerSummary {
+  accountId: string
+  openingAmount: number
+  periodDebit: number
+  periodCredit: number
+  periodAmount: number
+  endingAmount: number
+}
+
+export interface LedgerEntry {
+  voucherId: string
+  voucherNumber: string
+  transactionDate: string
+  text: string
+  amount: number
+  createdAt: string
+  updatedAt: string
+}
+
+export interface AuxiliaryLedgerSummary {
+  auxiliaryAccountId: string
+  auxiliaryAccountTitle: string
+  openingAmount: number
+  periodDebit: number
+  periodCredit: number
+  periodAmount: number
+  endingAmount: number
+}
