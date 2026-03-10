@@ -31,7 +31,7 @@ const data = {
     {
       title: t('nav.transaction'),
       icon: HandCoins,
-      to: { name: 'voucherList', params: { sobId: workingSob.value?.id } },
+      to: { name: 'journalList', params: { sobId: workingSob.value?.id } },
     },
     {
       title: t('nav.report'),

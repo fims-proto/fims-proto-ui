@@ -58,8 +58,10 @@ const auxiliaryCategories = computed(() => selectedAccount.value?.auxiliaryCateg
 
 const selectedCategoryTitle = computed(() => {
   if (!selectedCategoryKey.value) return t('ledger.explorer.dimensionMember')
-  return auxiliaryCategories.value.find((c) => c.key === selectedCategoryKey.value)?.title
-    ?? t('ledger.explorer.dimensionMember')
+  return (
+    auxiliaryCategories.value.find((c) => c.key === selectedCategoryKey.value)?.title ??
+    t('ledger.explorer.dimensionMember')
+  )
 })
 
 const runningBalances = computed(() => {
@@ -190,8 +192,8 @@ function handleRangeSelected(start: Period, end: Period) {
   toPeriod.value = end
 }
 
-function goToVoucher(voucherId: string) {
-  router.push({ name: 'voucherDetail', params: { sobId: props.sobId, voucherId } })
+function goToJournal(journalId: string) {
+  router.push({ name: 'journalDetail', params: { sobId: props.sobId, journalId: journalId } })
 }
 </script>
 
@@ -256,7 +258,7 @@ function goToVoucher(voucherId: string) {
               <TableHeader>
                 <TableRow>
                   <TableHead>{{ $t('ledger.explorer.date') }}</TableHead>
-                  <TableHead>{{ $t('ledger.explorer.voucherNumber') }}</TableHead>
+                  <TableHead>{{ $t('ledger.explorer.journalNumber') }}</TableHead>
                   <TableHead>{{ $t('ledger.explorer.entryText') }}</TableHead>
                   <TableHead class="text-right">{{ $t('ledger.explorer.debitAmount') }}</TableHead>
                   <TableHead class="text-right">{{ $t('ledger.explorer.creditAmount') }}</TableHead>
@@ -265,11 +267,11 @@ function goToVoucher(voucherId: string) {
               </TableHeader>
               <TableBody>
                 <template v-if="entries.length">
-                  <TableRow v-for="(entry, index) in entries" :key="entry.voucherId + index">
+                  <TableRow v-for="(entry, index) in entries" :key="entry.journalId + index">
                     <TableCell>{{ entry.transactionDate }}</TableCell>
                     <TableCell>
-                      <Button variant="link" class="h-auto p-0" @click="goToVoucher(entry.voucherId)">
-                        {{ entry.voucherNumber }}
+                      <Button variant="link" class="h-auto p-0" @click="goToJournal(entry.journalId)">
+                        {{ entry.journalNumber }}
                       </Button>
                     </TableCell>
                     <TableCell>{{ entry.text }}</TableCell>
@@ -335,7 +337,7 @@ function goToVoucher(voucherId: string) {
                           <TableHeader>
                             <TableRow>
                               <TableHead>{{ $t('ledger.explorer.date') }}</TableHead>
-                              <TableHead>{{ $t('ledger.explorer.voucherNumber') }}</TableHead>
+                              <TableHead>{{ $t('ledger.explorer.journalNumber') }}</TableHead>
                               <TableHead>{{ $t('ledger.explorer.entryText') }}</TableHead>
                               <TableHead class="text-right">{{ $t('ledger.explorer.debitAmount') }}</TableHead>
                               <TableHead class="text-right">{{ $t('ledger.explorer.creditAmount') }}</TableHead>
@@ -344,11 +346,11 @@ function goToVoucher(voucherId: string) {
                           </TableHeader>
                           <TableBody>
                             <template v-if="expandedEntries.length">
-                              <TableRow v-for="(entry, index) in expandedEntries" :key="entry.voucherId + index">
+                              <TableRow v-for="(entry, index) in expandedEntries" :key="entry.journalId + index">
                                 <TableCell>{{ entry.transactionDate }}</TableCell>
                                 <TableCell>
-                                  <Button variant="link" class="h-auto p-0" @click.stop="goToVoucher(entry.voucherId)">
-                                    {{ entry.voucherNumber }}
+                                  <Button variant="link" class="h-auto p-0" @click.stop="goToJournal(entry.journalId)">
+                                    {{ entry.journalNumber }}
                                   </Button>
                                 </TableCell>
                                 <TableCell>{{ entry.text }}</TableCell>

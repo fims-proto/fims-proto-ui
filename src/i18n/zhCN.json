@@ -184,7 +184,7 @@
       "endingBalance": "期末余额",
       "runningBalance": "余额",
       "date": "日期",
-      "voucherNumber": "凭证号",
+      "journalNumber": "分录号",
       "entryText": "摘要",
       "debitAmount": "借方",
       "creditAmount": "贷方",
@@ -233,13 +233,13 @@
       "viewAccountDescription": "查看维度成员详情"
     }
   },
-  "voucher": {
-    "listTitle": "凭证 ({0})",
+  "journal": {
+    "listTitle": "分录 ({0})",
     "creation": {
-      "title": "新建凭证"
+      "title": "新建分录"
     },
-    "number": "编号",
-    "headerText": "凭证摘要",
+    "number": "分录号",
+    "headerText": "摘要",
     "headerTextPlaceholder": "记一笔...",
     "account": "会计科目",
     "amount": "发生金额",
@@ -249,8 +249,8 @@
     "attachmentQuantityUnit": "张",
     "transactionDate": "日期",
     "creator": "制单人",
-    "lineItems": "分录",
-    "lineItem": {
+    "journalLines": "分录",
+    "journalLine": {
       "bothEmpty": "未填写金额",
       "bothFilled": "借方和贷方不能同时填写",
       "decimalPrecision": "金额最多保留两位小数",
@@ -261,8 +261,8 @@
     "balanced": "平衡",
     "unbalanced": "不平衡",
     "difference": "差额",
-    "removeLineItem": "删除",
-    "addLineItem": "新增分录",
+    "removeJournalLine": "删除",
+    "addJournalLine": "新增分录",
     "auditor": "审核人",
     "audit": "审核",
     "cancelAudit": "取消审核",
@@ -281,15 +281,15 @@
       "notBalanced": "借贷不平衡",
       "emptyAuxiliaryAccountKey": "未填写维度成员",
       "minTwoItems": "至少需要两条分录",
-      "success": "凭证保存成功",
+      "success": "分录保存成功",
       "confirmCancelAudit": "确认取消审核？",
       "confirmCancelReview": "确认取消复核？",
       "confirmPost": "确认登账？此操作不可撤销。",
-      "auditSuccess": "凭证审核成功",
-      "cancelAuditSuccess": "已取消凭证审核",
-      "reviewSuccess": "凭证复核成功",
-      "cancelReviewSuccess": "已取消凭证复核",
-      "postSuccess": "凭证登账成功"
+      "auditSuccess": "分录审核成功",
+      "cancelAuditSuccess": "已取消分录审核",
+      "reviewSuccess": "分录复核成功",
+      "cancelReviewSuccess": "已取消分录复核",
+      "postSuccess": "分录登账成功"
     }
   },
   "report": {

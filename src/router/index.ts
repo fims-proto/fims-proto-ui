@@ -18,8 +18,8 @@ import LedgerInitialize from '@/components/ledger/LedgerInitialize.vue'
 import LedgerOverview from '@/components/ledger/LedgerOverview.vue'
 import AccountExplorer from '@/components/ledger/AccountExplorer.vue'
 import DimensionExplorer from '@/components/ledger/DimensionExplorer.vue'
-import VoucherList from '@/components/voucher/VoucherList.vue'
-import VoucherDetail from '@/components/voucher/VoucherDetail.vue'
+import JournalList from '@/components/journal/JournalList.vue'
+import JournalDetail from '@/components/journal/JournalDetail.vue'
 import ReportList from '@/components/report/ReportList.vue'
 import ReportDetail from '@/components/report/ReportDetail.vue'
 
@@ -222,15 +222,15 @@ const routes: RouteRecordRaw[] = [
         children: [
           {
             path: '',
-            name: 'voucherList',
+            name: 'journalList',
             props: { list: (route) => ({ sobId: route.params.sobId }) },
             components: {
-              list: VoucherList,
+              list: JournalList,
             },
           },
           {
             path: 'new',
-            name: 'voucherNew',
+            name: 'journalNew',
             meta: {
               listPanelSize: 30,
               mainPanelSize: 70,
@@ -240,24 +240,24 @@ const routes: RouteRecordRaw[] = [
               main: (route) => ({ sobId: route.params.sobId }),
             },
             components: {
-              list: VoucherList,
-              main: VoucherDetail,
+              list: JournalList,
+              main: JournalDetail,
             },
           },
           {
-            path: ':voucherId',
-            name: 'voucherDetail',
+            path: ':journalId',
+            name: 'journalDetail',
             meta: {
               listPanelSize: 30,
               mainPanelSize: 70,
             },
             props: {
               list: (route) => ({ sobId: route.params.sobId }),
-              main: (route) => ({ sobId: route.params.sobId, voucherId: route.params.voucherId }),
+              main: (route) => ({ sobId: route.params.sobId, journalId: route.params.journalId }),
             },
             components: {
-              list: VoucherList,
-              main: VoucherDetail,
+              list: JournalList,
+              main: JournalDetail,
             },
           },
         ],

@@ -26,7 +26,7 @@ export const PERIOD_FIELDS_CONVERSION: FieldConversionRecord = {
   updatedAt: 'date',
 }
 
-export const ITEM_FIELDS: FieldConversionRecord = {
+export const JOURNAL_LINE_FIELDS: FieldConversionRecord = {
   account: ACCOUNT_FIELDS_CONVERSION,
   amount: 'number',
   createdAt: 'date',
@@ -45,11 +45,11 @@ export const AUXILIARY_LEDGER_FIELDS_CONVERSION: FieldConversionRecord = {
   endingAmount: 'number',
 }
 
-export const VOUCHER_FIELDS: FieldConversionRecord = {
+export const JOURNAL_FIELDS: FieldConversionRecord = {
   period: PERIOD_FIELDS_CONVERSION,
   attachmentQuantity: 'number',
   amount: 'number',
-  lineItems: ITEM_FIELDS,
+  journalLines: JOURNAL_LINE_FIELDS,
   createdAt: 'date',
   updatedAt: 'date',
 }

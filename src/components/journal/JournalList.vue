@@ -9,10 +9,10 @@ import { DataTable } from '@/components/common/data-table'
 import PeriodSelector from '@/components/period/PeriodSelector.vue'
 
 import { fullColumns, compactColumns } from './columns'
-import { VoucherService, type Period, type Voucher } from '@/services/general-ledger'
+import { JournalService, type Period, type Journal } from '@/services/general-ledger'
 import type { Page } from '@/services/types'
 import { FilterFactory } from '@/services/filter'
-import { VOUCHER_CHANGED } from '@/services/event'
+import { JOURNAL_CHANGED } from '@/services/event'
 
 const props = defineProps<{
   sobId: string
@@ -20,10 +20,10 @@ const props = defineProps<{
 
 const router = useRouter()
 const route = useRoute()
-const bus = useEventBus(VOUCHER_CHANGED)
+const bus = useEventBus(JOURNAL_CHANGED)
 
-const vouchers = ref<Voucher[]>([])
-const page = ref<Page<Voucher>>()
+const journals = ref<Journal[]>([])
+const page = ref<Page<Journal>>()
 const pageable = ref({ page: 1, size: 50 })
 const isLoading = ref(false)
 const selectedPeriodId = ref<string>()
@@ -38,12 +38,12 @@ watch(pageable.value, () => load(), { immediate: true })
 // Watch for period changes - reset and reload
 watch(selectedPeriodId, () => load(true))
 
-// Listen for voucher changes
+// Listen for journal changes
 bus.on(() => load(true))
 
 async function load(refresh = false) {
   if (refresh) {
-    vouchers.value = []
+    journals.value = []
     if (pageable.value.page !== 1) {
       pageable.value.page = 1
       return // Watcher will trigger load again
@@ -52,21 +52,21 @@ async function load(refresh = false) {
 
   // Don't load if no period selected
   if (!selectedPeriodId.value) {
-    vouchers.value = []
+    journals.value = []
     page.value = undefined
     return
   }
 
   isLoading.value = true
   try {
-    const filterFactory = new FilterFactory<Voucher>()
+    const filterFactory = new FilterFactory<Journal>()
     const periodFilter = filterFactory.eq('periodId', selectedPeriodId.value)
 
-    const { data } = await VoucherService.getVouchers(props.sobId, pageable.value, periodFilter)
+    const { data } = await JournalService.getJournals(props.sobId, pageable.value, periodFilter)
 
     if (data) {
       page.value = data
-      vouchers.value = vouchers.value.concat(data.content ?? [])
+      journals.value = journals.value.concat(data.content ?? [])
     }
   } finally {
     isLoading.value = false
@@ -77,12 +77,12 @@ function handleLoadMore() {
   pageable.value.page++
 }
 
-function handleRowClick(row: Voucher) {
+function handleRowClick(row: Journal) {
   router.push({
-    name: 'voucherDetail',
+    name: 'journalDetail',
     params: {
       sobId: props.sobId,
-      voucherId: row.id,
+      journalId: row.id,
     },
   })
 }
@@ -93,7 +93,7 @@ function handlePeriodChange(period: Period) {
 
 function handleCreate() {
   router.push({
-    name: 'voucherNew',
+    name: 'journalNew',
     params: {
       sobId: props.sobId,
     },
@@ -102,7 +102,7 @@ function handleCreate() {
 </script>
 
 <template>
-  <PageFrame :title="$t('voucher.listTitle', [page?.numberOfElements ?? 0])">
+  <PageFrame :title="$t('journal.listTitle', [page?.numberOfElements ?? 0])">
     <template #end>
       <PeriodSelector :sob-id="sobId" @period-selected="handlePeriodChange" />
       <Button @click="handleCreate">{{ $t('action.create') }}</Button>
@@ -110,9 +110,9 @@ function handleCreate() {
 
     <DataTable
       :columns="columns"
-      :data="vouchers"
+      :data="journals"
       :row-count="page?.numberOfElements ?? 0"
-      :has-more="vouchers.length < (page?.numberOfElements ?? 0)"
+      :has-more="journals.length < (page?.numberOfElements ?? 0)"
       :is-loading="isLoading"
       :on-row-click="handleRowClick"
       @load-more="handleLoadMore"

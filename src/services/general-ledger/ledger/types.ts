@@ -41,8 +41,8 @@ export interface LedgerSummary {
 }
 
 export interface LedgerEntry {
-  voucherId: string
-  voucherNumber: string
+  journalId: string
+  journalNumber: string
   transactionDate: string
   text: string
   amount: number

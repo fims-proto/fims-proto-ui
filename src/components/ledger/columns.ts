@@ -214,14 +214,18 @@ export const viewColumns: ColumnDef<LedgerTreeNode>[] = [
       }),
     cell: ({ row }) => {
       const data = row.original
-      return h(RouterLink, {
-        to: {
-          name: 'accountExplorer',
-          params: { sobId: data.sobId },
-          query: { accountId: data.accountId },
+      return h(
+        RouterLink,
+        {
+          to: {
+            name: 'accountExplorer',
+            params: { sobId: data.sobId },
+            query: { accountId: data.accountId },
+          },
+          class: 'hover:underline font-medium',
         },
-        class: 'hover:underline font-medium',
-      }, () => data.accountTitle)
+        () => data.accountTitle,
+      )
     },
     enableSorting: false,
     enableHiding: false,

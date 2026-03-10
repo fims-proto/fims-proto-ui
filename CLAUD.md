@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**FIMS (Financial Information Management System)** - A Vue 3 + TypeScript SPA for managing accounting data including accounts, vouchers, ledgers, and financial reports.
+**FIMS (Financial Information Management System)** - A Vue 3 + TypeScript SPA for managing accounting data including accounts, journals, ledgers, and financial reports.
 
 **Tech Stack:**
 
@@ -47,7 +47,7 @@ The backend API contract is documented in **`swagger/swagger.yaml`** (OpenAPI 2.
 
 - `accounts` - Chart of accounts management
 - `auxiliary accounts` - Auxiliary account categories and items
-- `vouchers` - Journal entry vouchers (create, update, review, audit, post)
+- `journals` - Journal entry journals (create, update, review, audit, post)
 - `ledgers` - General ledger balances and transactions
 - `periods` - Accounting periods management
 - `reports` - Financial statement reports (balance sheet, income statement)
@@ -93,7 +93,7 @@ export const useFeatureStore = () => ({ get state(), get action() })
 - ✅ Application-wide global state (user session, working SOB)
 - ✅ Cached reference data shared across components (allAccounts)
 - ✅ Cross-component UI coordination (toast, confirmation dialogs)
-- ❌ Page-specific business data (vouchers, ledgers, reports)
+- ❌ Page-specific business data (journals, ledgers, reports)
 - ❌ CRUD operation state (form data, loading states)
 - ❌ Paginated list data (manage with local `ref()`)
 
@@ -147,7 +147,7 @@ export type Account = z.infer<typeof AccountSchema>
 
 - `src/components/ui/` - shadcn-vue (CLI-managed, DO NOT edit manually)
 - `src/components/common/` - reusable patterns (data-table, confirmation, page, list, form)
-- `src/components/<domain>/` - feature-specific (account, voucher, report, etc.)
+- `src/components/<domain>/` - feature-specific (account, journal, report, etc.)
 - `src/components/sidebar/` - sidebar navigation components
 - `src/components/pages/` - page-level components
 
@@ -179,7 +179,7 @@ export type Account = z.infer<typeof AccountSchema>
 common.*                    - shared terms (yes, no, save, cancel, noData)
 action.*                    - action buttons (create, save, edit, remove)
 table.*                     - data table UI (search, filter, sort)
-<domain>.*                  - domain-specific (account, sob, voucher, report)
+<domain>.*                  - domain-specific (account, sob, journal, report)
 <domain>.<field>Enum.*      - enum translations (account.classEnum.1 = "资产")
 ```
 
@@ -225,11 +225,11 @@ table.*                     - data table UI (search, filter, sort)
 - Two-level structure: Categories contain Accounts
 - **API endpoints:** See `swagger/swagger.yaml` under `auxiliary accounts` tag
 
-### Vouchers
+### Journals
 
-- Journal entries with line items (debit/credit)
+- Journal entries with journal lines (debit/credit)
 - Workflow: Create → Review → Audit → Post
-- **API endpoints:** See `swagger/swagger.yaml` under `vouchers` tag
+- **API endpoints:** See `swagger/swagger.yaml` under `journals` tag
 - **Lifecycle operations:** `review`, `cancel-review`, `audit`, `cancel-audit`, `post`
 
 ### Ledgers
@@ -376,7 +376,7 @@ Before implementing a fix for a bug, create a brief plan and confirm the approac
 **Services:**
 
 - `src/services/general-ledger/account/` - Account CRUD
-- `src/services/general-ledger/voucher/` - Voucher CRUD
+- `src/services/general-ledger/journal/` - Journal CRUD
 - `src/services/general-ledger/ledger/` - Ledger queries
 - `src/services/general-ledger/period/` - Period management
 - `src/services/report/` - Report generation
@@ -417,7 +417,7 @@ npx shadcn-vue@latest add button dialog table
 - Parent accounts aggregate child balances
 - `numberHierarchy` array shows full path from root
 
-### Voucher Entry
+### Journal Entry
 
 - Must belong to a specific period (fiscalYear + periodNumber)
 - Debits must equal credits
@@ -428,7 +428,7 @@ npx shadcn-vue@latest add button dialog table
 
 - Opening balance initialized only for first period
 - Subsequent periods inherit from previous period's ending balance
-- Period debit/credit accumulate from posted voucher line items
+- Period debit/credit accumulate from posted journal journal lines
 - Ending balance = Opening ± Period activity
 
 ### Reports
@@ -471,17 +471,17 @@ When implementing a new feature:
 
 ### Example: Implementing a new feature
 
-To add support for posting a voucher:
+To add support for posting a journal:
 
-1. **Check spec:** `POST /sob/{sobId}/voucher/{voucherId}/post`
-2. **Request body:** `PostVoucherRequest` with `poster` field
+1. **Check spec:** `POST /sob/{sobId}/journal/{journalId}/post`
+2. **Request body:** `PostJournalRequest` with `poster` field
 3. **Response:** 204 No Content on success
 4. **Service implementation:**
 
 ```typescript
-async post(sobId: string, voucherId: string, poster: string): Promise<Response<void>> {
+async post(sobId: string, journalId: string, poster: string): Promise<Response<void>> {
   return invokeWithErrorHandler(async () => {
-    await axios.post(`/sob/${sobId}/voucher/${voucherId}/post`, { poster })
+    await axios.post(`/sob/${sobId}/journal/${journalId}/post`, { poster })
   })
 }
 ```

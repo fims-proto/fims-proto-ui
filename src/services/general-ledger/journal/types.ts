@@ -2,14 +2,14 @@ import { type User } from '../../user'
 import type { Account, AuxiliaryAccount } from '../account'
 import { type Period } from '../period'
 
-export type Voucher = {
+export type Journal = {
   sobId: string
   id: string
   headerText: string
   period: Period
   periodId?: string // for search filter
   documentNumber: string
-  voucherType: string
+  journalType: string
   attachmentQuantity: number
   amount: number
   creator: User
@@ -20,12 +20,12 @@ export type Voucher = {
   isPosted: boolean
   isReviewed: boolean
   transactionDate: string
-  lineItems: LineItem[]
+  journalLines: JournalLine[]
   createdAt: Date
   updatedAt: Date
 }
 
-export type LineItem = {
+export type JournalLine = {
   id: string
   account: Account
   auxiliaryAccounts?: AuxiliaryAccount[]
@@ -35,24 +35,24 @@ export type LineItem = {
   updatedAt: Date
 }
 
-export type CreateVoucherRequest = {
+export type CreateJournalRequest = {
   headerText: string
   attachmentQuantity: number
   creator: string
-  voucherType: string
+  journalType: string
   transactionDate: string
-  lineItems: LineItemRequest[]
+  journalLines: JournalLineRequest[]
 }
 
-export type UpdateVoucherRequest = {
+export type UpdateJournalRequest = {
   headerText: string
   attachmentQuantity: number
-  lineItems: LineItemRequest[]
+  journalLines: JournalLineRequest[]
   transactionDate: string
   updater: string
 }
 
-export type LineItemRequest = {
+export type JournalLineRequest = {
   id?: string
   accountNumber: string
   auxiliaryAccounts?: AuxiliaryItemRequest[]
