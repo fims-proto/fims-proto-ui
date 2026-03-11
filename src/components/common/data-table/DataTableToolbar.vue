@@ -39,7 +39,7 @@ const searchId = useId()
         :id="searchId"
         :placeholder="$t('table.search')"
         :model-value="globalFilter"
-        class="h-8 w-[150px] lg:w-[250px]"
+        class="h-8 w-37.5 lg:w-62.5"
         @input="$emit('update:globalFilter', $event.target.value)"
       />
       <template v-for="facetedFilter in facetedFilters" :key="facetedFilter.name">

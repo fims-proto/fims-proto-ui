@@ -26,11 +26,7 @@ export type EntryPrefixInfo = {
  * @param t - i18n translate function
  * @returns Prefix information with text and visibility flags
  */
-export function getEntryPrefixInfo(
-  entry: Entry,
-  prevEntry: Entry | null,
-  t: (key: string) => string
-): EntryPrefixInfo {
+export function getEntryPrefixInfo(entry: Entry, prevEntry: Entry | null, t: (key: string) => string): EntryPrefixInfo {
   // Sum factor prefix logic
   let sumFactorText: string | null = null
   let sumFactorVisible = false

@@ -15,9 +15,11 @@ import AccountDetail from '@/components/account/AccountDetail.vue'
 import AuxiliaryCategoryList from '@/components/account/AuxiliaryCategoryList.vue'
 import AuxiliaryCategoryDetail from '@/components/account/AuxiliaryCategoryDetail.vue'
 import LedgerInitialize from '@/components/ledger/LedgerInitialize.vue'
-import LedgerList from '@/components/ledger/LedgerList.vue'
-import VoucherList from '@/components/voucher/VoucherList.vue'
-import VoucherDetail from '@/components/voucher/VoucherDetail.vue'
+import LedgerOverview from '@/components/ledger/LedgerOverview.vue'
+import AccountExplorer from '@/components/ledger/AccountExplorer.vue'
+import DimensionExplorer from '@/components/ledger/DimensionExplorer.vue'
+import JournalList from '@/components/journal/JournalList.vue'
+import JournalDetail from '@/components/journal/JournalDetail.vue'
 import ReportList from '@/components/report/ReportList.vue'
 import ReportDetail from '@/components/report/ReportDetail.vue'
 
@@ -91,9 +93,21 @@ const routes: RouteRecordRaw[] = [
           },
         ],
       },
-      // accounts
+      // ledger initialization
       {
-        path: 'sobs/:sobId/accounts',
+        path: 'sobs/:sobId/initialize',
+        name: 'ledgerInitialize',
+        beforeEnter: [loadWorkingSob, updateWorkingSob],
+        props: {
+          main: (route) => ({ sobId: route.params.sobId }),
+        },
+        components: {
+          main: LedgerInitialize,
+        },
+      },
+      // chart of accounts
+      {
+        path: 'sobs/:sobId/coa',
         children: [
           {
             path: '',
@@ -137,10 +151,10 @@ const routes: RouteRecordRaw[] = [
           },
         ],
       },
-      // auxiliaries
+      // dimensions
       {
-        path: 'sobs/:sobId/auxiliaries',
-        beforeEnter: [verifyCurrentUser, loadWorkingSob, updateWorkingSob],
+        path: 'sobs/:sobId/dimensions',
+        beforeEnter: [loadWorkingSob, updateWorkingSob],
         children: [
           {
             path: '',
@@ -164,46 +178,59 @@ const routes: RouteRecordRaw[] = [
           },
         ],
       },
-      // ledger initialization
-      {
-        path: 'sobs/:sobId/initialize',
-        name: 'ledgerInitialize',
-        beforeEnter: [verifyCurrentUser, loadWorkingSob, updateWorkingSob],
-        props: {
-          main: (route) => ({ sobId: route.params.sobId }),
-        },
-        components: {
-          main: LedgerInitialize,
-        },
-      },
       // ledgers
       {
-        path: 'sobs/:sobId/ledgers',
-        name: 'ledgerView',
-        beforeEnter: [verifyCurrentUser, loadWorkingSob, updateWorkingSob],
-        props: {
-          main: (route) => ({ sobId: route.params.sobId }),
-        },
-        components: {
-          main: LedgerList,
-        },
+        path: 'sobs/:sobId/explorer',
+        beforeEnter: [loadWorkingSob, updateWorkingSob],
+        children: [
+          {
+            path: 'overview',
+            name: 'ledgerOverview',
+            props: {
+              main: (route) => ({ sobId: route.params.sobId }),
+            },
+            components: {
+              main: LedgerOverview,
+            },
+          },
+          {
+            path: 'account',
+            name: 'accountExplorer',
+            props: {
+              main: (route) => ({ sobId: route.params.sobId }),
+            },
+            components: {
+              main: AccountExplorer,
+            },
+          },
+          {
+            path: 'dimension',
+            name: 'dimensionExplorer',
+            props: {
+              main: (route) => ({ sobId: route.params.sobId }),
+            },
+            components: {
+              main: DimensionExplorer,
+            },
+          },
+        ],
       },
-      // vouchers
+      // transactions
       {
-        path: 'sobs/:sobId/vouchers',
-        beforeEnter: [verifyCurrentUser, loadWorkingSob, updateWorkingSob],
+        path: 'sobs/:sobId/transactions',
+        beforeEnter: [loadWorkingSob, updateWorkingSob],
         children: [
           {
             path: '',
-            name: 'voucherList',
+            name: 'journalList',
             props: { list: (route) => ({ sobId: route.params.sobId }) },
             components: {
-              list: VoucherList,
+              list: JournalList,
             },
           },
           {
             path: 'new',
-            name: 'voucherNew',
+            name: 'journalNew',
             meta: {
               listPanelSize: 30,
               mainPanelSize: 70,
@@ -213,31 +240,31 @@ const routes: RouteRecordRaw[] = [
               main: (route) => ({ sobId: route.params.sobId }),
             },
             components: {
-              list: VoucherList,
-              main: VoucherDetail,
+              list: JournalList,
+              main: JournalDetail,
             },
           },
           {
-            path: ':voucherId',
-            name: 'voucherDetail',
+            path: ':journalId',
+            name: 'journalDetail',
             meta: {
               listPanelSize: 30,
               mainPanelSize: 70,
             },
             props: {
               list: (route) => ({ sobId: route.params.sobId }),
-              main: (route) => ({ sobId: route.params.sobId, voucherId: route.params.voucherId }),
+              main: (route) => ({ sobId: route.params.sobId, journalId: route.params.journalId }),
             },
             components: {
-              list: VoucherList,
-              main: VoucherDetail,
+              list: JournalList,
+              main: JournalDetail,
             },
           },
         ],
       },
       {
         path: 'sobs/:sobId/reports',
-        beforeEnter: [verifyCurrentUser, loadWorkingSob, updateWorkingSob],
+        beforeEnter: [loadWorkingSob, updateWorkingSob],
         children: [
           {
             path: '',

@@ -19,9 +19,9 @@ defineEmits<{
     class="text-muted-foreground w-full text-xs font-normal"
     @click="$emit('click')"
   >
-    {{ $t('common.loadMore', { loaded: loaded, total: total }) }}
+    {{ $t('common.loadMore', [loaded, total]) }}
   </Button>
   <span v-else class="text-muted-foreground block w-full py-2 text-center text-xs font-normal select-none">
-    {{ $t('common.noMoreData') }}
+    {{ $t('common.loadingFinished', [total]) }}
   </span>
 </template>

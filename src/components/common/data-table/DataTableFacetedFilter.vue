@@ -59,7 +59,7 @@ function onSelect(option: DataTableFacetedFilterOption) {
           </Badge>
           <div class="hidden space-x-1 lg:flex">
             <Badge v-if="selectedValues.size > 2" variant="secondary" class="rounded-sm px-1 font-normal">
-              {{ $t('table.selectedCount', { count: selectedValues.size }) }}
+              {{ $t('table.selectedCount', [selectedValues.size]) }}
             </Badge>
 
             <template v-else>

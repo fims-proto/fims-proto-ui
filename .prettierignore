@@ -2,6 +2,8 @@
 build
 coverage
 components.d.ts
+.claude/
+.vscode/
 
 # Ignore shadcn-vue components
 src/components/ui

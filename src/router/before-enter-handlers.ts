@@ -3,7 +3,6 @@ import { goHome } from '.'
 import { useUserStore } from '@/store/user'
 import { UserService } from '@/services/user'
 import { useSobStore } from '@/store/sob'
-import { useAccountStore } from '@/store/account'
 
 /**
  * Before all functional pages, verify if there's valid session and the session is not recovery session (recovery session should go to /register page)
@@ -36,9 +35,6 @@ export async function verifyNotLoggedIn() {
 export async function loadWorkingSob() {
   const sobStore = useSobStore()
   await sobStore.action.loadWorkingSob()
-  if (sobStore.state.workingSob && sobStore.state.workingSob.id) {
-    await useAccountStore().action.refreshAccounts(sobStore.state.workingSob.id)
-  }
 }
 
 export async function updateWorkingSob(to: RouteLocationNormalized) {

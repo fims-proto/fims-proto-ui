@@ -3,7 +3,7 @@ import { FIMS_URL } from '../../../config'
 import { convertFieldsFromString } from '../../field-conversion'
 import { invokeWithErrorHandler, type Response } from '../../error-handler'
 import { type Page, type Pageable } from '../../types'
-import { type Filter, FilterFactory } from '../../filter'
+import { FilterFactory } from '../../filter'
 import {
   type AccountClass,
   type Account,
@@ -31,49 +31,9 @@ class AccountService {
     })
   }
 
-  public async searchAccounts(
-    sobId: string,
-    pageable: Pageable = { page: 1, size: 10 },
-    filterable?: Filter<Account>,
-  ): Promise<Response<Page<Account>>> {
-    const filterContent = filterable?.apiFilterString()
-    const filterStr = filterContent && filterContent != 'true' ? `&$filter=${filterContent}` : ''
-    return invokeWithErrorHandler(async () => {
-      const result = await axios.get(
-        `${FIMS_URL}/api/v1/sob/${sobId}/search-accounts?$sort=accountNumber&$page=${pageable.page}&$size=${pageable.size}${filterStr}`,
-      )
-      convertFieldsFromString(result.data.content, ACCOUNT_FIELDS_CONVERSION)
-      return result.data
-    })
-  }
-
   public async getAccountById(sobId: string, id: string): Promise<Response<Account>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(`${FIMS_URL}/api/v1/sob/${sobId}/account/${id}`)
-      return convertFieldsFromString(result.data, ACCOUNT_FIELDS_CONVERSION)
-    })
-  }
-
-  public async getAccountByAccountNumber(sobId: string, accountNumber: string): Promise<Response<Account>> {
-    return invokeWithErrorHandler(async () => {
-      const result = await axios.get(
-        `${FIMS_URL}/api/v1/sob/${sobId}/accounts?$filter=eq(accountNumber,"${accountNumber}")`,
-      )
-      convertFieldsFromString(result.data.content, ACCOUNT_FIELDS_CONVERSION)
-
-      if (result.data.numberOfElements !== 1) {
-        throw 'result not unique'
-      }
-
-      return result.data.content[0]
-    })
-  }
-
-  public async getAccountsStartsWithNumber(sobId: string, serachNumber: string): Promise<Response<Page<Account>>> {
-    return invokeWithErrorHandler(async () => {
-      const result = await axios.get(
-        `${FIMS_URL}/api/v1/sob/${sobId}/accounts?$filter=stw(accountNumber,"${serachNumber}")&$sort=accountNumber`,
-      )
       return convertFieldsFromString(result.data, ACCOUNT_FIELDS_CONVERSION)
     })
   }
@@ -126,25 +86,6 @@ class AccountService {
         `${FIMS_URL}/api/v1/sob/${sobId}/auxiliary/${categoryKey}/accounts?$sort=createdAt&$page=${pageable.page}&$size=${pageable.size}${filterStr}`,
       )
       return convertFieldsFromString(result.data, AUXILIARY_FIELDS_CONVERSION)
-    })
-  }
-
-  public async getAuxiliaryAccountByKey(
-    sobId: string,
-    categoryKey: string,
-    accountKey: string,
-  ): Promise<Response<AuxiliaryAccount>> {
-    return invokeWithErrorHandler(async () => {
-      const result = await axios.get(
-        `${FIMS_URL}/api/v1/sob/${sobId}/auxiliary/${categoryKey}/accounts?$filter=eq(key,"${accountKey}")`,
-      )
-      convertFieldsFromString(result.data, AUXILIARY_FIELDS_CONVERSION)
-
-      if (result.data.numberOfElements !== 1) {
-        throw 'result not unique'
-      }
-
-      return result.data.content[0]
     })
   }
 

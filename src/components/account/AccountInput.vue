@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, useAttrs } from 'vue'
+import { computed, ref, toRefs, useAttrs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ChevronsUpDown, Check, X } from 'lucide-vue-next'
 
@@ -24,7 +24,7 @@ const props = defineProps<{
 const model = defineModel<Account | undefined>()
 
 const { t } = useI18n()
-const { allAccounts } = useAccountStore().state
+const { allAccounts } = toRefs(useAccountStore().state)
 
 const open = ref(false)
 
@@ -55,7 +55,7 @@ function clearSelection() {
 </script>
 
 <template>
-  <div class="flex w-full gap-2">
+  <div :class="cn('flex w-full gap-2', $attrs.class ?? '')">
     <div class="flex-1">
       <Popover v-model:open="open">
         <PopoverTrigger as-child>
@@ -74,7 +74,7 @@ function clearSelection() {
             <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent class="w-[var(--reka-popover-trigger-width)] p-0">
+        <PopoverContent class="w-(--reka-popover-trigger-width) p-0">
           <Command>
             <CommandInput :placeholder="$t('account.searchPlaceholder')" />
             <CommandList>

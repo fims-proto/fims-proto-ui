@@ -11,6 +11,8 @@
     "enter-to-class",
     "leave-from-class",
     "leave-active-class",
-    "leave-to-class"
+    "leave-to-class",
+    "active-class",
+    "exact-active-class"
   ]
 }

@@ -6,9 +6,9 @@ import { DataTable } from '@/components/common/data-table'
 import PeriodSelector from '@/components/period/PeriodSelector.vue'
 
 import { viewColumns } from './columns'
-import { treefyLedgers, type LedgerTreeNode } from './treefy'
+import { treefyLedgers, filterLedgersByBalance, type LedgerTreeNode } from './treefy'
 import { LedgerService } from '@/services/general-ledger/ledger'
-import { CLASS_OPTIONS } from '@/services/general-ledger'
+import { CLASS_OPTIONS, type Period } from '@/services/general-ledger'
 
 const props = defineProps<{
   sobId: string
@@ -16,20 +16,17 @@ const props = defineProps<{
 
 const ledgers = ref<LedgerTreeNode[]>([])
 const isLoading = ref(false)
-const selectedPeriodId = ref<string>()
 
-async function loadLedgers(periodId: string) {
-  if (!periodId) {
-    ledgers.value = []
-    return
-  }
+function toPeriodString(period: Period): string {
+  return `${period.fiscalYear}-${String(period.periodNumber).padStart(2, '0')}`
+}
 
-  selectedPeriodId.value = periodId
+async function loadLedgers(startPeriod: Period, endPeriod: Period) {
   isLoading.value = true
   try {
-    const response = await LedgerService.getLedgersInPeriod(props.sobId, periodId, { page: 1, size: 1000 })
-    if (response.data?.content) {
-      ledgers.value = treefyLedgers(response.data.content)
+    const response = await LedgerService.getLedgers(props.sobId, toPeriodString(startPeriod), toPeriodString(endPeriod))
+    if (response.data) {
+      ledgers.value = filterLedgersByBalance(treefyLedgers(response.data))
     }
   } finally {
     isLoading.value = false
@@ -38,9 +35,9 @@ async function loadLedgers(periodId: string) {
 </script>
 
 <template>
-  <PageFrame :title="$t('ledger.listTitle', [ledgers.length])" no-scroll>
+  <PageFrame :title="$t('ledger.title')">
     <template #end>
-      <PeriodSelector :sob-id="sobId" @period-change="loadLedgers" />
+      <PeriodSelector :sob-id="sobId" mode="range" @range-selected="loadLedgers" />
     </template>
 
     <DataTable
@@ -54,7 +51,6 @@ async function loadLedgers(periodId: string) {
         },
       ]"
       :get-sub-rows="(row) => row.children"
-      initial-expanded
       bordered
     />
   </PageFrame>

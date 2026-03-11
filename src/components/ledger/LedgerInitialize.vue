@@ -39,10 +39,7 @@ const columns = computed(() => createColumns(isEditing.value, onBalanceChange))
 
 const periodText = computed(() => {
   if (!period.value) return ''
-  return t('period.periodText', {
-    fiscalYear: period.value.fiscalYear,
-    number: period.value.periodNumber,
-  })
+  return t('period.periodText', [period.value.fiscalYear, period.value.periodNumber])
 })
 
 // Calculate trial balance - only count root level accounts (一级科目)
@@ -51,11 +48,11 @@ const trialBalance = computed(() => {
   const rootLedgers = ledgerTree.value
 
   const debitTotal = rootLedgers
-    .filter((ledger) => ledger.account.balanceDirection === 'debit')
+    .filter((ledger) => ledger.balanceDirection === 'debit')
     .reduce((sum, ledger) => sum + ledger.openingBalance, 0)
 
   const creditTotal = rootLedgers
-    .filter((ledger) => ledger.account.balanceDirection === 'credit')
+    .filter((ledger) => ledger.balanceDirection === 'credit')
     .reduce((sum, ledger) => sum + ledger.openingBalance, 0)
 
   const difference = Math.abs(debitTotal - creditTotal)
@@ -72,7 +69,7 @@ const trialBalance = computed(() => {
 const isDirty = computed(() => {
   const currentData = JSON.stringify(
     flattenTree(ledgerTree.value).map((l) => ({
-      id: l.id,
+      id: l.accountId,
       balance: l.openingBalance,
     })),
   )
@@ -101,13 +98,11 @@ function onBalanceChange(ledger: LedgerTreeNode, value: number) {
   // Update the leaf account balance
   ledger.openingBalance = value || 0
 
-  // Update the appropriate debit/credit field
-  if (ledger.account.balanceDirection === 'debit') {
-    ledger.openingDebitBalance = ledger.openingBalance
-    ledger.openingCreditBalance = 0
+  // Update the signed amount based on balance direction
+  if (ledger.balanceDirection === 'debit') {
+    ledger.openingAmount = value || 0
   } else {
-    ledger.openingCreditBalance = ledger.openingBalance
-    ledger.openingDebitBalance = 0
+    ledger.openingAmount = -(value || 0)
   }
 
   // Recalculate parent balances
@@ -131,7 +126,7 @@ async function load() {
     // Save original state for dirty checking
     originalData.value = JSON.stringify(
       flattenTree(ledgerTree.value).map((l) => ({
-        id: l.id,
+        id: l.accountId,
         balance: l.openingBalance,
       })),
     )
@@ -161,13 +156,18 @@ async function onSave() {
   try {
     // Collect only leaf account balances
     const allLedgers = flattenTree(ledgerTree.value)
-    const leafLedgers = allLedgers.filter((ledger) => ledger.account.isLeaf)
+    const leafLedgers = allLedgers.filter((ledger) => ledger.isLeaf)
 
     const request = {
-      ledgers: leafLedgers.map((ledger) => ({
-        accountNumber: ledger.account.accountNumber,
-        openingBalance: ledger.openingBalance,
-      })),
+      ledgers: leafLedgers.map((ledger) => {
+        // For credit accounts, negate the balance to represent credit
+        const openingBalance =
+          ledger.balanceDirection === 'credit' ? -(ledger.openingBalance || 0) : ledger.openingBalance || 0
+        return {
+          accountNumber: ledger.accountNumber,
+          openingBalance,
+        }
+      }),
     }
 
     const { exception } = await LedgerService.initializeLedgers(props.sobId, request)
@@ -192,7 +192,7 @@ async function onSave() {
     <template #start>
       <div class="flex items-center gap-2">
         <span class="text-muted-foreground text-sm">
-          {{ $t('ledger.initialize.firstPeriod', { periodText }) }}
+          {{ $t('ledger.initialize.firstPeriod', [periodText]) }}
         </span>
         <Badge v-if="isPeriodClosed" variant="secondary">
           {{ $t('period.closed') }}

@@ -19,24 +19,24 @@ import DateInput from './DateInput.vue'
 import AccountInput from '@/components/account/AccountInput.vue'
 import AuxiliaryAccountSelector from './AuxiliaryAccountSelector.vue'
 
-import { VoucherService } from '@/services/general-ledger/voucher'
+import { JournalService } from '@/services/general-ledger/journal'
 import type {
-  Voucher,
-  CreateVoucherRequest,
-  UpdateVoucherRequest,
-  LineItemRequest,
+  Journal,
+  CreateJournalRequest,
+  UpdateJournalRequest,
+  JournalLineRequest,
   AuxiliaryItemRequest,
-} from '@/services/general-ledger/voucher/types'
+} from '@/services/general-ledger/journal/types'
 import type { Account, AuxiliaryAccount } from '@/services/general-ledger/account/types'
 import { useUserStore } from '@/store/user'
 import { useToastStore } from '@/store/toast'
 import { useUnsavedChangesStore } from '@/store/unsaved-changes'
 import { useConfirmationStore } from '@/store/confirmation'
-import { VOUCHER_CHANGED } from '@/services/event'
+import { JOURNAL_CHANGED } from '@/services/event'
 
 const props = defineProps<{
   sobId: string
-  voucherId?: string
+  journalId?: string
 }>()
 
 const router = useRouter()
@@ -45,55 +45,33 @@ const userStore = useUserStore()
 const toastStore = useToastStore()
 const unsavedChanges = useUnsavedChangesStore()
 const confirmationStore = useConfirmationStore()
-const bus = useEventBus(VOUCHER_CHANGED)
+const bus = useEventBus(JOURNAL_CHANGED)
 
-const isEditing = ref(!props.voucherId)
-const voucher = ref<Voucher>()
+const isEditing = ref(!props.journalId)
+const journal = ref<Journal>()
 
 // Zod schemas
-const LineItemSchema = z
+const JournalLineSchema = z
   .object({
     _key: z.string(),
     account: z.custom<Account>().optional(),
     text: z.string(),
-    debit: z
-      .number()
-      .min(0)
-      .refine((val) => Number.isInteger(val * 100), {
-        message: t('voucher.lineItem.decimalPrecision'),
-      }),
-    credit: z
-      .number()
-      .min(0)
-      .refine((val) => Number.isInteger(val * 100), {
-        message: t('voucher.lineItem.decimalPrecision'),
-      }),
+    amount: z.number().refine((val) => Number.isInteger(val * 100), {
+      message: t('journal.journalLine.decimalPrecision'),
+    }),
     auxiliaryAccounts: z.record(z.custom<AuxiliaryAccount>()).optional(),
   })
   .refine(
     (item) => {
-      // If no account selected, allow both debit and credit to be 0 (empty row)
+      // If no account selected, allow amount to be 0 (empty row)
       if (!item.account) {
         return true
       }
-      // At least one of debit or credit must be filled
-      return item.debit > 0 || item.credit > 0
+      // Amount must not be 0 for non-empty rows
+      return item.amount !== 0
     },
     {
-      message: t('voucher.lineItem.bothEmpty'),
-    },
-  )
-  .refine(
-    (item) => {
-      // If no account selected, skip validation (empty row)
-      if (!item.account) {
-        return true
-      }
-      // Debit and credit cannot both be filled
-      return !(item.debit > 0 && item.credit > 0)
-    },
-    {
-      message: t('voucher.lineItem.bothFilled'),
+      message: t('journal.journalLine.bothEmpty'),
     },
   )
   .refine(
@@ -107,64 +85,73 @@ const LineItemSchema = z
       return requiredCategories.every((category) => item.auxiliaryAccounts?.[category.key])
     },
     {
-      message: t('voucher.save.emptyAuxiliaryAccountKey'),
+      message: t('journal.msg.emptyAuxiliaryAccountKey'),
     },
   )
 
-const VoucherFormSchema = z
+const JournalFormSchema = z
   .object({
-    headerText: z.string().min(1, { message: t('voucher.save.emptyHeaderText') }),
+    headerText: z.string().min(1, { message: t('journal.msg.emptyHeaderText') }),
     attachmentQuantity: z.number().int().min(0),
     transactionDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: t('common.msg.invalidDateFormat') }),
-    lineItems: z.array(LineItemSchema).refine((items) => items.filter((item) => item.account).length >= 2, {
-      message: t('voucher.save.minTwoItems'),
+    journalLines: z.array(JournalLineSchema).refine((items) => items.filter((item) => item.account).length >= 2, {
+      message: t('journal.msg.minTwoItems'),
     }),
   })
   .refine(
     (data) => {
-      const debitTotal = data.lineItems.reduce((sum, item) => sum + (item.debit || 0), 0)
-      const creditTotal = data.lineItems.reduce((sum, item) => sum + (item.credit || 0), 0)
-      return Math.abs(debitTotal - creditTotal) < 0.001
+      const amountTotal = data.journalLines.reduce((sum, item) => sum + (item.amount || 0), 0)
+      return Math.abs(amountTotal) < 0.001
     },
     {
-      message: t('voucher.save.notBalanced'),
+      message: t('journal.msg.notBalanced'),
     },
   )
 
-type FormLineItem = z.infer<typeof LineItemSchema>
-type VoucherFormValues = z.infer<typeof VoucherFormSchema>
+type FormJournalLine = z.infer<typeof JournalLineSchema>
+type JournalFormValues = z.infer<typeof JournalFormSchema>
 
 // Constants based on inferred types
-const EMPTY_LINE_ITEM: Omit<FormLineItem, '_key'> = {
+const EMPTY_LINE_ITEM: Omit<FormJournalLine, '_key'> = {
   account: undefined,
   text: '',
-  debit: 0,
-  credit: 0,
+  amount: 0,
 }
 
-const EMPTY_VOUCHER: VoucherFormValues = {
+const EMPTY_JOURNAL: JournalFormValues = {
   headerText: '',
   attachmentQuantity: 0,
   transactionDate: new Date().toISOString().split('T')[0]!, // YYYY-MM-DD
-  lineItems: Array(4)
+  journalLines: Array(4)
     .fill(null)
     .map(() => ({ _key: crypto.randomUUID(), ...EMPTY_LINE_ITEM })),
 }
 
-const formSchema = ref(toTypedSchema(VoucherFormSchema))
+const formSchema = ref(toTypedSchema(JournalFormSchema))
 
 const form = useForm({
   validationSchema: formSchema,
 })
 
 // Computed totals
-const debitTotal = computed(() => (form.values.lineItems ?? []).reduce((sum, item) => sum + (item.debit || 0), 0))
+const debitTotal = computed(() =>
+  (form.values.journalLines ?? [])
+    .filter((item) => item.amount && item.amount > 0)
+    .reduce((sum, item) => sum + item.amount, 0),
+)
 
-const creditTotal = computed(() => (form.values.lineItems ?? []).reduce((sum, item) => sum + (item.credit || 0), 0))
+const creditTotal = computed(() =>
+  (form.values.journalLines ?? [])
+    .filter((item) => item.amount && item.amount < 0)
+    .reduce((sum, item) => sum + Math.abs(item.amount), 0),
+)
 
-const isBalanced = computed(() => Math.abs(debitTotal.value - creditTotal.value) < 0.001)
+const isBalanced = computed(() => {
+  const amountTotal = (form.values.journalLines ?? []).reduce((sum, item) => sum + (item.amount || 0), 0)
+  return Math.abs(amountTotal) < 0.001
+})
 
-const title = computed(() => (props.voucherId ? voucher.value?.documentNumber : t('voucher.creation.title')))
+const title = computed(() => (props.journalId ? journal.value?.documentNumber : t('journal.creation.title')))
 
 const formatUserName = (user?: { traits?: { name?: { first?: string; last?: string } } }) =>
   `${user?.traits?.name?.last ?? ''}${user?.traits?.name?.first ?? ''}`
@@ -181,43 +168,35 @@ watch(
   },
 )
 
-// Line item management
-function addLineItem() {
-  const current = form.values.lineItems ?? []
-  form.setFieldValue('lineItems', [...current, { _key: crypto.randomUUID(), ...EMPTY_LINE_ITEM }])
+// Journal line management
+function addJournalLine() {
+  const current = form.values.journalLines ?? []
+  form.setFieldValue('journalLines', [...current, { _key: crypto.randomUUID(), ...EMPTY_LINE_ITEM }])
 }
 
-function removeLineItem(index: number) {
-  const current = form.values.lineItems ?? []
+function removeJournalLine(index: number) {
+  const current = form.values.journalLines ?? []
   form.setFieldValue(
-    'lineItems',
+    'journalLines',
     current.filter((_, i) => i !== index),
   )
 }
 
-function amountInEdit(value: number | undefined) {
-  return value ? value : ''
-}
-
-function amountInDisplay(value: number | undefined) {
-  return value ? n(value, 'decimal') : ''
-}
-
-// Load voucher data
+// Load journal data
 async function load() {
-  if (props.voucherId) {
-    const { data, exception } = await VoucherService.getVoucherById(props.sobId, props.voucherId)
+  if (props.journalId) {
+    const { data, exception } = await JournalService.getJournalById(props.sobId, props.journalId)
     if (exception || !data) return
 
-    voucher.value = data
+    journal.value = data
     isEditing.value = false
 
     // Transform to form values
-    const formValues: VoucherFormValues = {
+    const formValues: JournalFormValues = {
       headerText: data.headerText,
       attachmentQuantity: data.attachmentQuantity,
       transactionDate: data.transactionDate,
-      lineItems: data.lineItems.map((item) => {
+      journalLines: data.journalLines.map((item) => {
         // Convert auxiliaryAccounts array to Record
         const auxiliaryAccounts: Record<string, AuxiliaryAccount> = {}
         if (item.auxiliaryAccounts) {
@@ -225,12 +204,13 @@ async function load() {
             auxiliaryAccounts[aux.category.key] = aux
           })
         }
+        // Convert signed amount to debit/credit for display
+        const amount = item.amount || 0
         return {
           _key: crypto.randomUUID(),
           account: item.account,
           text: item.text,
-          debit: item.debit,
-          credit: item.credit,
+          amount: amount,
           auxiliaryAccounts: Object.entries(auxiliaryAccounts).length > 0 ? auxiliaryAccounts : undefined,
         }
       }),
@@ -238,21 +218,21 @@ async function load() {
 
     form.resetForm({ values: formValues }, { force: true })
   } else {
-    voucher.value = undefined
+    journal.value = undefined
     isEditing.value = true
-    form.resetForm({ values: EMPTY_VOUCHER }, { force: true })
+    form.resetForm({ values: EMPTY_JOURNAL }, { force: true })
   }
 }
 
-watch(() => props.voucherId, load, { immediate: true })
+watch(() => props.journalId, load, { immediate: true })
 
 // Form submission
 const onSubmit = form.handleSubmit(async (values) => {
-  // Filter out empty line items
-  const validLineItems = values.lineItems.filter((item) => item.account)
+  // Filter out empty journal lines
+  const validJournalLines = values.journalLines.filter((item) => item.account)
 
   // Transform to API format
-  const lineItemsRequest: LineItemRequest[] = validLineItems.map((item) => {
+  const journalLinesRequest: JournalLineRequest[] = validJournalLines.map((item) => {
     // Convert auxiliaryAccounts Record to array
     const auxiliaryAccountsArray: AuxiliaryItemRequest[] = Object.entries(item.auxiliaryAccounts ?? {}).map(
       ([categoryKey, auxAccount]) => ({
@@ -264,52 +244,51 @@ const onSubmit = form.handleSubmit(async (values) => {
     return {
       accountNumber: item.account!.accountNumber,
       text: values.headerText,
-      debit: item.debit,
-      credit: item.credit,
+      amount: item.amount || 0,
       auxiliaryAccounts: auxiliaryAccountsArray,
     }
   })
 
-  if (!props.voucherId) {
-    // Create new voucher
-    const request: CreateVoucherRequest = {
+  if (!props.journalId) {
+    // Create new journal
+    const request: CreateJournalRequest = {
       headerText: values.headerText,
       attachmentQuantity: values.attachmentQuantity,
       transactionDate: values.transactionDate,
-      voucherType: 'general_voucher',
+      journalType: 'general_journal',
       creator: userStore.state.user.id,
-      lineItems: lineItemsRequest,
+      journalLines: journalLinesRequest,
     }
 
-    const { data, exception } = await VoucherService.createVoucher(props.sobId, request)
+    const { data, exception } = await JournalService.createJournal(props.sobId, request)
     if (exception || !data) return
 
-    toastStore.action.success(t('voucher.save.success'))
+    toastStore.action.success(t('journal.msg.success'))
     unsavedChanges.action.disableProtection()
     bus.emit()
 
-    // Navigate to view mode with new voucher
+    // Navigate to view mode with new journal
     router.push({
-      name: 'voucherDetail',
+      name: 'journalDetail',
       params: {
         sobId: props.sobId,
-        voucherId: data.id,
+        journalId: data.id,
       },
     })
   } else {
-    // Update existing voucher
-    const request: UpdateVoucherRequest = {
+    // Update existing journal
+    const request: UpdateJournalRequest = {
       headerText: values.headerText,
       attachmentQuantity: values.attachmentQuantity,
       transactionDate: values.transactionDate,
       updater: userStore.state.user.id,
-      lineItems: lineItemsRequest,
+      journalLines: journalLinesRequest,
     }
 
-    const { exception } = await VoucherService.updateVoucher(props.sobId, props.voucherId, request)
+    const { exception } = await JournalService.updateJournal(props.sobId, props.journalId, request)
     if (exception) return
 
-    toastStore.action.success(t('voucher.save.success'))
+    toastStore.action.success(t('journal.msg.success'))
     unsavedChanges.action.disableProtection()
     bus.emit()
 
@@ -325,7 +304,7 @@ function handleEdit() {
 
 function handleClose() {
   router.push({
-    name: 'voucherList',
+    name: 'journalList',
     params: {
       sobId: props.sobId,
     },
@@ -334,43 +313,43 @@ function handleClose() {
 
 function handleCancel() {
   unsavedChanges.action.disableProtection()
-  if (!props.voucherId) {
-    // Cancel creating new voucher
+  if (!props.journalId) {
+    // Cancel creating new journal
     router.push({
-      name: 'voucherList',
+      name: 'journalList',
       params: {
         sobId: props.sobId,
       },
     })
   } else {
-    // Cancel editing existing voucher
+    // Cancel editing existing journal
     load()
   }
 }
 
 // Workflow actions
 async function handleAudit() {
-  if (!props.voucherId) return
-  const { exception } = await VoucherService.auditVoucher(props.sobId, props.voucherId, userStore.state.user.id)
+  if (!props.journalId) return
+  const { exception } = await JournalService.auditJournal(props.sobId, props.journalId, userStore.state.user.id)
   if (exception) return
-  toastStore.action.success(t('voucher.workflow.auditSuccess'))
+  toastStore.action.success(t('journal.msg.auditSuccess'))
   bus.emit()
   await load()
 }
 
 async function handleCancelAudit() {
-  if (!props.voucherId) return
+  if (!props.journalId) return
   confirmationStore.action.confirm({
-    title: t('voucher.audit'),
-    message: t('voucher.workflow.confirmCancelAudit'),
+    title: t('journal.audit'),
+    message: t('journal.msg.confirmCancelAudit'),
     onConfirm: async () => {
-      const { exception } = await VoucherService.cancelAuditVoucher(
+      const { exception } = await JournalService.cancelAuditJournal(
         props.sobId,
-        props.voucherId!,
+        props.journalId!,
         userStore.state.user.id,
       )
       if (exception) return
-      toastStore.action.success(t('voucher.workflow.cancelAuditSuccess'))
+      toastStore.action.success(t('journal.msg.cancelAuditSuccess'))
       bus.emit()
       await load()
     },
@@ -378,27 +357,27 @@ async function handleCancelAudit() {
 }
 
 async function handleReview() {
-  if (!props.voucherId) return
-  const { exception } = await VoucherService.reviewVoucher(props.sobId, props.voucherId, userStore.state.user.id)
+  if (!props.journalId) return
+  const { exception } = await JournalService.reviewJournal(props.sobId, props.journalId, userStore.state.user.id)
   if (exception) return
-  toastStore.action.success(t('voucher.workflow.reviewSuccess'))
+  toastStore.action.success(t('journal.msg.reviewSuccess'))
   bus.emit()
   await load()
 }
 
 async function handleCancelReview() {
-  if (!props.voucherId) return
+  if (!props.journalId) return
   confirmationStore.action.confirm({
-    title: t('voucher.review'),
-    message: t('voucher.workflow.confirmCancelReview'),
+    title: t('journal.review'),
+    message: t('journal.msg.confirmCancelReview'),
     onConfirm: async () => {
-      const { exception } = await VoucherService.cancelReviewVoucher(
+      const { exception } = await JournalService.cancelReviewJournal(
         props.sobId,
-        props.voucherId!,
+        props.journalId!,
         userStore.state.user.id,
       )
       if (exception) return
-      toastStore.action.success(t('voucher.workflow.cancelReviewSuccess'))
+      toastStore.action.success(t('journal.msg.cancelReviewSuccess'))
       bus.emit()
       await load()
     },
@@ -406,14 +385,14 @@ async function handleCancelReview() {
 }
 
 async function handlePost() {
-  if (!props.voucherId) return
+  if (!props.journalId) return
   confirmationStore.action.confirm({
-    title: t('voucher.post'),
-    message: t('voucher.workflow.confirmPost'),
+    title: t('journal.post'),
+    message: t('journal.msg.confirmPost'),
     onConfirm: async () => {
-      const { exception } = await VoucherService.postVoucher(props.sobId, props.voucherId!, userStore.state.user.id)
+      const { exception } = await JournalService.postJournal(props.sobId, props.journalId!, userStore.state.user.id)
       if (exception) return
-      toastStore.action.success(t('voucher.workflow.postSuccess'))
+      toastStore.action.success(t('journal.msg.postSuccess'))
       bus.emit()
       await load()
     },
@@ -425,26 +404,26 @@ async function handlePost() {
   <PageFrame :title="title" :dirty-indicator="form.meta.value.dirty">
     <template #end>
       <!-- View mode actions -->
-      <template v-if="!isEditing && voucherId">
+      <template v-if="!isEditing && journalId">
         <!-- Workflow action buttons -->
-        <Button v-if="!voucher?.isAudited" variant="outline" @click="handleAudit">
-          {{ $t('voucher.audit') }}
+        <Button v-if="!journal?.isAudited" variant="outline" @click="handleAudit">
+          {{ $t('journal.audit') }}
         </Button>
-        <Button v-if="voucher?.isAudited && !voucher?.isPosted" variant="outline" @click="handleCancelAudit">
-          {{ $t('voucher.cancelAudit') }}
+        <Button v-if="journal?.isAudited && !journal?.isPosted" variant="outline" @click="handleCancelAudit">
+          {{ $t('journal.cancelAudit') }}
         </Button>
-        <Button v-if="!voucher?.isReviewed" variant="outline" @click="handleReview">
-          {{ $t('voucher.review') }}
+        <Button v-if="!journal?.isReviewed" variant="outline" @click="handleReview">
+          {{ $t('journal.review') }}
         </Button>
-        <Button v-if="voucher?.isReviewed && !voucher?.isPosted" variant="outline" @click="handleCancelReview">
-          {{ $t('voucher.cancelReview') }}
+        <Button v-if="journal?.isReviewed && !journal?.isPosted" variant="outline" @click="handleCancelReview">
+          {{ $t('journal.cancelReview') }}
         </Button>
-        <Button v-if="voucher?.isAudited && voucher?.isReviewed && !voucher?.isPosted" @click="handlePost">
-          {{ $t('voucher.post') }}
+        <Button v-if="journal?.isAudited && journal?.isReviewed && !journal?.isPosted" @click="handlePost">
+          {{ $t('journal.post') }}
         </Button>
 
         <!-- Edit/Close buttons -->
-        <Button v-if="!voucher?.isAudited && !voucher?.isReviewed" variant="outline" @click="handleEdit">
+        <Button v-if="!journal?.isAudited && !journal?.isReviewed" variant="outline" @click="handleEdit">
           {{ $t('action.edit') }}
         </Button>
         <Button variant="ghost" @click="handleClose">{{ $t('action.close') }}</Button>
@@ -459,24 +438,24 @@ async function handlePost() {
 
     <div class="space-y-8">
       <!-- Workflow status badges -->
-      <div v-if="voucher && !isEditing" class="flex gap-2">
-        <Badge v-if="voucher.isAudited" class="bg-green-600">
-          {{ $t('voucher.isAudited') }}
+      <div v-if="journal && !isEditing" class="flex gap-2">
+        <Badge v-if="journal.isAudited" class="bg-green-600">
+          {{ $t('journal.isAudited') }}
         </Badge>
         <Badge v-else variant="destructive">
-          {{ $t('voucher.notAudited') }}
+          {{ $t('journal.notAudited') }}
         </Badge>
-        <Badge v-if="voucher.isReviewed" class="bg-green-600">
-          {{ $t('voucher.isReviewed') }}
-        </Badge>
-        <Badge v-else variant="destructive">
-          {{ $t('voucher.notReviewed') }}
-        </Badge>
-        <Badge v-if="voucher.isPosted" class="bg-green-600">
-          {{ $t('voucher.isPosted') }}
+        <Badge v-if="journal.isReviewed" class="bg-green-600">
+          {{ $t('journal.isReviewed') }}
         </Badge>
         <Badge v-else variant="destructive">
-          {{ $t('voucher.notPosted') }}
+          {{ $t('journal.notReviewed') }}
+        </Badge>
+        <Badge v-if="journal.isPosted" class="bg-green-600">
+          {{ $t('journal.isPosted') }}
+        </Badge>
+        <Badge v-else variant="destructive">
+          {{ $t('journal.notPosted') }}
         </Badge>
       </div>
 
@@ -485,7 +464,7 @@ async function handlePost() {
         <!-- Header Text -->
         <VeeField v-slot="{ field, errors }" name="headerText">
           <EditableField
-            :label="$t('voucher.headerText')"
+            :label="$t('journal.headerText')"
             label-for="headerText"
             :is-editing="isEditing"
             :value="field.value"
@@ -498,7 +477,7 @@ async function handlePost() {
                 id="headerText"
                 :model-value="value"
                 :name="field.name"
-                :placeholder="$t('voucher.headerTextPlaceholder')"
+                :placeholder="$t('journal.headerTextPlaceholder')"
                 :aria-invalid="!!errors.length"
                 @update:model-value="onUpdate"
                 @blur="field.onBlur"
@@ -510,7 +489,7 @@ async function handlePost() {
         <!-- Transaction Date -->
         <VeeField v-slot="{ field, errors }" name="transactionDate">
           <EditableField
-            :label="$t('voucher.transactionDate')"
+            :label="$t('journal.transactionDate')"
             label-for="transactionDate"
             :is-editing="isEditing"
             :value="field.value"
@@ -534,13 +513,13 @@ async function handlePost() {
         <!-- Attachment Quantity -->
         <VeeField v-slot="{ field, errors }" name="attachmentQuantity">
           <EditableField
-            :label="$t('voucher.attachmentQuantity')"
+            :label="$t('journal.attachmentQuantity')"
             label-for="attachmentQuantity"
             :is-editing="isEditing"
             :value="field.value"
             :errors="errors"
             :data-invalid="!!errors.length"
-            :formatter="(val) => `${val} ${$t('voucher.attachmentQuantityUnit')}`"
+            :formatter="(val) => `${val} ${$t('journal.attachmentQuantityUnit')}`"
             @update:value="field.onChange"
           >
             <template #edit="{ value, onUpdate }">
@@ -557,48 +536,48 @@ async function handlePost() {
                   @update:model-value="onUpdate"
                   @blur="field.onBlur"
                 />
-                <InputGroupAddon align="inline-end">{{ $t('voucher.attachmentQuantityUnit') }}</InputGroupAddon>
+                <InputGroupAddon align="inline-end">{{ $t('journal.attachmentQuantityUnit') }}</InputGroupAddon>
               </InputGroup>
             </template>
           </EditableField>
         </VeeField>
 
-        <!-- Creator (readonly, only for existing vouchers) -->
+        <!-- Creator (readonly, only for existing journals) -->
         <EditableField
-          v-if="voucher && !isEditing"
-          :label="$t('voucher.creator')"
+          v-if="journal && !isEditing"
+          :label="$t('journal.creator')"
           :is-editing="false"
-          :value="voucher.creator"
+          :value="journal.creator"
           :formatter="formatUserName"
         />
 
-        <!-- Auditor (readonly, only for existing vouchers) -->
+        <!-- Auditor (readonly, only for existing journals) -->
         <EditableField
-          v-if="voucher && voucher.isAudited && !isEditing"
-          :label="$t('voucher.auditor')"
+          v-if="journal && journal.isAudited && !isEditing"
+          :label="$t('journal.auditor')"
           :is-editing="false"
-          :value="voucher.auditor"
+          :value="journal.auditor"
           :formatter="formatUserName"
         />
 
-        <!-- Reviewer (readonly, only for existing vouchers) -->
+        <!-- Reviewer (readonly, only for existing journals) -->
         <EditableField
-          v-if="voucher && voucher.isReviewed && !isEditing"
-          :label="$t('voucher.reviewer')"
+          v-if="journal && journal.isReviewed && !isEditing"
+          :label="$t('journal.reviewer')"
           :is-editing="false"
-          :value="voucher.reviewer"
+          :value="journal.reviewer"
           :formatter="formatUserName"
         />
       </div>
 
-      <!-- Line Items Table -->
+      <!-- Journal Lines Table -->
       <div class="space-y-4">
         <div class="flex items-center justify-between">
-          <h3 class="text-lg font-semibold">{{ $t('voucher.lineItems') }}</h3>
+          <h3 class="text-lg font-semibold">{{ $t('journal.journalLines') }}</h3>
 
-          <!-- Add Line Item Button -->
-          <Button v-if="isEditing" variant="outline" @click="addLineItem">
-            {{ $t('voucher.addLineItem') }}
+          <!-- Add Journal Line Button -->
+          <Button v-if="isEditing" variant="outline" @click="addJournalLine">
+            {{ $t('journal.addJournalLine') }}
           </Button>
         </div>
 
@@ -607,14 +586,14 @@ async function handlePost() {
             <TableHeader>
               <TableRow>
                 <TableHead class="w-12">#</TableHead>
-                <TableHead class="w-[200px]">{{ $t('voucher.account') }}</TableHead>
-                <TableHead class="w-[150px]">{{ $t('voucher.debit') }}</TableHead>
-                <TableHead class="w-[150px]">{{ $t('voucher.credit') }}</TableHead>
+                <TableHead class="w-50">{{ $t('journal.account') }}</TableHead>
+                <TableHead class="w-37.5">{{ $t('journal.debit') }}</TableHead>
+                <TableHead class="w-37.5">{{ $t('journal.credit') }}</TableHead>
                 <TableHead v-if="isEditing" class="w-12"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              <template v-for="(item, index) in form.values.lineItems ?? []" :key="item._key">
+              <template v-for="(item, index) in form.values.journalLines ?? []" :key="item._key">
                 <TableRow>
                   <TableCell>{{ index + 1 }}</TableCell>
 
@@ -622,7 +601,7 @@ async function handlePost() {
                   <TableCell>
                     <div class="space-y-2">
                       <!-- Main Account -->
-                      <VeeField v-slot="{ field }" :name="`lineItems[${index}].account`">
+                      <VeeField v-slot="{ field }" :name="`journalLines[${index}].account`">
                         <template v-if="isEditing">
                           <AccountInput
                             :disabled="!isEditing"
@@ -647,7 +626,10 @@ async function handlePost() {
                           <span class="text-muted-foreground text-xs font-medium whitespace-nowrap">
                             {{ category.title }}:
                           </span>
-                          <VeeField v-slot="{ field }" :name="`lineItems[${index}].auxiliaryAccounts.${category.key}`">
+                          <VeeField
+                            v-slot="{ field }"
+                            :name="`journalLines[${index}].auxiliaryAccounts.${category.key}`"
+                          >
                             <!-- Edit mode: show selector -->
                             <AuxiliaryAccountSelector
                               v-if="isEditing"
@@ -670,40 +652,44 @@ async function handlePost() {
 
                   <!-- Debit -->
                   <TableCell class="align-top">
-                    <VeeField v-slot="{ field }" :name="`lineItems[${index}].debit`">
+                    <VeeField v-slot="{ field }" :name="`journalLines[${index}].amount`">
                       <template v-if="isEditing">
                         <Input
                           :id="useId()"
                           type="number"
                           step="0.01"
                           min="0"
-                          :model-value="amountInEdit(field.value)"
+                          :model-value="field.value && field.value > 0 ? field.value : ''"
                           class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                           @update:model-value="(val) => field.onChange(Number(val) || 0)"
                         />
                       </template>
                       <template v-else>
-                        <span class="text-sm">{{ amountInDisplay(field.value) }}</span>
+                        <span class="text-sm">{{
+                          field.value && field.value > 0 ? n(field.value, 'decimal') : ''
+                        }}</span>
                       </template>
                     </VeeField>
                   </TableCell>
 
                   <!-- Credit -->
                   <TableCell class="align-top">
-                    <VeeField v-slot="{ field }" :name="`lineItems[${index}].credit`">
+                    <VeeField v-slot="{ field }" :name="`journalLines[${index}].amount`">
                       <template v-if="isEditing">
                         <Input
                           :id="useId()"
                           type="number"
                           step="0.01"
                           min="0"
-                          :model-value="amountInEdit(field.value)"
+                          :model-value="field.value && field.value < 0 ? Math.abs(field.value) : ''"
                           class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                          @update:model-value="(val) => field.onChange(Number(val) || 0)"
+                          @update:model-value="(val) => field.onChange(val ? -Number(val) || 0 : 0)"
                         />
                       </template>
                       <template v-else>
-                        <span class="text-sm">{{ amountInDisplay(field.value) }}</span>
+                        <span class="text-sm">{{
+                          field.value && field.value < 0 ? n(Math.abs(field.value), 'decimal') : ''
+                        }}</span>
                       </template>
                     </VeeField>
                   </TableCell>
@@ -713,8 +699,8 @@ async function handlePost() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      :title="$t('voucher.removeLineItem')"
-                      @click="removeLineItem(index)"
+                      :title="$t('journal.removeJournalLine')"
+                      @click="removeJournalLine(index)"
                     >
                       <Trash2 class="h-4 w-4" />
                     </Button>
@@ -723,26 +709,26 @@ async function handlePost() {
               </template>
             </TableBody>
             <TableFooter>
-              <!-- Line Item Errors -->
-              <template v-for="(item, index) in form.values.lineItems ?? []" :key="`error-${item._key}`">
-                <TableRow v-if="form.errors.value[`lineItems[${index}]`]">
+              <!-- Journal Line Errors -->
+              <template v-for="(item, index) in form.values.journalLines ?? []" :key="`error-${item._key}`">
+                <TableRow v-if="form.errors.value[`journalLines[${index}]`]">
                   <TableCell :colspan="isEditing ? 5 : 4" class="bg-destructive/10">
                     <div class="text-destructive flex items-center gap-2 text-sm">
                       <AlertCircle class="h-4 w-4" />
                       <span>
-                        {{ $t('voucher.lineItem.errorPrefix', [index + 1]) }}:
-                        {{ form.errors.value[`lineItems[${index}]`] }}
+                        {{ $t('journal.journalLine.errorPrefix', [index + 1]) }}:
+                        {{ form.errors.value[`journalLines[${index}]`] }}
                       </span>
                     </div>
                   </TableCell>
                 </TableRow>
               </template>
-              <TableRow v-if="form.errors.value['lineItems']">
+              <TableRow v-if="form.errors.value['journalLines']">
                 <TableCell :colspan="isEditing ? 5 : 4" class="bg-destructive/10">
                   <div class="text-destructive flex items-center gap-2 text-sm">
                     <AlertCircle class="h-4 w-4" />
                     <span>
-                      {{ form.errors.value['lineItems'] }}
+                      {{ form.errors.value['journalLines'] }}
                     </span>
                   </div>
                 </TableCell>
@@ -752,19 +738,19 @@ async function handlePost() {
               <TableRow>
                 <TableCell :colspan="isEditing ? 5 : 4" class="text-right">
                   <div class="flex items-center justify-end gap-6">
-                    <span class="font-semibold"> {{ $t('voucher.debitTotal') }}: {{ $n(debitTotal, 'decimal') }} </span>
+                    <span class="font-semibold"> {{ $t('journal.debitTotal') }}: {{ $n(debitTotal, 'decimal') }} </span>
                     <span class="font-semibold">
-                      {{ $t('voucher.creditTotal') }}: {{ $n(creditTotal, 'decimal') }}
+                      {{ $t('journal.creditTotal') }}: {{ $n(creditTotal, 'decimal') }}
                     </span>
                     <div class="flex items-center gap-2">
                       <template v-if="isBalanced">
                         <CheckCircle2 class="h-4 w-4 text-green-600" />
-                        <span class="text-sm text-green-600">{{ $t('voucher.balanced') }}</span>
+                        <span class="text-sm text-green-600">{{ $t('journal.balanced') }}</span>
                       </template>
                       <template v-else>
                         <AlertCircle class="text-destructive h-4 w-4" />
                         <span class="text-destructive text-sm">
-                          {{ $t('voucher.unbalanced') }} {{ $t('voucher.difference') }}:
+                          {{ $t('journal.unbalanced') }} {{ $t('journal.difference') }}:
                           {{ $n(Math.abs(debitTotal - creditTotal), 'decimal') }}
                         </span>
                       </template>

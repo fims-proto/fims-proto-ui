@@ -197,7 +197,7 @@ function onClose() {
 
 <template>
   <PageFrame
-    :secondary-title="!props.sobId ? $t('common.createPage') : $t('common.detailPage')"
+    :secondary-title="!props.sobId ? $t('action.create') : $t('action.detail')"
     :dirty-indicator="form.meta.value.dirty"
   >
     <template #end>

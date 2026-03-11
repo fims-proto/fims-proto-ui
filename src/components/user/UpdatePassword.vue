@@ -83,7 +83,7 @@ const onSubmit = form.handleSubmit(async (values, { resetForm }) => {
     </VeeField>
 
     <div class="flex justify-end pt-2">
-      <Button type="submit">{{ t('action.submit') }}</Button>
+      <Button type="submit">{{ t('action.save') }}</Button>
     </div>
   </form>
 </template>
