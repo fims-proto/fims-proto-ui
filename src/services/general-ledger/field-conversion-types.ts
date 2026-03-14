@@ -6,11 +6,6 @@ export const ACCOUNT_FIELDS_CONVERSION: FieldConversionRecord = {
   updatedAt: 'date',
 }
 
-export const AUXILIARY_FIELDS_CONVERSION: FieldConversionRecord = {
-  createdAt: 'date',
-  updatedAt: 'date',
-}
-
 export const LEDGER_FIELDS_CONVERSION: FieldConversionRecord = {
   openingAmount: 'number',
   periodDebit: 'number',
@@ -35,14 +30,6 @@ export const JOURNAL_LINE_FIELDS: FieldConversionRecord = {
 
 export const LEDGER_ENTRY_FIELDS_CONVERSION: FieldConversionRecord = {
   amount: 'number',
-}
-
-export const AUXILIARY_LEDGER_FIELDS_CONVERSION: FieldConversionRecord = {
-  openingAmount: 'number',
-  periodDebit: 'number',
-  periodCredit: 'number',
-  periodAmount: 'number',
-  endingAmount: 'number',
 }
 
 export const JOURNAL_FIELDS: FieldConversionRecord = {

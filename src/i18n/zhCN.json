@@ -70,7 +70,7 @@
     "collapseAll": "收起全部"
   },
   "user": {
-    "loginPrompt": "在下面输入您的电子邮件以登录到您的帐户",
+    "loginPrompt": "在下面输入您的电子邮件以登录到您的账户",
     "email": "E-Mail",
     "password": "密码",
     "firstname": "名字",
@@ -78,7 +78,7 @@
     "newPassword": "新密码",
     "confirmNewPassword": "密码确认",
     "passwordNotSame": "密码不一致",
-    "login": "登入",
+    "login": "登录",
     "logout": "登出"
   },
   "profile": {
@@ -144,10 +144,10 @@
       "507": "所得税",
       "701": "共同"
     },
-    "auxiliary": {
+    "dimension": {
       "category": "维度",
-      "selectAuxiliaryCategories": "选择维度类别",
-      "noAuxiliaryCategories": "无维度"
+      "selectDimensionCategories": "选择维度类别",
+      "noDimensionCategories": "无维度"
     },
     "msg": {
       "saveSuccess": "科目保存成功",
@@ -177,7 +177,6 @@
     "explorer": {
       "title": "科目分析",
       "noAccountSelected": "请先选择科目",
-      "noDimension": "不按维度",
       "openingBalance": "期初余额",
       "periodDebit": "期间借方",
       "periodCredit": "期间贷方",
@@ -187,9 +186,7 @@
       "journalNumber": "分录号",
       "entryText": "摘要",
       "debitAmount": "借方",
-      "creditAmount": "贷方",
-      "dimension": "维度",
-      "dimensionMember": "维度成员"
+      "creditAmount": "贷方"
     },
     "initialize": {
       "title": "初始化期初余额",
@@ -206,31 +203,34 @@
       }
     }
   },
-  "auxiliary": {
+  "dimension": {
     "categoryListTitle": "维度 ({0})",
-    "categoryDetail": "维度详情",
-    "categoryKey": "编号",
-    "categoryTitle": "名称",
-    "accountsTitle": "成员 ({0})",
-    "accountKey": "编号",
-    "accountTitle": "名称",
-    "description": "描述",
+    "categoryName": "名称",
+    "optionsTitle": "{0} 成员 ({1})",
+    "optionName": "名称",
     "createCategory": "新建维度",
-    "createAccount": "新建维度成员",
-    "viewAccount": "查看维度成员",
-    "isStandard": "类型",
-    "standard": "标准",
-    "custom": "自定义",
-    "selectAccount": "选择维度成员",
-    "noAuxiliaryAccounts": "无维度成员",
+    "createOption": "新建维度成员",
+    "viewOption": "查看维度成员",
+    "deleteCategory": "删除维度",
+    "deleteOption": "删除维度成员",
+    "selectOption": "选择维度成员",
+    "noOptions": "无维度成员",
+    "updateCategory": "编辑维度",
+    "updateOption": "编辑维度成员",
     "msg": {
       "categorySaveSuccess": "维度保存成功",
-      "accountSaveSuccess": "维度成员保存成功",
-      "updateNotSupported": "暂不支持更新",
-      "keyImmutable": "创建后编号不可修改",
-      "createCategoryDescription": "创建新的维度，编号创建后不可修改",
-      "createAccountDescription": "创建新的维度成员，编号创建后不可修改",
-      "viewAccountDescription": "查看维度成员详情"
+      "optionSaveSuccess": "维度成员保存成功",
+      "categoryUpdateSuccess": "维度更新成功",
+      "optionUpdateSuccess": "维度成员更新成功",
+      "categoryDeleteSuccess": "维度删除成功",
+      "optionDeleteSuccess": "维度成员删除成功",
+      "confirmDeleteCategory": "确定要删除此维度吗？此操作无法撤销。",
+      "confirmDeleteOption": "确定要删除此维度成员吗？此操作无法撤销。",
+      "createCategoryDescription": "创建新的维度",
+      "createOptionDescription": "创建新的维度成员",
+      "viewOptionDescription": "查看维度成员详情",
+      "updateCategoryDescription": "编辑维度信息",
+      "updateOptionDescription": "编辑维度成员信息"
     }
   },
   "journal": {
@@ -279,7 +279,7 @@
     "msg": {
       "emptyHeaderText": "摘要不能为空",
       "notBalanced": "借贷不平衡",
-      "emptyAuxiliaryAccountKey": "未填写维度成员",
+      "emptyDimensionOption": "未填写维度成员",
       "minTwoItems": "至少需要两条分录",
       "success": "分录保存成功",
       "confirmCancelAudit": "确认取消审核？",

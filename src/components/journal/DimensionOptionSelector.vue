@@ -6,20 +6,21 @@ import { Check, ChevronsUpDown } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command'
-import { AccountService } from '@/services/general-ledger/account'
-import type { AuxiliaryAccount, AuxiliaryCategory } from '@/services/general-ledger/account/types'
+import { DimensionService } from '@/services/dimension'
+import type { DimensionCategoryRef, DimensionOptionRef } from '@/services/general-ledger/account/types'
+import type { DimensionOption } from '@/services/dimension'
 import { cn } from '@/lib/utils'
 
 const props = defineProps<{
-  category: AuxiliaryCategory
+  category: DimensionCategoryRef
   sobId: string
-  modelValue?: AuxiliaryAccount
+  modelValue?: DimensionOptionRef
   disabled?: boolean
   class?: string
 }>()
 
 const emit = defineEmits<{
-  'update:modelValue': [value: AuxiliaryAccount | undefined]
+  'update:modelValue': [value: DimensionOptionRef | undefined]
 }>()
 
 const { t } = useI18n()
@@ -27,17 +28,17 @@ const { t } = useI18n()
 const open = ref(false)
 const searchQuery = ref('')
 const currentPage = ref(1)
-const auxiliaryAccounts = ref<AuxiliaryAccount[]>([])
+const dimensionOptions = ref<DimensionOption[]>([])
 const totalPages = ref(0)
 const isLoading = ref(false)
 
 const hasMore = computed(() => currentPage.value < totalPages.value)
 
-async function loadAuxiliaryAccounts(query: string = '', page: number = 1) {
+async function loadDimensionOptions(query: string = '', page: number = 1) {
   isLoading.value = true
-  const { data } = await AccountService.getAuxiliaryAccounts(
+  const { data } = await DimensionService.getDimensionOptions(
     props.sobId,
-    props.category.key,
+    props.category.id,
     { page, size: 20 },
     query || undefined,
   )
@@ -45,9 +46,9 @@ async function loadAuxiliaryAccounts(query: string = '', page: number = 1) {
 
   if (data) {
     if (page === 1) {
-      auxiliaryAccounts.value = data.content
+      dimensionOptions.value = data.content
     } else {
-      auxiliaryAccounts.value = [...auxiliaryAccounts.value, ...data.content]
+      dimensionOptions.value = [...dimensionOptions.value, ...data.content]
     }
     totalPages.value = data.totalPage
   }
@@ -55,7 +56,7 @@ async function loadAuxiliaryAccounts(query: string = '', page: number = 1) {
 
 const debouncedSearch = useDebounceFn((query: string) => {
   currentPage.value = 1
-  loadAuxiliaryAccounts(query, 1)
+  loadDimensionOptions(query, 1)
 }, 300)
 
 watch(searchQuery, (newQuery) => {
@@ -63,26 +64,31 @@ watch(searchQuery, (newQuery) => {
 })
 
 watch(open, (isOpen) => {
-  if (isOpen && auxiliaryAccounts.value.length === 0) {
-    loadAuxiliaryAccounts()
+  if (isOpen && dimensionOptions.value.length === 0) {
+    loadDimensionOptions()
   }
 })
 
-function selectAccount(account: AuxiliaryAccount) {
-  emit('update:modelValue', account)
+function selectOption(option: DimensionOption) {
+  const optionRef: DimensionOptionRef = {
+    id: option.id,
+    name: option.name,
+    category: props.category,
+  }
+  emit('update:modelValue', optionRef)
   open.value = false
 }
 
 function loadMore() {
   currentPage.value++
-  loadAuxiliaryAccounts(searchQuery.value, currentPage.value)
+  loadDimensionOptions(searchQuery.value, currentPage.value)
 }
 
 const displayText = computed(() => {
   if (props.modelValue) {
-    return `${props.modelValue.key} - ${props.modelValue.title}`
+    return props.modelValue.name
   }
-  return t('auxiliary.selectAccount')
+  return t('dimension.selectOption')
 })
 </script>
 
@@ -103,21 +109,20 @@ const displayText = computed(() => {
     </PopoverTrigger>
     <PopoverContent class="w-64 p-0" align="start">
       <Command>
-        <CommandInput v-model="searchQuery" :placeholder="$t('auxiliary.selectAccount')" />
+        <CommandInput v-model="searchQuery" :placeholder="$t('dimension.selectOption')" />
         <CommandList>
           <CommandEmpty>
-            {{ auxiliaryAccounts.length === 0 ? $t('auxiliary.noAuxiliaryAccounts') : $t('common.noResults') }}
+            {{ dimensionOptions.length === 0 ? $t('dimension.noOptions') : $t('common.noResults') }}
           </CommandEmpty>
-          <CommandGroup v-if="auxiliaryAccounts.length > 0">
+          <CommandGroup v-if="dimensionOptions.length > 0">
             <CommandItem
-              v-for="account in auxiliaryAccounts"
-              :key="account.key"
-              :value="account"
-              @select="() => selectAccount(account)"
+              v-for="option in dimensionOptions"
+              :key="option.id"
+              :value="option"
+              @select="() => selectOption(option)"
             >
-              <Check :class="cn('mr-2 h-4 w-4', modelValue?.key === account.key ? 'opacity-100' : 'opacity-0')" />
-              <span class="font-medium">{{ account.key }}</span>
-              <span class="text-muted-foreground ml-2">{{ account.title }}</span>
+              <Check :class="cn('mr-2 h-4 w-4', modelValue?.id === option.id ? 'opacity-100' : 'opacity-0')" />
+              <span>{{ option.name }}</span>
             </CommandItem>
           </CommandGroup>
           <CommandGroup v-if="hasMore">

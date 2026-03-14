@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 import { useAccountStore } from '@/store/account'
-import type { Account } from '@/services/general-ledger/account/types'
+import type { AccountSlim } from '@/services/general-ledger/account/types'
 
 defineOptions({
   inheritAttrs: false,
@@ -21,7 +21,7 @@ const props = defineProps<{
   disabled?: boolean
 }>()
 
-const model = defineModel<Account | undefined>()
+const model = defineModel<AccountSlim | undefined>()
 
 const { t } = useI18n()
 const { allAccounts } = toRefs(useAccountStore().state)
@@ -43,7 +43,7 @@ const displayValue = computed(() => {
   return props.placeholder || t('account.searchPlaceholder')
 })
 
-function handleSelect(account: Account) {
+function handleSelect(account: AccountSlim) {
   // Toggle selection: if clicking the same account, clear it
   model.value = model.value?.id === account.id ? undefined : account
   open.value = false

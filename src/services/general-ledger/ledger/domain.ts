@@ -9,13 +9,11 @@ import {
   type PeriodAndLedgers,
   type LedgerSummary,
   type LedgerEntry,
-  type AuxiliaryLedgerSummary,
 } from './types'
 import {
   LEDGER_FIELDS_CONVERSION,
   PERIOD_FIELDS_CONVERSION,
   LEDGER_ENTRY_FIELDS_CONVERSION,
-  AUXILIARY_LEDGER_FIELDS_CONVERSION,
 } from '../field-conversion-types'
 
 class LedgerService {
@@ -65,31 +63,12 @@ class LedgerService {
     fromPeriod: string,
     toPeriod: string,
     pageable: Pageable = { page: 1, size: 40 },
-    auxiliaryAccountId?: string,
   ): Promise<Response<Page<LedgerEntry>>> {
     return invokeWithErrorHandler(async () => {
-      const auxiliaryParam = auxiliaryAccountId ? `&auxiliaryAccountId=${auxiliaryAccountId}` : ''
       const result = await axios.get(
-        `${FIMS_URL}/api/v1/sob/${sobId}/ledger/${accountId}/entries?fromPeriod=${fromPeriod}&toPeriod=${toPeriod}&$page=${pageable.page}&$size=${pageable.size}${auxiliaryParam}`,
+        `${FIMS_URL}/api/v1/sob/${sobId}/ledger/${accountId}/entries?fromPeriod=${fromPeriod}&toPeriod=${toPeriod}&$page=${pageable.page}&$size=${pageable.size}`,
       )
       convertFieldsFromString(result.data.content, LEDGER_ENTRY_FIELDS_CONVERSION)
-      return result.data
-    })
-  }
-
-  public async getAuxiliaryLedgerSummary(
-    sobId: string,
-    accountId: string,
-    categoryKey: string,
-    fromPeriod: string,
-    toPeriod: string,
-    pageable: Pageable = { page: 1, size: 40 },
-  ): Promise<Response<Page<AuxiliaryLedgerSummary>>> {
-    return invokeWithErrorHandler(async () => {
-      const result = await axios.get(
-        `${FIMS_URL}/api/v1/sob/${sobId}/ledger/${accountId}/auxiliary?categoryKey=${categoryKey}&fromPeriod=${fromPeriod}&toPeriod=${toPeriod}&$page=${pageable.page}&$size=${pageable.size}`,
-      )
-      convertFieldsFromString(result.data.content, AUXILIARY_LEDGER_FIELDS_CONVERSION)
       return result.data
     })
   }

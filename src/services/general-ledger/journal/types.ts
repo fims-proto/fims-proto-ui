@@ -1,5 +1,5 @@
 import { type User } from '../../user'
-import type { Account, AuxiliaryAccount } from '../account'
+import type { AccountDetail, DimensionOptionRef } from '../account'
 import { type Period } from '../period'
 
 export type Journal = {
@@ -27,8 +27,8 @@ export type Journal = {
 
 export type JournalLine = {
   id: string
-  account: Account
-  auxiliaryAccounts?: AuxiliaryAccount[]
+  account: AccountDetail
+  dimensionOptions?: DimensionOptionRef[]
   text: string
   amount: number
   createdAt: Date
@@ -55,12 +55,7 @@ export type UpdateJournalRequest = {
 export type JournalLineRequest = {
   id?: string
   accountNumber: string
-  auxiliaryAccounts?: AuxiliaryItemRequest[]
+  dimensionOptionIds?: string[]
   text: string
   amount: number
-}
-
-export type AuxiliaryItemRequest = {
-  categoryKey: string
-  accountKey: string
 }

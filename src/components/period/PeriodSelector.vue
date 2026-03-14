@@ -38,7 +38,7 @@ const periodStore = usePeriodStore()
 const { allPeriods: periods, currentPeriod } = toRefs(periodStore.state)
 
 // Single mode state
-const selectedPeriodId = ref<string | undefined>(currentPeriod.value?.id)
+const selectedPeriodId = ref<string | undefined>()
 
 // Range mode state
 const startYear = ref<number | undefined>()
@@ -55,6 +55,7 @@ watch(
     // Single mode
     if (!selectedPeriodId.value) {
       selectedPeriodId.value = newPeriod.id
+      emit('periodSelected', newPeriod)
     }
 
     // Range mode

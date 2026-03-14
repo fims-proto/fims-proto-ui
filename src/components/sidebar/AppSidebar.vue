@@ -73,7 +73,7 @@ const data = {
     {
       title: t('nav.dimension'),
       icon: GitBranch,
-      to: { name: 'auxiliaryList', params: { sobId: workingSob.value?.id } },
+      to: { name: 'dimensionList', params: { sobId: workingSob.value?.id } },
     },
     {
       title: t('nav.initialize'),

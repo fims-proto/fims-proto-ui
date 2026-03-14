@@ -25,20 +25,19 @@ import {
   CommandSeparator,
 } from '@/components/ui/command'
 import { Separator } from '@/components/ui/separator'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Check, PlusCircle, X } from 'lucide-vue-next'
 import AccountInput from './AccountInput.vue'
 
 import { cn } from '@/lib/utils'
 
 import {
-  AccountSchema,
+  AccountDetailSchema,
   CreateAccountSchema,
   AccountService,
   usePadLevelNumber,
   type AccountClass,
-  type AuxiliaryCategory,
 } from '@/services/general-ledger'
+import { DimensionService, type DimensionCategory } from '@/services/dimension'
 import { useSobStore } from '@/store/sob'
 import { useToastStore } from '@/store/toast'
 import { useUnsavedChangesStore } from '@/store/unsaved-changes'
@@ -60,7 +59,7 @@ const workingSob = computed(() => sobStore.state.workingSob)
 // Create form schema with validation that captures accountCodeLength at creation time
 function createFormSchema(accountCodeLength: readonly number[]) {
   return CreateAccountSchema.extend({
-    superiorAccount: AccountSchema.optional(),
+    superiorAccount: AccountDetailSchema.optional(),
   }).superRefine((data, ctx) => {
     const currentLevel = (data.superiorAccount?.level ?? 0) + 1
     const maxDigits = accountCodeLength[currentLevel - 1]
@@ -90,8 +89,8 @@ const formSchema = ref(toTypedSchema(createFormSchema(workingSob.value?.accounts
 
 const isEditing = ref(!props.accountId) // true for create, false for view existing
 const classGroupsMap = ref<Record<string, string[]>>({})
-const auxiliaryCategories = ref<AuxiliaryCategory[]>([])
-const auxiliaryCategoriesPopoverOpen = ref(false)
+const dimensionCategories = ref<DimensionCategory[]>([])
+const dimensionCategoriesPopoverOpen = ref(false)
 
 const EMPTY_ACCOUNT = {
   title: '',
@@ -99,7 +98,7 @@ const EMPTY_ACCOUNT = {
   class: '1',
   group: '101',
   balanceDirection: 'debit' as const,
-  categoryKeys: [],
+  dimensionCategoryIds: [],
 }
 
 const form = useForm({
@@ -123,11 +122,11 @@ const groupOptions = computed(() => {
   return classValue ? (classGroupsMap.value[classValue] ?? []) : []
 })
 
-const selectedCategoryKeys = computed(() => new Set(form.values.categoryKeys ?? []))
+const selectedCategoryIds = computed(() => new Set(form.values.dimensionCategoryIds ?? []))
 
 const selectedCategories = computed(() => {
-  const keys = form.values.categoryKeys ?? []
-  return auxiliaryCategories.value.filter((cat) => keys.includes(cat.key))
+  const ids = form.values.dimensionCategoryIds ?? []
+  return dimensionCategories.value.filter((cat) => ids.includes(cat.id))
 })
 
 const formatClassLabel = (value?: string) => (value ? t(`account.classEnum.${value}`) : '')
@@ -183,16 +182,16 @@ async function loadAccountClasses() {
   }
 }
 
-async function loadAuxiliaryCategories() {
-  const { data } = await AccountService.getAuxiliaryCategories(props.sobId, { page: 1, size: 100 })
+async function loadDimensionCategories() {
+  const { data } = await DimensionService.getDimensionCategories(props.sobId, { page: 1, size: 100 })
   if (data) {
-    auxiliaryCategories.value = data.content
+    dimensionCategories.value = data.content
   }
 }
 
 async function load() {
   await loadAccountClasses()
-  await loadAuxiliaryCategories()
+  await loadDimensionCategories()
 
   if (props.accountId) {
     isEditing.value = false
@@ -205,7 +204,7 @@ async function load() {
         class: data.class,
         group: data.group,
         balanceDirection: data.balanceDirection,
-        categoryKeys: data.auxiliaryCategories?.map((c) => c.key) ?? [],
+        dimensionCategoryIds: data.dimensionCategories?.map((c) => c.id) ?? [],
         superiorAccount: undefined as typeof data | undefined,
       }
 
@@ -283,12 +282,12 @@ function onClose() {
   router.push({ name: 'accountList', params: { sobId: props.sobId } })
 }
 
-function toggleCategorySelection(categoryKey: string, update: (value: string[]) => void) {
-  const currentKeys = form.values.categoryKeys ?? []
-  const isSelected = currentKeys.includes(categoryKey)
-  const nextKeys = isSelected ? currentKeys.filter((k) => k !== categoryKey) : [...currentKeys, categoryKey]
+function toggleCategorySelection(categoryId: string, update: (value: string[]) => void) {
+  const currentIds = form.values.dimensionCategoryIds ?? []
+  const isSelected = currentIds.includes(categoryId)
+  const nextIds = isSelected ? currentIds.filter((id) => id !== categoryId) : [...currentIds, categoryId]
 
-  update(nextKeys)
+  update(nextIds)
 }
 </script>
 
@@ -476,9 +475,9 @@ function toggleCategorySelection(categoryKey: string, update: (value: string[]) 
         </EditableField>
       </VeeField>
 
-      <VeeField v-slot="{ field, errors }" name="categoryKeys">
+      <VeeField v-slot="{ field, errors }" name="dimensionCategoryIds">
         <EditableField
-          :label="$t('account.auxiliary.category')"
+          :label="$t('account.dimension.category')"
           :is-editing="isEditing"
           :value="field.value"
           :errors="errors"
@@ -487,56 +486,52 @@ function toggleCategorySelection(categoryKey: string, update: (value: string[]) 
         >
           <template #display>
             <div v-if="selectedCategories.length > 0" class="flex flex-wrap gap-2">
-              <TooltipProvider v-for="category in selectedCategories" :key="category.key">
-                <Tooltip>
-                  <TooltipTrigger as-child>
-                    <Badge variant="secondary" class="cursor-default">
-                      <span>{{ category.title }}</span>
-                    </Badge>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{{ category.key }}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <Badge
+                v-for="category in selectedCategories"
+                :key="category.id"
+                variant="secondary"
+                class="cursor-default"
+              >
+                <span>{{ category.name }}</span>
+              </Badge>
             </div>
             <div v-else class="text-muted-foreground text-sm">
-              {{ $t('account.auxiliary.noAuxiliaryCategories') }}
+              {{ $t('account.dimension.noDimensionCategories') }}
             </div>
           </template>
 
           <template #edit="{ onUpdate }">
-            <Popover v-model:open="auxiliaryCategoriesPopoverOpen">
+            <Popover v-model:open="dimensionCategoriesPopoverOpen">
               <PopoverTrigger as-child>
                 <Button variant="outline" size="sm" class="h-9 w-full justify-start border-dashed">
                   <PlusCircle class="mr-2 h-4 w-4" />
-                  {{ $t('account.auxiliary.selectAuxiliaryCategories') }}
-                  <template v-if="selectedCategoryKeys.size > 0">
+                  {{ $t('account.dimension.selectDimensionCategories') }}
+                  <template v-if="selectedCategoryIds.size > 0">
                     <Separator orientation="vertical" class="mx-2 h-4" />
                     <Badge variant="secondary" class="rounded-sm px-1 font-normal">
-                      {{ selectedCategoryKeys.size }}
+                      {{ selectedCategoryIds.size }}
                     </Badge>
                   </template>
                 </Button>
               </PopoverTrigger>
               <PopoverContent class="w-75 p-0" align="start">
                 <Command>
-                  <CommandInput :placeholder="$t('account.auxiliary.category')" />
+                  <CommandInput :placeholder="$t('account.dimension.category')" />
                   <CommandList>
-                    <template v-if="auxiliaryCategories.length > 0">
+                    <template v-if="dimensionCategories.length > 0">
                       <CommandEmpty>{{ $t('common.noResults') }}</CommandEmpty>
                       <CommandGroup>
                         <CommandItem
-                          v-for="category in auxiliaryCategories"
-                          :key="category.key"
+                          v-for="category in dimensionCategories"
+                          :key="category.id"
                           :value="category"
-                          @select="() => toggleCategorySelection(category.key, onUpdate)"
+                          @select="() => toggleCategorySelection(category.id, onUpdate)"
                         >
                           <div
                             :class="
                               cn(
                                 'border-primary mr-2 flex h-4 w-4 items-center justify-center rounded-sm border',
-                                selectedCategoryKeys.has(category.key)
+                                selectedCategoryIds.has(category.id)
                                   ? 'bg-primary text-primary-foreground'
                                   : 'opacity-50 [&_svg]:invisible',
                               )
@@ -544,8 +539,7 @@ function toggleCategorySelection(categoryKey: string, update: (value: string[]) 
                           >
                             <Check :class="cn('h-4 w-4')" />
                           </div>
-                          <span>{{ category.title }}</span>
-                          <span class="text-muted-foreground ml-2 text-xs">{{ category.key }}</span>
+                          <span>{{ category.name }}</span>
                         </CommandItem>
                       </CommandGroup>
                     </template>
@@ -553,7 +547,7 @@ function toggleCategorySelection(categoryKey: string, update: (value: string[]) 
                       {{ $t('common.noData') }}
                     </div>
 
-                    <template v-if="selectedCategoryKeys.size > 0">
+                    <template v-if="selectedCategoryIds.size > 0">
                       <CommandSeparator />
                       <CommandGroup>
                         <CommandItem
@@ -571,26 +565,22 @@ function toggleCategorySelection(categoryKey: string, update: (value: string[]) 
             </Popover>
 
             <div v-if="selectedCategories.length > 0" class="mt-2 flex flex-wrap gap-2">
-              <TooltipProvider v-for="category in selectedCategories" :key="category.key">
-                <Tooltip>
-                  <TooltipTrigger as-child>
-                    <Badge variant="secondary" class="group flex items-center gap-1 pr-1">
-                      <span>{{ category.title }}</span>
-                      <button
-                        type="button"
-                        class="focus:ring-ring ml-1 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none"
-                        @click.stop="toggleCategorySelection(category.key, onUpdate)"
-                      >
-                        <X class="h-3 w-3" />
-                        <span class="sr-only">{{ $t('action.delete') }}</span>
-                      </button>
-                    </Badge>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{{ category.key }}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <Badge
+                v-for="category in selectedCategories"
+                :key="category.id"
+                variant="secondary"
+                class="group flex items-center gap-1 pr-1"
+              >
+                <span>{{ category.name }}</span>
+                <button
+                  type="button"
+                  class="focus:ring-ring ml-1 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none"
+                  @click.stop="toggleCategorySelection(category.id, onUpdate)"
+                >
+                  <X class="h-3 w-3" />
+                  <span class="sr-only">{{ $t('action.delete') }}</span>
+                </button>
+              </Badge>
             </div>
           </template>
         </EditableField>

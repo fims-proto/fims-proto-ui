@@ -7,7 +7,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **FIMS (Financial Information Management System)** - A Vue 3 + TypeScript SPA for managing accounting data including accounts, journals, ledgers, and financial reports.
 
 **Tech Stack:**
-
 - Vue 3 (Composition API with `<script setup>`)
 - TypeScript (strict mode)
 - shadcn-vue UI components
@@ -38,15 +37,13 @@ npx shadcn-vue@latest add <component-name>  # Add single component
 The backend API contract is documented in **`swagger/swagger.yaml`** (OpenAPI 2.0 format).
 
 **Key details:**
-
 - **Base URL:** `http://127.0.0.1:4455/fims/api/v1`
 - **Swagger UI:** `http://127.0.0.1:4455/fims/swagger/index.html`
 - **Format:** OpenAPI 2.0 (Swagger)
 
 **Main resource tags:**
-
 - `accounts` - Chart of accounts management
-- `auxiliary accounts` - Auxiliary account categories and items
+- `dimension` - Dimension categories and members
 - `journals` - Journal entry journals (create, update, review, audit, post)
 - `ledgers` - General ledger balances and transactions
 - `periods` - Accounting periods management
@@ -55,30 +52,27 @@ The backend API contract is documented in **`swagger/swagger.yaml`** (OpenAPI 2.
 - `users` - User management
 
 **Common patterns in the API:**
-
 - All SOB-scoped endpoints use path parameter `{sobId}`
 - Paginated endpoints support query params: `$page`, `$size`, `$sort`, `$filter`
 - Error responses include `slug` (error code) and `message` fields
 - Numeric/date fields may be returned as strings - requires conversion in frontend
 
 **When implementing new features:**
-
 1. Check `swagger/swagger.yaml` for exact request/response schemas
-2. Use Zod schemas in `src/services/<domain>/types.ts` that match the OpenAPI definitions
+2. Use Zod schemas in `src/services/<domain>/types.ts` that match OpenAPI definitions
 3. All service methods must return `Response<T>` and use `invokeWithErrorHandler()`
+4. Convert backend string fields: `convertFieldsFromString(data, FIELD_CONVERSION_MAP)`
 
 ## Code Architecture
 
 ### Custom Store Pattern (NO Pinia/Vuex)
 
 **Directory structure:** `src/store/<feature>/`
-
 - `state.ts` - reactive state definition
 - `action.ts` - action functions
 - `index.ts` - store composition
 
 **Store composition pattern:**
-
 ```typescript
 // index.ts
 const state = createState()
@@ -89,7 +83,6 @@ export const useFeatureStore = () => ({ get state(), get action() })
 **CRITICAL:** Always access via `useFeatureStore().state` or `.action` - never import state/action directly.
 
 **When to create stores (use sparingly):**
-
 - ✅ Application-wide global state (user session, working SOB)
 - ✅ Cached reference data shared across components (allAccounts)
 - ✅ Cross-component UI coordination (toast, confirmation dialogs)
@@ -104,13 +97,11 @@ export const useFeatureStore = () => ({ get state(), get action() })
 ### Service Layer (Backend Integration)
 
 **Directory structure:** `src/services/<domain>/`
-
 - `domain.ts` - service class with axios calls
 - `types.ts` - Zod schemas and TypeScript types
 - `field-conversion-types.ts` - field type mappings (optional)
 
 **Type definition pattern:**
-
 ```typescript
 // Define Zod schema first
 export const AccountSchema = z.object({ ... })
@@ -119,7 +110,6 @@ export type Account = z.infer<typeof AccountSchema>
 ```
 
 **Service method requirements:**
-
 - Return `Response<T>` with `{ data?: T, exception?: SlugError }`
 - Wrap all calls in `invokeWithErrorHandler(async () => {...})`
 - Convert backend string fields: `convertFieldsFromString(data, FIELD_CONVERSION_MAP)`
@@ -131,13 +121,11 @@ export type Account = z.infer<typeof AccountSchema>
 ### Multi-Panel Layout & Routing
 
 **Named views pattern:**
-
 - Routes use `list` and `main` views (see `AppLayout.vue`)
 - Both rendered side-by-side in `ResizablePanel`
 - Specify which view renders component in route config
 
 **Navigation guards (always in this order):**
-
 1. Before Enter: `verifyCurrentUser` → `loadWorkingSob` → `updateWorkingSob`
 2. Before Leave: `protectUnsavedChanges` (checks `useUnsavedChangesStore().state.isDirty`)
 
@@ -156,7 +144,6 @@ export type Account = z.infer<typeof AccountSchema>
 ### Data Tables (@tanstack/vue-table)
 
 **Pattern:**
-
 - Define columns in separate `columns.ts` using `i18n.global.t()` for labels
 - Use generic `DataTable.vue` from common components
 - Tree data: pass `getSubRows` prop for hierarchical display
@@ -169,12 +156,10 @@ export type Account = z.infer<typeof AccountSchema>
 **CRITICAL RULE:** ALL user-facing text MUST use i18n - NO hardcoded strings.
 
 **Usage:**
-
 - Templates: `$t('key.path')` or `$t('key.path', [arg1, arg2])`
 - Scripts/columns: `i18n.global.t('key.path')`
 
 **Key structure in `src/i18n/zhCN.json`:**
-
 ```
 common.*                    - shared terms (yes, no, save, cancel, noData)
 action.*                    - action buttons (create, save, edit, remove)
@@ -190,7 +175,6 @@ table.*                     - data table UI (search, filter, sort)
 **Location:** `env/` directory (configured in vite.config.ts)
 
 **Required variables:**
-
 - `VITE_KRATOS_PUBLIC_URL` - Ory Kratos public API endpoint
 - `VITE_FIMS_API_URL` - FIMS backend API endpoint
 
@@ -199,54 +183,58 @@ table.*                     - data table UI (search, filter, sort)
 ## Domain-Specific Features
 
 ### Authentication (Ory Kratos)
-
 - Service: `src/services/kratos/domain.ts`
 - Guard: `verifyCurrentUser` checks for recovery login state
 - Components: Login/Logout in `src/components/user/`
 
 ### SOB (Set of Books)
-
-- **Concept:** All accounting data scoped to a Set of Books
+- **Concept:** All accounting data is scoped to a Set of Books
 - **Working SOB:** `useSobStore().state.workingSob` (persisted to localStorage)
 - **Route pattern:** Most routes include `:sobId` param
 - **API endpoints:** See `swagger/swagger.yaml` under `sobs` tag
 
 ### Accounts
-
 - Parent-child tree via `superiorAccountId`
 - Tree helper: `src/components/account/treefy.ts`
 - Selection: `AccountInput.vue` provides combobox + table dialog
 - **API endpoints:** See `swagger/swagger.yaml` under `accounts` tag
 - **Key operations:** List all, create, update, search with filters
 
-### Auxiliary Accounts
-
-- Custom classification dimensions (e.g., departments, projects, customers)
-- Two-level structure: Categories contain Accounts
-- **API endpoints:** See `swagger/swagger.yaml` under `auxiliary accounts` tag
+### Dimension
+- Custom classification dimensions for analysis (departments, projects, customers, etc.)
+- Two-level structure: Categories contain Dimension Options (members)
+- Categories: Independent entities (name only, no key field)
+- Options (Members): Independent entities (name only, no key/description fields)
+- **API endpoints:** See `swagger/swagger.yaml` under `dimension` tag
+- **Key operations:**
+  - `GET /sob/{sobId}/dimension/categories` - List all dimension categories
+  - `POST /sob/{sobId}/dimension/categories` - Create new dimension category
+  - `GET /sob/{sobId}/dimension/category/{categoryId}` - Get dimension category details
+  - `PATCH /sob/{sobId}/dimension/category/{categoryId}` - Update dimension category
+  - `DELETE /sob/{sobId}/dimension/category/{categoryId}` - Delete dimension category
+  - `GET /sob/{sobId}/dimension/category/{categoryId}/options` - List dimension options
+  - `POST /sob/{sobId}/dimension/category/{categoryId}/options` - Create new dimension option
+  - `PATCH /sob/{sobId}/dimension/category/{categoryId}/option/{optionId}` - Update dimension option
+  - `DELETE /sob/{sobId}/dimension/category/{categoryId}/option/{optionId}` - Delete dimension option
 
 ### Journals
-
 - Journal entries with journal lines (debit/credit)
 - Workflow: Create → Review → Audit → Post
 - **API endpoints:** See `swagger/swagger.yaml` under `journals` tag
 - **Lifecycle operations:** `review`, `cancel-review`, `audit`, `cancel-audit`, `post`
 
 ### Ledgers
-
 - Account balances per period (opening, period activity, ending)
 - Initialize opening balances via `/ledgers/initialize`
 - **API endpoints:** See `swagger/swagger.yaml` under `ledgers` tag
 
 ### Periods
-
 - Monthly accounting periods with open/closed status
 - One current period per SOB
 - **API endpoints:** See `swagger/swagger.yaml` under `periods` tag
 - **Key operations:** List periods, get current, close period
 
 ### Reports (Financial Statements)
-
 - Templates vs instances (see FRONTEND_DESIGN.md)
 - Hierarchical sections → items → formulas
 - Amount calculation from General Ledger data
@@ -258,8 +246,8 @@ table.*                     - data table UI (search, filter, sort)
 When asked to plan or implement changes, start with the simplest approach that follows existing patterns in the codebase. Do NOT over-engineer, create wrapper components, or introduce new abstractions unless explicitly requested. Look for existing patterns first and reuse them.
 
 When asked for backend-only or frontend-only analysis, stay strictly within that boundary. Do not include suggestions or changes for the other side unless explicitly asked.
-Add under a top-level ## Debugging & Bug Fixes section
 
+Add under a top-level ## Debugging & Bug Fixes section
 Before implementing a fix for a bug, create a brief plan and confirm the approach. Do not jump straight into coding a fix without understanding the root cause first. When debugging, avoid rapid-fire guessing — instead, methodically trace the data flow.
 
 ### Code Style & Readability
@@ -272,8 +260,7 @@ Before implementing a fix for a bug, create a brief plan and confirm the approac
   - Use `//` for all comments by default.
   - Use `/** */` only for complex, non-obvious logic that requires multi-line explanation.
   - Do not comment obvious code; comment intent or edge cases only.
-
-- **Minimal commenting**
+  - **Minimal commenting**
   - Do not comment every function or variable.
   - If code needs many comments to be understood, refactor the code instead.
 
@@ -332,7 +319,7 @@ Before implementing a fix for a bug, create a brief plan and confirm the approac
 ### Enum Translation
 
 **Problem:** Enum values not translated
-**Solution:** Use `i18n.global.t(\`domain.fieldEnum.\${value}\`)` pattern
+**Solution:** Use `i18n.global.t(\\`domain.fieldEnum.\\${value}\\`)` pattern
 
 ### Named Views Not Rendering
 
@@ -347,25 +334,20 @@ Before implementing a fix for a bug, create a brief plan and confirm the approac
 ## Key Files Reference
 
 **Configuration:**
-
 - `vite.config.ts` - Build config, aliases, dev server (port 5001)
 - `components.json` - shadcn-vue configuration
 - `tsconfig.json` - TypeScript config (strict mode)
 - `.prettierrc` - Code formatting rules
 
 **API Contract:**
-
 - `swagger/swagger.yaml` - OpenAPI 2.0 specification for FIMS backend API
 
 **Architecture:**
-
 - `src/router/index.ts` - Route definitions with guards
 - `src/components/AppLayout.vue` - Multi-panel layout with named views
 - `src/i18n/zhCN.json` - All translation keys
-- `src/services/*/types.ts` - Zod schemas and TypeScript types
 
 **Stores:**
-
 - `src/store/account/` - Account cache (complete example)
 - `src/store/sob/` - Working SOB state
 - `src/store/user/` - User session
@@ -374,13 +356,13 @@ Before implementing a fix for a bug, create a brief plan and confirm the approac
 - `src/store/unsaved-changes/` - Unsaved changes tracking
 
 **Services:**
-
 - `src/services/general-ledger/account/` - Account CRUD
 - `src/services/general-ledger/journal/` - Journal CRUD
 - `src/services/general-ledger/ledger/` - Ledger queries
 - `src/services/general-ledger/period/` - Period management
 - `src/services/report/` - Report generation
 - `src/services/sob/` - SOB management
+- `src/services/dimension/` - Dimension categories and members management
 - `src/services/kratos/` - Authentication
 - `src/services/error-handler/` - Error handling utilities
 
@@ -389,13 +371,11 @@ Before implementing a fix for a bug, create a brief plan and confirm the approac
 **IMPORTANT:** Components in `src/components/ui/` are CLI-managed. DO NOT edit manually.
 
 **Adding components:**
-
 ```bash
 npx shadcn-vue@latest add button dialog table
 ```
 
 **Updating all components:**
-
 ```bash
 ./update-shadcn-components.sh
 ```
@@ -413,6 +393,7 @@ npx shadcn-vue@latest add button dialog table
 ### Account Hierarchy
 
 - Accounts form parent-child trees via `superiorAccountId`
+- Tree helper: `src/components/account/treefy.ts`
 - Leaf accounts (`isLeaf=true`) can have transactions
 - Parent accounts aggregate child balances
 - `numberHierarchy` array shows full path from root
@@ -449,7 +430,6 @@ npx shadcn-vue@latest add button dialog table
 ## Design Documentation
 
 For detailed report module design, see `FRONTEND_DESIGN.md` which covers:
-
 - Report API endpoints and data models
 - UI component recommendations
 - Formula calculation logic
@@ -461,7 +441,6 @@ For detailed report module design, see `FRONTEND_DESIGN.md` which covers:
 ### Reading the OpenAPI Spec
 
 When implementing a new feature:
-
 1. **Find the endpoint** in `swagger/swagger.yaml` under the relevant tag
 2. **Check request schema** - Look at the `$ref` in the request body
 3. **Check response schema** - Look at the `$ref` in the 200/201 response
@@ -471,24 +450,22 @@ When implementing a new feature:
 
 ### Example: Implementing a new feature
 
-To add support for posting a journal:
+To add support for dimension management:
 
-1. **Check spec:** `POST /sob/{sobId}/journal/{journalId}/post`
-2. **Request body:** `PostJournalRequest` with `poster` field
-3. **Response:** 204 No Content on success
-4. **Service implementation:**
-
-```typescript
-async post(sobId: string, journalId: string, poster: string): Promise<Response<void>> {
-  return invokeWithErrorHandler(async () => {
-    await axios.post(`/sob/${sobId}/journal/${journalId}/post`, { poster })
-  })
-}
-```
+1. **Check spec:** All dimension endpoints use UUID IDs instead of string keys
+2. **Service location:** `src/services/dimension/` (independent bounded context)
+3. **Types:**
+   ```typescript
+   // Categories
+   interface DimensionCategory { id: string, name: string, sobId: string, createdAt: Date, updatedAt: Date }
+   interface DimensionOption { id: string, name: string, categoryId: string, createdAt: Date, updatedAt: Date }
+   ```
+4. **Component pattern:** Similar to accounts, but with update/delete support
+5. **API usage:** Categories use route `:categoryId` (UUID), Options route `:categoryId/:optionId` (UUID)
 
 ## Notes
 
 - **No test framework configured** - tests not part of current setup
 - **Primary language:** Simplified Chinese (zh-CN)
-- **Backend repo:** This is the UI-only repository; backend is separate
+- **Backend repo:** This is a UI-only repository; backend is separate
 - **API contract:** Always reference `swagger/swagger.yaml` as source of truth for API schemas

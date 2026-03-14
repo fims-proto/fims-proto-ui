@@ -13,7 +13,7 @@ defineProps<{
 
 <template>
   <header
-    class="flex h-[64px] shrink-0 items-center justify-between gap-4 border-b px-4 transition-[width,height] duration-200 ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-[50px]"
+    class="flex h-16 shrink-0 items-center justify-between gap-4 border-b px-4 transition-[width,height] duration-200 ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12.5"
   >
     <div class="flex items-center gap-2">
       <h1 v-if="title" class="text-foreground text-lg font-bold">
@@ -42,14 +42,14 @@ defineProps<{
 
   <div
     v-if="noScroll"
-    class="h-[calc(100dvh-64px)] p-4 group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-[calc(100dvh-50px)]"
+    class="h-[calc(100dvh-64px)] p-4 group-has-data-[collapsible=icon]/sidebar-wrapper:h-[calc(100dvh-50px)]"
   >
     <slot />
   </div>
 
   <ScrollArea
     v-else
-    class="h-[calc(100dvh-64px)] group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-[calc(100dvh-50px)]"
+    class="h-[calc(100dvh-64px)] group-has-data-[collapsible=icon]/sidebar-wrapper:h-[calc(100dvh-50px)]"
   >
     <div class="p-4">
       <slot />

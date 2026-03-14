@@ -12,8 +12,8 @@ import SobDetail from '@/components/sob/SobDetail.vue'
 import SobList from '@/components/sob/SobList.vue'
 import AccountList from '@/components/account/AccountList.vue'
 import AccountDetail from '@/components/account/AccountDetail.vue'
-import AuxiliaryCategoryList from '@/components/account/AuxiliaryCategoryList.vue'
-import AuxiliaryCategoryDetail from '@/components/account/AuxiliaryCategoryDetail.vue'
+import DimensionCategories from '@/components/dimension/DimensionCategories.vue'
+import DimensionOptions from '@/components/dimension/DimensionOptions.vue'
 import LedgerInitialize from '@/components/ledger/LedgerInitialize.vue'
 import LedgerOverview from '@/components/ledger/LedgerOverview.vue'
 import AccountExplorer from '@/components/ledger/AccountExplorer.vue'
@@ -158,22 +158,22 @@ const routes: RouteRecordRaw[] = [
         children: [
           {
             path: '',
-            name: 'auxiliaryList',
+            name: 'dimensionList',
             props: { list: (route) => ({ sobId: route.params.sobId }) },
             components: {
-              list: AuxiliaryCategoryList,
+              list: DimensionCategories,
             },
           },
           {
-            path: ':categoryKey',
-            name: 'auxiliaryDetail',
+            path: ':categoryId',
+            name: 'dimensionDetail',
             props: {
               list: (route) => ({ sobId: route.params.sobId }),
-              main: (route) => ({ sobId: route.params.sobId, categoryKey: route.params.categoryKey }),
+              main: (route) => ({ sobId: route.params.sobId, categoryId: route.params.categoryId }),
             },
             components: {
-              list: AuxiliaryCategoryList,
-              main: AuxiliaryCategoryDetail,
+              list: DimensionCategories,
+              main: DimensionOptions,
             },
           },
         ],

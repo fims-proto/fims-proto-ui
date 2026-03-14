@@ -49,13 +49,3 @@ export interface LedgerEntry {
   createdAt: string
   updatedAt: string
 }
-
-export interface AuxiliaryLedgerSummary {
-  auxiliaryAccountId: string
-  auxiliaryAccountTitle: string
-  openingAmount: number
-  periodDebit: number
-  periodCredit: number
-  periodAmount: number
-  endingAmount: number
-}

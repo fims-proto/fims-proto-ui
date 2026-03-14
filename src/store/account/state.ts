@@ -1,8 +1,8 @@
 import { reactive } from 'vue'
-import type { Account } from '@/services/general-ledger'
+import type { AccountSlim } from '@/services/general-ledger'
 
 export interface IAccountState {
-  allAccounts: Account[]
+  allAccounts: AccountSlim[]
 }
 
 export const AccountState: IAccountState = {

@@ -17,17 +17,17 @@ import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import DateInput from './DateInput.vue'
 import AccountInput from '@/components/account/AccountInput.vue'
-import AuxiliaryAccountSelector from './AuxiliaryAccountSelector.vue'
+import DimensionOptionSelector from './DimensionOptionSelector.vue'
 
 import { JournalService } from '@/services/general-ledger/journal'
+import { AccountService } from '@/services/general-ledger/account'
 import type {
   Journal,
   CreateJournalRequest,
   UpdateJournalRequest,
   JournalLineRequest,
-  AuxiliaryItemRequest,
 } from '@/services/general-ledger/journal/types'
-import type { Account, AuxiliaryAccount } from '@/services/general-ledger/account/types'
+import type { AccountSlim, AccountDetail, DimensionOptionRef } from '@/services/general-ledger/account/types'
 import { useUserStore } from '@/store/user'
 import { useToastStore } from '@/store/toast'
 import { useUnsavedChangesStore } from '@/store/unsaved-changes'
@@ -54,12 +54,12 @@ const journal = ref<Journal>()
 const JournalLineSchema = z
   .object({
     _key: z.string(),
-    account: z.custom<Account>().optional(),
+    account: z.custom<AccountDetail>().optional(),
     text: z.string(),
     amount: z.number().refine((val) => Number.isInteger(val * 100), {
       message: t('journal.journalLine.decimalPrecision'),
     }),
-    auxiliaryAccounts: z.record(z.custom<AuxiliaryAccount>()).optional(),
+    dimensionOptions: z.record(z.custom<DimensionOptionRef>()).optional(),
   })
   .refine(
     (item) => {
@@ -76,16 +76,16 @@ const JournalLineSchema = z
   )
   .refine(
     (item) => {
-      // If no account selected, skip auxiliary account validation (empty row)
+      // If no account selected, skip dimension options validation (empty row)
       if (!item.account) {
         return true
       }
-      // Check all required auxiliary categories are filled
-      const requiredCategories = item.account.auxiliaryCategories ?? []
-      return requiredCategories.every((category) => item.auxiliaryAccounts?.[category.key])
+      // Check all required dimension categories are filled
+      const requiredCategories = item.account.dimensionCategories ?? []
+      return requiredCategories.every((cat) => item.dimensionOptions?.[cat.id])
     },
     {
-      message: t('journal.msg.emptyAuxiliaryAccountKey'),
+      message: t('journal.msg.emptyDimensionOption'),
     },
   )
 
@@ -116,6 +116,7 @@ const EMPTY_LINE_ITEM: Omit<FormJournalLine, '_key'> = {
   account: undefined,
   text: '',
   amount: 0,
+  dimensionOptions: undefined,
 }
 
 const EMPTY_JOURNAL: JournalFormValues = {
@@ -152,6 +153,29 @@ const isBalanced = computed(() => {
 })
 
 const title = computed(() => (props.journalId ? journal.value?.documentNumber : t('journal.creation.title')))
+
+// Handle account selection - fetch AccountDetail for dimension categories
+async function handleAccountSelect(account: AccountSlim | undefined, index: number) {
+  if (!account) {
+    // Account deselected, clear dimension options
+    form.setFieldValue(`journalLines[${index}].dimensionOptions`, undefined)
+    return
+  }
+
+  // Check if we already have AccountDetail with dimensionCategories
+  const currentAccount = form.values.journalLines?.[index]?.account
+  if (currentAccount && 'dimensionCategories' in currentAccount && currentAccount.id === account.id) {
+    // Already have AccountDetail with same ID, no need to fetch
+    return
+  }
+
+  // Fetch AccountDetail to get dimensionCategories
+  const { data } = await AccountService.getAccountById(props.sobId, account.id)
+  if (data) {
+    form.setFieldValue(`journalLines[${index}].account`, data)
+    form.setFieldValue(`journalLines[${index}].dimensionOptions`, undefined)
+  }
+}
 
 const formatUserName = (user?: { traits?: { name?: { first?: string; last?: string } } }) =>
   `${user?.traits?.name?.last ?? ''}${user?.traits?.name?.first ?? ''}`
@@ -197,11 +221,11 @@ async function load() {
       attachmentQuantity: data.attachmentQuantity,
       transactionDate: data.transactionDate,
       journalLines: data.journalLines.map((item) => {
-        // Convert auxiliaryAccounts array to Record
-        const auxiliaryAccounts: Record<string, AuxiliaryAccount> = {}
-        if (item.auxiliaryAccounts) {
-          item.auxiliaryAccounts.forEach((aux) => {
-            auxiliaryAccounts[aux.category.key] = aux
+        // Convert dimensionOptions array to Record
+        const dimensionOptions: Record<string, DimensionOptionRef> = {}
+        if (item.dimensionOptions) {
+          item.dimensionOptions.forEach((opt) => {
+            dimensionOptions[opt.category.id] = opt
           })
         }
         // Convert signed amount to debit/credit for display
@@ -211,7 +235,7 @@ async function load() {
           account: item.account,
           text: item.text,
           amount: amount,
-          auxiliaryAccounts: Object.entries(auxiliaryAccounts).length > 0 ? auxiliaryAccounts : undefined,
+          dimensionOptions: Object.entries(dimensionOptions).length > 0 ? dimensionOptions : undefined,
         }
       }),
     }
@@ -233,19 +257,14 @@ const onSubmit = form.handleSubmit(async (values) => {
 
   // Transform to API format
   const journalLinesRequest: JournalLineRequest[] = validJournalLines.map((item) => {
-    // Convert auxiliaryAccounts Record to array
-    const auxiliaryAccountsArray: AuxiliaryItemRequest[] = Object.entries(item.auxiliaryAccounts ?? {}).map(
-      ([categoryKey, auxAccount]) => ({
-        categoryKey,
-        accountKey: auxAccount.key,
-      }),
-    )
+    // Convert dimensionOptions Record to array of IDs
+    const dimensionOptionIds = Object.values(item.dimensionOptions ?? {}).map(opt => opt.id)
 
     return {
       accountNumber: item.account!.accountNumber,
       text: values.headerText,
       amount: item.amount || 0,
-      auxiliaryAccounts: auxiliaryAccountsArray,
+      dimensionOptionIds: dimensionOptionIds.length > 0 ? dimensionOptionIds : undefined,
     }
   })
 
@@ -597,7 +616,7 @@ async function handlePost() {
                 <TableRow>
                   <TableCell>{{ index + 1 }}</TableCell>
 
-                  <!-- Account + Auxiliary Accounts -->
+                  <!-- Account + Dimension Options -->
                   <TableCell>
                     <div class="space-y-2">
                       <!-- Main Account -->
@@ -606,7 +625,7 @@ async function handlePost() {
                           <AccountInput
                             :disabled="!isEditing"
                             :model-value="field.value"
-                            @update:model-value="field.onChange"
+                            @update:model-value="(val) => { field.onChange(val); handleAccountSelect(val, index) }"
                           />
                         </template>
                         <template v-else>
@@ -617,21 +636,21 @@ async function handlePost() {
                         </template>
                       </VeeField>
 
-                      <!-- Auxiliary Accounts -->
+                      <!-- Dimension Options -->
                       <div
-                        v-if="item.account?.auxiliaryCategories && item.account.auxiliaryCategories.length > 0"
+                        v-if="item.account?.dimensionCategories && item.account.dimensionCategories.length > 0"
                         class="grid grid-cols-[auto_1fr] items-center gap-2"
                       >
-                        <template v-for="category in item.account.auxiliaryCategories" :key="category.key">
+                        <template v-for="category in item.account.dimensionCategories" :key="category.id">
                           <span class="text-muted-foreground text-xs font-medium whitespace-nowrap">
-                            {{ category.title }}:
+                            {{ category.name }}:
                           </span>
                           <VeeField
                             v-slot="{ field }"
-                            :name="`journalLines[${index}].auxiliaryAccounts.${category.key}`"
+                            :name="`journalLines[${index}].dimensionOptions.${category.id}`"
                           >
                             <!-- Edit mode: show selector -->
-                            <AuxiliaryAccountSelector
+                            <DimensionOptionSelector
                               v-if="isEditing"
                               :sob-id="props.sobId"
                               :category="category"
@@ -641,8 +660,7 @@ async function handlePost() {
                             />
                             <!-- Display mode: show text only -->
                             <div v-else class="text-xs">
-                              <span>{{ field.value?.key }}</span>
-                              <span class="ml-1">{{ field.value?.title }}</span>
+                              {{ field.value?.name }}
                             </div>
                           </VeeField>
                         </template>

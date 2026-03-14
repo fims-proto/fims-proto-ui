@@ -102,7 +102,7 @@ function handleCreate() {
 </script>
 
 <template>
-  <PageFrame :title="$t('journal.listTitle', [page?.numberOfElements ?? 0])">
+  <PageFrame :title="$t('journal.listTitle', [page?.numberOfElements ?? 0])" no-scroll>
     <template #end>
       <PeriodSelector :sob-id="sobId" @period-selected="handlePeriodChange" />
       <Button @click="handleCreate">{{ $t('action.create') }}</Button>

@@ -5,17 +5,19 @@ export const AccountClassSchema = z.object({
   groups: z.array(z.string().length(3)).min(1),
 })
 
-export const AuxiliaryCategorySchema = z.object({
+// Lightweight dimension refs embedded in GL responses (defined here as they belong to GL module)
+export const DimensionCategoryRefSchema = z.object({
   id: z.string().uuid(),
-  sobId: z.string().uuid(),
-  key: z.string().min(1).max(20),
-  title: z.string().min(1).max(50),
-  isStandard: z.boolean(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  name: z.string(),
 })
 
-export const AccountSchema = z.object({
+export const DimensionOptionRefSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  category: DimensionCategoryRefSchema,
+})
+
+export const AccountSlimSchema = z.object({
   id: z.string().uuid(),
   sobId: z.string().uuid(),
   superiorAccountId: z.string().uuid().optional(),
@@ -27,19 +29,12 @@ export const AccountSchema = z.object({
   class: z.string().length(1),
   group: z.string().length(3),
   balanceDirection: z.enum(['debit', 'credit']),
-  auxiliaryCategories: z.array(AuxiliaryCategorySchema).optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
 })
 
-export const AuxiliaryAccountSchema = z.object({
-  id: z.string().uuid(),
-  category: AuxiliaryCategorySchema,
-  key: z.string().min(1).max(20),
-  title: z.string().min(1).max(50),
-  description: z.string().max(500).optional(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+export const AccountDetailSchema = AccountSlimSchema.extend({
+  dimensionCategories: z.array(DimensionCategoryRefSchema).optional(),
 })
 
 export const CreateAccountSchema = z.object({
@@ -49,7 +44,7 @@ export const CreateAccountSchema = z.object({
   balanceDirection: z.enum(['debit', 'credit']),
   class: z.string().length(1),
   group: z.string().length(3),
-  categoryKeys: z.array(z.string().min(1).max(20)).optional(),
+  dimensionCategoryIds: z.array(z.string().uuid()).optional(),
 })
 
 export const UpdateAccountSchema = z.object({
@@ -57,25 +52,13 @@ export const UpdateAccountSchema = z.object({
   levelNumber: z.number().int().min(1).max(10),
   balanceDirection: z.enum(['debit', 'credit']),
   group: z.string().length(3),
-  categoryKeys: z.array(z.string().min(1).max(20)).optional(),
-})
-
-export const CreateAuxiliaryCategorySchema = z.object({
-  key: z.string().min(1).max(20),
-  title: z.string().min(1).max(50),
-})
-
-export const CreateAuxiliaryAccountSchema = z.object({
-  key: z.string().min(1).max(20),
-  title: z.string().min(1).max(50),
-  description: z.string().max(500).optional(),
+  dimensionCategoryIds: z.array(z.string().uuid()).optional(),
 })
 
 export type AccountClass = z.infer<typeof AccountClassSchema>
-export type AuxiliaryCategory = z.infer<typeof AuxiliaryCategorySchema>
-export type Account = z.infer<typeof AccountSchema>
-export type AuxiliaryAccount = z.infer<typeof AuxiliaryAccountSchema>
+export type DimensionCategoryRef = z.infer<typeof DimensionCategoryRefSchema>
+export type DimensionOptionRef = z.infer<typeof DimensionOptionRefSchema>
+export type AccountSlim = z.infer<typeof AccountSlimSchema>
+export type AccountDetail = z.infer<typeof AccountDetailSchema>
 export type CreateAccount = z.infer<typeof CreateAccountSchema>
 export type UpdateAccount = z.infer<typeof UpdateAccountSchema>
-export type CreateAuxiliaryCategory = z.infer<typeof CreateAuxiliaryCategorySchema>
-export type CreateAuxiliaryAccount = z.infer<typeof CreateAuxiliaryAccountSchema>

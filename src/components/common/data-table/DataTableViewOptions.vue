@@ -30,7 +30,7 @@ const columns = computed(() =>
         {{ $t('table.view') }}
       </Button>
     </DropdownMenuTrigger>
-    <DropdownMenuContent align="end" class="w-[150px]">
+    <DropdownMenuContent align="end" class="w-37.5">
       <DropdownMenuLabel>{{ $t('table.toggleColumns') }}</DropdownMenuLabel>
       <DropdownMenuSeparator />
 
