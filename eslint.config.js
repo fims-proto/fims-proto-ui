@@ -25,4 +25,7 @@ export default [
       },
     },
   },
+  {
+    ignores: ['src/components/ui/**'], // shadcn-vue components
+  },
 ]

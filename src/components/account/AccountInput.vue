@@ -19,6 +19,7 @@ const props = defineProps<{
   id?: string
   placeholder?: string
   disabled?: boolean
+  onlyLeaf?: boolean
 }>()
 
 const model = defineModel<AccountSlim | undefined>()
@@ -80,16 +81,18 @@ function clearSelection() {
             <CommandList>
               <CommandEmpty>{{ $t('account.notFound') }}</CommandEmpty>
               <CommandGroup>
-                <CommandItem
-                  v-for="account in allAccounts"
-                  :key="account.id"
-                  :value="`${account.accountNumber} ${account.title}`"
-                  @select="handleSelect(account)"
-                >
-                  <Check :class="cn('mr-2 h-4 w-4', model?.id === account.id ? 'opacity-100' : 'opacity-0')" />
-                  <span class="font-medium">{{ account.accountNumber }}</span>
-                  <span class="text-muted-foreground ml-2">{{ account.title }}</span>
-                </CommandItem>
+                <template v-for="account in allAccounts">
+                  <CommandItem
+                    v-if="!props.onlyLeaf || account.isLeaf"
+                    :key="account.id"
+                    :value="`${account.accountNumber} ${account.title}`"
+                    @select="handleSelect(account)"
+                  >
+                    <Check :class="cn('mr-2 h-4 w-4', model?.id === account.id ? 'opacity-100' : 'opacity-0')" />
+                    <span class="font-medium">{{ account.accountNumber }}</span>
+                    <span class="text-muted-foreground ml-2">{{ account.title }}</span>
+                  </CommandItem>
+                </template>
               </CommandGroup>
             </CommandList>
           </Command>

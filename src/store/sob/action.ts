@@ -1,6 +1,7 @@
 import { SobService } from '@/services/sob'
 import { StorageService } from '@/services/storage'
 import { useAccountStore } from '@/store/account'
+import { useExplorerPeriodStore } from '@/store/explorer-period'
 import { usePeriodStore } from '@/store/period'
 import { type ISobState } from './state'
 
@@ -20,6 +21,7 @@ function setWorkingSob(state: ISobState) {
       state.workingSob = data
       StorageService.set(CURRENT_SOB_KEY, sobId)
 
+      useExplorerPeriodStore().action.clearForSob(sobId)
       usePeriodStore().action.refreshPeriods(sobId)
       useAccountStore().action.refreshAccounts(sobId)
     }

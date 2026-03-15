@@ -15,6 +15,7 @@ import type { LedgerSummary, LedgerEntry } from '@/services/general-ledger/ledge
 import type { Period } from '@/services/general-ledger'
 import type { AccountSlim } from '@/services/general-ledger/account/types'
 import { useAccountStore } from '@/store/account'
+import { useExplorerPeriodStore } from '@/store/explorer-period'
 
 const props = defineProps<{
   sobId: string
@@ -24,6 +25,9 @@ const { n } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const { allAccounts } = toRefs(useAccountStore().state)
+
+const explorerPeriodStore = useExplorerPeriodStore()
+const persistedSelection = computed(() => explorerPeriodStore.state.selections[props.sobId])
 
 const selectedAccount = ref<AccountSlim | undefined>()
 const fromPeriod = ref<Period | undefined>()
@@ -104,6 +108,7 @@ async function loadMoreEntries() {
 }
 
 function handleRangeSelected(start: Period, end: Period) {
+  explorerPeriodStore.action.setRange(props.sobId, start, end)
   fromPeriod.value = start
   toPeriod.value = end
 }
@@ -117,7 +122,13 @@ function goToJournal(journalId: string) {
   <PageFrame :title="$t('ledger.explorer.title')" no-scroll>
     <template #end>
       <AccountInput v-model="selectedAccount" class="w-64" />
-      <PeriodSelector :sob-id="sobId" mode="range" @range-selected="handleRangeSelected" />
+      <PeriodSelector
+        :sob-id="sobId"
+        mode="range"
+        :initial-start="persistedSelection?.startPeriod"
+        :initial-end="persistedSelection?.endPeriod"
+        @range-selected="handleRangeSelected"
+      />
     </template>
 
     <div class="flex h-full flex-col gap-4">

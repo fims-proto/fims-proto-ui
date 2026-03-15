@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, RouterView, type RouteRecordRaw } from 'vue-router'
-import { loadWorkingSob, updateWorkingSob, verifyCurrentUser } from './before-enter-handlers'
+import { loadWorkingSob, updateWorkingSob, verifyCurrentUser, verifyNotLoggedIn } from './before-enter-handlers'
 import { protectUnsavedChanges } from './before-leave-handlers'
 import AppLayout from '@/components/AppLayout.vue'
 import NotImplementedPage from '@/components/pages/NotImplementedPage.vue'
@@ -7,6 +7,7 @@ import ExceptionPage from '@/components/pages/ExceptionPage.vue'
 import NotFoundPage from '@/components/pages/NotFoundPage.vue'
 import AuthenticationLogin from '@/components/user/AuthenticationLogin.vue'
 import AuthenticationLogout from '@/components/user/AuthenticationLogout.vue'
+import RegisterUser from '@/components/user/RegisterUser.vue'
 import ProfileSetting from '@/components/user/ProfileSetting.vue'
 import SobDetail from '@/components/sob/SobDetail.vue'
 import SobList from '@/components/sob/SobList.vue'
@@ -262,6 +263,7 @@ const routes: RouteRecordRaw[] = [
           },
         ],
       },
+      // reports
       {
         path: 'sobs/:sobId/reports',
         beforeEnter: [loadWorkingSob, updateWorkingSob],
@@ -308,13 +310,12 @@ const routes: RouteRecordRaw[] = [
         name: 'logout',
         component: AuthenticationLogout,
       },
-      // TODO user registration
-      // {
-      //   path: 'register',
-      //   name: 'register',
-      //   beforeEnter: verifyNotLoggedIn,
-      //   component: RegisterUser,
-      // },
+      {
+        path: 'register',
+        name: 'register',
+        beforeEnter: verifyNotLoggedIn,
+        component: RegisterUser,
+      },
     ],
   },
   {

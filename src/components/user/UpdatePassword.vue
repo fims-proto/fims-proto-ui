@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
+import { LoaderCircle } from 'lucide-vue-next'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm, Field as VeeField } from 'vee-validate'
 import z from 'zod'
@@ -14,6 +15,7 @@ import { KratosService, type PasswordFlow } from '@/services/kratos'
 
 const { t } = useI18n()
 const router = useRouter()
+const isSubmitting = ref(false)
 
 const formSchema = toTypedSchema(
   z
@@ -45,7 +47,9 @@ onMounted(async () => {
 })
 
 const onSubmit = form.handleSubmit(async (values, { resetForm }) => {
+  isSubmitting.value = true
   const { ok, data: flowResponse } = await KratosService.submitPasswordSettingFlow(values as PasswordFlow)
+  isSubmitting.value = false
   if (ok) {
     router.replace({ name: 'login' })
     return
@@ -83,7 +87,10 @@ const onSubmit = form.handleSubmit(async (values, { resetForm }) => {
     </VeeField>
 
     <div class="flex justify-end pt-2">
-      <Button type="submit">{{ t('action.save') }}</Button>
+      <Button type="submit" :disabled="isSubmitting">
+        <LoaderCircle v-if="isSubmitting" class="animate-spin" />
+        {{ t('action.save') }}
+      </Button>
     </div>
   </form>
 </template>

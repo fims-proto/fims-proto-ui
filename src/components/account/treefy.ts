@@ -1,11 +1,11 @@
-import type { Account } from '@/services/general-ledger'
+import type { AccountSlim } from '@/services/general-ledger'
 
-export type AccountTreeNode = Account & {
+export type AccountTreeNode = AccountSlim & {
   children: AccountTreeNode[]
 }
 
 // Convert a flat list of accounts into a tree structure
-export function treefyAccounts(accounts: Account[]): AccountTreeNode[] {
+export function treefyAccounts(accounts: AccountSlim[]): AccountTreeNode[] {
   const map = new Map<string, AccountTreeNode>()
   const roots: AccountTreeNode[] = []
 

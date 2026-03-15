@@ -71,6 +71,7 @@
   },
   "user": {
     "loginPrompt": "在下面输入您的电子邮件以登录到您的账户",
+    "registerPrompt": "您的账户已创建，请设置您的密码以完成注册",
     "email": "E-Mail",
     "password": "密码",
     "firstname": "名字",

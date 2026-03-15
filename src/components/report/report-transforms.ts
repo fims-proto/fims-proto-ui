@@ -111,6 +111,7 @@ export function cleanTemporaryIds(request: UpdateReportRequest): UpdateReportReq
   function cleanItem(item: UpdateReportRequestItem): UpdateReportRequestItem {
     // If the item has a temporary ID (starts with 'new-'), remove it
     if (item.id?.startsWith('new-')) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { id, ...itemWithoutId } = item
       return itemWithoutId as UpdateReportRequestItem
     }

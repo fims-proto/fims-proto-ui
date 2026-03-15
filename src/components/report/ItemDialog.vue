@@ -25,7 +25,7 @@ import { EditableField } from '@/components/common/form'
 import { VisuallyHidden } from 'reka-ui'
 
 import type { Item } from '@/services/report'
-import type { Account } from '@/services/general-ledger'
+import type { AccountSlim } from '@/services/general-ledger'
 import { DATA_SOURCE, ITEM_SUM_FACTOR, FORMULA_SUM_FACTOR, FORMULA_RULE } from '@/services/report/constants'
 import { useToastStore } from '@/store/toast'
 
@@ -50,7 +50,7 @@ const toast = useToastStore()
 
 // Formula row type for editing
 type FormulaRow = {
-  account: Account | undefined
+  account: AccountSlim | undefined
   sumFactor: (typeof FORMULA_SUM_FACTOR)[keyof typeof FORMULA_SUM_FACTOR]
   rule: (typeof FORMULA_RULE)[number]
 }
@@ -110,7 +110,7 @@ function initializeForm() {
     formulaRows.value = props.item.formulas.map((formula) => ({
       // Cast the report Account to the general-ledger Account type
       // The AccountInput will handle validation internally
-      account: formula.account as unknown as Account,
+      account: formula.account as unknown as AccountSlim,
       sumFactor: formula.sumFactor,
       rule: formula.rule,
     }))

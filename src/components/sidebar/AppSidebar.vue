@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { toRefs } from 'vue'
+import { computed, toRefs } from 'vue'
 
 import {
   BookOpenCheck,
@@ -26,62 +26,70 @@ const props = withDefaults(defineProps<SidebarProps>(), {
 const { t } = useI18n()
 const { workingSob } = toRefs(useSobStore().state)
 
-const data = {
-  scenarios: [
-    {
-      title: t('nav.transaction'),
-      icon: HandCoins,
-      to: { name: 'journalList', params: { sobId: workingSob.value?.id } },
-    },
-    {
-      title: t('nav.report'),
-      icon: FileSpreadsheet,
-      to: { name: 'reportList', params: { sobId: workingSob.value?.id } },
-    },
-    {
-      title: t('nav.periodReview'),
-      icon: BookOpenCheck,
-      // TODO: to be implemented
-      to: { name: 'home' },
-    },
-    {
-      title: t('nav.ledgerExplorer'),
-      icon: ChartLine,
-      defaultOpen: true,
-      subItems: [
-        {
-          title: t('nav.explorer.overview'),
-          to: { name: 'ledgerOverview', params: { sobId: workingSob.value?.id } },
-        },
-        {
-          title: t('nav.explorer.account'),
-          to: { name: 'accountExplorer', params: { sobId: workingSob.value?.id } },
-        },
-        {
-          title: t('nav.explorer.dimension'),
-          to: { name: 'dimensionExplorer', params: { sobId: workingSob.value?.id } },
-        },
-      ],
-    },
-  ],
-  settings: [
-    {
-      title: t('nav.chartOfAccounts'),
-      icon: Network,
-      to: { name: 'accountList', params: { sobId: workingSob.value?.id } },
-    },
-    {
-      title: t('nav.dimension'),
-      icon: GitBranch,
-      to: { name: 'dimensionList', params: { sobId: workingSob.value?.id } },
-    },
-    {
-      title: t('nav.initialize'),
-      icon: RefreshCcwDot,
-      to: { name: 'ledgerInitialize', params: { sobId: workingSob.value?.id } },
-    },
-  ],
-}
+const data = computed(() => {
+  if (!workingSob.value) {
+    return {
+      scenarios: [],
+      settings: [],
+    }
+  }
+  return {
+    scenarios: [
+      {
+        title: t('nav.transaction'),
+        icon: HandCoins,
+        to: { name: 'journalList', params: { sobId: workingSob.value.id } },
+      },
+      {
+        title: t('nav.report'),
+        icon: FileSpreadsheet,
+        to: { name: 'reportList', params: { sobId: workingSob.value.id } },
+      },
+      {
+        title: t('nav.periodReview'),
+        icon: BookOpenCheck,
+        // TODO: to be implemented
+        to: { name: 'home' },
+      },
+      {
+        title: t('nav.ledgerExplorer'),
+        icon: ChartLine,
+        defaultOpen: true,
+        subItems: [
+          {
+            title: t('nav.explorer.overview'),
+            to: { name: 'ledgerOverview', params: { sobId: workingSob.value.id } },
+          },
+          {
+            title: t('nav.explorer.account'),
+            to: { name: 'accountExplorer', params: { sobId: workingSob.value.id } },
+          },
+          {
+            title: t('nav.explorer.dimension'),
+            to: { name: 'dimensionExplorer', params: { sobId: workingSob.value.id } },
+          },
+        ],
+      },
+    ],
+    settings: [
+      {
+        title: t('nav.chartOfAccounts'),
+        icon: Network,
+        to: { name: 'accountList', params: { sobId: workingSob.value.id } },
+      },
+      {
+        title: t('nav.dimension'),
+        icon: GitBranch,
+        to: { name: 'dimensionList', params: { sobId: workingSob.value.id } },
+      },
+      {
+        title: t('nav.initialize'),
+        icon: RefreshCcwDot,
+        to: { name: 'ledgerInitialize', params: { sobId: workingSob.value.id } },
+      },
+    ],
+  }
+})
 </script>
 
 <template>

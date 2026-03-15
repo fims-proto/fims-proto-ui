@@ -24,8 +24,10 @@ const props = withDefaults(
   defineProps<{
     sobId: string
     mode?: 'single' | 'range'
+    initialStart?: Period
+    initialEnd?: Period
   }>(),
-  { mode: 'single' },
+  { mode: 'single', initialStart: undefined, initialEnd: undefined },
 )
 
 const emit = defineEmits<{
@@ -58,14 +60,14 @@ watch(
       emit('periodSelected', newPeriod)
     }
 
-    // Range mode
+    // Range mode — prefer initialStart/initialEnd props (restored from store) over currentPeriod
     if (!startPeriod.value) {
-      startPeriod.value = newPeriod
-      startYear.value = newPeriod.fiscalYear
+      startPeriod.value = props.initialStart ?? newPeriod
+      startYear.value = (props.initialStart ?? newPeriod).fiscalYear
     }
     if (!endPeriod.value) {
-      endPeriod.value = newPeriod
-      endYear.value = newPeriod.fiscalYear
+      endPeriod.value = props.initialEnd ?? newPeriod
+      endYear.value = (props.initialEnd ?? newPeriod).fiscalYear
     }
     if (props.mode === 'range' && startPeriod.value && endPeriod.value) {
       emit('rangeSelected', startPeriod.value, endPeriod.value)

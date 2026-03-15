@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 import { PageFrame } from '@/components/common/page'
 import { DataTable } from '@/components/common/data-table'
@@ -9,6 +9,7 @@ import { viewColumns } from './columns'
 import { treefyLedgers, filterLedgersByBalance, type LedgerTreeNode } from './treefy'
 import { LedgerService } from '@/services/general-ledger/ledger'
 import { CLASS_OPTIONS, type Period } from '@/services/general-ledger'
+import { useExplorerPeriodStore } from '@/store/explorer-period'
 
 const props = defineProps<{
   sobId: string
@@ -17,8 +18,16 @@ const props = defineProps<{
 const ledgers = ref<LedgerTreeNode[]>([])
 const isLoading = ref(false)
 
+const explorerPeriodStore = useExplorerPeriodStore()
+const persistedSelection = computed(() => explorerPeriodStore.state.selections[props.sobId])
+
 function toPeriodString(period: Period): string {
   return `${period.fiscalYear}-${String(period.periodNumber).padStart(2, '0')}`
+}
+
+function handleRangeSelected(start: Period, end: Period) {
+  explorerPeriodStore.action.setRange(props.sobId, start, end)
+  loadLedgers(start, end)
 }
 
 async function loadLedgers(startPeriod: Period, endPeriod: Period) {
@@ -37,7 +46,13 @@ async function loadLedgers(startPeriod: Period, endPeriod: Period) {
 <template>
   <PageFrame :title="$t('ledger.title')">
     <template #end>
-      <PeriodSelector :sob-id="sobId" mode="range" @range-selected="loadLedgers" />
+      <PeriodSelector
+        :sob-id="sobId"
+        mode="range"
+        :initial-start="persistedSelection?.startPeriod"
+        :initial-end="persistedSelection?.endPeriod"
+        @range-selected="handleRangeSelected"
+      />
     </template>
 
     <DataTable

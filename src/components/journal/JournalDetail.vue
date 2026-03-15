@@ -258,7 +258,7 @@ const onSubmit = form.handleSubmit(async (values) => {
   // Transform to API format
   const journalLinesRequest: JournalLineRequest[] = validJournalLines.map((item) => {
     // Convert dimensionOptions Record to array of IDs
-    const dimensionOptionIds = Object.values(item.dimensionOptions ?? {}).map(opt => opt.id)
+    const dimensionOptionIds = Object.values(item.dimensionOptions ?? {}).map((opt) => opt.id)
 
     return {
       accountNumber: item.account!.accountNumber,
@@ -625,7 +625,13 @@ async function handlePost() {
                           <AccountInput
                             :disabled="!isEditing"
                             :model-value="field.value"
-                            @update:model-value="(val) => { field.onChange(val); handleAccountSelect(val, index) }"
+                            only-leaf
+                            @update:model-value="
+                              (val) => {
+                                field.onChange(val)
+                                handleAccountSelect(val, index)
+                              }
+                            "
                           />
                         </template>
                         <template v-else>
@@ -645,10 +651,7 @@ async function handlePost() {
                           <span class="text-muted-foreground text-xs font-medium whitespace-nowrap">
                             {{ category.name }}:
                           </span>
-                          <VeeField
-                            v-slot="{ field }"
-                            :name="`journalLines[${index}].dimensionOptions.${category.id}`"
-                          >
+                          <VeeField v-slot="{ field }" :name="`journalLines[${index}].dimensionOptions.${category.id}`">
                             <!-- Edit mode: show selector -->
                             <DimensionOptionSelector
                               v-if="isEditing"
