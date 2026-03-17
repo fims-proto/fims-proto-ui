@@ -131,10 +131,6 @@ function handleRangeSelected(start: Period, end: Period) {
     },
   })
 }
-
-function goToJournal(journalId: string) {
-  router.push({ name: 'journalDetail', params: { sobId: props.sobId, journalId: journalId } })
-}
 </script>
 
 <template>
@@ -200,9 +196,12 @@ function goToJournal(journalId: string) {
                 <TableRow v-for="(entry, index) in entries" :key="entry.journalId + index">
                   <TableCell>{{ entry.transactionDate }}</TableCell>
                   <TableCell>
-                    <Button variant="link" class="h-auto p-0" @click="goToJournal(entry.journalId)">
+                    <RouterLink
+                      :to="{ name: 'journalDetail', params: { sobId: props.sobId, journalId: entry.journalId } }"
+                      class="text-primary hover:underline"
+                    >
                       {{ entry.journalNumber }}
-                    </Button>
+                    </RouterLink>
                   </TableCell>
                   <TableCell>{{ entry.text }}</TableCell>
                   <TableCell class="text-right tabular-nums">

@@ -277,6 +277,15 @@
     "post": "记账",
     "notPosted": "未记账",
     "isPosted": "已记账",
+    "adjusting": "调整分录",
+    "journalType": "分录类型",
+    "referenceJournal": "参考分录",
+    "journalTypeEnum": {
+      "GENERAL": "普通分录",
+      "ADJUSTING": "调整分录",
+      "REVERSING": "冲销分录",
+      "CLOSING": "结账分录"
+    },
     "msg": {
       "emptyHeaderText": "摘要不能为空",
       "notBalanced": "借贷不平衡",

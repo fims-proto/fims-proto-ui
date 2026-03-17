@@ -236,7 +236,10 @@ const routes: RouteRecordRaw[] = [
             },
             props: {
               list: (route) => ({ sobId: route.params.sobId }),
-              main: (route) => ({ sobId: route.params.sobId }),
+              main: (route) => ({
+                sobId: route.params.sobId as string,
+                referenceJournalId: route.query.referenceJournalId as string | undefined,
+              }),
             },
             components: {
               list: JournalList,

@@ -37,6 +37,7 @@ import { JOURNAL_CHANGED } from '@/services/event'
 const props = defineProps<{
   sobId: string
   journalId?: string
+  referenceJournalId?: string
 }>()
 
 const router = useRouter()
@@ -49,6 +50,7 @@ const bus = useEventBus(JOURNAL_CHANGED)
 
 const isEditing = ref(!props.journalId)
 const journal = ref<Journal>()
+const referenceJournal = ref<Journal>()
 
 // Zod schemas
 const JournalLineSchema = z
@@ -208,12 +210,20 @@ function removeJournalLine(index: number) {
 
 // Load journal data
 async function load() {
+  journal.value = undefined
+  referenceJournal.value = undefined
   if (props.journalId) {
     const { data, exception } = await JournalService.getJournalById(props.sobId, props.journalId)
     if (exception || !data) return
 
     journal.value = data
     isEditing.value = false
+
+    // If this is an ADJUSTING (or other reference-based) journal, load the reference journal for display
+    if (data.referenceJournalId) {
+      const { data: refData } = await JournalService.getJournalById(props.sobId, data.referenceJournalId)
+      referenceJournal.value = refData ?? undefined
+    }
 
     // Transform to form values
     const formValues: JournalFormValues = {
@@ -242,9 +252,25 @@ async function load() {
 
     form.resetForm({ values: formValues }, { force: true })
   } else {
-    journal.value = undefined
     isEditing.value = true
-    form.resetForm({ values: EMPTY_JOURNAL }, { force: true })
+
+    // Load reference journal for display + header text pre-fill when creating an adjusting journal
+    if (props.referenceJournalId) {
+      const { data } = await JournalService.getJournalById(props.sobId, props.referenceJournalId)
+      referenceJournal.value = data ?? undefined
+    }
+
+    const prefillHeaderText = referenceJournal.value ? `调整分录：${referenceJournal.value.headerText}` : ''
+
+    form.resetForm(
+      {
+        values: {
+          ...EMPTY_JOURNAL,
+          headerText: prefillHeaderText,
+        },
+      },
+      { force: true },
+    )
   }
 }
 
@@ -272,6 +298,8 @@ const onSubmit = form.handleSubmit(async (values) => {
     // Create new journal
     const request: CreateJournalRequest = {
       headerText: values.headerText,
+      journalType: props.referenceJournalId ? 'ADJUSTING' : 'GENERAL',
+      referenceJournalId: props.referenceJournalId || undefined,
       attachmentQuantity: values.attachmentQuantity,
       transactionDate: values.transactionDate,
       creator: userStore.state.user.id,
@@ -326,6 +354,14 @@ function handleClose() {
     params: {
       sobId: props.sobId,
     },
+  })
+}
+
+function handleCreateAdjusting() {
+  router.push({
+    name: 'journalNew',
+    params: { sobId: props.sobId },
+    query: { referenceJournalId: props.journalId },
   })
 }
 
@@ -443,6 +479,9 @@ async function handlePost() {
         <!-- Edit/Close buttons -->
         <Button v-if="!journal?.isAudited && !journal?.isReviewed" variant="outline" @click="handleEdit">
           {{ $t('action.edit') }}
+        </Button>
+        <Button v-if="journal?.isPosted" variant="outline" @click="handleCreateAdjusting">
+          {{ $t('journal.adjusting') }}
         </Button>
         <Button variant="ghost" @click="handleClose">{{ $t('action.close') }}</Button>
       </template>
@@ -586,6 +625,38 @@ async function handlePost() {
           :value="journal.reviewer"
           :formatter="formatUserName"
         />
+
+        <!-- Journal Type (readonly, only for non-GENERAL journals or when creating adjusting) -->
+        <EditableField
+          v-if="(journal && journal.journalType !== 'GENERAL') || props.referenceJournalId"
+          :label="$t('journal.journalType')"
+          :is-editing="false"
+          :value="journal?.journalType ?? 'ADJUSTING'"
+          :formatter="(val) => $t(`journal.journalTypeEnum.${val}`)"
+        />
+
+        <!-- Reference Journal (readonly, shown when journal has a reference) -->
+        <EditableField
+          v-if="journal?.referenceJournalId || props.referenceJournalId"
+          :label="$t('journal.referenceJournal')"
+          :is-editing="false"
+          :value="referenceJournal?.documentNumber"
+        >
+          <template #display>
+            <RouterLink
+              :to="{
+                name: 'journalDetail',
+                params: {
+                  sobId: props.sobId,
+                  journalId: journal?.referenceJournalId ?? props.referenceJournalId,
+                },
+              }"
+              class="text-primary text-sm hover:underline"
+            >
+              {{ referenceJournal?.documentNumber ?? journal?.referenceJournalId ?? props.referenceJournalId }}
+            </RouterLink>
+          </template>
+        </EditableField>
       </div>
 
       <!-- Journal Lines Table -->

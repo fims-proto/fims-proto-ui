@@ -223,7 +223,7 @@ export function createViewColumns(fromPeriod?: string, toPeriod?: string): Colum
               params: { sobId: data.sobId },
               query: { accountId: data.accountId, fromPeriod, toPeriod },
             },
-            class: 'hover:underline font-medium',
+            class: 'hover:underline text-primary',
           },
           () => data.accountTitle,
         )
