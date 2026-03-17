@@ -64,10 +64,6 @@ const data = computed(() => {
             title: t('nav.explorer.account'),
             to: { name: 'accountExplorer', params: { sobId: workingSob.value.id } },
           },
-          {
-            title: t('nav.explorer.dimension'),
-            to: { name: 'dimensionExplorer', params: { sobId: workingSob.value.id } },
-          },
         ],
       },
     ],

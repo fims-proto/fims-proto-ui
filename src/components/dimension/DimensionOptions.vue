@@ -231,7 +231,10 @@ function onClose() {
           </EditableField>
         </VeeField>
 
-        <div v-if="optionDialogMode === 'update' && !isEditingOption && selectedOptionId" class="text-muted-foreground text-sm">
+        <div
+          v-if="optionDialogMode === 'update' && !isEditingOption && selectedOptionId"
+          class="text-muted-foreground text-sm"
+        >
           {{ $t('common.createdAt') }}: {{ $d(options.find((o) => o.id === selectedOptionId)!.createdAt, 'short') }}
         </div>
       </div>

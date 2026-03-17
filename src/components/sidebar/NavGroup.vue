@@ -38,7 +38,7 @@ const router = useRouter()
 const route = useRoute()
 
 function subItemActive(item: NavItem) {
-  return item.subItems?.some((sub) => router.resolve(sub.to!).fullPath === route.fullPath)
+  return item.subItems?.some((sub) => router.resolve(sub.to!).path === route.path)
 }
 </script>
 

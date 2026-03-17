@@ -1,32 +1,52 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, toRefs } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 import { PageFrame } from '@/components/common/page'
 import { DataTable } from '@/components/common/data-table'
 import PeriodSelector from '@/components/period/PeriodSelector.vue'
 
-import { viewColumns } from './columns'
+import { createViewColumns } from './columns'
 import { treefyLedgers, filterLedgersByBalance, type LedgerTreeNode } from './treefy'
 import { LedgerService } from '@/services/general-ledger/ledger'
 import { CLASS_OPTIONS, type Period } from '@/services/general-ledger'
-import { useExplorerPeriodStore } from '@/store/explorer-period'
+import { usePeriodStore } from '@/store/period'
 
 const props = defineProps<{
   sobId: string
+  fromPeriod?: string
+  toPeriod?: string
 }>()
+
+const route = useRoute()
+const router = useRouter()
+const { allPeriods } = toRefs(usePeriodStore().state)
 
 const ledgers = ref<LedgerTreeNode[]>([])
 const isLoading = ref(false)
-
-const explorerPeriodStore = useExplorerPeriodStore()
-const persistedSelection = computed(() => explorerPeriodStore.state.selections[props.sobId])
 
 function toPeriodString(period: Period): string {
   return `${period.fiscalYear}-${String(period.periodNumber).padStart(2, '0')}`
 }
 
+function parsePeriod(str: string | undefined): Period | undefined {
+  if (!str) return undefined
+  const [y, m] = str.split('-').map(Number)
+  return allPeriods.value.find((p) => p.fiscalYear === y && p.periodNumber === m)
+}
+
+const initialFromPeriod = computed(() => parsePeriod(props.fromPeriod))
+const initialToPeriod = computed(() => parsePeriod(props.toPeriod))
+const columns = computed(() => createViewColumns(props.fromPeriod, props.toPeriod))
+
 function handleRangeSelected(start: Period, end: Period) {
-  explorerPeriodStore.action.setRange(props.sobId, start, end)
+  router.replace({
+    query: {
+      ...route.query,
+      fromPeriod: toPeriodString(start),
+      toPeriod: toPeriodString(end),
+    },
+  })
   loadLedgers(start, end)
 }
 
@@ -49,14 +69,14 @@ async function loadLedgers(startPeriod: Period, endPeriod: Period) {
       <PeriodSelector
         :sob-id="sobId"
         mode="range"
-        :initial-start="persistedSelection?.startPeriod"
-        :initial-end="persistedSelection?.endPeriod"
+        :initial-start="initialFromPeriod"
+        :initial-end="initialToPeriod"
         @range-selected="handleRangeSelected"
       />
     </template>
 
     <DataTable
-      :columns="viewColumns"
+      :columns="columns"
       :data="ledgers"
       :faceted-filters="[
         {

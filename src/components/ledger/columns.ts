@@ -150,225 +150,227 @@ export function createColumns(
 }
 
 // Columns for ledger list view (read-only with grouped headers)
-export const viewColumns: ColumnDef<LedgerTreeNode>[] = [
-  {
-    id: 'expander',
-    cell: ({ row }) => {
-      return h(
-        'div',
-        { class: 'flex items-center justify-center' },
-        row.getCanExpand()
-          ? [
-              h(
-                Button,
-                {
-                  size: 'icon-sm',
-                  variant: 'ghost',
-                  onClick: (event: Event) => {
-                    event.stopPropagation()
-                    row.toggleExpanded()
+export function createViewColumns(fromPeriod?: string, toPeriod?: string): ColumnDef<LedgerTreeNode>[] {
+  return [
+    {
+      id: 'expander',
+      cell: ({ row }) => {
+        return h(
+          'div',
+          { class: 'flex items-center justify-center' },
+          row.getCanExpand()
+            ? [
+                h(
+                  Button,
+                  {
+                    size: 'icon-sm',
+                    variant: 'ghost',
+                    onClick: (event: Event) => {
+                      event.stopPropagation()
+                      row.toggleExpanded()
+                    },
                   },
-                },
-                () =>
-                  h(ChevronRight, {
-                    class: `transition-transform duration-200 ${row.getIsExpanded() ? 'rotate-90' : ''}`,
-                  }),
-              ),
-            ]
-          : [],
-      )
+                  () =>
+                    h(ChevronRight, {
+                      class: `transition-transform duration-200 ${row.getIsExpanded() ? 'rotate-90' : ''}`,
+                    }),
+                ),
+              ]
+            : [],
+        )
+      },
+      meta: {
+        class: 'w-[32px] p-0 border-r-0!',
+      },
     },
-    meta: {
-      class: 'w-[32px] p-0 border-r-0!',
-    },
-  },
-  {
-    accessorKey: 'accountNumber',
-    header: ({ column }) =>
-      h(DataTableColumnHeader<LedgerTreeNode>, {
-        column: column,
-        title: i18n.global.t('account.accountNumber'),
-      }),
-    cell: ({ row }) => {
-      const data = row.original
-      return h(
-        'span',
-        {
-          class: 'text-nowrap',
-          style: { marginLeft: `${row.depth * 1}rem` },
-        },
-        data.accountNumber,
-      )
-    },
-    enableSorting: false,
-    meta: {
-      columnName: i18n.global.t('account.accountNumber'),
-    },
-  },
-  {
-    accessorKey: 'accountTitle',
-    header: ({ column }) =>
-      h(DataTableColumnHeader<LedgerTreeNode>, {
-        column: column,
-        title: i18n.global.t('account.accountTitle'),
-      }),
-    cell: ({ row }) => {
-      const data = row.original
-      return h(
-        RouterLink,
-        {
-          to: {
-            name: 'accountExplorer',
-            params: { sobId: data.sobId },
-            query: { accountId: data.accountId },
+    {
+      accessorKey: 'accountNumber',
+      header: ({ column }) =>
+        h(DataTableColumnHeader<LedgerTreeNode>, {
+          column: column,
+          title: i18n.global.t('account.accountNumber'),
+        }),
+      cell: ({ row }) => {
+        const data = row.original
+        return h(
+          'span',
+          {
+            class: 'text-nowrap',
+            style: { marginLeft: `${row.depth * 1}rem` },
           },
-          class: 'hover:underline font-medium',
-        },
-        () => data.accountTitle,
-      )
+          data.accountNumber,
+        )
+      },
+      enableSorting: false,
+      meta: {
+        columnName: i18n.global.t('account.accountNumber'),
+      },
     },
-    enableSorting: false,
-    enableHiding: false,
-    meta: {
-      columnName: i18n.global.t('account.accountTitle'),
+    {
+      accessorKey: 'accountTitle',
+      header: ({ column }) =>
+        h(DataTableColumnHeader<LedgerTreeNode>, {
+          column: column,
+          title: i18n.global.t('account.accountTitle'),
+        }),
+      cell: ({ row }) => {
+        const data = row.original
+        return h(
+          RouterLink,
+          {
+            to: {
+              name: 'accountExplorer',
+              params: { sobId: data.sobId },
+              query: { accountId: data.accountId, fromPeriod, toPeriod },
+            },
+            class: 'hover:underline font-medium',
+          },
+          () => data.accountTitle,
+        )
+      },
+      enableSorting: false,
+      enableHiding: false,
+      meta: {
+        columnName: i18n.global.t('account.accountTitle'),
+      },
     },
-  },
-  {
-    id: 'class',
-    accessorKey: 'accountClass',
-    header: ({ column }) =>
-      h(DataTableColumnHeader<LedgerTreeNode>, {
-        column: column,
-        title: i18n.global.t('account.class'),
-      }),
-    cell: ({ row }) => {
-      const data = row.original
-      return h(
-        'span',
+    {
+      id: 'class',
+      accessorKey: 'accountClass',
+      header: ({ column }) =>
+        h(DataTableColumnHeader<LedgerTreeNode>, {
+          column: column,
+          title: i18n.global.t('account.class'),
+        }),
+      cell: ({ row }) => {
+        const data = row.original
+        return h(
+          'span',
+          {
+            class: 'text-nowrap',
+          },
+          i18n.global.t(`account.classEnum.${data.accountClass}`),
+        )
+      },
+      filterFn: (row, id, value) => {
+        return value.includes(row.getValue(id))
+      },
+      enableSorting: false,
+      meta: {
+        columnName: i18n.global.t('account.class'),
+      },
+    },
+    // Grouped column: Opening Balance
+    {
+      id: 'opening',
+      header: i18n.global.t('ledger.openingBalance'),
+      meta: {
+        class: 'text-right',
+      },
+      columns: [
         {
-          class: 'text-nowrap',
+          accessorKey: 'openingAmount',
+          header: i18n.global.t('ledger.debit'),
+          cell: ({ row }) => {
+            const amount = row.original.openingAmount || 0
+            return amount > 0 ? h('span', { class: 'text-nowrap text-right' }, i18n.global.n(amount, 'decimal')) : null
+          },
+          enableSorting: false,
+          meta: {
+            class: 'text-right',
+            columnName: `${i18n.global.t('ledger.openingBalance')} - ${i18n.global.t('ledger.debit')}`,
+          },
         },
-        i18n.global.t(`account.classEnum.${data.accountClass}`),
-      )
+        {
+          accessorKey: 'openingAmount',
+          header: i18n.global.t('ledger.credit'),
+          cell: ({ row }) => {
+            const amount = row.original.openingAmount || 0
+            return amount < 0
+              ? h('span', { class: 'text-nowrap text-right' }, i18n.global.n(Math.abs(amount), 'decimal'))
+              : null
+          },
+          enableSorting: false,
+          meta: {
+            class: 'text-right',
+            columnName: `${i18n.global.t('ledger.openingBalance')} - ${i18n.global.t('ledger.credit')}`,
+          },
+        },
+      ],
     },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
+    // Grouped column: Changes (Period Amount)
+    {
+      id: 'changes',
+      header: i18n.global.t('ledger.interimBalance'),
+      meta: {
+        class: 'text-right',
+      },
+      columns: [
+        {
+          accessorKey: 'periodDebit',
+          header: i18n.global.t('ledger.debit'),
+          cell: ({ row }) => {
+            const value = row.original.periodDebit
+            return value ? h('span', { class: 'text-nowrap text-right' }, i18n.global.n(value, 'decimal')) : null
+          },
+          enableSorting: false,
+          meta: {
+            class: 'text-right',
+            columnName: `${i18n.global.t('ledger.interimBalance')} - ${i18n.global.t('ledger.debit')}`,
+          },
+        },
+        {
+          accessorKey: 'periodCredit',
+          header: i18n.global.t('ledger.credit'),
+          cell: ({ row }) => {
+            const value = row.original.periodCredit
+            return value ? h('span', { class: 'text-nowrap text-right' }, i18n.global.n(value, 'decimal')) : null
+          },
+          enableSorting: false,
+          meta: {
+            class: 'text-right',
+            columnName: `${i18n.global.t('ledger.interimBalance')} - ${i18n.global.t('ledger.credit')}`,
+          },
+        },
+      ],
     },
-    enableSorting: false,
-    meta: {
-      columnName: i18n.global.t('account.class'),
+    // Grouped column: Ending Balance
+    {
+      id: 'ending',
+      header: i18n.global.t('ledger.endingBalance'),
+      meta: {
+        class: 'text-right',
+      },
+      columns: [
+        {
+          accessorKey: 'endingAmount',
+          header: i18n.global.t('ledger.debit'),
+          cell: ({ row }) => {
+            const amount = row.original.endingAmount || 0
+            return amount > 0 ? h('span', { class: 'text-nowrap text-right' }, i18n.global.n(amount, 'decimal')) : null
+          },
+          enableSorting: false,
+          meta: {
+            class: 'text-right',
+            columnName: `${i18n.global.t('ledger.endingBalance')} - ${i18n.global.t('ledger.debit')}`,
+          },
+        },
+        {
+          accessorKey: 'endingAmount',
+          header: i18n.global.t('ledger.credit'),
+          cell: ({ row }) => {
+            const amount = row.original.endingAmount || 0
+            return amount < 0
+              ? h('span', { class: 'text-nowrap text-right' }, i18n.global.n(Math.abs(amount), 'decimal'))
+              : null
+          },
+          enableSorting: false,
+          meta: {
+            class: 'text-right',
+            columnName: `${i18n.global.t('ledger.endingBalance')} - ${i18n.global.t('ledger.credit')}`,
+          },
+        },
+      ],
     },
-  },
-  // Grouped column: Opening Balance
-  {
-    id: 'opening',
-    header: i18n.global.t('ledger.openingBalance'),
-    meta: {
-      class: 'text-right',
-    },
-    columns: [
-      {
-        accessorKey: 'openingAmount',
-        header: i18n.global.t('ledger.debit'),
-        cell: ({ row }) => {
-          const amount = row.original.openingAmount || 0
-          return amount > 0 ? h('span', { class: 'text-nowrap text-right' }, i18n.global.n(amount, 'decimal')) : null
-        },
-        enableSorting: false,
-        meta: {
-          class: 'text-right',
-          columnName: `${i18n.global.t('ledger.openingBalance')} - ${i18n.global.t('ledger.debit')}`,
-        },
-      },
-      {
-        accessorKey: 'openingAmount',
-        header: i18n.global.t('ledger.credit'),
-        cell: ({ row }) => {
-          const amount = row.original.openingAmount || 0
-          return amount < 0
-            ? h('span', { class: 'text-nowrap text-right' }, i18n.global.n(Math.abs(amount), 'decimal'))
-            : null
-        },
-        enableSorting: false,
-        meta: {
-          class: 'text-right',
-          columnName: `${i18n.global.t('ledger.openingBalance')} - ${i18n.global.t('ledger.credit')}`,
-        },
-      },
-    ],
-  },
-  // Grouped column: Changes (Period Amount)
-  {
-    id: 'changes',
-    header: i18n.global.t('ledger.interimBalance'),
-    meta: {
-      class: 'text-right',
-    },
-    columns: [
-      {
-        accessorKey: 'periodDebit',
-        header: i18n.global.t('ledger.debit'),
-        cell: ({ row }) => {
-          const value = row.original.periodDebit
-          return value ? h('span', { class: 'text-nowrap text-right' }, i18n.global.n(value, 'decimal')) : null
-        },
-        enableSorting: false,
-        meta: {
-          class: 'text-right',
-          columnName: `${i18n.global.t('ledger.interimBalance')} - ${i18n.global.t('ledger.debit')}`,
-        },
-      },
-      {
-        accessorKey: 'periodCredit',
-        header: i18n.global.t('ledger.credit'),
-        cell: ({ row }) => {
-          const value = row.original.periodCredit
-          return value ? h('span', { class: 'text-nowrap text-right' }, i18n.global.n(value, 'decimal')) : null
-        },
-        enableSorting: false,
-        meta: {
-          class: 'text-right',
-          columnName: `${i18n.global.t('ledger.interimBalance')} - ${i18n.global.t('ledger.credit')}`,
-        },
-      },
-    ],
-  },
-  // Grouped column: Ending Balance
-  {
-    id: 'ending',
-    header: i18n.global.t('ledger.endingBalance'),
-    meta: {
-      class: 'text-right',
-    },
-    columns: [
-      {
-        accessorKey: 'endingAmount',
-        header: i18n.global.t('ledger.debit'),
-        cell: ({ row }) => {
-          const amount = row.original.endingAmount || 0
-          return amount > 0 ? h('span', { class: 'text-nowrap text-right' }, i18n.global.n(amount, 'decimal')) : null
-        },
-        enableSorting: false,
-        meta: {
-          class: 'text-right',
-          columnName: `${i18n.global.t('ledger.endingBalance')} - ${i18n.global.t('ledger.debit')}`,
-        },
-      },
-      {
-        accessorKey: 'endingAmount',
-        header: i18n.global.t('ledger.credit'),
-        cell: ({ row }) => {
-          const amount = row.original.endingAmount || 0
-          return amount < 0
-            ? h('span', { class: 'text-nowrap text-right' }, i18n.global.n(Math.abs(amount), 'decimal'))
-            : null
-        },
-        enableSorting: false,
-        meta: {
-          class: 'text-right',
-          columnName: `${i18n.global.t('ledger.endingBalance')} - ${i18n.global.t('ledger.credit')}`,
-        },
-      },
-    ],
-  },
-]
+  ]
+}

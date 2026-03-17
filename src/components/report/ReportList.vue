@@ -67,7 +67,7 @@ function handleRowClick(row: Report) {
 </script>
 
 <template>
-  <PageFrame :title="$t('report.subjectName')">
+  <PageFrame :title="$t('report.listTitle', [page?.numberOfElements ?? 0])" no-scroll>
     <DataTable
       :columns="columns"
       :data="reports"

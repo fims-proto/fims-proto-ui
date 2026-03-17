@@ -18,7 +18,6 @@ import DimensionOptions from '@/components/dimension/DimensionOptions.vue'
 import LedgerInitialize from '@/components/ledger/LedgerInitialize.vue'
 import LedgerOverview from '@/components/ledger/LedgerOverview.vue'
 import AccountExplorer from '@/components/ledger/AccountExplorer.vue'
-import DimensionExplorer from '@/components/ledger/DimensionExplorer.vue'
 import JournalList from '@/components/journal/JournalList.vue'
 import JournalDetail from '@/components/journal/JournalDetail.vue'
 import ReportList from '@/components/report/ReportList.vue'
@@ -188,7 +187,11 @@ const routes: RouteRecordRaw[] = [
             path: 'overview',
             name: 'ledgerOverview',
             props: {
-              main: (route) => ({ sobId: route.params.sobId }),
+              main: (route) => ({
+                sobId: route.params.sobId as string,
+                fromPeriod: route.query.fromPeriod as string | undefined,
+                toPeriod: route.query.toPeriod as string | undefined,
+              }),
             },
             components: {
               main: LedgerOverview,
@@ -198,27 +201,22 @@ const routes: RouteRecordRaw[] = [
             path: 'account',
             name: 'accountExplorer',
             props: {
-              main: (route) => ({ sobId: route.params.sobId }),
+              main: (route) => ({
+                sobId: route.params.sobId as string,
+                accountId: route.query.accountId as string | undefined,
+                fromPeriod: route.query.fromPeriod as string | undefined,
+                toPeriod: route.query.toPeriod as string | undefined,
+              }),
             },
             components: {
               main: AccountExplorer,
             },
           },
-          {
-            path: 'dimension',
-            name: 'dimensionExplorer',
-            props: {
-              main: (route) => ({ sobId: route.params.sobId }),
-            },
-            components: {
-              main: DimensionExplorer,
-            },
-          },
         ],
       },
-      // transactions
+      // journals
       {
-        path: 'sobs/:sobId/transactions',
+        path: 'sobs/:sobId/journals',
         beforeEnter: [loadWorkingSob, updateWorkingSob],
         children: [
           {

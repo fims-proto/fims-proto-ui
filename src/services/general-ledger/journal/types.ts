@@ -9,7 +9,6 @@ export type Journal = {
   period: Period
   periodId?: string // for search filter
   documentNumber: string
-  journalType: string
   attachmentQuantity: number
   amount: number
   creator: User
@@ -39,7 +38,6 @@ export type CreateJournalRequest = {
   headerText: string
   attachmentQuantity: number
   creator: string
-  journalType: string
   transactionDate: string
   journalLines: JournalLineRequest[]
 }

@@ -15,23 +15,33 @@ import type { LedgerSummary, LedgerEntry } from '@/services/general-ledger/ledge
 import type { Period } from '@/services/general-ledger'
 import type { AccountSlim } from '@/services/general-ledger/account/types'
 import { useAccountStore } from '@/store/account'
-import { useExplorerPeriodStore } from '@/store/explorer-period'
+import { usePeriodStore } from '@/store/period'
 
 const props = defineProps<{
   sobId: string
+  accountId?: string
+  fromPeriod?: string
+  toPeriod?: string
 }>()
 
 const { n } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const { allAccounts } = toRefs(useAccountStore().state)
+const { allPeriods } = toRefs(usePeriodStore().state)
 
-const explorerPeriodStore = useExplorerPeriodStore()
-const persistedSelection = computed(() => explorerPeriodStore.state.selections[props.sobId])
+function parsePeriod(str: string | undefined): Period | undefined {
+  if (!str) return undefined
+  const [y, m] = str.split('-').map(Number)
+  return allPeriods.value.find((p) => p.fiscalYear === y && p.periodNumber === m)
+}
+
+const initialFromPeriod = computed(() => parsePeriod(props.fromPeriod))
+const initialToPeriod = computed(() => parsePeriod(props.toPeriod))
 
 const selectedAccount = ref<AccountSlim | undefined>()
-const fromPeriod = ref<Period | undefined>()
-const toPeriod = ref<Period | undefined>()
+const selectedFromPeriod = ref<Period | undefined>()
+const selectedToPeriod = ref<Period | undefined>()
 
 const summary = ref<LedgerSummary | undefined>()
 const entries = ref<LedgerEntry[]>([])
@@ -45,7 +55,7 @@ function toPeriodString(period: Period): string {
   return `${period.fiscalYear}-${String(period.periodNumber).padStart(2, '0')}`
 }
 
-const hasData = computed(() => !!selectedAccount.value && !!fromPeriod.value && !!toPeriod.value)
+const hasData = computed(() => !!selectedAccount.value && !!selectedFromPeriod.value && !!selectedToPeriod.value)
 
 const runningBalances = computed(() => {
   if (!summary.value) return []
@@ -57,13 +67,16 @@ const runningBalances = computed(() => {
 })
 
 onMounted(() => {
-  const accountIdFromQuery = route.query.accountId as string | undefined
-  if (accountIdFromQuery) {
-    selectedAccount.value = allAccounts.value.find((a) => a.id === accountIdFromQuery)
+  if (props.accountId) {
+    selectedAccount.value = allAccounts.value.find((a) => a.id === props.accountId)
   }
 })
 
-watch([selectedAccount, fromPeriod, toPeriod], async ([account, from, to]) => {
+watch(selectedAccount, (account) => {
+  router.replace({ query: { ...route.query, accountId: account?.id } })
+})
+
+watch([selectedAccount, selectedFromPeriod, selectedToPeriod], async ([account, from, to]) => {
   if (!account || !from || !to) return
   await loadData(account, from, to)
 })
@@ -92,13 +105,13 @@ async function loadData(account: AccountSlim, from: Period, to: Period) {
 }
 
 async function loadMoreEntries() {
-  if (!selectedAccount.value || !fromPeriod.value || !toPeriod.value) return
+  if (!selectedAccount.value || !selectedFromPeriod.value || !selectedToPeriod.value) return
   entriesPage.value++
   const { data } = await LedgerService.getLedgerEntries(
     props.sobId,
     selectedAccount.value.id,
-    toPeriodString(fromPeriod.value),
-    toPeriodString(toPeriod.value),
+    toPeriodString(selectedFromPeriod.value),
+    toPeriodString(selectedToPeriod.value),
     { page: entriesPage.value, size: 40 },
   )
   if (data) {
@@ -108,9 +121,15 @@ async function loadMoreEntries() {
 }
 
 function handleRangeSelected(start: Period, end: Period) {
-  explorerPeriodStore.action.setRange(props.sobId, start, end)
-  fromPeriod.value = start
-  toPeriod.value = end
+  selectedFromPeriod.value = start
+  selectedToPeriod.value = end
+  router.replace({
+    query: {
+      ...route.query,
+      fromPeriod: toPeriodString(start),
+      toPeriod: toPeriodString(end),
+    },
+  })
 }
 
 function goToJournal(journalId: string) {
@@ -125,8 +144,8 @@ function goToJournal(journalId: string) {
       <PeriodSelector
         :sob-id="sobId"
         mode="range"
-        :initial-start="persistedSelection?.startPeriod"
-        :initial-end="persistedSelection?.endPeriod"
+        :initial-start="initialFromPeriod"
+        :initial-end="initialToPeriod"
         @range-selected="handleRangeSelected"
       />
     </template>

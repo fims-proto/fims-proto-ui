@@ -274,9 +274,9 @@
     "cancelReview": "取消复核",
     "notReviewed": "未复核",
     "isReviewed": "已复核",
-    "post": "登账",
-    "notPosted": "未登账",
-    "isPosted": "已登账",
+    "post": "记账",
+    "notPosted": "未记账",
+    "isPosted": "已记账",
     "msg": {
       "emptyHeaderText": "摘要不能为空",
       "notBalanced": "借贷不平衡",
@@ -285,16 +285,16 @@
       "success": "分录保存成功",
       "confirmCancelAudit": "确认取消审核？",
       "confirmCancelReview": "确认取消复核？",
-      "confirmPost": "确认登账？此操作不可撤销。",
+      "confirmPost": "确认记账？此操作不可撤销。",
       "auditSuccess": "分录审核成功",
       "cancelAuditSuccess": "已取消分录审核",
       "reviewSuccess": "分录复核成功",
       "cancelReviewSuccess": "已取消分录复核",
-      "postSuccess": "分录登账成功"
+      "postSuccess": "分录记账成功"
     }
   },
   "report": {
-    "subjectName": "报表",
+    "listTitle": "报表 ({0})",
     "title": "报表",
     "template": "模板",
     "period": "账期",

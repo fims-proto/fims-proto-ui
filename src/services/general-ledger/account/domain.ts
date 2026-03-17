@@ -2,7 +2,13 @@ import axios from 'axios'
 import { FIMS_URL } from '../../../config'
 import { convertFieldsFromString } from '../../field-conversion'
 import { invokeWithErrorHandler, type Response } from '../../error-handler'
-import { type AccountClass, type AccountSlim, type AccountDetail, type UpdateAccount, type CreateAccount } from './types'
+import {
+  type AccountClass,
+  type AccountSlim,
+  type AccountDetail,
+  type UpdateAccount,
+  type CreateAccount,
+} from './types'
 import { ACCOUNT_FIELDS_CONVERSION } from '../field-conversion-types'
 
 class AccountService {

@@ -274,7 +274,6 @@ const onSubmit = form.handleSubmit(async (values) => {
       headerText: values.headerText,
       attachmentQuantity: values.attachmentQuantity,
       transactionDate: values.transactionDate,
-      journalType: 'general_journal',
       creator: userStore.state.user.id,
       journalLines: journalLinesRequest,
     }
