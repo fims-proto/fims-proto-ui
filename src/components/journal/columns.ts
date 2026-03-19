@@ -3,14 +3,14 @@ import i18n from '@/i18n'
 import type { ColumnDef } from '@tanstack/vue-table'
 import { DataTableColumnHeader } from '@/components/common/data-table'
 import { Badge } from '@/components/ui/badge'
-import type { Journal } from '@/services/general-ledger'
+import type { JournalSlim } from '@/services/general-ledger'
 
 // Full columns - shown when detail view is closed
-export const fullColumns: ColumnDef<Journal>[] = [
+export const fullColumns: ColumnDef<JournalSlim>[] = [
   {
     accessorKey: 'documentNumber',
     header: ({ column }) =>
-      h(DataTableColumnHeader<Journal>, {
+      h(DataTableColumnHeader<JournalSlim>, {
         column: column,
         title: i18n.global.t('journal.number'),
       }),
@@ -26,7 +26,7 @@ export const fullColumns: ColumnDef<Journal>[] = [
   {
     accessorKey: 'headerText',
     header: ({ column }) =>
-      h(DataTableColumnHeader<Journal>, {
+      h(DataTableColumnHeader<JournalSlim>, {
         column: column,
         title: i18n.global.t('journal.headerText'),
       }),
@@ -41,7 +41,7 @@ export const fullColumns: ColumnDef<Journal>[] = [
   {
     accessorKey: 'transactionDate',
     header: ({ column }) =>
-      h(DataTableColumnHeader<Journal>, {
+      h(DataTableColumnHeader<JournalSlim>, {
         column: column,
         title: i18n.global.t('journal.transactionDate'),
       }),
@@ -56,7 +56,7 @@ export const fullColumns: ColumnDef<Journal>[] = [
   {
     accessorKey: 'amount',
     header: ({ column }) =>
-      h(DataTableColumnHeader<Journal>, {
+      h(DataTableColumnHeader<JournalSlim>, {
         column: column,
         title: i18n.global.t('journal.amount'),
         class: 'justify-end',
@@ -73,7 +73,7 @@ export const fullColumns: ColumnDef<Journal>[] = [
   {
     accessorKey: 'attachmentQuantity',
     header: ({ column }) =>
-      h(DataTableColumnHeader<Journal>, {
+      h(DataTableColumnHeader<JournalSlim>, {
         column: column,
         title: i18n.global.t('journal.attachmentQuantity'),
       }),
@@ -92,7 +92,7 @@ export const fullColumns: ColumnDef<Journal>[] = [
   {
     accessorKey: 'creator',
     header: ({ column }) =>
-      h(DataTableColumnHeader<Journal>, {
+      h(DataTableColumnHeader<JournalSlim>, {
         column: column,
         title: i18n.global.t('journal.creator'),
       }),
@@ -165,11 +165,11 @@ export const fullColumns: ColumnDef<Journal>[] = [
 ]
 
 // Compact columns - shown when detail view is open
-export const compactColumns: ColumnDef<Journal>[] = [
+export const compactColumns: ColumnDef<JournalSlim>[] = [
   {
     accessorKey: 'documentNumber',
     header: ({ column }) =>
-      h(DataTableColumnHeader<Journal>, {
+      h(DataTableColumnHeader<JournalSlim>, {
         column: column,
         title: i18n.global.t('journal.number'),
       }),
@@ -185,7 +185,7 @@ export const compactColumns: ColumnDef<Journal>[] = [
   {
     accessorKey: 'headerText',
     header: ({ column }) =>
-      h(DataTableColumnHeader<Journal>, {
+      h(DataTableColumnHeader<JournalSlim>, {
         column: column,
         title: i18n.global.t('journal.headerText'),
       }),
@@ -200,7 +200,7 @@ export const compactColumns: ColumnDef<Journal>[] = [
   {
     accessorKey: 'transactionDate',
     header: ({ column }) =>
-      h(DataTableColumnHeader<Journal>, {
+      h(DataTableColumnHeader<JournalSlim>, {
         column: column,
         title: i18n.global.t('journal.transactionDate'),
       }),
@@ -215,7 +215,7 @@ export const compactColumns: ColumnDef<Journal>[] = [
   {
     accessorKey: 'amount',
     header: ({ column }) =>
-      h(DataTableColumnHeader<Journal>, {
+      h(DataTableColumnHeader<JournalSlim>, {
         column: column,
         title: i18n.global.t('journal.amount'),
         class: 'justify-end',

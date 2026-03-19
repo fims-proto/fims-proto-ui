@@ -2,7 +2,7 @@ import { type User } from '../../user'
 import type { AccountDetail, DimensionOptionRef } from '../account'
 import { type Period } from '../period'
 
-export type Journal = {
+export type JournalSlim = {
   sobId: string
   id: string
   headerText: string
@@ -21,9 +21,12 @@ export type Journal = {
   isPosted: boolean
   isReviewed: boolean
   transactionDate: string
-  journalLines: JournalLine[]
   createdAt: Date
   updatedAt: Date
+}
+
+export type JournalDetail = JournalSlim & {
+  journalLines: JournalLine[]
 }
 
 export type JournalLine = {

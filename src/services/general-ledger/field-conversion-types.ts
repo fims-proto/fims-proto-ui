@@ -32,11 +32,15 @@ export const LEDGER_ENTRY_FIELDS_CONVERSION: FieldConversionRecord = {
   amount: 'number',
 }
 
-export const JOURNAL_FIELDS: FieldConversionRecord = {
+export const JOURNAL_SLIM_FIELDS: FieldConversionRecord = {
   period: PERIOD_FIELDS_CONVERSION,
   attachmentQuantity: 'number',
   amount: 'number',
-  journalLines: JOURNAL_LINE_FIELDS,
   createdAt: 'date',
   updatedAt: 'date',
+}
+
+export const JOURNAL_FIELDS: FieldConversionRecord = {
+  ...JOURNAL_SLIM_FIELDS,
+  journalLines: JOURNAL_LINE_FIELDS,
 }

@@ -22,7 +22,7 @@ import DimensionOptionSelector from './DimensionOptionSelector.vue'
 import { JournalService } from '@/services/general-ledger/journal'
 import { AccountService } from '@/services/general-ledger/account'
 import type {
-  Journal,
+  JournalDetail,
   CreateJournalRequest,
   UpdateJournalRequest,
   JournalLineRequest,
@@ -49,8 +49,8 @@ const confirmationStore = useConfirmationStore()
 const bus = useEventBus(JOURNAL_CHANGED)
 
 const isEditing = ref(!props.journalId)
-const journal = ref<Journal>()
-const referenceJournal = ref<Journal>()
+const journal = ref<JournalDetail>()
+const referenceJournal = ref<JournalDetail>()
 
 // Zod schemas
 const JournalLineSchema = z
