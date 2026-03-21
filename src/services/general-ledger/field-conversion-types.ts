@@ -44,3 +44,22 @@ export const JOURNAL_FIELDS: FieldConversionRecord = {
   ...JOURNAL_SLIM_FIELDS,
   journalLines: JOURNAL_LINE_FIELDS,
 }
+
+export const PRE_CLOSE_CHECK_FIELDS_CONVERSION: FieldConversionRecord = {
+  unpostedJournals: {
+    count: 'number',
+    journals: {
+      amount: 'number',
+    },
+  },
+  trialBalance: {
+    openingAmount: 'number',
+    periodAmount: 'number',
+    endingAmount: 'number',
+  },
+  profitAndLossBalance: {
+    accounts: {
+      endingAmount: 'number',
+    },
+  },
+}

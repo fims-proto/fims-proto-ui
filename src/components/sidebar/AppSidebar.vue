@@ -18,6 +18,7 @@ import SobSwitcher from '@/components/sidebar/SobSwitcher.vue'
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from '@/components/ui/sidebar'
 
 import { useSobStore } from '@/store/sob'
+import { usePeriodStore } from '@/store/period'
 
 const props = withDefaults(defineProps<SidebarProps>(), {
   collapsible: 'icon',
@@ -25,9 +26,10 @@ const props = withDefaults(defineProps<SidebarProps>(), {
 
 const { t } = useI18n()
 const { workingSob } = toRefs(useSobStore().state)
+const { currentPeriod } = toRefs(usePeriodStore().state)
 
 const data = computed(() => {
-  if (!workingSob.value) {
+  if (!workingSob.value || !currentPeriod.value) {
     return {
       scenarios: [],
       settings: [],
@@ -48,8 +50,7 @@ const data = computed(() => {
       {
         title: t('nav.periodReview'),
         icon: BookOpenCheck,
-        // TODO: to be implemented
-        to: { name: 'home' },
+        to: { name: 'periodDetail', params: { sobId: workingSob.value.id, periodId: currentPeriod.value.id } },
       },
       {
         title: t('nav.ledgerExplorer'),

@@ -1,9 +1,9 @@
 {
   "editor.tabSize": 2,
   "editor.formatOnSave": true,
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "javascript.preferences.quoteStyle": "single",
-  "typescript.preferences.quoteStyle": "single",
+  "ts.tsdk.path": "node_modules/typescript/lib",
+  "js.preferences.quoteStyle": "single",
+  "ts.preferences.quoteStyle": "single",
   "eslint.validate": ["javascript", "javascriptreact", "vue"],
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[json]": {

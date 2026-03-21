@@ -22,6 +22,8 @@ import JournalList from '@/components/journal/JournalList.vue'
 import JournalDetail from '@/components/journal/JournalDetail.vue'
 import ReportList from '@/components/report/ReportList.vue'
 import ReportDetail from '@/components/report/ReportDetail.vue'
+import PeriodList from '@/components/period/PeriodList.vue'
+import PeriodDetail from '@/components/period/PeriodDetail.vue'
 
 /**
  * In some cases, we need to browser redirect to home page.
@@ -294,6 +296,24 @@ const routes: RouteRecordRaw[] = [
             },
           },
         ],
+      },
+      // periods
+      {
+        path: 'sobs/:sobId/periods/:periodId',
+        name: 'periodDetail',
+        beforeEnter: [loadWorkingSob, updateWorkingSob],
+        meta: { listPanelSize: 25, mainPanelSize: 75 },
+        props: {
+          list: (route) => ({ sobId: route.params.sobId as string }),
+          main: (route) => ({
+            sobId: route.params.sobId as string,
+            periodId: route.params.periodId as string,
+          }),
+        },
+        components: {
+          list: PeriodList,
+          main: PeriodDetail,
+        },
       },
     ],
   },

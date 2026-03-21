@@ -7,6 +7,7 @@
     "yes": "是",
     "no": "否",
     "noData": "没有数据",
+    "refresh": "刷新",
     "description": "描述",
     "year": "年",
     "month": "月",
@@ -157,14 +158,55 @@
     }
   },
   "period": {
+    "listTitle": "期间 ({0})",
     "periodUnselected": "未选择财务周期",
-    "title": "账期",
     "current": "当前",
     "closed": "已结账",
     "periodText": "{0} 年第 {1} 期",
     "startPeriod": "开始",
     "endPeriod": "结束",
-    "rangeSeparator": "至"
+    "rangeSeparator": "至",
+    "management": {
+      "title": "期间管理",
+      "currentPeriod": "当前期间",
+      "closePeriod": "结账",
+      "confirmClose": "确认结账？此操作不可撤销。",
+      "closeSuccess": "结账成功",
+      "notCurrent": "该期间不是当前活动期间，无法执行结账操作",
+      "alreadyClosed": "该期间已结账",
+      "checkItems": {
+        "unpostedJournals": "未记账分录",
+        "trialBalance": "试算平衡",
+        "pnlBalance": "损益账户清零"
+      },
+      "trialBalance": {
+        "description": "以下数值为借贷差额，均为零则表示借贷平衡",
+        "openingAmount": "期初差额",
+        "periodAmount": "期间差额",
+        "endingAmount": "期末差额"
+      },
+      "unpostedJournals": {
+        "count": "未记账分录：{0} 条",
+        "showMore": "还有更多未记账分录，点击查看",
+        "noUnposted": "无未记账分录",
+        "documentNumber": "分录号",
+        "headerText": "摘要",
+        "amount": "金额",
+        "transactionDate": "日期",
+        "isAudited": "审核",
+        "isReviewed": "复核"
+      },
+      "pnlAccounts": {
+        "accountNumber": "科目编号",
+        "accountTitle": "科目名称",
+        "carryForward": "创建结转分录",
+        "zeroed": "损益账户余额已清零"
+      },
+      "periodList": {
+        "title": "期间",
+        "open": "开放"
+      }
+    }
   },
   "ledger": {
     "title": "账簿总览",
