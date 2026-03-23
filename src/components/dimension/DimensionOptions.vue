@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { EditableField } from '@/components/common/form'
+import { ConfirmationButton } from '@/components/common/confirmation'
 
 import { createDimensionOptionColumns } from './columns'
 import {
@@ -28,7 +29,6 @@ import {
 } from '@/services/dimension'
 import type { Page } from '@/services/types'
 import { useToastStore } from '@/store/toast'
-import { useConfirmationStore } from '@/store/confirmation'
 
 const props = defineProps<{
   sobId: string
@@ -37,7 +37,6 @@ const props = defineProps<{
 
 const { t } = useI18n()
 const toast = useToastStore()
-const confirmation = useConfirmationStore()
 const router = useRouter()
 
 const category = ref<DimensionCategory>()
@@ -128,23 +127,17 @@ const onOptionSubmit = form.handleSubmit(async (values) => {
   loadOptions(true)
 })
 
-function onDeleteOption() {
+async function onDeleteOption() {
   if (!selectedOptionId.value) return
-  confirmation.action.confirm({
-    title: t('common.confirmationHeader'),
-    message: t('dimension.msg.confirmDeleteOption'),
-    onConfirm: async () => {
-      const { exception } = await DimensionService.deleteDimensionOption(
-        props.sobId,
-        props.categoryId,
-        selectedOptionId.value!,
-      )
-      if (exception) return
-      toast.action.success(t('dimension.msg.optionDeleteSuccess'))
-      optionDialogOpen.value = false
-      loadOptions(true)
-    },
-  })
+  const { exception } = await DimensionService.deleteDimensionOption(
+    props.sobId,
+    props.categoryId,
+    selectedOptionId.value,
+  )
+  if (exception) return
+  toast.action.success(t('dimension.msg.optionDeleteSuccess'))
+  optionDialogOpen.value = false
+  loadOptions(true)
 }
 
 function onOptionDialogOpenChange(open: boolean) {
@@ -241,7 +234,14 @@ function onClose() {
 
       <DialogFooter>
         <template v-if="optionDialogMode === 'update' && !isEditingOption">
-          <Button variant="destructive" @click="onDeleteOption">{{ $t('dimension.deleteOption') }}</Button>
+          <ConfirmationButton
+            variant="destructive"
+            :message="$t('dimension.msg.confirmDeleteOption')"
+            class="mr-auto"
+            @confirm="onDeleteOption"
+          >
+            {{ $t('action.delete') }}
+          </ConfirmationButton>
           <Button variant="ghost" @click="onEditOption">{{ $t('action.edit') }}</Button>
           <Button variant="ghost" @click="optionDialogOpen = false">{{ $t('action.close') }}</Button>
         </template>

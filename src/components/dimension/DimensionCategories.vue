@@ -18,12 +18,12 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { EditableField } from '@/components/common/form'
+import { ConfirmationButton } from '@/components/common/confirmation'
 
 import { createDimensionCategoryColumns } from './columns'
 import { DimensionService, UpsertDimensionCategorySchema, type DimensionCategory } from '@/services/dimension'
 import type { Page } from '@/services/types'
 import { useToastStore } from '@/store/toast'
-import { useConfirmationStore } from '@/store/confirmation'
 
 const props = defineProps<{
   sobId: string
@@ -32,7 +32,6 @@ const props = defineProps<{
 const router = useRouter()
 const { t } = useI18n()
 const toast = useToastStore()
-const confirmation = useConfirmationStore()
 
 const categories = ref<DimensionCategory[]>([])
 const page = ref<Page<DimensionCategory>>()
@@ -103,21 +102,14 @@ function openViewDialog(category: DimensionCategory) {
   dialogOpen.value = true
 }
 
-function onDeleteCategory(categoryId?: string) {
+async function onDeleteCategory(categoryId?: string) {
   const category = categories.value.find((c) => c.id === categoryId)
   if (!category) return
-
-  confirmation.action.confirm({
-    title: t('common.confirmationHeader'),
-    message: t('dimension.msg.confirmDeleteCategory'),
-    onConfirm: async () => {
-      const { exception } = await DimensionService.deleteDimensionCategory(props.sobId, category.id)
-      if (exception) return
-      toast.action.success(t('dimension.msg.categoryDeleteSuccess'))
-      dialogOpen.value = false
-      load(true)
-    },
-  })
+  const { exception } = await DimensionService.deleteDimensionCategory(props.sobId, category.id)
+  if (exception) return
+  toast.action.success(t('dimension.msg.categoryDeleteSuccess'))
+  dialogOpen.value = false
+  load(true)
 }
 
 function onEditCategory() {
@@ -224,9 +216,14 @@ function onDialogOpenChange(open: boolean) {
 
       <DialogFooter>
         <template v-if="dialogMode === 'update' && !isEditing">
-          <Button variant="destructive" @click="onDeleteCategory(selectedCategoryId)">
-            {{ $t('dimension.deleteCategory') }}
-          </Button>
+          <ConfirmationButton
+            variant="destructive"
+            :message="$t('dimension.msg.confirmDeleteCategory')"
+            class="mr-auto"
+            @confirm="onDeleteCategory(selectedCategoryId)"
+          >
+            {{ $t('action.delete') }}
+          </ConfirmationButton>
           <Button variant="ghost" @click="onEditCategory">{{ $t('action.edit') }}</Button>
           <Button variant="ghost" @click="dialogOpen = false">{{ $t('action.close') }}</Button>
         </template>

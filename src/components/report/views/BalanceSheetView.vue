@@ -15,7 +15,6 @@ const emit = defineEmits<{
   insertBefore: [entry: Entry, index: number]
   insertChild: [entry: Entry, index: number]
   insertAfter: [entry: Entry, index: number]
-  deleteItem: [entry: Entry, index: number]
 }>()
 
 // Headers for both sides
@@ -43,10 +42,6 @@ function handleInsertChild(entry: Entry, index: number) {
 function handleInsertAfter(entry: Entry, index: number) {
   emit('insertAfter', entry, index)
 }
-
-function handleDeleteItem(entry: Entry, index: number) {
-  emit('deleteItem', entry, index)
-}
 </script>
 
 <template>
@@ -62,7 +57,6 @@ function handleDeleteItem(entry: Entry, index: number) {
         @insert-before="handleInsertBefore"
         @insert-child="handleInsertChild"
         @insert-after="handleInsertAfter"
-        @delete-item="handleDeleteItem"
       />
 
       <!-- Liabilities + Equity Table -->
@@ -74,7 +68,6 @@ function handleDeleteItem(entry: Entry, index: number) {
         @insert-before="handleInsertBefore"
         @insert-child="handleInsertChild"
         @insert-after="handleInsertAfter"
-        @delete-item="handleDeleteItem"
       />
     </div>
   </div>

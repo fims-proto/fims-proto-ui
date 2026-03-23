@@ -158,14 +158,18 @@
     }
   },
   "period": {
+    "title": "期间",
     "listTitle": "期间 ({0})",
     "periodUnselected": "未选择财务周期",
-    "current": "当前",
-    "closed": "已结账",
     "periodText": "{0} 年第 {1} 期",
     "startPeriod": "开始",
     "endPeriod": "结束",
     "rangeSeparator": "至",
+    "status": {
+      "open": "开放",
+      "current": "当前",
+      "closed": "已结账"
+    },
     "management": {
       "title": "期间管理",
       "currentPeriod": "当前期间",
@@ -201,10 +205,6 @@
         "accountTitle": "科目名称",
         "carryForward": "创建结转分录",
         "zeroed": "损益账户余额已清零"
-      },
-      "periodList": {
-        "title": "期间",
-        "open": "开放"
       }
     }
   },
@@ -254,8 +254,6 @@
     "createCategory": "新建维度",
     "createOption": "新建维度成员",
     "viewOption": "查看维度成员",
-    "deleteCategory": "删除维度",
-    "deleteOption": "删除维度成员",
     "selectOption": "选择维度成员",
     "noOptions": "无维度成员",
     "updateCategory": "编辑维度",

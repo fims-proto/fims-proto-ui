@@ -39,8 +39,7 @@ import type { Period } from '@/services/general-ledger/period'
 import { buildReportDisplayData } from './report-display-helper'
 import type { Entry } from './report-display-types'
 import { useToastStore } from '@/store/toast'
-import { useUnsavedChangesStore } from '@/store/unsaved-changes'
-import { useConfirmationStore } from '@/store/confirmation'
+import { useUnsavedChanges, UnsavedChangesDialog } from '@/components/common/unsaved-guard'
 import { REPORT_CHANGED } from '@/services/event'
 import { insertItemInTree, updateItemInTree, deleteItemFromTree } from '@/utils/tree-mutation'
 import { transformItemToRequest, cleanTemporaryIds } from './report-transforms'
@@ -53,8 +52,6 @@ const props = defineProps<{
 const router = useRouter()
 const { t } = useI18n()
 const toast = useToastStore()
-const unsavedChangesStore = useUnsavedChangesStore()
-const confirmationStore = useConfirmationStore()
 const bus = useEventBus(REPORT_CHANGED)
 
 const report = ref<Report>()
@@ -106,16 +103,7 @@ watch(selectedPeriod, (period) => {
   }
 })
 
-watch(
-  () => reportForm.meta.value.dirty,
-  (dirty) => {
-    if (dirty) {
-      unsavedChangesStore.action.enableProtection()
-    } else {
-      unsavedChangesStore.action.disableProtection()
-    }
-  },
-)
+const { confirmOpen, onConfirmLeave, onCancelLeave } = useUnsavedChanges(computed(() => reportForm.meta.value.dirty))
 
 async function load() {
   if (!props.reportId) {
@@ -229,17 +217,6 @@ function handleInsertAfter(entry: Entry) {
 }
 
 function handleDeleteItem(entry: Entry) {
-  // Use confirmation store for delete confirmation
-  confirmationStore.action.confirm({
-    title: t('common.confirmDelete'),
-    message: t('report.msg.confirmDeleteItem'),
-    onConfirm: () => {
-      performDelete(entry)
-    },
-  })
-}
-
-function performDelete(entry: Entry) {
   const sections = reportForm.values.sections
   if (!sections) return
 
@@ -479,7 +456,6 @@ function handleDialogOpenChange(open: boolean) {
       @insert-before="handleInsertBefore"
       @insert-child="handleInsertChild"
       @insert-after="handleInsertAfter"
-      @delete-item="handleDeleteItem"
     />
 
     <!-- Income Statement View -->
@@ -493,7 +469,6 @@ function handleDialogOpenChange(open: boolean) {
       @insert-before="handleInsertBefore"
       @insert-child="handleInsertChild"
       @insert-after="handleInsertAfter"
-      @delete-item="handleDeleteItem"
     />
   </PageFrame>
 
@@ -509,6 +484,7 @@ function handleDialogOpenChange(open: boolean) {
     :amount-types="report.amountTypes"
     :mode="itemDialogMode"
     @saved="handleItemSaved"
+    @deleted="(item) => handleDeleteItem(item as Entry)"
   />
 
   <!-- Generate Report Dialog (for templates) -->
@@ -550,4 +526,6 @@ function handleDialogOpenChange(open: boolean) {
       </DialogFooter>
     </DialogContent>
   </Dialog>
+
+  <UnsavedChangesDialog :open="confirmOpen" @confirm="onConfirmLeave" @cancel="onCancelLeave" />
 </template>

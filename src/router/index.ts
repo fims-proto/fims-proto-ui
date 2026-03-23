@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory, RouterView, type RouteRecordRaw } from 'vue-router'
 import { loadWorkingSob, updateWorkingSob, verifyCurrentUser, verifyNotLoggedIn } from './before-enter-handlers'
-import { protectUnsavedChanges } from './before-leave-handlers'
 import AppLayout from '@/components/AppLayout.vue'
 import NotImplementedPage from '@/components/pages/NotImplementedPage.vue'
 import ExceptionPage from '@/components/pages/ExceptionPage.vue'
@@ -354,8 +353,6 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
 })
-
-router.beforeEach(protectUnsavedChanges)
 
 router.onError((...args) => {
   console.log(args)

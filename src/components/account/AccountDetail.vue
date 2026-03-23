@@ -40,7 +40,7 @@ import {
 import { DimensionService, type DimensionCategory } from '@/services/dimension'
 import { useSobStore } from '@/store/sob'
 import { useToastStore } from '@/store/toast'
-import { useUnsavedChangesStore } from '@/store/unsaved-changes'
+import { useUnsavedChanges, UnsavedChangesDialog } from '@/components/common/unsaved-guard'
 import { ACCOUNT_CHANGED } from '@/services/event'
 
 const props = defineProps<{
@@ -51,7 +51,6 @@ const props = defineProps<{
 const router = useRouter()
 const { t } = useI18n()
 const toast = useToastStore()
-const unsavedChanges = useUnsavedChangesStore()
 const sobStore = useSobStore()
 const bus = useEventBus(ACCOUNT_CHANGED)
 const workingSob = computed(() => sobStore.state.workingSob)
@@ -160,16 +159,7 @@ watch(
   },
 )
 
-watch(
-  () => form.meta.value.dirty,
-  (val) => {
-    if (val) {
-      unsavedChanges.action.enableProtection()
-    } else {
-      unsavedChanges.action.disableProtection()
-    }
-  },
-)
+const { confirmOpen, onConfirmLeave, onCancelLeave } = useUnsavedChanges(computed(() => form.meta.value.dirty))
 
 async function loadAccountClasses() {
   const { data } = await AccountService.getClasses(props.sobId)
@@ -262,7 +252,6 @@ const onSubmit = form.handleSubmit(async (values, { resetForm }) => {
 })
 
 function onCancel() {
-  unsavedChanges.action.disableProtection()
   if (!props.accountId) {
     // Create mode: go back in history
     router.back()
@@ -587,4 +576,6 @@ function toggleCategorySelection(categoryId: string, update: (value: string[]) =
       </VeeField>
     </form>
   </PageFrame>
+
+  <UnsavedChangesDialog :open="confirmOpen" @confirm="onConfirmLeave" @cancel="onCancelLeave" />
 </template>

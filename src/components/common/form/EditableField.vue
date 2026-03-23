@@ -16,9 +16,7 @@ const props = defineProps<{
   class?: HTMLAttributes['class']
 }>()
 
-const emit = defineEmits<{
-  (e: 'update:value', value: T | undefined): void
-}>()
+const emit = defineEmits<{ 'update:value': [value: T | undefined] }>()
 
 defineSlots<{
   display?: (scope: { value: T | undefined }) => unknown

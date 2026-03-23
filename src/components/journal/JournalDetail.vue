@@ -28,10 +28,10 @@ import type {
   JournalLineRequest,
 } from '@/services/general-ledger/journal/types'
 import type { AccountSlim, AccountDetail, DimensionOptionRef } from '@/services/general-ledger/account/types'
+import { ConfirmationButton } from '@/components/common/confirmation'
+import { useUnsavedChanges, UnsavedChangesDialog } from '@/components/common/unsaved-guard'
 import { useUserStore } from '@/store/user'
 import { useToastStore } from '@/store/toast'
-import { useUnsavedChangesStore } from '@/store/unsaved-changes'
-import { useConfirmationStore } from '@/store/confirmation'
 import { JOURNAL_CHANGED } from '@/services/event'
 
 const props = defineProps<{
@@ -44,8 +44,6 @@ const router = useRouter()
 const { t, n } = useI18n()
 const userStore = useUserStore()
 const toastStore = useToastStore()
-const unsavedChanges = useUnsavedChangesStore()
-const confirmationStore = useConfirmationStore()
 const bus = useEventBus(JOURNAL_CHANGED)
 
 const isEditing = ref(!props.journalId)
@@ -183,16 +181,7 @@ const formatUserName = (user?: { traits?: { name?: { first?: string; last?: stri
   `${user?.traits?.name?.last ?? ''}${user?.traits?.name?.first ?? ''}`
 
 // Unsaved changes protection
-watch(
-  () => form.meta.value.dirty,
-  (isDirty) => {
-    if (isDirty) {
-      unsavedChanges.action.enableProtection()
-    } else {
-      unsavedChanges.action.disableProtection()
-    }
-  },
-)
+const { confirmOpen, onConfirmLeave, onCancelLeave } = useUnsavedChanges(computed(() => form.meta.value.dirty))
 
 // Journal line management
 function addJournalLine() {
@@ -310,7 +299,6 @@ const onSubmit = form.handleSubmit(async (values) => {
     if (exception || !data) return
 
     toastStore.action.success(t('journal.msg.success'))
-    unsavedChanges.action.disableProtection()
     bus.emit()
 
     // Navigate to view mode with new journal
@@ -335,7 +323,6 @@ const onSubmit = form.handleSubmit(async (values) => {
     if (exception) return
 
     toastStore.action.success(t('journal.msg.success'))
-    unsavedChanges.action.disableProtection()
     bus.emit()
 
     // Reload and exit edit mode
@@ -366,7 +353,6 @@ function handleCreateAdjusting() {
 }
 
 function handleCancel() {
-  unsavedChanges.action.disableProtection()
   if (!props.journalId) {
     // Cancel creating new journal
     router.push({
@@ -391,23 +377,13 @@ async function handleAudit() {
   await load()
 }
 
-async function handleCancelAudit() {
+async function onCancelAudit() {
   if (!props.journalId) return
-  confirmationStore.action.confirm({
-    title: t('journal.audit'),
-    message: t('journal.msg.confirmCancelAudit'),
-    onConfirm: async () => {
-      const { exception } = await JournalService.cancelAuditJournal(
-        props.sobId,
-        props.journalId!,
-        userStore.state.user.id,
-      )
-      if (exception) return
-      toastStore.action.success(t('journal.msg.cancelAuditSuccess'))
-      bus.emit()
-      await load()
-    },
-  })
+  const { exception } = await JournalService.cancelAuditJournal(props.sobId, props.journalId, userStore.state.user.id)
+  if (exception) return
+  toastStore.action.success(t('journal.msg.cancelAuditSuccess'))
+  bus.emit()
+  await load()
 }
 
 async function handleReview() {
@@ -419,38 +395,22 @@ async function handleReview() {
   await load()
 }
 
-async function handleCancelReview() {
+async function onCancelReview() {
   if (!props.journalId) return
-  confirmationStore.action.confirm({
-    title: t('journal.review'),
-    message: t('journal.msg.confirmCancelReview'),
-    onConfirm: async () => {
-      const { exception } = await JournalService.cancelReviewJournal(
-        props.sobId,
-        props.journalId!,
-        userStore.state.user.id,
-      )
-      if (exception) return
-      toastStore.action.success(t('journal.msg.cancelReviewSuccess'))
-      bus.emit()
-      await load()
-    },
-  })
+  const { exception } = await JournalService.cancelReviewJournal(props.sobId, props.journalId, userStore.state.user.id)
+  if (exception) return
+  toastStore.action.success(t('journal.msg.cancelReviewSuccess'))
+  bus.emit()
+  await load()
 }
 
-async function handlePost() {
+async function onPost() {
   if (!props.journalId) return
-  confirmationStore.action.confirm({
-    title: t('journal.post'),
-    message: t('journal.msg.confirmPost'),
-    onConfirm: async () => {
-      const { exception } = await JournalService.postJournal(props.sobId, props.journalId!, userStore.state.user.id)
-      if (exception) return
-      toastStore.action.success(t('journal.msg.postSuccess'))
-      bus.emit()
-      await load()
-    },
-  })
+  const { exception } = await JournalService.postJournal(props.sobId, props.journalId, userStore.state.user.id)
+  if (exception) return
+  toastStore.action.success(t('journal.msg.postSuccess'))
+  bus.emit()
+  await load()
 }
 </script>
 
@@ -463,18 +423,32 @@ async function handlePost() {
         <Button v-if="!journal?.isAudited" variant="outline" @click="handleAudit">
           {{ $t('journal.audit') }}
         </Button>
-        <Button v-if="journal?.isAudited && !journal?.isPosted" variant="outline" @click="handleCancelAudit">
+        <ConfirmationButton
+          v-if="journal?.isAudited && !journal?.isPosted"
+          variant="outline"
+          :message="$t('journal.msg.confirmCancelAudit')"
+          @confirm="onCancelAudit"
+        >
           {{ $t('journal.cancelAudit') }}
-        </Button>
+        </ConfirmationButton>
         <Button v-if="!journal?.isReviewed" variant="outline" @click="handleReview">
           {{ $t('journal.review') }}
         </Button>
-        <Button v-if="journal?.isReviewed && !journal?.isPosted" variant="outline" @click="handleCancelReview">
+        <ConfirmationButton
+          v-if="journal?.isReviewed && !journal?.isPosted"
+          variant="outline"
+          :message="$t('journal.msg.confirmCancelReview')"
+          @confirm="onCancelReview"
+        >
           {{ $t('journal.cancelReview') }}
-        </Button>
-        <Button v-if="journal?.isAudited && journal?.isReviewed && !journal?.isPosted" @click="handlePost">
+        </ConfirmationButton>
+        <ConfirmationButton
+          v-if="journal?.isAudited && journal?.isReviewed && !journal?.isPosted"
+          :message="$t('journal.msg.confirmPost')"
+          @confirm="onPost"
+        >
           {{ $t('journal.post') }}
-        </Button>
+        </ConfirmationButton>
 
         <!-- Edit/Close buttons -->
         <Button v-if="!journal?.isAudited && !journal?.isReviewed" variant="outline" @click="handleEdit">
@@ -855,4 +829,6 @@ async function handlePost() {
       </div>
     </div>
   </PageFrame>
+
+  <UnsavedChangesDialog :open="confirmOpen" @confirm="onConfirmLeave" @cancel="onCancelLeave" />
 </template>

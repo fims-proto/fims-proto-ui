@@ -22,6 +22,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import AccountInput from '@/components/account/AccountInput.vue'
 import { EditableField } from '@/components/common/form'
+import { ConfirmationButton } from '@/components/common/confirmation'
 import { VisuallyHidden } from 'reka-ui'
 
 import type { Item } from '@/services/report'
@@ -43,6 +44,7 @@ const open = defineModel<boolean>('open', { required: true })
 
 const emit = defineEmits<{
   saved: [item: Item]
+  deleted: [item: Item]
 }>()
 
 const { t } = useI18n()
@@ -140,6 +142,11 @@ function handleCancel() {
   // Parent controls edit mode, so no mode switching needed here
   initializeForm()
   open.value = false
+}
+
+function onDelete() {
+  open.value = false
+  emit('deleted', props.item)
 }
 
 async function handleSave() {
@@ -380,7 +387,15 @@ async function handleSave() {
           <Button variant="outline" @click="open = false">{{ $t('action.close') }}</Button>
         </template>
         <template v-else>
-          <!-- Edit/Create mode: Save and Cancel buttons -->
+          <!-- Edit/Create mode: Delete, Save and Cancel buttons -->
+          <ConfirmationButton
+            variant="destructive"
+            :message="$t('report.msg.confirmDeleteItem')"
+            class="mr-auto"
+            @confirm="onDelete"
+          >
+            {{ $t('action.delete') }}
+          </ConfirmationButton>
           <Button variant="outline" @click="handleCancel">{{ $t('action.cancel') }}</Button>
           <Button @click="handleSave">{{ $t('action.save') }}</Button>
         </template>

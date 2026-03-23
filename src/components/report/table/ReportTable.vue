@@ -22,7 +22,6 @@ const emit = defineEmits<{
   insertBefore: [entry: Entry, index: number]
   insertChild: [entry: Entry, index: number]
   insertAfter: [entry: Entry, index: number]
-  deleteItem: [entry: Entry, index: number]
 }>()
 
 function handleRowClick(entry: Entry, index: number) {
@@ -39,10 +38,6 @@ function handleInsertChild(entry: Entry, index: number) {
 
 function handleInsertAfter(entry: Entry, index: number) {
   emit('insertAfter', entry, index)
-}
-
-function confirmDelete(entry: Entry, index: number) {
-  emit('deleteItem', entry, index)
 }
 
 function getPrevEntry(index: number): Entry | null {
@@ -103,10 +98,6 @@ function getPrevEntry(index: number): Entry | null {
             <DropdownMenuItem @click="handleInsertAfter(entry, index)">
               <CornerDownRight class="mr-1 h-4 w-4" />
               {{ $t('report.btn.insertAfter') }}
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem class="text-destructive" @click="confirmDelete(entry, index)">
-              {{ $t('action.delete') }}
             </DropdownMenuItem>
           </template>
         </DropdownMenuContent>

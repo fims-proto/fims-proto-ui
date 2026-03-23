@@ -6,9 +6,7 @@ defineProps<{
   total: number
 }>()
 
-defineEmits<{
-  (e: 'click'): void
-}>()
+defineEmits<{ click: [] }>()
 </script>
 
 <template>

@@ -31,9 +31,7 @@ const props = defineProps<{
   bordered?: boolean
 }>()
 
-const emit = defineEmits<{
-  loadMore: []
-}>()
+const emit = defineEmits<{ loadMore: [] }>()
 
 const globalFilter = ref('')
 const sorting = ref<SortingState>([])

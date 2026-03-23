@@ -9,11 +9,11 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { ConfirmationButton } from '@/components/common/confirmation'
 
 import { PeriodService, type PreCloseCheck } from '@/services/general-ledger'
 import { usePeriodStore } from '@/store/period'
 import { useToastStore } from '@/store/toast'
-import { useConfirmationStore } from '@/store/confirmation'
 import { PERIOD_CHANGED } from '@/services/event'
 
 const props = defineProps<{
@@ -24,7 +24,6 @@ const props = defineProps<{
 const { t } = useI18n()
 const periodStore = usePeriodStore()
 const toastStore = useToastStore()
-const confirmationStore = useConfirmationStore()
 const bus = useEventBus(PERIOD_CHANGED)
 
 const { allPeriods } = toRefs(periodStore.state)
@@ -75,26 +74,20 @@ async function load() {
   }
 }
 
-function handleClose() {
-  confirmationStore.action.confirm({
-    title: t('common.confirmationHeader'),
-    message: t('period.management.confirmClose'),
-    onConfirm: async () => {
-      isClosing.value = true
-      try {
-        const { exception } = await PeriodService.closePeriod(props.sobId, props.periodId)
-        if (!exception) {
-          toastStore.action.success(t('common.requestCompleted'), {
-            description: t('period.management.closeSuccess'),
-          })
-          bus.emit()
-          await periodStore.action.refreshPeriods(props.sobId)
-        }
-      } finally {
-        isClosing.value = false
-      }
-    },
-  })
+async function onClose() {
+  isClosing.value = true
+  try {
+    const { exception } = await PeriodService.closePeriod(props.sobId, props.periodId)
+    if (!exception) {
+      toastStore.action.success(t('common.requestCompleted'), {
+        description: t('period.management.closeSuccess'),
+      })
+      bus.emit()
+      await periodStore.action.refreshPeriods(props.sobId)
+    }
+  } finally {
+    isClosing.value = false
+  }
 }
 </script>
 
@@ -106,11 +99,11 @@ function handleClose() {
           <RefreshCw :class="['size-4', isLoading && 'animate-spin']" />
           {{ $t('common.refresh') }}
         </Button>
-        <Button :disabled="!canClose" @click="handleClose">
+        <ConfirmationButton :disabled="!canClose" :message="$t('period.management.confirmClose')" @confirm="onClose">
           <Loader2 v-if="isClosing" class="size-4 animate-spin" />
           <BookLock v-else class="size-4" />
           {{ $t('period.management.closePeriod') }}
-        </Button>
+        </ConfirmationButton>
       </template>
     </template>
 

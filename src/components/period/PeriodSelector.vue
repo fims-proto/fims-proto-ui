@@ -183,10 +183,10 @@ const rangeTriggerText = computed(() => {
             <div class="flex items-center gap-2">
               <span>{{ getPeriodText(period) }}</span>
               <Badge v-if="period.id === currentPeriod?.id" variant="default" class="text-xs">
-                {{ $t('period.current') }}
+                {{ $t('period.status.current') }}
               </Badge>
               <Badge v-if="period.isClosed" variant="secondary" class="text-xs">
-                {{ $t('period.closed') }}
+                {{ $t('period.status.closed') }}
               </Badge>
             </div>
           </SelectItem>
