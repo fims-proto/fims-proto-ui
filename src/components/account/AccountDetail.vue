@@ -41,6 +41,7 @@ import { DimensionService, type DimensionCategory } from '@/services/dimension'
 import { useSobStore } from '@/store/sob'
 import { useToastStore } from '@/store/toast'
 import { useUnsavedChanges, UnsavedChangesDialog } from '@/components/common/unsaved-guard'
+import { ConfirmationButton } from '@/components/common/confirmation'
 import { ACCOUNT_CHANGED } from '@/services/event'
 
 const props = defineProps<{
@@ -271,6 +272,15 @@ function onClose() {
   router.push({ name: 'accountList', params: { sobId: props.sobId } })
 }
 
+async function onDelete() {
+  if (!props.accountId) return
+  const { exception } = await AccountService.deleteAccount(props.sobId, props.accountId)
+  if (exception) return
+  toast.action.success(t('account.msg.deleteSuccess'))
+  bus.emit()
+  router.push({ name: 'accountList', params: { sobId: props.sobId } })
+}
+
 function toggleCategorySelection(categoryId: string, update: (value: string[]) => void) {
   const currentIds = form.values.dimensionCategoryIds ?? []
   const isSelected = currentIds.includes(categoryId)
@@ -288,6 +298,13 @@ function toggleCategorySelection(categoryId: string, update: (value: string[]) =
     <template #end>
       <!-- Display mode: Edit + Close -->
       <template v-if="!isEditing && props.accountId">
+        <ConfirmationButton
+          variant="destructive"
+          :message="$t('account.msg.confirmDelete')"
+          @confirm="onDelete"
+        >
+          {{ $t('action.delete') }}
+        </ConfirmationButton>
         <Button variant="outline" @click="onEdit">{{ $t('action.edit') }}</Button>
         <Button variant="ghost" @click="onClose">{{ $t('action.close') }}</Button>
       </template>

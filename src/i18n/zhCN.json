@@ -153,6 +153,8 @@
     },
     "msg": {
       "saveSuccess": "科目保存成功",
+      "deleteSuccess": "科目删除成功",
+      "confirmDelete": "确定要删除此科目吗？此操作无法撤销。",
       "levelNumberOutOfRange": "本级编码必须在 1 到 {0} 之间",
       "invalidLevel": "无效的科目级次"
     }

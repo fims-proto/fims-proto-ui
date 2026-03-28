@@ -45,6 +45,12 @@ class AccountService {
       await axios.patch(`${FIMS_URL}/api/v1/sob/${sobId}/account/${accountId}`, account)
     })
   }
+
+  public async deleteAccount(sobId: string, accountId: string): Promise<Response<void>> {
+    return invokeWithErrorHandler(async () => {
+      await axios.delete(`${FIMS_URL}/api/v1/sob/${sobId}/account/${accountId}`)
+    })
+  }
 }
 
 export const AccountServiceInstance = new AccountService()
