@@ -30,6 +30,13 @@ export const PreCloseCheckPnLAccountSchema = z.object({
   endingAmount: z.number(),
 })
 
+export const PreCloseCheckCurrentYearProfitAccountSchema = z.object({
+  accountNumber: z.string(),
+  accountTitle: z.string(),
+  endingAmount: z.number(),
+  passed: z.boolean(),
+})
+
 export const PreCloseCheckSchema = z.object({
   unpostedJournals: z.object({
     count: z.number(),
@@ -46,8 +53,10 @@ export const PreCloseCheckSchema = z.object({
     accounts: z.array(PreCloseCheckPnLAccountSchema),
     passed: z.boolean(),
   }),
+  currentYearProfitAccount: PreCloseCheckCurrentYearProfitAccountSchema.optional(),
 })
 
 export type PreCloseCheckJournal = z.infer<typeof PreCloseCheckJournalSchema>
 export type PreCloseCheckPnLAccount = z.infer<typeof PreCloseCheckPnLAccountSchema>
+export type PreCloseCheckCurrentYearProfitAccount = z.infer<typeof PreCloseCheckCurrentYearProfitAccountSchema>
 export type PreCloseCheck = z.infer<typeof PreCloseCheckSchema>

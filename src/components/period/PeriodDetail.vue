@@ -37,13 +37,12 @@ const isCurrent = computed(() => period.value?.isCurrent ?? false)
 const isClosed = computed(() => period.value?.isClosed ?? false)
 const isOpen = computed(() => !isCurrent.value && !isClosed.value)
 
-const allChecksPassed = computed(
-  () =>
-    preCloseCheck.value != null &&
-    preCloseCheck.value.unpostedJournals.passed &&
-    preCloseCheck.value.trialBalance.passed &&
-    preCloseCheck.value.profitAndLossBalance.passed,
-)
+const allChecksPassed = computed(() => {
+  if (preCloseCheck.value == null) return false
+  const { unpostedJournals, trialBalance, profitAndLossBalance, currentYearProfitAccount } = preCloseCheck.value
+  const currentYearProfitPassed = currentYearProfitAccount == null || currentYearProfitAccount.passed
+  return unpostedJournals.passed && trialBalance.passed && profitAndLossBalance.passed && currentYearProfitPassed
+})
 
 const canClose = computed(() => isCurrent.value && allChecksPassed.value && !isClosing.value)
 
@@ -254,7 +253,63 @@ async function onClose() {
           </CardContent>
         </Card>
 
-        <!-- Check 3: Trial Balance -->
+        <!-- Check 3: Year-End Retained Revenue -->
+        <Card v-if="preCloseCheck?.currentYearProfitAccount">
+          <CardHeader class="pb-3">
+            <CardTitle class="flex items-center gap-2 text-base">
+              <Loader2
+                v-if="checkIcon(preCloseCheck?.currentYearProfitAccount.passed) === 'loading'"
+                class="text-muted-foreground size-5 animate-spin"
+              />
+              <CheckCircle2
+                v-else-if="checkIcon(preCloseCheck?.currentYearProfitAccount.passed) === 'passed'"
+                class="size-5 text-green-500"
+              />
+              <XCircle v-else class="text-destructive size-5" />
+              {{ $t('period.management.checkItems.currentYearProfitAccount') }}
+              <Button
+                v-show="preCloseCheck && !preCloseCheck.currentYearProfitAccount.passed"
+                variant="ghost"
+                size="sm"
+                class="ml-auto"
+                disabled
+              >
+                {{ $t('period.management.currentYearProfitAccount.generateJournal') }}
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent v-if="preCloseCheck">
+            <!-- Passed -->
+            <p v-if="preCloseCheck.currentYearProfitAccount.passed" class="text-muted-foreground text-sm">
+              {{ $t('period.management.currentYearProfitAccount.passed') }}
+            </p>
+            <!-- Not passed: show account table -->
+            <div v-else>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{{ $t('period.management.currentYearProfitAccount.accountNumber') }}</TableHead>
+                    <TableHead>{{ $t('period.management.currentYearProfitAccount.accountTitle') }}</TableHead>
+                    <TableHead class="text-right">{{
+                      $t('period.management.currentYearProfitAccount.endingAmount')
+                    }}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell class="text-xs">{{ preCloseCheck.currentYearProfitAccount.accountNumber }}</TableCell>
+                    <TableCell class="text-xs">{{ preCloseCheck.currentYearProfitAccount.accountTitle }}</TableCell>
+                    <TableCell class="text-right text-xs">{{
+                      $n(preCloseCheck.currentYearProfitAccount.endingAmount, 'decimal')
+                    }}</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+
+        <!-- Check 4: Trial Balance -->
         <Card>
           <CardHeader class="pb-3">
             <CardTitle class="flex items-center gap-2 text-base">

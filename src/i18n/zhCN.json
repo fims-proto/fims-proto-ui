@@ -183,7 +183,8 @@
       "checkItems": {
         "unpostedJournals": "未记账分录",
         "trialBalance": "试算平衡",
-        "pnlBalance": "损益账户清零"
+        "pnlBalance": "损益账户清零",
+        "currentYearProfitAccount": "本年利润结转"
       },
       "trialBalance": {
         "description": "以下数值为借贷差额，均为零则表示借贷平衡",
@@ -207,6 +208,13 @@
         "accountTitle": "科目名称",
         "carryForward": "创建结转分录",
         "zeroed": "损益账户余额已清零"
+      },
+      "currentYearProfitAccount": {
+        "accountNumber": "科目编号",
+        "accountTitle": "科目名称",
+        "endingAmount": "余额",
+        "passed": "本年利润已结转",
+        "generateJournal": "创建结转分录"
       }
     }
   },

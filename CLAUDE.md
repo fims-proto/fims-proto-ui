@@ -354,16 +354,19 @@ Before implementing a fix for a bug, create a brief plan and confirm the approac
 ### Debugging Common Issues
 
 **Kratos authentication not working:**
+
 - Check `VITE_KRATOS_PUBLIC_URL` points to Kratos public API (not admin)
 - Verify Kratos service is running on expected port
 - Check browser Network tab for failed requests
 
 **API calls returning 404:**
+
 - Verify `VITE_FIMS_API_URL` matches backend base path
 - Check `swagger/swagger.yaml` for exact endpoint paths
 - Ensure SOB is loaded via route guards before making API calls
 
 **TypeScript errors after API changes:**
+
 - Regenerate Zod schemas in `src/services/<domain>/types.ts` to match `swagger/swagger.yaml`
 - Run `npm run type-check` to identify all mismatches
 
@@ -402,25 +405,29 @@ export const ACCOUNT_AN_CONVERSION: AccountNumberConversionRecord = {
 ### Account Number Conversion Details
 
 **Background:**
+
 - Backend stores in `rawAccountNumber` format: 6 chars per level (system max), e.g., `"003401000001"`
 - Frontend displays in `accountNumber` format: SoB-configured chars per level, e.g., `"340101"` with `accountsCodeLength=[4,2,2]`
 
 **Conversion functions** (`src/services/field-conversion/account-number-pure-logic.ts`):
+
 - `rawToDisplay(rawNum, codeLengths)` - 6-char → SoB-format
 - `displayToRaw(displayNum, codeLengths)` - SoB-format → 6-char
 
 **Example with `accountsCodeLength=[4,2,2]`:**
+
 - Raw: `"003401000001"` → Display: `"340101"` (Level 1: "003401"→"3401", Level 2: "000001"→"01")
 - Display: `"340101"` → Raw: `"003401000001"` (reverse)
 
 **Usage in services:**
+
 ```typescript
 // Response processing
 const codeLengths = useSobStore().state.workingSob?.accountsCodeLength ?? []
 convertAccountNumberFields(result.data, ACCOUNT_AN_CONVERSION, codeLengths)
 
 // Request processing (before axios.post)
-const requestCopy = JSON.parse(JSON.stringify(request))  // Deep copy
+const requestCopy = JSON.parse(JSON.stringify(request)) // Deep copy
 convertAccountNumberFields(requestCopy, REQUEST_CONVERSION, codeLengths)
 await axios.post(endpoint, requestCopy)
 ```
@@ -432,7 +439,8 @@ await axios.post(endpoint, requestCopy)
 ### Backend Data Conversion
 
 **Problem:** Backend returns dates/numbers as strings, or field names don't match frontend types
-**Solution:** 
+**Solution:**
+
 1. Use `convertFieldsFromString(data, FIELD_CONVERSION_MAP)` for type coercion (string→number/date)
 2. Use `convertAccountNumberFields(data, CONFIG, codeLengths)` for field mapping + value conversion (rawAccountNumber→accountNumber)
 3. Apply conversions in service layer before returning to components
@@ -636,7 +644,7 @@ export function rawToDisplay(raw: string, lengths: readonly number[]): string
 **Solution:** Always deep copy before calling `convertAccountNumberFields()` on request bodies
 
 ```typescript
-const requestCopy = JSON.parse(JSON.stringify(request))  // Deep copy
+const requestCopy = JSON.parse(JSON.stringify(request)) // Deep copy
 convertAccountNumberFields(requestCopy, CONFIG, codeLengths)
 await axios.post(endpoint, requestCopy)
 ```
@@ -645,6 +653,7 @@ await axios.post(endpoint, requestCopy)
 
 **Gotcha:** Calling conversions in wrong order loses data or causes type errors
 **Solution:** Always apply in this order:
+
 1. `convertFieldsFromString()` - type coercion (string→number/date)
 2. `convertAccountNumberFields()` - field mapping (rename + value conversion)
 

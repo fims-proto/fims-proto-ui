@@ -605,6 +605,17 @@ definitions:
       poster:
         type: string
     type: object
+  http.PreCloseCheckCurrentYearProfitAccountResponse:
+    properties:
+      accountTitle:
+        type: string
+      endingAmount:
+        type: number
+      passed:
+        type: boolean
+      rawAccountNumber:
+        type: string
+    type: object
   http.PreCloseCheckJournalResponse:
     properties:
       amount:
@@ -642,6 +653,8 @@ definitions:
     type: object
   http.PreCloseCheckResponse:
     properties:
+      currentYearProfitAccount:
+        $ref: '#/definitions/http.PreCloseCheckCurrentYearProfitAccountResponse'
       profitAndLossBalance:
         $ref: '#/definitions/http.PreCloseCheckPnLBalanceResponse'
       trialBalance:

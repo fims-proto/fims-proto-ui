@@ -66,6 +66,9 @@ export const PRE_CLOSE_CHECK_FIELDS_CONVERSION: FieldConversionRecord = {
       endingAmount: 'number',
     },
   },
+  currentYearProfitAccount: {
+    endingAmount: 'number',
+  },
 }
 
 // -----------------------------------------------
@@ -96,6 +99,9 @@ export const PRE_CLOSE_CHECK_AN_CONVERSION: AccountNumberConversionRecord = {
     accounts: {
       rawAccountNumber: { fn: 'rawToDisplay', targetField: 'accountNumber' },
     },
+  },
+  currentYearProfitAccount: {
+    rawAccountNumber: { fn: 'rawToDisplay', targetField: 'accountNumber' },
   },
 }
 
