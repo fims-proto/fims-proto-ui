@@ -302,11 +302,7 @@ function toggleCategorySelection(categoryId: string, update: (value: string[]) =
     <template #end>
       <!-- Display mode: Edit + Close -->
       <template v-if="!isEditing && props.accountId">
-        <ConfirmationButton
-          variant="destructive"
-          :message="$t('account.msg.confirmDelete')"
-          @confirm="onDelete"
-        >
+        <ConfirmationButton variant="destructive" :message="$t('account.msg.confirmDelete')" @confirm="onDelete">
           {{ $t('action.delete') }}
         </ConfirmationButton>
         <Button variant="outline" @click="onEdit">{{ $t('action.edit') }}</Button>

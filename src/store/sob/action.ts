@@ -35,9 +35,30 @@ function loadWorkingSob(state: ISobState) {
   }
 }
 
+function refreshWorkingSob(state: ISobState) {
+  return async () => {
+    const sobId = state.workingSob?.id
+    if (!sobId) {
+      return
+    }
+
+    const { data, exception } = await SobService.getSobById(sobId)
+    if (exception || !data) {
+      console.error('Failed to refresh working sob', exception)
+      return
+    }
+
+    state.workingSob = data
+
+    usePeriodStore().action.refreshPeriods(sobId)
+    useAccountStore().action.refreshAccounts(sobId)
+  }
+}
+
 export function createAction(state: ISobState) {
   return {
     setWorkingSob: setWorkingSob(state),
     loadWorkingSob: loadWorkingSob(state),
+    refreshWorkingSob: refreshWorkingSob(state),
   }
 }

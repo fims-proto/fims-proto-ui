@@ -1,4 +1,8 @@
-import type { FieldConversionRecord } from '@/services/types'
+import type { AccountNumberConversionRecord, FieldConversionRecord } from '../field-conversion'
+
+// ------------------------------------------
+// ------ Data type field conversions -------
+// ------------------------------------------
 
 export const ACCOUNT_FIELDS_CONVERSION: FieldConversionRecord = {
   level: 'number',
@@ -61,5 +65,55 @@ export const PRE_CLOSE_CHECK_FIELDS_CONVERSION: FieldConversionRecord = {
     accounts: {
       endingAmount: 'number',
     },
+  },
+}
+
+// -----------------------------------------------
+// ------ Account number field conversions -------
+// -----------------------------------------------
+
+// Response configs:
+// rawAccountNumber → accountNumber
+
+export const ACCOUNT_AN_CONVERSION: AccountNumberConversionRecord = {
+  rawAccountNumber: { fn: 'rawToDisplay', targetField: 'accountNumber' },
+}
+
+export const LEDGER_AN_CONVERSION: AccountNumberConversionRecord = {
+  rawAccountNumber: { fn: 'rawToDisplay', targetField: 'accountNumber' },
+}
+
+export const JOURNAL_RESPONSE_AN_CONVERSION: AccountNumberConversionRecord = {
+  journalLines: {
+    account: {
+      rawAccountNumber: { fn: 'rawToDisplay', targetField: 'accountNumber' },
+    },
+  },
+}
+
+export const PRE_CLOSE_CHECK_AN_CONVERSION: AccountNumberConversionRecord = {
+  profitAndLossBalance: {
+    accounts: {
+      rawAccountNumber: { fn: 'rawToDisplay', targetField: 'accountNumber' },
+    },
+  },
+}
+
+// Request configs:
+// accountNumber → rawAccountNumber
+
+export const CREATE_ACCOUNT_REQUEST_AN_CONVERSION: AccountNumberConversionRecord = {
+  superiorAccountNumber: { fn: 'displayToRaw', targetField: 'superiorRawAccountNumber' },
+}
+
+export const INITIALIZE_LEDGER_REQUEST_AN_CONVERSION: AccountNumberConversionRecord = {
+  ledgers: {
+    accountNumber: { fn: 'displayToRaw', targetField: 'rawAccountNumber' },
+  },
+}
+
+export const JOURNAL_LINE_REQUEST_AN_CONVERSION: AccountNumberConversionRecord = {
+  journalLines: {
+    accountNumber: { fn: 'displayToRaw', targetField: 'rawAccountNumber' },
   },
 }

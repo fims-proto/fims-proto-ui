@@ -1,8 +1,8 @@
 import axios from 'axios'
 import { type NewSob, type Sob, type UpdateSob } from './types'
 import { FIMS_URL } from '../../config'
-import { convertFieldsFromString } from '../field-conversion'
-import type { FieldConversionRecord, Page, Pageable } from '@/services/types'
+import { convertFieldsFromString, type FieldConversionRecord } from '../field-conversion'
+import type { Page, Pageable } from '@/services/types'
 import { invokeWithErrorHandler, type Response } from '@/services/error-handler'
 import type { Filter } from '../filter'
 

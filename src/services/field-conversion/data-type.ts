@@ -1,6 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { type FieldConversionRecord } from './types'
+// ts doesn't allow circularly references for now, so this is a workaround
+type FieldConversionRecursiveRecord<T> = Record<string, 'number' | 'date' | T>
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface FieldConversionRecord extends FieldConversionRecursiveRecord<FieldConversionRecord> {}
 
 export function convertFieldsFromString(data: any, options: FieldConversionRecord) {
   if (Array.isArray(data)) {
