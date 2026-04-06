@@ -46,7 +46,13 @@ export function convertAccountNumberFields(
     }
   } else if (isObject(data)) {
     for (const key in options) {
-      data[key] = convertField(key, data[key], options[key], accountsCodeLength)
+      const result = convertField(key, data[key], options[key], accountsCodeLength)
+      if (isDirectiveResult(result)) {
+        data[result.targetField] = result.value
+        delete data[key]
+      } else {
+        data[key] = result
+      }
     }
   } else {
     throw new Error('[convertAccountNumberFields] Unexpected data type: expected array or object')

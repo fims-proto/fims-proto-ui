@@ -26,6 +26,12 @@ npm run dev      # Start dev server on localhost:5001
 npm run build    # TypeScript check + production build
 npm run preview  # Preview production build
 
+# Code Quality
+npm run type-check  # Check TypeScript without emitting
+npm run lint        # Run ESLint on src/**/*.{js,ts,vue}
+npm run check-fmt   # Check code formatting (Prettier)
+npm run fmt         # Auto-format code with Prettier
+
 # shadcn-vue components
 npx shadcn-vue@latest add <component-name>  # Add single component
 ./update-shadcn-components.sh               # Update all components
@@ -188,12 +194,14 @@ table.*                     - data table UI (search, filter, sort)
 
 ### Environment Configuration
 
-**Location:** `env/` directory (configured in vite.config.ts)
+**Location:** `env/.env.development` and `env/.env.production` (configured in vite.config.ts)
 
 **Required variables:**
 
-- `VITE_KRATOS_PUBLIC_URL` - Ory Kratos public API endpoint
-- `VITE_FIMS_API_URL` - FIMS backend API endpoint
+- `VITE_KRATOS_PUBLIC_URL` - Ory Kratos public API endpoint (e.g., `/kratos/public` for dev proxying, full URL for production)
+- `VITE_FIMS_API_URL` - FIMS backend API base path (e.g., `/fims` for dev proxying)
+
+**Note:** During development with Vite, the API is proxied through the dev server. In production, these should be absolute URLs or relative paths depending on your deployment setup.
 
 **Access:** `import.meta.env.VITE_*` (see `src/config.ts`)
 
@@ -260,7 +268,7 @@ table.*                     - data table UI (search, filter, sort)
 
 ### Reports (Financial Statements)
 
-- Templates vs instances (see FRONTEND_DESIGN.md)
+- Templates vs instances
 - Hierarchical sections → items → formulas
 - Amount calculation from General Ledger data
 - **API endpoints:** See `swagger/swagger.yaml` under `reports` tag
@@ -272,7 +280,8 @@ When asked to plan or implement changes, start with the simplest approach that f
 
 When asked for backend-only or frontend-only analysis, stay strictly within that boundary. Do not include suggestions or changes for the other side unless explicitly asked.
 
-Add under a top-level ## Debugging & Bug Fixes section
+### Debugging & Bug Fixes
+
 Before implementing a fix for a bug, create a brief plan and confirm the approach. Do not jump straight into coding a fix without understanding the root cause first. When debugging, avoid rapid-fire guessing — instead, methodically trace the data flow.
 
 ### Code Style & Readability
@@ -324,12 +333,109 @@ Before implementing a fix for a bug, create a brief plan and confirm the approac
 - Check: Files are linted automatically via IDE integration
 - Config: `eslint.config.js` (flat config format)
 
+## Development Workflow
+
+### Initial Setup
+
+1. Install dependencies: `npm install`
+2. Verify environment: Check that `env/.env.development` contains:
+   - `VITE_KRATOS_PUBLIC_URL=/kratos/public` (public API endpoint)
+   - `VITE_FIMS_API_URL=/fims` (backend API base path)
+3. Start dev server: `npm run dev` (runs on http://localhost:5001)
+4. Verify API connectivity: Check browser console for successful Kratos/API calls
+
+### Before Committing
+
+1. Format code: `npm run fmt`
+2. Check types: `npm run type-check`
+3. Lint: `npm run lint`
+4. Verify build: `npm run build` (catches TypeScript errors early)
+
+### Debugging Common Issues
+
+**Kratos authentication not working:**
+- Check `VITE_KRATOS_PUBLIC_URL` points to Kratos public API (not admin)
+- Verify Kratos service is running on expected port
+- Check browser Network tab for failed requests
+
+**API calls returning 404:**
+- Verify `VITE_FIMS_API_URL` matches backend base path
+- Check `swagger/swagger.yaml` for exact endpoint paths
+- Ensure SOB is loaded via route guards before making API calls
+
+**TypeScript errors after API changes:**
+- Regenerate Zod schemas in `src/services/<domain>/types.ts` to match `swagger/swagger.yaml`
+- Run `npm run type-check` to identify all mismatches
+
+## Field Conversion System (Two-Layer Approach)
+
+### Layer 1: Type Coercion (`convertFieldsFromString`)
+
+**Purpose:** Generic string→number/date conversion (applied immediately after API response)
+**Config location:** `*-field-conversion-types.ts` files
+**Config format:** `FieldConversionRecord = { fieldName: 'number' | 'date' | nested }`
+
+```typescript
+// Example: src/services/general-ledger/field-conversion-types.ts
+export const ACCOUNT_FIELDS_CONVERSION: FieldConversionRecord = {
+  level: 'number',
+  createdAt: 'date',
+  updatedAt: 'date',
+}
+```
+
+### Layer 2: Semantic Field Mapping (`convertAccountNumberFields`)
+
+**Purpose:** Domain-specific field renaming + value conversion (e.g., `rawAccountNumber` → `accountNumber`)
+**Config location:** `src/services/field-conversion/account-number.ts` (Walker) + `*-field-conversion-types.ts` (configs)
+**Config format:** `AccountNumberConversionRecord = { sourceField: { fn: 'rawToDisplay' | 'displayToRaw', targetField: 'newName' } }`
+
+```typescript
+// Example: Convert backend rawAccountNumber to display accountNumber
+export const ACCOUNT_AN_CONVERSION: AccountNumberConversionRecord = {
+  rawAccountNumber: { fn: 'rawToDisplay', targetField: 'accountNumber' },
+}
+```
+
+**Key insight:** Type coercion (number, date) is generic and applies everywhere. Field mapping (account numbers) is domain-specific and only applies at certain boundaries.
+
+### Account Number Conversion Details
+
+**Background:**
+- Backend stores in `rawAccountNumber` format: 6 chars per level (system max), e.g., `"003401000001"`
+- Frontend displays in `accountNumber` format: SoB-configured chars per level, e.g., `"340101"` with `accountsCodeLength=[4,2,2]`
+
+**Conversion functions** (`src/services/field-conversion/account-number-pure-logic.ts`):
+- `rawToDisplay(rawNum, codeLengths)` - 6-char → SoB-format
+- `displayToRaw(displayNum, codeLengths)` - SoB-format → 6-char
+
+**Example with `accountsCodeLength=[4,2,2]`:**
+- Raw: `"003401000001"` → Display: `"340101"` (Level 1: "003401"→"3401", Level 2: "000001"→"01")
+- Display: `"340101"` → Raw: `"003401000001"` (reverse)
+
+**Usage in services:**
+```typescript
+// Response processing
+const codeLengths = useSobStore().state.workingSob?.accountsCodeLength ?? []
+convertAccountNumberFields(result.data, ACCOUNT_AN_CONVERSION, codeLengths)
+
+// Request processing (before axios.post)
+const requestCopy = JSON.parse(JSON.stringify(request))  // Deep copy
+convertAccountNumberFields(requestCopy, REQUEST_CONVERSION, codeLengths)
+await axios.post(endpoint, requestCopy)
+```
+
+**Important:** Store returns `readonly number[]` (Vue reactivity), so conversion functions accept `readonly number[]` not `number[]`.
+
 ## Common Patterns & Solutions
 
 ### Backend Data Conversion
 
-**Problem:** Backend returns dates/numbers as strings
-**Solution:** Always use `convertFieldsFromString(data, FIELD_CONVERSION_MAP)` in services
+**Problem:** Backend returns dates/numbers as strings, or field names don't match frontend types
+**Solution:** 
+1. Use `convertFieldsFromString(data, FIELD_CONVERSION_MAP)` for type coercion (string→number/date)
+2. Use `convertAccountNumberFields(data, CONFIG, codeLengths)` for field mapping + value conversion (rawAccountNumber→accountNumber)
+3. Apply conversions in service layer before returning to components
 
 ### Store Reactivity
 
@@ -451,23 +557,13 @@ npx shadcn-vue@latest add button dialog table
 - Amount types must match report class:
   - Balance Sheet: `year_opening_balance`, `period_ending_balance`
   - Income Statement: `year_to_date_amount`, `period_amount`, `last_year_amount`
-- Formula rules: `net`, `debit`, `credit`, `transaction` (see FRONTEND_DESIGN.md)
+- Formula rules: `net`, `debit`, `credit`, `transaction`
 
 ### Pagination & Filtering
 
 - Most list endpoints support `$page`, `$size`, `$sort`, `$filter`
 - Filter syntax: OData-style (e.g., `title eq 'something' and amount lt 10`)
 - Default page size: 40
-
-## Design Documentation
-
-For detailed report module design, see `FRONTEND_DESIGN.md` which covers:
-
-- Report API endpoints and data models
-- UI component recommendations
-- Formula calculation logic
-- User workflows
-- Localization keys
 
 ## Working with the API
 
@@ -508,6 +604,54 @@ To add support for dimension management:
    ```
 4. **Component pattern:** Similar to accounts, but with update/delete support
 5. **API usage:** Categories use route `:categoryId` (UUID), Options route `:categoryId/:optionId` (UUID)
+
+## Development Gotchas & Lessons Learned
+
+### ESLint Empty Interface Warning
+
+**Gotcha:** `@typescript-eslint/no-empty-object-type` flags empty interfaces (e.g., extending Record types)
+**Solution:** Add `// eslint-disable-next-line @typescript-eslint/no-empty-object-type` above the interface definition when intentional
+
+```typescript
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface AccountNumberConversionRecord extends Record<string, ...> {}
+```
+
+### Vue Store Readonly Arrays
+
+**Gotcha:** Store returns `readonly number[]` (Vue reactivity) but functions expect `number[]`
+**Solution:** Update function signatures to accept `readonly number[]` for covariance
+
+```typescript
+// ✗ Wrong - causes type error
+export function rawToDisplay(raw: string, lengths: number[]): string
+
+// ✓ Correct - accepts both mutable and readonly
+export function rawToDisplay(raw: string, lengths: readonly number[]): string
+```
+
+### Deep Copying Before Mutation
+
+**Gotcha:** Field conversion mutates data in-place; passing original request object modifies component data
+**Solution:** Always deep copy before calling `convertAccountNumberFields()` on request bodies
+
+```typescript
+const requestCopy = JSON.parse(JSON.stringify(request))  // Deep copy
+convertAccountNumberFields(requestCopy, CONFIG, codeLengths)
+await axios.post(endpoint, requestCopy)
+```
+
+### Field Conversion Order
+
+**Gotcha:** Calling conversions in wrong order loses data or causes type errors
+**Solution:** Always apply in this order:
+1. `convertFieldsFromString()` - type coercion (string→number/date)
+2. `convertAccountNumberFields()` - field mapping (rename + value conversion)
+
+```typescript
+convertFieldsFromString(result.data, FIELDS_CONVERSION)
+convertAccountNumberFields(result.data, ACCOUNT_NUMBER_CONVERSION, codeLengths)
+```
 
 ## Notes
 
