@@ -23,7 +23,6 @@ export const AccountSlimSchema = z.object({
   superiorAccountId: z.string().uuid().optional(),
   title: z.string().min(1).max(50),
   accountNumber: z.string().min(1).max(60),
-  numberHierarchy: z.array(z.number().int().min(1).max(999999)).min(1).max(10),
   isLeaf: z.boolean(),
   level: z.number().int().min(1).max(10),
   class: z.string().length(1),

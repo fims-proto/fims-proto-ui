@@ -191,7 +191,7 @@ async function load() {
       // Transform Account to form values with superiorAccount object if exists
       const formValues = {
         title: data.title,
-        levelNumber: data.numberHierarchy[data.level - 1] ?? 1,
+        levelNumber: 1, // Placeholder, computed after loading superior account
         class: data.class,
         group: data.group,
         balanceDirection: data.balanceDirection,
@@ -206,6 +206,10 @@ async function load() {
           formValues.superiorAccount = superiorAccount
         }
       }
+
+      // Derive levelNumber from accountNumber suffix after superior's accountNumber
+      const superiorAccountNumber = formValues.superiorAccount?.accountNumber ?? ''
+      formValues.levelNumber = parseInt(data.accountNumber.slice(superiorAccountNumber.length), 10) || 1
 
       form.resetForm({ values: formValues }, { force: true })
     }
