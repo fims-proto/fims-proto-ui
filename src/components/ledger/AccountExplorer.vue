@@ -24,7 +24,7 @@ const props = defineProps<{
   toPeriod?: string
 }>()
 
-const { n } = useI18n()
+const { n, t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const { allAccounts } = toRefs(useAccountStore().state)
@@ -56,6 +56,34 @@ function toPeriodString(period: Period): string {
 }
 
 const hasData = computed(() => !!selectedAccount.value && !!selectedFromPeriod.value && !!selectedToPeriod.value)
+
+function amountDirection(amount: number): 'debit' | 'credit' | null {
+  if (amount > 0) return 'debit'
+  if (amount < 0) return 'credit'
+  return null
+}
+
+function formatDirectionLabel(amount: number): string {
+  if (amount > 0) return t('account.balanceDirectionEnum.debit')
+  if (amount < 0) return t('account.balanceDirectionEnum.credit')
+  return ''
+}
+
+const openingBalanceLabel = computed(() => {
+  if (!summary.value) return t('ledger.explorer.openingBalance')
+  const dir = amountDirection(summary.value.openingAmount)
+  if (dir === 'debit') return t('ledger.explorer.openingBalanceDebit')
+  if (dir === 'credit') return t('ledger.explorer.openingBalanceCredit')
+  return t('ledger.explorer.openingBalance')
+})
+
+const endingBalanceLabel = computed(() => {
+  if (!summary.value) return t('ledger.explorer.endingBalance')
+  const dir = amountDirection(summary.value.endingAmount)
+  if (dir === 'debit') return t('ledger.explorer.endingBalanceDebit')
+  if (dir === 'credit') return t('ledger.explorer.endingBalanceCredit')
+  return t('ledger.explorer.endingBalance')
+})
 
 const runningBalances = computed(() => {
   if (!summary.value) return []
@@ -159,8 +187,8 @@ function handleRangeSelected(start: Period, end: Period) {
           <CardContent>
             <div class="grid grid-cols-4 gap-4">
               <div class="space-y-1">
-                <p class="text-muted-foreground text-sm">{{ $t('ledger.explorer.openingBalance') }}</p>
-                <p class="text-2xl font-bold">{{ summary ? n(summary.openingAmount, 'decimal') : '—' }}</p>
+                <p class="text-muted-foreground text-sm">{{ openingBalanceLabel }}</p>
+                <p class="text-2xl font-bold">{{ summary ? n(Math.abs(summary.openingAmount), 'decimal') : '—' }}</p>
               </div>
               <div class="space-y-1">
                 <p class="text-muted-foreground text-sm">{{ $t('ledger.explorer.periodDebit') }}</p>
@@ -171,8 +199,8 @@ function handleRangeSelected(start: Period, end: Period) {
                 <p class="text-2xl font-bold">{{ summary ? n(summary.periodCredit, 'decimal') : '—' }}</p>
               </div>
               <div class="space-y-1">
-                <p class="text-muted-foreground text-sm">{{ $t('ledger.explorer.endingBalance') }}</p>
-                <p class="text-2xl font-bold">{{ summary ? n(summary.endingAmount, 'decimal') : '—' }}</p>
+                <p class="text-muted-foreground text-sm">{{ endingBalanceLabel }}</p>
+                <p class="text-2xl font-bold">{{ summary ? n(Math.abs(summary.endingAmount), 'decimal') : '—' }}</p>
               </div>
             </div>
           </CardContent>
@@ -211,7 +239,13 @@ function handleRangeSelected(start: Period, end: Period) {
                     {{ entry.amount < 0 ? n(-entry.amount, 'decimal') : '' }}
                   </TableCell>
                   <TableCell class="text-right tabular-nums">
-                    {{ n(runningBalances[index] ?? 0, 'decimal') }}
+                    <template v-if="runningBalances[index] !== undefined && runningBalances[index] !== 0">
+                      <span class="text-muted-foreground mr-1">{{ formatDirectionLabel(runningBalances[index]) }}</span>
+                      {{ n(Math.abs(runningBalances[index]), 'decimal') }}
+                    </template>
+                    <template v-else>
+                      {{ n(0, 'decimal') }}
+                    </template>
                   </TableCell>
                 </TableRow>
               </template>
