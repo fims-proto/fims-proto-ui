@@ -413,6 +413,15 @@ async function onPost() {
   bus.emit()
   await load()
 }
+
+async function handleDelete() {
+  if (!props.journalId) return
+  const { exception } = await JournalService.deleteJournal(props.sobId, props.journalId)
+  if (exception) return
+  toastStore.action.success(t('journal.msg.deleteSuccess'))
+  bus.emit()
+  router.back()
+}
 </script>
 
 <template>
@@ -449,6 +458,16 @@ async function onPost() {
           @confirm="onPost"
         >
           {{ $t('journal.post') }}
+        </ConfirmationButton>
+
+        <!-- Delete button for closing journals -->
+        <ConfirmationButton
+          v-if="journal?.journalType === 'CLOSING' || journal?.journalType === 'YEARLY_CLOSING'"
+          variant="destructive"
+          :message="$t('journal.msg.confirmDelete')"
+          @confirm="handleDelete"
+        >
+          {{ $t('action.delete') }}
         </ConfirmationButton>
 
         <!-- Edit/Close buttons -->

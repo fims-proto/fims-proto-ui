@@ -358,11 +358,13 @@
       "confirmCancelAudit": "确认取消审核？",
       "confirmCancelReview": "确认取消复核？",
       "confirmPost": "确认记账？此操作不可撤销。",
+      "confirmDelete": "确认删除此结账分录？此操作将反冲相关账务余额。",
       "auditSuccess": "分录审核成功",
       "cancelAuditSuccess": "已取消分录审核",
       "reviewSuccess": "分录复核成功",
       "cancelReviewSuccess": "已取消分录复核",
-      "postSuccess": "分录记账成功"
+      "postSuccess": "分录记账成功",
+      "deleteSuccess": "结账分录已删除"
     }
   },
   "report": {

@@ -135,6 +135,12 @@ class JournalService {
       return result.data
     })
   }
+
+  public async deleteJournal(sobId: string, id: string): Promise<Response<void>> {
+    return invokeWithErrorHandler(async () => {
+      await axios.delete(`${FIMS_URL}/api/v1/sob/${sobId}/journal/${id}`)
+    })
+  }
 }
 
 export const JournalServiceInstance = new JournalService()
