@@ -64,3 +64,12 @@ export type JournalLineRequest = {
   text: string
   amount: number
 }
+
+export type ClosingJournalResponse = {
+  journalId: string
+}
+
+export type ClosingJournalIdsResponse = {
+  monthlyClosingJournalId?: string
+  yearEndClosingJournalId?: string
+}

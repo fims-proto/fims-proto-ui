@@ -4,7 +4,7 @@ import { convertAccountNumberFields, convertFieldsFromString } from '../../field
 import { invokeWithErrorHandler, type Response } from '../../error-handler'
 import { useSobStore } from '../../../store/sob'
 import { type Page, type Pageable } from '../../types'
-import { type JournalSlim, type JournalDetail, type CreateJournalRequest, type UpdateJournalRequest } from './types'
+import { type JournalSlim, type JournalDetail, type CreateJournalRequest, type UpdateJournalRequest, type ClosingJournalResponse, type ClosingJournalIdsResponse } from './types'
 import {
   JOURNAL_FIELDS,
   JOURNAL_LINE_REQUEST_AN_CONVERSION,
@@ -105,6 +105,27 @@ class JournalService {
       await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/journal/${id}/post`, {
         poster,
       })
+    })
+  }
+
+  public async getClosingJournalIds(sobId: string, period: string): Promise<Response<ClosingJournalIdsResponse>> {
+    return invokeWithErrorHandler(async () => {
+      const result = await axios.get(`${FIMS_URL}/api/v1/sob/${sobId}/journals/closing-journal?period=${period}`)
+      return result.data
+    })
+  }
+
+  public async createMonthlyClosingJournal(sobId: string): Promise<Response<ClosingJournalResponse>> {
+    return invokeWithErrorHandler(async () => {
+      const result = await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/journals/monthly-closing-journal`)
+      return result.data
+    })
+  }
+
+  public async createYearEndClosingJournal(sobId: string): Promise<Response<ClosingJournalResponse>> {
+    return invokeWithErrorHandler(async () => {
+      const result = await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/journals/year-end-closing-journal`)
+      return result.data
     })
   }
 }

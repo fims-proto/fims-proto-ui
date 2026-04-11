@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { ConfirmationButton } from '@/components/common/confirmation'
 
-import { PeriodService, type PreCloseCheck } from '@/services/general-ledger'
+import { PeriodService, JournalService, type PreCloseCheck } from '@/services/general-ledger'
 import { usePeriodStore } from '@/store/period'
 import { useToastStore } from '@/store/toast'
 import { PERIOD_CHANGED } from '@/services/event'
@@ -29,13 +29,21 @@ const bus = useEventBus(PERIOD_CHANGED)
 const { allPeriods } = toRefs(periodStore.state)
 
 const preCloseCheck = ref<PreCloseCheck | null>(null)
+const monthlyClosingJournalId = ref<string | null>(null)
+const yearEndClosingJournalId = ref<string | null>(null)
 const isLoading = ref(false)
 const isClosing = ref(false)
+const isCreatingMonthlyClosingJournal = ref(false)
+const isCreatingYearEndClosingJournal = ref(false)
 
 const period = computed(() => allPeriods.value.find((p) => p.id === props.periodId))
 const isCurrent = computed(() => period.value?.isCurrent ?? false)
 const isClosed = computed(() => period.value?.isClosed ?? false)
 const isOpen = computed(() => !isCurrent.value && !isClosed.value)
+const periodStr = computed(() => {
+  if (!period.value) return null
+  return `${period.value.fiscalYear}-${String(period.value.periodNumber).padStart(2, '0')}`
+})
 
 const allChecksPassed = computed(() => {
   if (preCloseCheck.value == null) return false
@@ -44,7 +52,14 @@ const allChecksPassed = computed(() => {
   return unpostedJournals.passed && trialBalance.passed && profitAndLossBalance.passed && currentYearProfitPassed
 })
 
-const canClose = computed(() => isCurrent.value && allChecksPassed.value && !isClosing.value)
+const canClose = computed(
+  () =>
+    isCurrent.value &&
+    allChecksPassed.value &&
+    !isClosing.value &&
+    !isCreatingMonthlyClosingJournal.value &&
+    !isCreatingYearEndClosingJournal.value,
+)
 
 // Reload pre-close check whenever periodId changes
 watch(period, () => load(), { immediate: true })
@@ -63,10 +78,19 @@ async function load() {
   if (!isCurrent.value) return
   isLoading.value = true
   preCloseCheck.value = null
+  monthlyClosingJournalId.value = null
+  yearEndClosingJournalId.value = null
   try {
-    const { data } = await PeriodService.getPreCloseCheck(props.sobId, props.periodId)
-    if (data) {
-      preCloseCheck.value = data
+    const [checkResult, idsResult] = await Promise.all([
+      PeriodService.getPreCloseCheck(props.sobId, props.periodId),
+      periodStr.value
+        ? JournalService.getClosingJournalIds(props.sobId, periodStr.value)
+        : Promise.resolve({ data: null }),
+    ])
+    if (checkResult.data) preCloseCheck.value = checkResult.data
+    if (idsResult.data) {
+      monthlyClosingJournalId.value = idsResult.data.monthlyClosingJournalId ?? null
+      yearEndClosingJournalId.value = idsResult.data.yearEndClosingJournalId ?? null
     }
   } finally {
     isLoading.value = false
@@ -86,6 +110,38 @@ async function onClose() {
     }
   } finally {
     isClosing.value = false
+  }
+}
+
+async function onCreateMonthlyClosingJournal() {
+  isCreatingMonthlyClosingJournal.value = true
+  try {
+    const { data, exception } = await JournalService.createMonthlyClosingJournal(props.sobId)
+    if (!exception && data) {
+      monthlyClosingJournalId.value = data.journalId
+      toastStore.action.success(t('common.requestCompleted'), {
+        description: t('period.management.pnlAccounts.generateSuccess'),
+      })
+      await load()
+    }
+  } finally {
+    isCreatingMonthlyClosingJournal.value = false
+  }
+}
+
+async function onCreateYearEndClosingJournal() {
+  isCreatingYearEndClosingJournal.value = true
+  try {
+    const { data, exception } = await JournalService.createYearEndClosingJournal(props.sobId)
+    if (!exception && data) {
+      yearEndClosingJournalId.value = data.journalId
+      toastStore.action.success(t('common.requestCompleted'), {
+        description: t('period.management.currentYearProfitAccount.generateSuccess'),
+      })
+      await load()
+    }
+  } finally {
+    isCreatingYearEndClosingJournal.value = false
   }
 }
 </script>
@@ -211,11 +267,28 @@ async function onClose() {
               <XCircle v-else class="text-destructive size-5" />
               {{ $t('period.management.checkItems.pnlBalance') }}
               <Button
-                v-show="preCloseCheck && !preCloseCheck.profitAndLossBalance.passed"
+                v-if="monthlyClosingJournalId"
                 variant="ghost"
                 size="sm"
                 class="ml-auto"
+                @click="
+                  $router.push({
+                    name: 'journalDetail',
+                    params: { sobId: props.sobId, journalId: monthlyClosingJournalId },
+                  })
+                "
               >
+                {{ $t('period.management.pnlAccounts.viewJournal') }}
+              </Button>
+              <Button
+                v-else-if="preCloseCheck && !preCloseCheck.profitAndLossBalance.passed"
+                variant="ghost"
+                size="sm"
+                class="ml-auto"
+                :disabled="isCreatingMonthlyClosingJournal"
+                @click="onCreateMonthlyClosingJournal"
+              >
+                <Loader2 v-if="isCreatingMonthlyClosingJournal" class="size-4 animate-spin" />
                 {{ $t('period.management.pnlAccounts.carryForward') }}
               </Button>
             </CardTitle>
@@ -268,12 +341,28 @@ async function onClose() {
               <XCircle v-else class="text-destructive size-5" />
               {{ $t('period.management.checkItems.currentYearProfitAccount') }}
               <Button
-                v-show="preCloseCheck && !preCloseCheck.currentYearProfitAccount.passed"
+                v-if="yearEndClosingJournalId"
                 variant="ghost"
                 size="sm"
                 class="ml-auto"
-                disabled
+                @click="
+                  $router.push({
+                    name: 'journalDetail',
+                    params: { sobId: props.sobId, journalId: yearEndClosingJournalId },
+                  })
+                "
               >
+                {{ $t('period.management.currentYearProfitAccount.viewJournal') }}
+              </Button>
+              <Button
+                v-else-if="preCloseCheck?.currentYearProfitAccount && !preCloseCheck.currentYearProfitAccount.passed"
+                variant="ghost"
+                size="sm"
+                class="ml-auto"
+                :disabled="isCreatingYearEndClosingJournal"
+                @click="onCreateYearEndClosingJournal"
+              >
+                <Loader2 v-if="isCreatingYearEndClosingJournal" class="size-4 animate-spin" />
                 {{ $t('period.management.currentYearProfitAccount.generateJournal') }}
               </Button>
             </CardTitle>

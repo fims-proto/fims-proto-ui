@@ -207,14 +207,18 @@
         "accountNumber": "科目编号",
         "accountTitle": "科目名称",
         "carryForward": "创建结转分录",
-        "zeroed": "损益账户余额已清零"
+        "viewJournal": "查看结转分录",
+        "zeroed": "损益账户余额已清零",
+        "generateSuccess": "月度结转分录已创建"
       },
       "currentYearProfitAccount": {
         "accountNumber": "科目编号",
         "accountTitle": "科目名称",
         "endingAmount": "余额",
         "passed": "本年利润已结转",
-        "generateJournal": "创建结转分录"
+        "generateJournal": "创建结转分录",
+        "viewJournal": "查看结转分录",
+        "generateSuccess": "年度结转分录已创建"
       }
     }
   },
@@ -334,7 +338,8 @@
       "GENERAL": "普通分录",
       "ADJUSTING": "调整分录",
       "REVERSING": "冲销分录",
-      "CLOSING": "结账分录"
+      "CLOSING": "结账分录",
+      "YEARLY_CLOSING": "年终结账分录"
     },
     "msg": {
       "emptyHeaderText": "摘要不能为空",
