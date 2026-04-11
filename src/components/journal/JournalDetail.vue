@@ -299,6 +299,9 @@ const onSubmit = form.handleSubmit(async (values) => {
     toastStore.action.success(t('journal.msg.success'))
     bus.emit()
 
+    // Reset form before navigating to prevent unsaved-changes dialog
+    form.resetForm()
+
     // Navigate to view mode with new journal
     router.push({
       name: 'journalDetail',

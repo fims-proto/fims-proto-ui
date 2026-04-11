@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useEventBus } from '@vueuse/core'
 import { toTypedSchema } from '@vee-validate/zod'
-import { useForm, Field as VeeField } from 'vee-validate'
+import { useForm } from 'vee-validate'
 
 import { PageFrame } from '@/components/common/page'
 import { Button } from '@/components/ui/button'
@@ -29,7 +29,6 @@ import {
   type Report,
   type Item,
   type Section,
-  GenerateReportRequestSchema,
   UpdateReportRequestSchema,
   type UpdateReportRequest,
   type UpdateReportRequestSection,
@@ -74,10 +73,7 @@ const referenceItem = ref<Item | null>(null)
 const periodDialogOpen = ref(false)
 const selectedPeriod = ref<Period | null>(null)
 const isGenerating = ref(false)
-
-const generateForm = useForm({
-  validationSchema: toTypedSchema(GenerateReportRequestSchema),
-})
+const generatedReportTitle = ref('')
 
 const reportForm = useForm({
   validationSchema: toTypedSchema(UpdateReportRequestSchema),
@@ -94,14 +90,17 @@ const periodText = computed(() => {
 
 watch(() => props.reportId, reset, { immediate: true })
 
-watch(selectedPeriod, (period) => {
-  if (period && report.value) {
-    const defaultTitle = `${report.value.title} ${period.fiscalYear}-${period.periodNumber}`
-    generateForm.setFieldValue('title', defaultTitle)
-    generateForm.setFieldValue('periodFiscalYear', period.fiscalYear)
-    generateForm.setFieldValue('periodNumber', period.periodNumber)
-  }
-})
+watch(
+  [selectedPeriod, report],
+  ([period, rep]) => {
+    if (period && rep) {
+      const defaultTitle = `${rep.title} ${period.fiscalYear}-${period.periodNumber.toString().padStart(2, '0')}`
+      console.log('Setting generated report title to:', defaultTitle)
+      generatedReportTitle.value = defaultTitle
+    }
+  },
+  { flush: 'post' },
+)
 
 const { confirmOpen, onConfirmLeave, onCancelLeave } = useUnsavedChanges(computed(() => reportForm.meta.value.dirty))
 
@@ -369,17 +368,13 @@ function handlePeriodSelected(period: Period) {
  * Generate new report from template with selected period.
  */
 async function handleGenerate() {
-  // Validate form
-  const validation = await generateForm.validate()
-  if (!validation.valid) return
-
   const period = selectedPeriod.value
   if (!period) return
 
   isGenerating.value = true
   try {
     const { data: newReport, exception } = await ReportService.generateReport(props.sobId, props.reportId, {
-      title: generateForm.values.title,
+      title: generatedReportTitle.value,
       periodFiscalYear: period.fiscalYear,
       periodNumber: period.periodNumber,
     })
@@ -411,7 +406,7 @@ async function handleGenerate() {
 function handleDialogOpenChange(open: boolean) {
   if (!open) {
     selectedPeriod.value = null
-    generateForm.resetForm()
+    generatedReportTitle.value = ''
     isGenerating.value = false
   }
 }
@@ -500,27 +495,15 @@ function handleDialogOpenChange(open: boolean) {
         <PeriodSelector :sob-id="props.sobId" @period-selected="handlePeriodSelected" />
 
         <!-- Report Title Input -->
-        <VeeField v-slot="{ field, errors }" name="title">
-          <div class="flex flex-col gap-2">
-            <Label for="report-title">{{ $t('report.dialog.reportTitle') }}</Label>
-            <Input
-              id="report-title"
-              :model-value="field.value"
-              :name="field.name"
-              :aria-invalid="!!errors.length"
-              @update:model-value="field.onChange"
-              @blur="field.onBlur"
-            />
-            <p v-if="errors.length" class="text-destructive text-sm">
-              {{ errors[0] }}
-            </p>
-          </div>
-        </VeeField>
+        <div class="flex flex-col gap-2">
+          <Label for="report-title">{{ $t('report.dialog.reportTitle') }}</Label>
+          <Input id="report-title" v-model="generatedReportTitle" />
+        </div>
       </div>
 
       <DialogFooter>
         <Button variant="ghost" @click="periodDialogOpen = false">{{ $t('common.cancel') }}</Button>
-        <Button :disabled="!selectedPeriod || !generateForm.meta.value.valid || isGenerating" @click="handleGenerate">
+        <Button :disabled="!selectedPeriod || isGenerating" @click="handleGenerate">
           {{ $t('common.confirm') }}
         </Button>
       </DialogFooter>

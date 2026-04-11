@@ -147,8 +147,6 @@ definitions:
     type: object
   http.AccountResponse:
     properties:
-      accountNumber:
-        type: string
       balanceDirection:
         type: string
       class:
@@ -161,6 +159,8 @@ definitions:
         type: boolean
       level:
         type: integer
+      rawAccountNumber:
+        type: string
       sobId:
         type: string
       superiorAccountId:
