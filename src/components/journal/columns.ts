@@ -4,6 +4,7 @@ import type { ColumnDef } from '@tanstack/vue-table'
 import { DataTableColumnHeader } from '@/components/common/data-table'
 import { Badge } from '@/components/ui/badge'
 import type { JournalSlim } from '@/services/general-ledger'
+import { formatUserName } from './formatUserName'
 
 // Full columns - shown when detail view is closed
 export const fullColumns: ColumnDef<JournalSlim>[] = [
@@ -98,10 +99,7 @@ export const fullColumns: ColumnDef<JournalSlim>[] = [
       }),
     cell: ({ row }) => {
       const data = row.original
-      const lastName = data.creator?.traits?.name?.last || ''
-      const firstName = data.creator?.traits?.name?.first || ''
-      const fullName = lastName + firstName
-      return h('span', fullName || '-')
+      return h('span', formatUserName(data.creator) || '-')
     },
     enableSorting: false,
     meta: {

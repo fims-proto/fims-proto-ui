@@ -14,6 +14,9 @@ export const PeriodSchema = z.object({
 
 export type Period = z.infer<typeof PeriodSchema>
 
+export const PreCloseCheckStatusSchema = z.enum(['PASSED', 'FAILED', 'UNDETERMINED'])
+export type PreCloseCheckStatus = z.infer<typeof PreCloseCheckStatusSchema>
+
 export const PreCloseCheckJournalSchema = z.object({
   id: z.string(),
   documentNumber: z.string(),
@@ -34,26 +37,26 @@ export const PreCloseCheckCurrentYearProfitAccountSchema = z.object({
   accountNumber: z.string(),
   accountTitle: z.string(),
   endingAmount: z.number(),
-  passed: z.boolean(),
+  status: PreCloseCheckStatusSchema,
 })
 
 export const PreCloseCheckSchema = z.object({
   unpostedJournals: z.object({
     count: z.number(),
     journals: z.array(PreCloseCheckJournalSchema),
-    passed: z.boolean(),
+    status: PreCloseCheckStatusSchema,
   }),
   trialBalance: z.object({
     openingAmount: z.number(),
     periodAmount: z.number(),
     endingAmount: z.number(),
-    passed: z.boolean(),
+    status: PreCloseCheckStatusSchema,
   }),
   profitAndLossBalance: z.object({
     accounts: z.array(PreCloseCheckPnLAccountSchema),
-    passed: z.boolean(),
+    status: PreCloseCheckStatusSchema,
   }),
-  currentYearProfitAccount: PreCloseCheckCurrentYearProfitAccountSchema.optional(),
+  currentYearProfitAccount: PreCloseCheckCurrentYearProfitAccountSchema,
 })
 
 export type PreCloseCheckJournal = z.infer<typeof PreCloseCheckJournalSchema>

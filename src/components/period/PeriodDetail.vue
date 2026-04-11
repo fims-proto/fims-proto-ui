@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, toRefs, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { CheckCircle2, XCircle, Loader2, RefreshCw, BookLock, BookOpen } from 'lucide-vue-next'
+import { CheckCircle2, XCircle, AlertTriangle, Loader2, RefreshCw, BookOpen } from 'lucide-vue-next'
 import { useEventBus } from '@vueuse/core'
 
 import { PageFrame } from '@/components/common/page'
@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { ConfirmationButton } from '@/components/common/confirmation'
 
-import { PeriodService, JournalService, type PreCloseCheck } from '@/services/general-ledger'
+import { PeriodService, JournalService, type PreCloseCheck, type PreCloseCheckStatus } from '@/services/general-ledger'
 import { usePeriodStore } from '@/store/period'
 import { useToastStore } from '@/store/toast'
 import { PERIOD_CHANGED } from '@/services/event'
@@ -48,8 +48,16 @@ const periodStr = computed(() => {
 const allChecksPassed = computed(() => {
   if (preCloseCheck.value == null) return false
   const { unpostedJournals, trialBalance, profitAndLossBalance, currentYearProfitAccount } = preCloseCheck.value
-  const currentYearProfitPassed = currentYearProfitAccount == null || currentYearProfitAccount.passed
-  return unpostedJournals.passed && trialBalance.passed && profitAndLossBalance.passed && currentYearProfitPassed
+
+  const coreChecksPassed =
+    unpostedJournals.status === 'PASSED' && trialBalance.status === 'PASSED' && profitAndLossBalance.status === 'PASSED'
+
+  // Only require currentYearProfitAccount check in period 12 (year-end).
+  // For all other periods, the card is hidden and not a closing prerequisite.
+  const isLastPeriod = period.value?.periodNumber === 12
+  const currentYearProfitPassed = !isLastPeriod || currentYearProfitAccount.status === 'PASSED'
+
+  return coreChecksPassed && currentYearProfitPassed
 })
 
 const canClose = computed(
@@ -64,9 +72,11 @@ const canClose = computed(
 // Reload pre-close check whenever periodId changes
 watch(period, () => load(), { immediate: true })
 
-function checkIcon(passed?: boolean) {
+function checkIcon(status?: PreCloseCheckStatus) {
   if (isLoading.value || preCloseCheck.value === null) return 'loading'
-  return passed ? 'passed' : 'failed'
+  if (status === 'PASSED') return 'passed'
+  if (status === 'UNDETERMINED') return 'undetermined'
+  return 'failed'
 }
 
 function periodLabel() {
@@ -156,7 +166,6 @@ async function onCreateYearEndClosingJournal() {
         </Button>
         <ConfirmationButton :disabled="!canClose" :message="$t('period.management.confirmClose')" @confirm="onClose">
           <Loader2 v-if="isClosing" class="size-4 animate-spin" />
-          <BookLock v-else class="size-4" />
           {{ $t('period.management.closePeriod') }}
         </ConfirmationButton>
       </template>
@@ -176,18 +185,22 @@ async function onCreateYearEndClosingJournal() {
           <CardHeader class="pb-3">
             <CardTitle class="flex items-center gap-2 text-base">
               <Loader2
-                v-if="checkIcon(preCloseCheck?.unpostedJournals.passed) === 'loading'"
+                v-if="checkIcon(preCloseCheck?.unpostedJournals.status) === 'loading'"
                 class="text-muted-foreground size-5 animate-spin"
               />
               <CheckCircle2
-                v-else-if="checkIcon(preCloseCheck?.unpostedJournals.passed) === 'passed'"
+                v-else-if="checkIcon(preCloseCheck?.unpostedJournals.status) === 'passed'"
                 class="size-5 text-green-500"
+              />
+              <AlertTriangle
+                v-else-if="checkIcon(preCloseCheck?.unpostedJournals.status) === 'undetermined'"
+                class="size-5 text-yellow-500"
               />
               <XCircle v-else class="text-destructive size-5" />
               {{ $t('period.management.checkItems.unpostedJournals') }}
               <Badge
                 v-if="preCloseCheck"
-                :variant="preCloseCheck.unpostedJournals.passed ? 'default' : 'destructive'"
+                :variant="preCloseCheck.unpostedJournals.status === 'PASSED' ? 'default' : 'destructive'"
                 class="ml-auto text-xs"
               >
                 {{ $t('period.management.unpostedJournals.count', [preCloseCheck.unpostedJournals.count]) }}
@@ -196,8 +209,15 @@ async function onCreateYearEndClosingJournal() {
           </CardHeader>
           <CardContent v-if="preCloseCheck">
             <!-- Passed -->
-            <p v-if="preCloseCheck.unpostedJournals.passed" class="text-muted-foreground text-sm">
+            <p v-if="preCloseCheck.unpostedJournals.status === 'PASSED'" class="text-muted-foreground text-sm">
               {{ $t('period.management.unpostedJournals.noUnposted') }}
+            </p>
+            <!-- Undetermined -->
+            <p
+              v-else-if="preCloseCheck.unpostedJournals.status === 'UNDETERMINED'"
+              class="text-muted-foreground text-sm"
+            >
+              {{ $t('period.management.checkUndetermined') }}
             </p>
             <!-- Not passed: show journal table -->
             <div v-else>
@@ -257,12 +277,16 @@ async function onCreateYearEndClosingJournal() {
           <CardHeader class="pb-3">
             <CardTitle class="flex items-center gap-2 text-base">
               <Loader2
-                v-if="checkIcon(preCloseCheck?.profitAndLossBalance.passed) === 'loading'"
+                v-if="checkIcon(preCloseCheck?.profitAndLossBalance.status) === 'loading'"
                 class="text-muted-foreground size-5 animate-spin"
               />
               <CheckCircle2
-                v-else-if="checkIcon(preCloseCheck?.profitAndLossBalance.passed) === 'passed'"
+                v-else-if="checkIcon(preCloseCheck?.profitAndLossBalance.status) === 'passed'"
                 class="size-5 text-green-500"
+              />
+              <AlertTriangle
+                v-else-if="checkIcon(preCloseCheck?.profitAndLossBalance.status) === 'undetermined'"
+                class="size-5 text-yellow-500"
               />
               <XCircle v-else class="text-destructive size-5" />
               {{ $t('period.management.checkItems.pnlBalance') }}
@@ -280,23 +304,31 @@ async function onCreateYearEndClosingJournal() {
               >
                 {{ $t('period.management.pnlAccounts.viewJournal') }}
               </Button>
-              <Button
-                v-else-if="preCloseCheck && !preCloseCheck.profitAndLossBalance.passed"
+              <ConfirmationButton
+                v-else-if="preCloseCheck && preCloseCheck.profitAndLossBalance.status === 'FAILED'"
                 variant="ghost"
                 size="sm"
                 class="ml-auto"
                 :disabled="isCreatingMonthlyClosingJournal"
-                @click="onCreateMonthlyClosingJournal"
+                :message="$t('period.management.pnlAccounts.confirmCarryForward')"
+                @confirm="onCreateMonthlyClosingJournal"
               >
                 <Loader2 v-if="isCreatingMonthlyClosingJournal" class="size-4 animate-spin" />
                 {{ $t('period.management.pnlAccounts.carryForward') }}
-              </Button>
+              </ConfirmationButton>
             </CardTitle>
           </CardHeader>
           <CardContent v-if="preCloseCheck">
             <!-- Passed -->
-            <p v-if="preCloseCheck.profitAndLossBalance.passed" class="text-muted-foreground text-sm">
+            <p v-if="preCloseCheck.profitAndLossBalance.status === 'PASSED'" class="text-muted-foreground text-sm">
               {{ $t('period.management.pnlAccounts.zeroed') }}
+            </p>
+            <!-- Undetermined -->
+            <p
+              v-else-if="preCloseCheck.profitAndLossBalance.status === 'UNDETERMINED'"
+              class="text-muted-foreground text-sm"
+            >
+              {{ $t('period.management.checkUndetermined') }}
             </p>
             <!-- Not passed: show account table -->
             <div v-else>
@@ -327,16 +359,20 @@ async function onCreateYearEndClosingJournal() {
         </Card>
 
         <!-- Check 3: Year-End Retained Revenue -->
-        <Card v-if="preCloseCheck?.currentYearProfitAccount">
+        <Card v-if="preCloseCheck && period?.periodNumber === 12">
           <CardHeader class="pb-3">
             <CardTitle class="flex items-center gap-2 text-base">
               <Loader2
-                v-if="checkIcon(preCloseCheck?.currentYearProfitAccount.passed) === 'loading'"
+                v-if="checkIcon(preCloseCheck?.currentYearProfitAccount.status) === 'loading'"
                 class="text-muted-foreground size-5 animate-spin"
               />
               <CheckCircle2
-                v-else-if="checkIcon(preCloseCheck?.currentYearProfitAccount.passed) === 'passed'"
+                v-else-if="checkIcon(preCloseCheck?.currentYearProfitAccount.status) === 'passed'"
                 class="size-5 text-green-500"
+              />
+              <AlertTriangle
+                v-else-if="checkIcon(preCloseCheck?.currentYearProfitAccount.status) === 'undetermined'"
+                class="size-5 text-yellow-500"
               />
               <XCircle v-else class="text-destructive size-5" />
               {{ $t('period.management.checkItems.currentYearProfitAccount') }}
@@ -354,23 +390,31 @@ async function onCreateYearEndClosingJournal() {
               >
                 {{ $t('period.management.currentYearProfitAccount.viewJournal') }}
               </Button>
-              <Button
-                v-else-if="preCloseCheck?.currentYearProfitAccount && !preCloseCheck.currentYearProfitAccount.passed"
+              <ConfirmationButton
+                v-else-if="preCloseCheck && preCloseCheck.currentYearProfitAccount.status === 'FAILED'"
                 variant="ghost"
                 size="sm"
                 class="ml-auto"
                 :disabled="isCreatingYearEndClosingJournal"
-                @click="onCreateYearEndClosingJournal"
+                :message="$t('period.management.currentYearProfitAccount.confirmGenerate')"
+                @confirm="onCreateYearEndClosingJournal"
               >
                 <Loader2 v-if="isCreatingYearEndClosingJournal" class="size-4 animate-spin" />
                 {{ $t('period.management.currentYearProfitAccount.generateJournal') }}
-              </Button>
+              </ConfirmationButton>
             </CardTitle>
           </CardHeader>
           <CardContent v-if="preCloseCheck">
             <!-- Passed -->
-            <p v-if="preCloseCheck.currentYearProfitAccount.passed" class="text-muted-foreground text-sm">
+            <p v-if="preCloseCheck.currentYearProfitAccount.status === 'PASSED'" class="text-muted-foreground text-sm">
               {{ $t('period.management.currentYearProfitAccount.passed') }}
+            </p>
+            <!-- Undetermined -->
+            <p
+              v-else-if="preCloseCheck.currentYearProfitAccount.status === 'UNDETERMINED'"
+              class="text-muted-foreground text-sm"
+            >
+              {{ $t('period.management.checkUndetermined') }}
             </p>
             <!-- Not passed: show account table -->
             <div v-else>
@@ -403,12 +447,16 @@ async function onCreateYearEndClosingJournal() {
           <CardHeader class="pb-3">
             <CardTitle class="flex items-center gap-2 text-base">
               <Loader2
-                v-if="checkIcon(preCloseCheck?.trialBalance.passed) === 'loading'"
+                v-if="checkIcon(preCloseCheck?.trialBalance.status) === 'loading'"
                 class="text-muted-foreground size-5 animate-spin"
               />
               <CheckCircle2
-                v-else-if="checkIcon(preCloseCheck?.trialBalance.passed) === 'passed'"
+                v-else-if="checkIcon(preCloseCheck?.trialBalance.status) === 'passed'"
                 class="size-5 text-green-500"
+              />
+              <AlertTriangle
+                v-else-if="checkIcon(preCloseCheck?.trialBalance.status) === 'undetermined'"
+                class="size-5 text-yellow-500"
               />
               <XCircle v-else class="text-destructive size-5" />
               {{ $t('period.management.checkItems.trialBalance') }}
@@ -416,7 +464,10 @@ async function onCreateYearEndClosingJournal() {
             <CardDescription>{{ $t('period.management.trialBalance.description') }}</CardDescription>
           </CardHeader>
           <CardContent v-if="preCloseCheck">
-            <div class="grid grid-cols-3 gap-4">
+            <p v-if="preCloseCheck.trialBalance.status === 'UNDETERMINED'" class="text-muted-foreground text-sm">
+              {{ $t('period.management.checkUndetermined') }}
+            </p>
+            <div v-else class="grid grid-cols-3 gap-4">
               <div class="space-y-1">
                 <p class="text-muted-foreground text-sm">
                   {{ $t('period.management.trialBalance.openingAmount') }}
@@ -471,7 +522,6 @@ async function onCreateYearEndClosingJournal() {
       v-else-if="isClosed"
       class="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center"
     >
-      <BookLock class="text-muted-foreground mb-3 size-10" />
       <p class="text-muted-foreground text-sm font-medium">
         {{ periodLabel() }}
       </p>

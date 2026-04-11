@@ -18,6 +18,7 @@ import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, Table
 import DateInput from './DateInput.vue'
 import AccountInput from '@/components/account/AccountInput.vue'
 import DimensionOptionSelector from './DimensionOptionSelector.vue'
+import { formatUserName } from './formatUserName'
 
 import { JournalService } from '@/services/general-ledger/journal'
 import { AccountService } from '@/services/general-ledger/account'
@@ -176,9 +177,6 @@ async function handleAccountSelect(account: AccountSlim | undefined, index: numb
     form.setFieldValue(`journalLines[${index}].dimensionOptions`, undefined)
   }
 }
-
-const formatUserName = (user?: { traits?: { name?: { first?: string; last?: string } } }) =>
-  `${user?.traits?.name?.last ?? ''}${user?.traits?.name?.first ?? ''}`
 
 // Unsaved changes protection
 const { confirmOpen, onConfirmLeave, onCancelLeave } = useUnsavedChanges(computed(() => form.meta.value.dirty))

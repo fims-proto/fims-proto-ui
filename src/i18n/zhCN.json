@@ -81,7 +81,8 @@
     "confirmNewPassword": "密码确认",
     "passwordNotSame": "密码不一致",
     "login": "登录",
-    "logout": "登出"
+    "logout": "登出",
+    "system": "系统"
   },
   "profile": {
     "title": "用户设置",
@@ -180,6 +181,7 @@
       "closeSuccess": "结账成功",
       "notCurrent": "该期间不是当前活动期间，无法执行结账操作",
       "alreadyClosed": "该期间已结账",
+      "checkUndetermined": "此检查项尚未就绪，请先完成前置检查",
       "checkItems": {
         "unpostedJournals": "未记账分录",
         "trialBalance": "试算平衡",
@@ -207,6 +209,7 @@
         "accountNumber": "科目编号",
         "accountTitle": "科目名称",
         "carryForward": "创建结转分录",
+        "confirmCarryForward": "将为所有损益类科目生成结转凭证，继续操作？",
         "viewJournal": "查看结转分录",
         "zeroed": "损益账户余额已清零",
         "generateSuccess": "月度结转分录已创建"
@@ -217,6 +220,7 @@
         "endingAmount": "余额",
         "passed": "本年利润已结转",
         "generateJournal": "创建结转分录",
+        "confirmGenerate": "将生成本年利润结转凭证，继续操作？",
         "viewJournal": "查看结转分录",
         "generateSuccess": "年度结转分录已创建"
       }

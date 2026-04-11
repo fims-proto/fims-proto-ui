@@ -4,7 +4,14 @@ import { convertAccountNumberFields, convertFieldsFromString } from '../../field
 import { invokeWithErrorHandler, type Response } from '../../error-handler'
 import { useSobStore } from '../../../store/sob'
 import { type Page, type Pageable } from '../../types'
-import { type JournalSlim, type JournalDetail, type CreateJournalRequest, type UpdateJournalRequest, type ClosingJournalResponse, type ClosingJournalIdsResponse } from './types'
+import {
+  type JournalSlim,
+  type JournalDetail,
+  type CreateJournalRequest,
+  type UpdateJournalRequest,
+  type ClosingJournalResponse,
+  type ClosingJournalIdsResponse,
+} from './types'
 import {
   JOURNAL_FIELDS,
   JOURNAL_LINE_REQUEST_AN_CONVERSION,
