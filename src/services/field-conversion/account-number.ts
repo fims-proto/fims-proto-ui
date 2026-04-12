@@ -81,6 +81,10 @@ function convertField(
 
   // Case: data is directive (leaf: rename + convert)
   if (isDirective(option)) {
+    // Optional field: if value is absent, skip conversion and leave the field as-is
+    if (data === undefined || data === null) {
+      return data
+    }
     if (typeof data !== 'string') {
       throw new Error(
         `[convertAccountNumberFields] Expected string value for directive at key "${currentKey}", ` +
