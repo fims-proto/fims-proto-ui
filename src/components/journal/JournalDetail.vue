@@ -21,14 +21,14 @@ import DimensionOptionSelector from './DimensionOptionSelector.vue'
 import { formatUserName } from './formatUserName'
 
 import { JournalService } from '@/services/general-ledger/journal'
-import { AccountService } from '@/services/general-ledger/account'
+import { AccountDetailSchema, AccountService } from '@/services/general-ledger/account'
 import type {
   JournalDetail,
   CreateJournalRequest,
   UpdateJournalRequest,
   JournalLineRequest,
 } from '@/services/general-ledger/journal/types'
-import type { AccountSlim, AccountDetail, DimensionOptionRef } from '@/services/general-ledger/account/types'
+import type { AccountSlim, DimensionOptionRef } from '@/services/general-ledger/account/types'
 import { ConfirmationButton } from '@/components/common/confirmation'
 import { useUnsavedChanges, UnsavedChangesDialog } from '@/components/common/unsaved-guard'
 import { useUserStore } from '@/store/user'
@@ -55,7 +55,7 @@ const referenceJournal = ref<JournalDetail>()
 const JournalLineSchema = z
   .object({
     _key: z.string(),
-    account: z.custom<AccountDetail>().optional(),
+    account: AccountDetailSchema.optional(),
     text: z.string(),
     amount: z.number().refine((val) => Number.isInteger(val * 100), {
       message: t('journal.journalLine.decimalPrecision'),
@@ -159,7 +159,7 @@ const title = computed(() => (props.journalId ? journal.value?.documentNumber : 
 async function handleAccountSelect(account: AccountSlim | undefined, index: number) {
   if (!account) {
     // Account deselected, clear dimension options
-    form.setFieldValue(`journalLines[${index}].dimensionOptions`, undefined)
+    form.setFieldValue(`journalLines[${index}].dimensionOptions`, undefined as never) // vee-validate can't infer type in the array
     return
   }
 
@@ -173,8 +173,8 @@ async function handleAccountSelect(account: AccountSlim | undefined, index: numb
   // Fetch AccountDetail to get dimensionCategories
   const { data } = await AccountService.getAccountById(props.sobId, account.id)
   if (data) {
-    form.setFieldValue(`journalLines[${index}].account`, data)
-    form.setFieldValue(`journalLines[${index}].dimensionOptions`, undefined)
+    form.setFieldValue(`journalLines[${index}].account`, data as never) // vee-validate can't infer type in the array
+    form.setFieldValue(`journalLines[${index}].dimensionOptions`, undefined as never) // vee-validate can't infer type in the array
   }
 }
 
