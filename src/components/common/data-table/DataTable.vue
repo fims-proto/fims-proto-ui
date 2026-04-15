@@ -126,21 +126,23 @@ const table = useVueTable({
         </TableHeader>
         <TableBody>
           <template v-if="table.getRowModel().rows?.length">
-            <TableRow
-              v-for="row in table.getRowModel().rows"
-              :key="row.id"
-              :data-state="row.getIsSelected() ? 'selected' : undefined"
-              :class="props.onRowClick ? 'hover:bg-muted/50 cursor-pointer' : ''"
-              @click="props.onRowClick?.(row.original)"
-            >
-              <TableCell
-                v-for="cell in row.getVisibleCells()"
-                :key="cell.id"
-                :class="(cell.column.columnDef.meta as any)?.class"
+            <TransitionGroup name="t-table-row">
+              <TableRow
+                v-for="row in table.getRowModel().rows"
+                :key="row.id"
+                :data-state="row.getIsSelected() ? 'selected' : undefined"
+                :class="props.onRowClick ? 'hover:bg-muted/50 cursor-pointer' : ''"
+                @click="props.onRowClick?.(row.original)"
               >
-                <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
-              </TableCell>
-            </TableRow>
+                <TableCell
+                  v-for="cell in row.getVisibleCells()"
+                  :key="cell.id"
+                  :class="(cell.column.columnDef.meta as any)?.class"
+                >
+                  <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+                </TableCell>
+              </TableRow>
+            </TransitionGroup>
           </template>
           <template v-else>
             <TableRow>

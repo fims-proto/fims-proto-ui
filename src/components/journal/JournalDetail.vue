@@ -470,12 +470,14 @@ async function handleDelete() {
           {{ $t('action.delete') }}
         </ConfirmationButton>
 
+        <!-- Create adjusting journal -->
+        <Button v-if="journal.isPosted" variant="outline" @click="handleCreateAdjusting">
+          {{ $t('journal.adjusting') }}
+        </Button>
+
         <!-- Edit/Close buttons -->
         <Button v-if="!journal.isAudited && !journal.isReviewed" variant="outline" @click="handleEdit">
           {{ $t('action.edit') }}
-        </Button>
-        <Button v-if="journal.isPosted" variant="outline" @click="handleCreateAdjusting">
-          {{ $t('journal.adjusting') }}
         </Button>
         <Button variant="ghost" @click="handleClose">{{ $t('action.close') }}</Button>
       </template>
@@ -487,367 +489,374 @@ async function handleDelete() {
       </template>
     </template>
 
-    <div v-if="journal" class="space-y-8">
-      <!-- Workflow status badges -->
-      <div v-if="!isEditing" class="flex gap-2">
-        <Badge v-if="journal.isAudited" class="bg-green-600">
-          {{ $t('journal.isAudited') }}
-        </Badge>
-        <Badge v-else variant="destructive">
-          {{ $t('journal.notAudited') }}
-        </Badge>
-        <Badge v-if="journal.isReviewed" class="bg-green-600">
-          {{ $t('journal.isReviewed') }}
-        </Badge>
-        <Badge v-else variant="destructive">
-          {{ $t('journal.notReviewed') }}
-        </Badge>
-        <Badge v-if="journal.isPosted" class="bg-green-600">
-          {{ $t('journal.isPosted') }}
-        </Badge>
-        <Badge v-else variant="destructive">
-          {{ $t('journal.notPosted') }}
-        </Badge>
-      </div>
+    <Transition name="t-fade">
+      <div v-if="journal || isEditing" class="space-y-8">
+        <!-- Workflow status badges -->
+        <div v-if="!isEditing" class="flex gap-2">
+          <Badge v-if="journal?.isAudited" class="bg-green-600">
+            {{ $t('journal.isAudited') }}
+          </Badge>
+          <Badge v-else variant="destructive">
+            {{ $t('journal.notAudited') }}
+          </Badge>
+          <Badge v-if="journal?.isReviewed" class="bg-green-600">
+            {{ $t('journal.isReviewed') }}
+          </Badge>
+          <Badge v-else variant="destructive">
+            {{ $t('journal.notReviewed') }}
+          </Badge>
+          <Badge v-if="journal?.isPosted" class="bg-green-600">
+            {{ $t('journal.isPosted') }}
+          </Badge>
+          <Badge v-else variant="destructive">
+            {{ $t('journal.notPosted') }}
+          </Badge>
+        </div>
 
-      <!-- Header section -->
-      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <!-- Header Text -->
-        <VeeField v-slot="{ field, errors }" name="headerText">
-          <EditableField
-            :label="$t('journal.headerText')"
-            label-for="headerText"
-            :is-editing="isEditing"
-            :value="field.value"
-            :errors="errors"
-            :data-invalid="!!errors.length"
-            @update:value="field.onChange"
-          >
-            <template #edit="{ value, onUpdate }">
-              <Input
-                id="headerText"
-                :model-value="value"
-                :name="field.name"
-                :placeholder="$t('journal.headerTextPlaceholder')"
-                :aria-invalid="!!errors.length"
-                @update:model-value="onUpdate"
-                @blur="field.onBlur"
-              />
-            </template>
-          </EditableField>
-        </VeeField>
-
-        <!-- Transaction Date -->
-        <VeeField v-slot="{ field, errors }" name="transactionDate">
-          <EditableField
-            :label="$t('journal.transactionDate')"
-            label-for="transactionDate"
-            :is-editing="isEditing"
-            :value="field.value"
-            :errors="errors"
-            :data-invalid="!!errors.length"
-            :formatter="(value?: string) => (value ? new Date(value).toLocaleDateString('zh-CN') : '')"
-            @update:value="field.onChange"
-          >
-            <template #edit="{ value, onUpdate }">
-              <DateInput
-                id="transactionDate"
-                :disabled="!isEditing"
-                :placeholder="$t('common.pleaseSelect')"
-                :model-value="value"
-                @update:model-value="onUpdate"
-              />
-            </template>
-          </EditableField>
-        </VeeField>
-
-        <!-- Attachment Quantity -->
-        <VeeField v-slot="{ field, errors }" name="attachmentQuantity">
-          <EditableField
-            :label="$t('journal.attachmentQuantity')"
-            label-for="attachmentQuantity"
-            :is-editing="isEditing"
-            :value="field.value"
-            :errors="errors"
-            :data-invalid="!!errors.length"
-            :formatter="(val) => `${val} ${$t('journal.attachmentQuantityUnit')}`"
-            @update:value="field.onChange"
-          >
-            <template #edit="{ value, onUpdate }">
-              <InputGroup>
-                <InputGroupInput
-                  id="attachmentQuantity"
-                  type="number"
-                  step="1"
-                  min="0"
+        <!-- Header section -->
+        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <!-- Header Text -->
+          <VeeField v-slot="{ field, errors }" name="headerText">
+            <EditableField
+              :label="$t('journal.headerText')"
+              label-for="headerText"
+              :is-editing="isEditing"
+              :value="field.value"
+              :errors="errors"
+              :data-invalid="!!errors.length"
+              @update:value="field.onChange"
+            >
+              <template #edit="{ value, onUpdate }">
+                <Input
+                  id="headerText"
                   :model-value="value"
                   :name="field.name"
+                  :placeholder="$t('journal.headerTextPlaceholder')"
                   :aria-invalid="!!errors.length"
-                  class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   @update:model-value="onUpdate"
                   @blur="field.onBlur"
                 />
-                <InputGroupAddon align="inline-end">{{ $t('journal.attachmentQuantityUnit') }}</InputGroupAddon>
-              </InputGroup>
+              </template>
+            </EditableField>
+          </VeeField>
+
+          <!-- Transaction Date -->
+          <VeeField v-slot="{ field, errors }" name="transactionDate">
+            <EditableField
+              :label="$t('journal.transactionDate')"
+              label-for="transactionDate"
+              :is-editing="isEditing"
+              :value="field.value"
+              :errors="errors"
+              :data-invalid="!!errors.length"
+              :formatter="(value?: string) => (value ? new Date(value).toLocaleDateString('zh-CN') : '')"
+              @update:value="field.onChange"
+            >
+              <template #edit="{ value, onUpdate }">
+                <DateInput
+                  id="transactionDate"
+                  :disabled="!isEditing"
+                  :placeholder="$t('common.pleaseSelect')"
+                  :model-value="value"
+                  @update:model-value="onUpdate"
+                />
+              </template>
+            </EditableField>
+          </VeeField>
+
+          <!-- Attachment Quantity -->
+          <VeeField v-slot="{ field, errors }" name="attachmentQuantity">
+            <EditableField
+              :label="$t('journal.attachmentQuantity')"
+              label-for="attachmentQuantity"
+              :is-editing="isEditing"
+              :value="field.value"
+              :errors="errors"
+              :data-invalid="!!errors.length"
+              :formatter="(val) => `${val} ${$t('journal.attachmentQuantityUnit')}`"
+              @update:value="field.onChange"
+            >
+              <template #edit="{ value, onUpdate }">
+                <InputGroup>
+                  <InputGroupInput
+                    id="attachmentQuantity"
+                    type="number"
+                    step="1"
+                    min="0"
+                    :model-value="value"
+                    :name="field.name"
+                    :aria-invalid="!!errors.length"
+                    class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    @update:model-value="onUpdate"
+                    @blur="field.onBlur"
+                  />
+                  <InputGroupAddon align="inline-end">{{ $t('journal.attachmentQuantityUnit') }}</InputGroupAddon>
+                </InputGroup>
+              </template>
+            </EditableField>
+          </VeeField>
+
+          <!-- Creator (readonly, only for existing journals) -->
+          <EditableField
+            v-if="!isEditing"
+            :label="$t('journal.creator')"
+            :is-editing="false"
+            :value="journal?.creator"
+            :formatter="formatUserName"
+          />
+
+          <!-- Auditor (readonly, only for existing journals) -->
+          <EditableField
+            v-if="journal?.isAudited && !isEditing"
+            :label="$t('journal.auditor')"
+            :is-editing="false"
+            :value="journal?.auditor"
+            :formatter="formatUserName"
+          />
+
+          <!-- Reviewer (readonly, only for existing journals) -->
+          <EditableField
+            v-if="journal?.isReviewed && !isEditing"
+            :label="$t('journal.reviewer')"
+            :is-editing="false"
+            :value="journal?.reviewer"
+            :formatter="formatUserName"
+          />
+
+          <!-- Journal Type (readonly, only for non-GENERAL journals or when creating adjusting) -->
+          <EditableField
+            v-if="journal?.journalType !== 'GENERAL' || props.referenceJournalId"
+            :label="$t('journal.journalType')"
+            :is-editing="false"
+            :value="journal?.journalType ?? 'ADJUSTING'"
+            :formatter="(val) => $t(`journal.journalTypeEnum.${val}`)"
+          />
+
+          <!-- Reference Journal (readonly, shown when journal has a reference) -->
+          <EditableField
+            v-if="journal?.referenceJournalId || props.referenceJournalId"
+            :label="$t('journal.referenceJournal')"
+            :is-editing="false"
+            :value="referenceJournal?.documentNumber"
+          >
+            <template #display>
+              <RouterLink
+                :to="{
+                  name: 'journalDetail',
+                  params: {
+                    sobId: props.sobId,
+                    journalId: journal?.referenceJournalId ?? props.referenceJournalId,
+                  },
+                }"
+                class="text-primary text-sm hover:underline"
+              >
+                {{ referenceJournal?.documentNumber ?? journal?.referenceJournalId ?? props.referenceJournalId }}
+              </RouterLink>
             </template>
           </EditableField>
-        </VeeField>
-
-        <!-- Creator (readonly, only for existing journals) -->
-        <EditableField
-          v-if="!isEditing"
-          :label="$t('journal.creator')"
-          :is-editing="false"
-          :value="journal.creator"
-          :formatter="formatUserName"
-        />
-
-        <!-- Auditor (readonly, only for existing journals) -->
-        <EditableField
-          v-if="journal.isAudited && !isEditing"
-          :label="$t('journal.auditor')"
-          :is-editing="false"
-          :value="journal.auditor"
-          :formatter="formatUserName"
-        />
-
-        <!-- Reviewer (readonly, only for existing journals) -->
-        <EditableField
-          v-if="journal.isReviewed && !isEditing"
-          :label="$t('journal.reviewer')"
-          :is-editing="false"
-          :value="journal.reviewer"
-          :formatter="formatUserName"
-        />
-
-        <!-- Journal Type (readonly, only for non-GENERAL journals or when creating adjusting) -->
-        <EditableField
-          v-if="journal.journalType !== 'GENERAL' || props.referenceJournalId"
-          :label="$t('journal.journalType')"
-          :is-editing="false"
-          :value="journal?.journalType ?? 'ADJUSTING'"
-          :formatter="(val) => $t(`journal.journalTypeEnum.${val}`)"
-        />
-
-        <!-- Reference Journal (readonly, shown when journal has a reference) -->
-        <EditableField
-          v-if="journal.referenceJournalId || props.referenceJournalId"
-          :label="$t('journal.referenceJournal')"
-          :is-editing="false"
-          :value="referenceJournal?.documentNumber"
-        >
-          <template #display>
-            <RouterLink
-              :to="{
-                name: 'journalDetail',
-                params: {
-                  sobId: props.sobId,
-                  journalId: journal?.referenceJournalId ?? props.referenceJournalId,
-                },
-              }"
-              class="text-primary text-sm hover:underline"
-            >
-              {{ referenceJournal?.documentNumber ?? journal?.referenceJournalId ?? props.referenceJournalId }}
-            </RouterLink>
-          </template>
-        </EditableField>
-      </div>
-
-      <!-- Journal Lines Table -->
-      <div class="space-y-4">
-        <div class="flex items-center justify-between">
-          <h3 class="text-lg font-semibold">{{ $t('journal.journalLines') }}</h3>
-
-          <!-- Add Journal Line Button -->
-          <Button v-if="isEditing" variant="outline" @click="addJournalLine">
-            {{ $t('journal.addJournalLine') }}
-          </Button>
         </div>
 
-        <div class="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead class="w-12">#</TableHead>
-                <TableHead class="w-50">{{ $t('journal.account') }}</TableHead>
-                <TableHead class="w-37.5">{{ $t('journal.debit') }}</TableHead>
-                <TableHead class="w-37.5">{{ $t('journal.credit') }}</TableHead>
-                <TableHead v-if="isEditing" class="w-12"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <template v-for="(item, index) in form.values.journalLines ?? []" :key="item._key">
-                <TableRow>
-                  <TableCell>{{ index + 1 }}</TableCell>
+        <!-- Journal Lines Table -->
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold">{{ $t('journal.journalLines') }}</h3>
 
-                  <!-- Account + Dimension Options -->
-                  <TableCell>
-                    <div class="space-y-2">
-                      <!-- Main Account -->
-                      <VeeField v-slot="{ field }" :name="`journalLines[${index}].account`">
+            <!-- Add Journal Line Button -->
+            <Button v-if="isEditing" variant="outline" @click="addJournalLine">
+              {{ $t('journal.addJournalLine') }}
+            </Button>
+          </div>
+
+          <div class="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead class="w-12">#</TableHead>
+                  <TableHead class="w-50">{{ $t('journal.account') }}</TableHead>
+                  <TableHead class="w-37.5">{{ $t('journal.debit') }}</TableHead>
+                  <TableHead class="w-37.5">{{ $t('journal.credit') }}</TableHead>
+                  <TableHead v-if="isEditing" class="w-12"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <template v-for="(item, index) in form.values.journalLines ?? []" :key="item._key">
+                  <TableRow>
+                    <TableCell>{{ index + 1 }}</TableCell>
+
+                    <!-- Account + Dimension Options -->
+                    <TableCell>
+                      <div class="space-y-2">
+                        <!-- Main Account -->
+                        <VeeField v-slot="{ field }" :name="`journalLines[${index}].account`">
+                          <template v-if="isEditing">
+                            <AccountInput
+                              :disabled="!isEditing"
+                              :model-value="field.value"
+                              only-leaf
+                              @update:model-value="
+                                (val) => {
+                                  field.onChange(val)
+                                  handleAccountSelect(val, index)
+                                }
+                              "
+                            />
+                          </template>
+                          <template v-else>
+                            <div class="text-sm">
+                              <span>{{ field.value?.accountNumber }}</span>
+                              <span class="ml-1">{{ field.value?.title }}</span>
+                            </div>
+                          </template>
+                        </VeeField>
+
+                        <!-- Dimension Options -->
+                        <div
+                          v-if="item.account?.dimensionCategories && item.account.dimensionCategories.length > 0"
+                          class="grid grid-cols-[auto_1fr] items-center gap-2"
+                        >
+                          <template v-for="category in item.account.dimensionCategories" :key="category.id">
+                            <span class="text-muted-foreground text-xs font-medium whitespace-nowrap">
+                              {{ category.name }}:
+                            </span>
+                            <VeeField
+                              v-slot="{ field }"
+                              :name="`journalLines[${index}].dimensionOptions.${category.id}`"
+                            >
+                              <!-- Edit mode: show selector -->
+                              <DimensionOptionSelector
+                                v-if="isEditing"
+                                :sob-id="props.sobId"
+                                :category="category"
+                                :model-value="field.value"
+                                class="w-full"
+                                @update:model-value="field.onChange"
+                              />
+                              <!-- Display mode: show text only -->
+                              <div v-else class="text-xs">
+                                {{ field.value?.name }}
+                              </div>
+                            </VeeField>
+                          </template>
+                        </div>
+                      </div>
+                    </TableCell>
+
+                    <!-- Debit -->
+                    <TableCell class="align-top">
+                      <VeeField v-slot="{ field }" :name="`journalLines[${index}].amount`">
                         <template v-if="isEditing">
-                          <AccountInput
-                            :disabled="!isEditing"
-                            :model-value="field.value"
-                            only-leaf
-                            @update:model-value="
-                              (val) => {
-                                field.onChange(val)
-                                handleAccountSelect(val, index)
-                              }
-                            "
+                          <Input
+                            :id="useId()"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            :model-value="field.value && field.value > 0 ? field.value : ''"
+                            class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                            @update:model-value="(val) => field.onChange(Number(val) || 0)"
                           />
                         </template>
                         <template v-else>
-                          <div class="text-sm">
-                            <span>{{ field.value?.accountNumber }}</span>
-                            <span class="ml-1">{{ field.value?.title }}</span>
-                          </div>
+                          <span class="text-sm">{{
+                            field.value && field.value > 0 ? n(field.value, 'decimal') : ''
+                          }}</span>
                         </template>
                       </VeeField>
+                    </TableCell>
 
-                      <!-- Dimension Options -->
-                      <div
-                        v-if="item.account?.dimensionCategories && item.account.dimensionCategories.length > 0"
-                        class="grid grid-cols-[auto_1fr] items-center gap-2"
-                      >
-                        <template v-for="category in item.account.dimensionCategories" :key="category.id">
-                          <span class="text-muted-foreground text-xs font-medium whitespace-nowrap">
-                            {{ category.name }}:
-                          </span>
-                          <VeeField v-slot="{ field }" :name="`journalLines[${index}].dimensionOptions.${category.id}`">
-                            <!-- Edit mode: show selector -->
-                            <DimensionOptionSelector
-                              v-if="isEditing"
-                              :sob-id="props.sobId"
-                              :category="category"
-                              :model-value="field.value"
-                              class="w-full"
-                              @update:model-value="field.onChange"
-                            />
-                            <!-- Display mode: show text only -->
-                            <div v-else class="text-xs">
-                              {{ field.value?.name }}
-                            </div>
-                          </VeeField>
+                    <!-- Credit -->
+                    <TableCell class="align-top">
+                      <VeeField v-slot="{ field }" :name="`journalLines[${index}].amount`">
+                        <template v-if="isEditing">
+                          <Input
+                            :id="useId()"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            :model-value="field.value && field.value < 0 ? Math.abs(field.value) : ''"
+                            class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                            @update:model-value="(val) => field.onChange(val ? -Number(val) || 0 : 0)"
+                          />
                         </template>
+                        <template v-else>
+                          <span class="text-sm">{{
+                            field.value && field.value < 0 ? n(Math.abs(field.value), 'decimal') : ''
+                          }}</span>
+                        </template>
+                      </VeeField>
+                    </TableCell>
+
+                    <!-- Remove button -->
+                    <TableCell v-if="isEditing" class="align-top">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        :title="$t('journal.removeJournalLine')"
+                        @click="removeJournalLine(index)"
+                      >
+                        <Trash2 class="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                </template>
+              </TableBody>
+              <TableFooter>
+                <!-- Journal Line Errors -->
+                <template v-for="(item, index) in form.values.journalLines ?? []" :key="`error-${item._key}`">
+                  <TableRow v-if="form.errors.value[`journalLines[${index}]`]">
+                    <TableCell :colspan="isEditing ? 5 : 4" class="bg-destructive/10">
+                      <div class="text-destructive flex items-center gap-2 text-sm">
+                        <AlertCircle class="h-4 w-4" />
+                        <span>
+                          {{ $t('journal.journalLine.errorPrefix', [index + 1]) }}:
+                          {{ form.errors.value[`journalLines[${index}]`] }}
+                        </span>
                       </div>
-                    </div>
-                  </TableCell>
-
-                  <!-- Debit -->
-                  <TableCell class="align-top">
-                    <VeeField v-slot="{ field }" :name="`journalLines[${index}].amount`">
-                      <template v-if="isEditing">
-                        <Input
-                          :id="useId()"
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          :model-value="field.value && field.value > 0 ? field.value : ''"
-                          class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                          @update:model-value="(val) => field.onChange(Number(val) || 0)"
-                        />
-                      </template>
-                      <template v-else>
-                        <span class="text-sm">{{
-                          field.value && field.value > 0 ? n(field.value, 'decimal') : ''
-                        }}</span>
-                      </template>
-                    </VeeField>
-                  </TableCell>
-
-                  <!-- Credit -->
-                  <TableCell class="align-top">
-                    <VeeField v-slot="{ field }" :name="`journalLines[${index}].amount`">
-                      <template v-if="isEditing">
-                        <Input
-                          :id="useId()"
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          :model-value="field.value && field.value < 0 ? Math.abs(field.value) : ''"
-                          class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                          @update:model-value="(val) => field.onChange(val ? -Number(val) || 0 : 0)"
-                        />
-                      </template>
-                      <template v-else>
-                        <span class="text-sm">{{
-                          field.value && field.value < 0 ? n(Math.abs(field.value), 'decimal') : ''
-                        }}</span>
-                      </template>
-                    </VeeField>
-                  </TableCell>
-
-                  <!-- Remove button -->
-                  <TableCell v-if="isEditing" class="align-top">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      :title="$t('journal.removeJournalLine')"
-                      @click="removeJournalLine(index)"
-                    >
-                      <Trash2 class="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              </template>
-            </TableBody>
-            <TableFooter>
-              <!-- Journal Line Errors -->
-              <template v-for="(item, index) in form.values.journalLines ?? []" :key="`error-${item._key}`">
-                <TableRow v-if="form.errors.value[`journalLines[${index}]`]">
+                    </TableCell>
+                  </TableRow>
+                </template>
+                <TableRow v-if="form.errors.value['journalLines']">
                   <TableCell :colspan="isEditing ? 5 : 4" class="bg-destructive/10">
                     <div class="text-destructive flex items-center gap-2 text-sm">
                       <AlertCircle class="h-4 w-4" />
                       <span>
-                        {{ $t('journal.journalLine.errorPrefix', [index + 1]) }}:
-                        {{ form.errors.value[`journalLines[${index}]`] }}
+                        {{ form.errors.value['journalLines'] }}
                       </span>
                     </div>
                   </TableCell>
                 </TableRow>
-              </template>
-              <TableRow v-if="form.errors.value['journalLines']">
-                <TableCell :colspan="isEditing ? 5 : 4" class="bg-destructive/10">
-                  <div class="text-destructive flex items-center gap-2 text-sm">
-                    <AlertCircle class="h-4 w-4" />
-                    <span>
-                      {{ form.errors.value['journalLines'] }}
-                    </span>
-                  </div>
-                </TableCell>
-              </TableRow>
 
-              <!-- Totals Row -->
-              <TableRow>
-                <TableCell :colspan="isEditing ? 5 : 4" class="text-right">
-                  <div class="flex items-center justify-end gap-6">
-                    <span class="font-semibold"> {{ $t('journal.debitTotal') }}: {{ $n(debitTotal, 'decimal') }} </span>
-                    <span class="font-semibold">
-                      {{ $t('journal.creditTotal') }}: {{ $n(creditTotal, 'decimal') }}
-                    </span>
-                    <div class="flex items-center gap-2">
-                      <template v-if="isBalanced">
-                        <CheckCircle2 class="h-4 w-4 text-green-600" />
-                        <span class="text-sm text-green-600">{{ $t('journal.balanced') }}</span>
-                      </template>
-                      <template v-else>
-                        <AlertCircle class="text-destructive h-4 w-4" />
-                        <span class="text-destructive text-sm">
-                          {{ $t('journal.unbalanced') }} {{ $t('journal.difference') }}:
-                          {{ $n(Math.abs(debitTotal - creditTotal), 'decimal') }}
-                        </span>
-                      </template>
+                <!-- Totals Row -->
+                <TableRow>
+                  <TableCell :colspan="isEditing ? 5 : 4" class="text-right">
+                    <div class="flex items-center justify-end gap-6">
+                      <span class="font-semibold">
+                        {{ $t('journal.debitTotal') }}: {{ $n(debitTotal, 'decimal') }}
+                      </span>
+                      <span class="font-semibold">
+                        {{ $t('journal.creditTotal') }}: {{ $n(creditTotal, 'decimal') }}
+                      </span>
+                      <div class="flex items-center gap-2">
+                        <template v-if="isBalanced">
+                          <CheckCircle2 class="h-4 w-4 text-green-600" />
+                          <span class="text-sm text-green-600">{{ $t('journal.balanced') }}</span>
+                        </template>
+                        <template v-else>
+                          <AlertCircle class="text-destructive h-4 w-4" />
+                          <span class="text-destructive text-sm">
+                            {{ $t('journal.unbalanced') }} {{ $t('journal.difference') }}:
+                            {{ $n(Math.abs(debitTotal - creditTotal), 'decimal') }}
+                          </span>
+                        </template>
+                      </div>
                     </div>
-                  </div>
-                </TableCell>
-              </TableRow>
-            </TableFooter>
-          </Table>
+                  </TableCell>
+                </TableRow>
+              </TableFooter>
+            </Table>
+          </div>
         </div>
       </div>
-    </div>
+    </Transition>
   </PageFrame>
 
   <UnsavedChangesDialog :open="confirmOpen" @confirm="onConfirmLeave" @cancel="onCancelLeave" />
