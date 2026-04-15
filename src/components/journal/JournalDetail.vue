@@ -428,24 +428,24 @@ async function handleDelete() {
   <PageFrame :title="title" :dirty-indicator="form.meta.value.dirty">
     <template #end>
       <!-- View mode actions -->
-      <template v-if="!isEditing && journalId">
+      <template v-if="journal && !isEditing">
         <!-- Workflow action buttons -->
-        <Button v-if="!journal?.isAudited" variant="outline" @click="handleAudit">
+        <Button v-if="!journal.isAudited" variant="outline" @click="handleAudit">
           {{ $t('journal.audit') }}
         </Button>
         <ConfirmationButton
-          v-if="journal?.isAudited && !journal?.isPosted"
+          v-if="journal.isAudited && !journal.isPosted"
           variant="outline"
           :message="$t('journal.msg.confirmCancelAudit')"
           @confirm="onCancelAudit"
         >
           {{ $t('journal.cancelAudit') }}
         </ConfirmationButton>
-        <Button v-if="!journal?.isReviewed" variant="outline" @click="handleReview">
+        <Button v-if="!journal.isReviewed" variant="outline" @click="handleReview">
           {{ $t('journal.review') }}
         </Button>
         <ConfirmationButton
-          v-if="journal?.isReviewed && !journal?.isPosted"
+          v-if="journal.isReviewed && !journal.isPosted"
           variant="outline"
           :message="$t('journal.msg.confirmCancelReview')"
           @confirm="onCancelReview"
@@ -453,7 +453,7 @@ async function handleDelete() {
           {{ $t('journal.cancelReview') }}
         </ConfirmationButton>
         <ConfirmationButton
-          v-if="journal?.isAudited && journal?.isReviewed && !journal?.isPosted"
+          v-if="journal.isAudited && journal.isReviewed && !journal.isPosted"
           :message="$t('journal.msg.confirmPost')"
           @confirm="onPost"
         >
@@ -462,7 +462,7 @@ async function handleDelete() {
 
         <!-- Delete button for closing journals -->
         <ConfirmationButton
-          v-if="journal?.journalType === 'CLOSING' || journal?.journalType === 'YEARLY_CLOSING'"
+          v-if="journal.journalType === 'CLOSING' || journal.journalType === 'YEARLY_CLOSING'"
           variant="destructive"
           :message="$t('journal.msg.confirmDelete')"
           @confirm="handleDelete"
@@ -471,10 +471,10 @@ async function handleDelete() {
         </ConfirmationButton>
 
         <!-- Edit/Close buttons -->
-        <Button v-if="!journal?.isAudited && !journal?.isReviewed" variant="outline" @click="handleEdit">
+        <Button v-if="!journal.isAudited && !journal.isReviewed" variant="outline" @click="handleEdit">
           {{ $t('action.edit') }}
         </Button>
-        <Button v-if="journal?.isPosted" variant="outline" @click="handleCreateAdjusting">
+        <Button v-if="journal.isPosted" variant="outline" @click="handleCreateAdjusting">
           {{ $t('journal.adjusting') }}
         </Button>
         <Button variant="ghost" @click="handleClose">{{ $t('action.close') }}</Button>
@@ -487,9 +487,9 @@ async function handleDelete() {
       </template>
     </template>
 
-    <div class="space-y-8">
+    <div v-if="journal" class="space-y-8">
       <!-- Workflow status badges -->
-      <div v-if="journal && !isEditing" class="flex gap-2">
+      <div v-if="!isEditing" class="flex gap-2">
         <Badge v-if="journal.isAudited" class="bg-green-600">
           {{ $t('journal.isAudited') }}
         </Badge>
@@ -595,7 +595,7 @@ async function handleDelete() {
 
         <!-- Creator (readonly, only for existing journals) -->
         <EditableField
-          v-if="journal && !isEditing"
+          v-if="!isEditing"
           :label="$t('journal.creator')"
           :is-editing="false"
           :value="journal.creator"
@@ -604,7 +604,7 @@ async function handleDelete() {
 
         <!-- Auditor (readonly, only for existing journals) -->
         <EditableField
-          v-if="journal && journal.isAudited && !isEditing"
+          v-if="journal.isAudited && !isEditing"
           :label="$t('journal.auditor')"
           :is-editing="false"
           :value="journal.auditor"
@@ -613,7 +613,7 @@ async function handleDelete() {
 
         <!-- Reviewer (readonly, only for existing journals) -->
         <EditableField
-          v-if="journal && journal.isReviewed && !isEditing"
+          v-if="journal.isReviewed && !isEditing"
           :label="$t('journal.reviewer')"
           :is-editing="false"
           :value="journal.reviewer"
@@ -622,7 +622,7 @@ async function handleDelete() {
 
         <!-- Journal Type (readonly, only for non-GENERAL journals or when creating adjusting) -->
         <EditableField
-          v-if="(journal && journal.journalType !== 'GENERAL') || props.referenceJournalId"
+          v-if="journal.journalType !== 'GENERAL' || props.referenceJournalId"
           :label="$t('journal.journalType')"
           :is-editing="false"
           :value="journal?.journalType ?? 'ADJUSTING'"
@@ -631,7 +631,7 @@ async function handleDelete() {
 
         <!-- Reference Journal (readonly, shown when journal has a reference) -->
         <EditableField
-          v-if="journal?.referenceJournalId || props.referenceJournalId"
+          v-if="journal.referenceJournalId || props.referenceJournalId"
           :label="$t('journal.referenceJournal')"
           :is-editing="false"
           :value="referenceJournal?.documentNumber"
