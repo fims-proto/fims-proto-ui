@@ -29,6 +29,7 @@ const props = defineProps<{
   hasMore?: boolean
   isLoading?: boolean
   bordered?: boolean
+  hideToolbar?: boolean
 }>()
 
 const emit = defineEmits<{ loadMore: [] }>()
@@ -92,6 +93,7 @@ const table = useVueTable({
   <div class="flex h-full flex-col gap-2">
     <!-- table header - fixed -->
     <DataTableToolbar
+      v-if="!hideToolbar"
       v-model:global-filter="globalFilter"
       :table="table"
       :faceted-filters="facetedFilters"
@@ -103,10 +105,11 @@ const table = useVueTable({
     <!-- table - scrollable -->
     <div class="min-h-0 flex-1 overflow-auto rounded-md border">
       <Table
-        :class="{
-          'border-collapse [&_td]:border-r [&_td]:border-b [&_td:last-child]:border-r-0 [&_th]:border-r [&_th]:border-b [&_th:last-child]:border-r-0 [&_tr:last-child_td]:border-b-0':
-            props.bordered,
-        }"
+        :class="[
+          props.bordered
+            ? 'border-collapse [&_td]:border-r [&_td]:border-b [&_td:last-child]:border-r-0 [&_th]:border-r [&_th]:border-b [&_th:last-child]:border-r-0'
+            : '[&_td]:border-b',
+        ]"
       >
         <TableHeader>
           <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
@@ -131,7 +134,7 @@ const table = useVueTable({
                 v-for="row in table.getRowModel().rows"
                 :key="row.id"
                 :data-state="row.getIsSelected() ? 'selected' : undefined"
-                :class="props.onRowClick ? 'hover:bg-muted/50 cursor-pointer' : ''"
+                :class="props.onRowClick ? 'cursor-pointer' : ''"
                 @click="props.onRowClick?.(row.original)"
               >
                 <TableCell
@@ -146,7 +149,9 @@ const table = useVueTable({
           </template>
           <template v-else>
             <TableRow>
-              <TableCell :colspan="columns.length" class="h-24 text-center">{{ $t('common.noResults') }}</TableCell>
+              <TableCell :colspan="table.getAllLeafColumns().length" class="h-24 text-center">{{
+                $t('common.noResults')
+              }}</TableCell>
             </TableRow>
           </template>
         </TableBody>

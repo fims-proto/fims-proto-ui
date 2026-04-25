@@ -55,17 +55,7 @@ const data = computed(() => {
       {
         title: t('nav.ledgerExplorer'),
         icon: ChartLine,
-        defaultOpen: true,
-        subItems: [
-          {
-            title: t('nav.explorer.overview'),
-            to: { name: 'ledgerOverview', params: { sobId: workingSob.value.id } },
-          },
-          {
-            title: t('nav.explorer.account'),
-            to: { name: 'accountExplorer', params: { sobId: workingSob.value.id } },
-          },
-        ],
+        to: { name: 'ledgerExplorer', params: { sobId: workingSob.value.id } },
       },
     ],
     settings: [

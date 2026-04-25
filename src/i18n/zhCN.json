@@ -251,7 +251,12 @@
       "journalNumber": "分录号",
       "entryText": "摘要",
       "debitAmount": "借方",
-      "creditAmount": "贷方"
+      "creditAmount": "贷方",
+      "dimensionCategory": "维度分类",
+      "noDimensionCategory": "无",
+      "dimensionOptions": "维度选项",
+      "noDimensionOptionSelected": "请选择维度选项",
+      "selectedOptionSummary": "选中维度余额"
     },
     "initialize": {
       "title": "初始化期初余额",
@@ -266,7 +271,15 @@
       "validation": {
         "mustBeBalanced": "借贷必须平衡才能保存"
       }
-    }
+    },
+    "viewMode": {
+      "account": "按科目",
+      "dimension": "按维度",
+      "transactions": "明细流水",
+      "label": "视图"
+    },
+    "dimensionCategory": "维度分类",
+    "dimensionOption": "维度选项"
   },
   "dimension": {
     "categoryListTitle": "维度 ({0})",

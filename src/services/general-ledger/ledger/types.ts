@@ -40,6 +40,15 @@ export interface LedgerSummary {
   endingAmount: number
 }
 
+export interface LedgerDimensionSummaryItem {
+  dimensionOption: { id: string; name: string; category: { id: string; name: string } }
+  openingAmount: number
+  periodDebit: number
+  periodCredit: number
+  periodAmount: number
+  endingAmount: number
+}
+
 export interface LedgerEntry {
   journalId: string
   journalNumber: string

@@ -1,4 +1,5 @@
 import type { Ledger } from '@/services/general-ledger/ledger'
+import type { AccountSlim } from '@/services/general-ledger/account/types'
 
 export type LedgerTreeNode = Ledger & {
   children: LedgerTreeNode[]
@@ -90,4 +91,83 @@ export function flattenTree(nodes: LedgerTreeNode[]): LedgerTreeNode[] {
 
   traverse(nodes)
   return result
+}
+
+// Build a tree from leaf-only ledger data by reconstructing ancestors from the account store.
+// The backend may return only leaves with activity; parents are synthesized with zero balances,
+// then aggregated bottom-up via calculateParentBalances.
+export function treefyLedgersFromLeaves(ledgers: Ledger[], allAccounts: AccountSlim[]): LedgerTreeNode[] {
+  const accountMap = new Map<string, AccountSlim>(allAccounts.map((a) => [a.id, a]))
+  const nodeMap = new Map<string, LedgerTreeNode>()
+
+  // Ensure a node exists for the given accountId, creating a synthetic parent if needed
+  function ensureNode(accountId: string): LedgerTreeNode {
+    if (nodeMap.has(accountId)) return nodeMap.get(accountId)!
+    const account = accountMap.get(accountId)
+    const node: LedgerTreeNode = {
+      sobId: account?.sobId ?? '',
+      accountId,
+      superiorAccountId: account?.superiorAccountId,
+      accountNumber: account?.accountNumber ?? '',
+      accountTitle: account?.title ?? '',
+      accountClass: account?.class ?? '',
+      accountGroup: account?.group ?? '',
+      balanceDirection: account?.balanceDirection ?? 'debit',
+      isLeaf: account?.isLeaf ?? false,
+      openingAmount: 0,
+      periodDebit: 0,
+      periodCredit: 0,
+      periodAmount: 0,
+      endingAmount: 0,
+      openingBalance: 0,
+      children: [],
+    }
+    nodeMap.set(accountId, node)
+    return node
+  }
+
+  // Insert each leaf ledger into the map
+  ledgers.forEach((ledger) => {
+    const node: LedgerTreeNode = {
+      ...ledger,
+      openingBalance: Math.abs(ledger.openingAmount || 0),
+      children: [],
+    }
+    nodeMap.set(ledger.accountId, node)
+    // Ensure all ancestors exist
+    let currentId: string | undefined = ledger.superiorAccountId
+    while (currentId) {
+      ensureNode(currentId)
+      currentId = accountMap.get(currentId)?.superiorAccountId
+    }
+  })
+
+  // Wire up parent-child relationships
+  const roots: LedgerTreeNode[] = []
+  nodeMap.forEach((node) => {
+    if (node.superiorAccountId && nodeMap.has(node.superiorAccountId)) {
+      nodeMap.get(node.superiorAccountId)!.children.push(node)
+    } else {
+      roots.push(node)
+    }
+  })
+
+  // Aggregate balances from leaves up to parents
+  function aggregateBalances(nodes: LedgerTreeNode[]): void {
+    nodes.forEach((node) => {
+      if (node.children.length > 0) {
+        aggregateBalances(node.children)
+        node.periodDebit = node.children.reduce((s, c) => s + c.periodDebit, 0)
+        node.periodCredit = node.children.reduce((s, c) => s + c.periodCredit, 0)
+        node.periodAmount = node.children.reduce((s, c) => s + c.periodAmount, 0)
+        const childrenEndingSum = node.children.reduce((s, c) => s + c.endingAmount, 0)
+        node.endingAmount = childrenEndingSum
+        node.openingAmount = node.children.reduce((s, c) => s + c.openingAmount, 0)
+        node.openingBalance = Math.abs(node.openingAmount)
+      }
+    })
+  }
+
+  aggregateBalances(roots)
+  return roots
 }

@@ -10,6 +10,7 @@ import {
   type PeriodAndLedgers,
   type LedgerSummary,
   type LedgerEntry,
+  type LedgerDimensionSummaryItem,
 } from './types'
 import {
   LEDGER_FIELDS_CONVERSION,
@@ -77,12 +78,96 @@ class LedgerService {
     fromPeriod: string,
     toPeriod: string,
     pageable: Pageable = { page: 1, size: 40 },
+    dimensionOptionId?: string,
   ): Promise<Response<Page<LedgerEntry>>> {
     return invokeWithErrorHandler(async () => {
+      const dimParam = dimensionOptionId ? `&dimensionOptionId=${dimensionOptionId}` : ''
       const result = await axios.get(
-        `${FIMS_URL}/api/v1/sob/${sobId}/ledger/${accountId}/entries?fromPeriod=${fromPeriod}&toPeriod=${toPeriod}&$page=${pageable.page}&$size=${pageable.size}`,
+        `${FIMS_URL}/api/v1/sob/${sobId}/ledger/${accountId}/entries?fromPeriod=${fromPeriod}&toPeriod=${toPeriod}&$page=${pageable.page}&$size=${pageable.size}${dimParam}`,
       )
       convertFieldsFromString(result.data.content, LEDGER_ENTRY_FIELDS_CONVERSION)
+      return result.data
+    })
+  }
+
+  public async getDimensionSummary(
+    sobId: string,
+    accountId: string,
+    dimensionCategoryId: string,
+    fromPeriod: string,
+    toPeriod: string,
+  ): Promise<Response<Page<LedgerDimensionSummaryItem>>> {
+    return invokeWithErrorHandler(async () => {
+      const result = await axios.get(
+        `${FIMS_URL}/api/v1/sob/${sobId}/ledgers/${accountId}/dimension/${dimensionCategoryId}?fromPeriod=${fromPeriod}&toPeriod=${toPeriod}`,
+      )
+      convertFieldsFromString(result.data.content, LEDGER_FIELDS_CONVERSION)
+      return result.data
+    })
+  }
+
+  public async getLedgersPage(
+    sobId: string,
+    fromPeriod: string,
+    toPeriod: string,
+    dimensionOptionId?: string,
+    pageable: Pageable = { page: 1, size: 40 },
+  ): Promise<Response<Page<Ledger>>> {
+    return invokeWithErrorHandler(async () => {
+      const dimParam = dimensionOptionId ? `&dimensionOptionId=${dimensionOptionId}` : ''
+      const result = await axios.get(
+        `${FIMS_URL}/api/v1/sob/${sobId}/ledgers?fromPeriod=${fromPeriod}&toPeriod=${toPeriod}&$page=${pageable.page}&$size=${pageable.size}${dimParam}`,
+      )
+      const codeLengths = useSobStore().state.workingSob?.accountsCodeLength ?? []
+      convertFieldsFromString(result.data.content, LEDGER_FIELDS_CONVERSION)
+      convertAccountNumberFields(result.data.content, LEDGER_AN_CONVERSION, codeLengths)
+      return result.data
+    })
+  }
+
+  public async getTransactions(
+    sobId: string,
+    fromPeriod: string,
+    toPeriod: string,
+    accountId?: string,
+    dimensionOptionId?: string,
+    pageable: Pageable = { page: 1, size: 40 },
+  ): Promise<Response<Page<LedgerEntry>>> {
+    return invokeWithErrorHandler(async () => {
+      const params = new URLSearchParams({
+        fromPeriod,
+        toPeriod,
+        $page: String(pageable.page),
+        $size: String(pageable.size),
+      })
+      if (accountId) params.set('accountId', accountId)
+      if (dimensionOptionId) params.set('dimensionOptionId', dimensionOptionId)
+      const result = await axios.get(`${FIMS_URL}/api/v1/sob/${sobId}/ledgers/transactions?${params}`)
+      convertFieldsFromString(result.data.content, LEDGER_ENTRY_FIELDS_CONVERSION)
+      return result.data
+    })
+  }
+
+  public async getDimensionOptions(
+    sobId: string,
+    dimensionCategoryId: string,
+    fromPeriod: string,
+    toPeriod: string,
+    accountId?: string,
+    pageable: Pageable = { page: 1, size: 40 },
+  ): Promise<Response<Page<LedgerDimensionSummaryItem>>> {
+    return invokeWithErrorHandler(async () => {
+      const params = new URLSearchParams({
+        fromPeriod,
+        toPeriod,
+        $page: String(pageable.page),
+        $size: String(pageable.size),
+      })
+      if (accountId) params.set('accountId', accountId)
+      const result = await axios.get(
+        `${FIMS_URL}/api/v1/sob/${sobId}/ledgers/dimension-category/${dimensionCategoryId}/options?${params}`,
+      )
+      convertFieldsFromString(result.data.content, LEDGER_FIELDS_CONVERSION)
       return result.data
     })
   }

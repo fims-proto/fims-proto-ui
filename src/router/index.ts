@@ -15,8 +15,7 @@ import AccountDetail from '@/components/account/AccountDetail.vue'
 import DimensionCategories from '@/components/dimension/DimensionCategories.vue'
 import DimensionOptions from '@/components/dimension/DimensionOptions.vue'
 import LedgerInitialize from '@/components/ledger/LedgerInitialize.vue'
-import LedgerOverview from '@/components/ledger/LedgerOverview.vue'
-import AccountExplorer from '@/components/ledger/AccountExplorer.vue'
+import LedgerExplorer from '@/components/ledger/LedgerExplorer.vue'
 import JournalList from '@/components/journal/JournalList.vue'
 import JournalDetail from '@/components/journal/JournalDetail.vue'
 import ReportList from '@/components/report/ReportList.vue'
@@ -185,32 +184,21 @@ const routes: RouteRecordRaw[] = [
         beforeEnter: [loadWorkingSob, updateWorkingSob],
         children: [
           {
-            path: 'overview',
-            name: 'ledgerOverview',
+            path: '',
+            name: 'ledgerExplorer',
             props: {
               main: (route) => ({
                 sobId: route.params.sobId as string,
                 fromPeriod: route.query.fromPeriod as string | undefined,
                 toPeriod: route.query.toPeriod as string | undefined,
-              }),
-            },
-            components: {
-              main: LedgerOverview,
-            },
-          },
-          {
-            path: 'account',
-            name: 'accountExplorer',
-            props: {
-              main: (route) => ({
-                sobId: route.params.sobId as string,
                 accountId: route.query.accountId as string | undefined,
-                fromPeriod: route.query.fromPeriod as string | undefined,
-                toPeriod: route.query.toPeriod as string | undefined,
+                dimensionCategoryId: route.query.dimensionCategoryId as string | undefined,
+                dimensionOptionId: route.query.dimensionOptionId as string | undefined,
+                view: route.query.view as string | undefined,
               }),
             },
             components: {
-              main: AccountExplorer,
+              main: LedgerExplorer,
             },
           },
         ],
