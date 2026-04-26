@@ -31,6 +31,7 @@ import type {
 import type { AccountSlim, DimensionOptionRef } from '@/services/general-ledger/account/types'
 import { ConfirmationButton } from '@/components/common/confirmation'
 import { useUnsavedChanges, UnsavedChangesDialog } from '@/components/common/unsaved-guard'
+import { useAccountStore } from '@/store/account'
 import { useUserStore } from '@/store/user'
 import { useToastStore } from '@/store/toast'
 import { JOURNAL_CHANGED } from '@/services/event'
@@ -43,6 +44,7 @@ const props = defineProps<{
 
 const router = useRouter()
 const { t, n } = useI18n()
+const accountStore = useAccountStore()
 const userStore = useUserStore()
 const toastStore = useToastStore()
 const bus = useEventBus(JOURNAL_CHANGED)
@@ -693,6 +695,7 @@ async function handleDelete() {
                               :disabled="!isEditing"
                               :model-value="field.value"
                               only-leaf
+                              show-full-title
                               @update:model-value="
                                 (val) => {
                                   field.onChange(val)
@@ -704,7 +707,11 @@ async function handleDelete() {
                           <template v-else>
                             <div class="text-sm">
                               <span>{{ field.value?.accountNumber }}</span>
-                              <span class="ml-1">{{ field.value?.title }}</span>
+                              <span class="ml-1">{{
+                                field.value?.id
+                                  ? accountStore.action.getFullTitle(field.value.id)
+                                  : field.value?.title
+                              }}</span>
                             </div>
                           </template>
                         </VeeField>

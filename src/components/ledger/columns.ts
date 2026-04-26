@@ -1,5 +1,4 @@
 import { h, useId } from 'vue'
-import { RouterLink } from 'vue-router'
 import i18n from '@/i18n'
 import type { ColumnDef, Row } from '@tanstack/vue-table'
 import type { Ref } from 'vue'
@@ -152,7 +151,7 @@ export function createColumns(
 }
 
 // Columns for ledger list view (read-only with grouped headers)
-export function createLedgerColumns(onRowClick?: (row: LedgerTreeNode) => void): ColumnDef<LedgerTreeNode>[] {
+export function createLedgerColumns(): ColumnDef<LedgerTreeNode>[] {
   return [
     {
       id: 'expander',
@@ -217,17 +216,7 @@ export function createLedgerColumns(onRowClick?: (row: LedgerTreeNode) => void):
         }),
       cell: ({ row }) => {
         const data = row.original
-        if (onRowClick) {
-          return h(
-            'span',
-            {
-              class: 'hover:underline text-primary cursor-pointer',
-              onClick: () => onRowClick(data),
-            },
-            data.accountTitle,
-          )
-        }
-        return h('span', {}, data.accountTitle)
+        return h('span', { class: 'text-nowrap' }, data.accountTitle)
       },
       enableSorting: false,
       enableHiding: false,
@@ -376,9 +365,7 @@ export function createLedgerColumns(onRowClick?: (row: LedgerTreeNode) => void):
   ]
 }
 
-export function createDimensionOptionColumns(
-  onRowClick?: (item: LedgerDimensionSummaryItem) => void,
-): ColumnDef<LedgerDimensionSummaryItem>[] {
+export function createDimensionOptionColumns(): ColumnDef<LedgerDimensionSummaryItem>[] {
   return [
     {
       id: 'name',
@@ -388,17 +375,7 @@ export function createDimensionOptionColumns(
           column,
           title: i18n.global.t('ledger.dimensionOption'),
         }),
-      cell: ({ row }) => {
-        const item = row.original
-        if (onRowClick) {
-          return h(
-            'span',
-            { class: 'hover:underline text-primary cursor-pointer', onClick: () => onRowClick(item) },
-            item.dimensionOption.name,
-          )
-        }
-        return h('span', {}, item.dimensionOption.name)
-      },
+      cell: ({ row }) => h('span', {}, row.original.dimensionOption.name),
       enableSorting: false,
       enableHiding: false,
       meta: { columnName: i18n.global.t('ledger.dimensionOption') },
@@ -513,7 +490,7 @@ export function createDimensionOptionColumns(
   ]
 }
 
-export function createTransactionColumns(sobId: string, runningBalances: Ref<number[]>): ColumnDef<LedgerEntry>[] {
+export function createTransactionColumns(runningBalances: Ref<number[]>): ColumnDef<LedgerEntry>[] {
   return [
     {
       accessorKey: 'transactionDate',
@@ -524,15 +501,7 @@ export function createTransactionColumns(sobId: string, runningBalances: Ref<num
     {
       accessorKey: 'journalNumber',
       header: i18n.global.t('ledger.explorer.journalNumber'),
-      cell: ({ row }) =>
-        h(
-          RouterLink,
-          {
-            to: { name: 'journalDetail', params: { sobId, journalId: row.original.journalId } },
-            class: 'text-primary hover:underline',
-          },
-          () => row.original.journalNumber,
-        ),
+      cell: ({ row }) => h('span', {}, row.original.journalNumber),
       enableSorting: false,
       meta: { columnName: i18n.global.t('ledger.explorer.journalNumber') },
     },

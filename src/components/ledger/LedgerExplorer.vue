@@ -115,20 +115,11 @@ const aggregatedView = computed<'account' | 'dimension'>(() => {
   return 'account'
 })
 
-const ledgerColumns = computed(() =>
-  createLedgerColumns((row) => {
-    if (!row.isLeaf) return
-    pushQuery({ accountId: row.accountId, view: 'transactions' })
-  }),
-)
+const ledgerColumns = computed(() => createLedgerColumns())
 
-const dimensionOptionColumns = computed(() =>
-  createDimensionOptionColumns((item) => {
-    pushQuery({ dimensionOptionId: item.dimensionOption.id, view: 'account' })
-  }),
-)
+const dimensionOptionColumns = computed(() => createDimensionOptionColumns())
 
-const transactionColumns = computed(() => createTransactionColumns(props.sobId, runningBalances))
+const transactionColumns = computed(() => createTransactionColumns(runningBalances))
 
 // --- Navigation helpers ---
 
@@ -391,6 +382,7 @@ const totalCount = computed(() => {
             :data="ledgers"
             :is-loading="isLoading"
             :get-sub-rows="(row) => row.children"
+            :on-row-click="(row) => pushQuery({ accountId: row.accountId, view: 'transactions' })"
             initial-expanded
             hide-toolbar
             bordered
@@ -402,13 +394,23 @@ const totalCount = computed(() => {
             :columns="dimensionOptionColumns"
             :data="dimensionOptions"
             :is-loading="isLoading"
+            :on-row-click="(item) => pushQuery({ dimensionOptionId: item.dimensionOption.id, view: 'account' })"
             hide-toolbar
             bordered
           />
         </template>
 
         <template v-else-if="currentView === 'transactions'">
-          <DataTable :columns="transactionColumns" :data="transactions" :is-loading="isLoading" hide-toolbar bordered />
+          <DataTable
+            :columns="transactionColumns"
+            :data="transactions"
+            :is-loading="isLoading"
+            :on-row-click="
+              (entry) => router.push({ name: 'journalDetail', params: { sobId, journalId: entry.journalId } })
+            "
+            hide-toolbar
+            bordered
+          />
         </template>
 
         <div v-if="hasMore" class="mt-2">

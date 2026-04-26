@@ -20,12 +20,14 @@ const props = defineProps<{
   placeholder?: string
   disabled?: boolean
   onlyLeaf?: boolean
+  showFullTitle?: boolean
 }>()
 
 const model = defineModel<AccountSlim | undefined>()
 
 const { t } = useI18n()
-const { allAccounts } = toRefs(useAccountStore().state)
+const accountStore = useAccountStore()
+const { allAccounts } = toRefs(accountStore.state)
 
 const open = ref(false)
 
@@ -39,7 +41,8 @@ const buttonAttrs = computed(() => {
 
 const displayValue = computed(() => {
   if (model.value) {
-    return `${model.value.accountNumber} - ${model.value.title}`
+    const title = props.showFullTitle ? accountStore.action.getFullTitle(model.value.id) : model.value.title
+    return `${model.value.accountNumber} - ${title}`
   }
   return props.placeholder || t('account.searchPlaceholder')
 })

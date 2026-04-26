@@ -149,13 +149,27 @@ const levelNumberConstraints = computed(() => {
 
 watch(() => props.accountId, load, { immediate: true })
 
-// Watch class changes to clear invalid group selections
+// Watch class changes to reset group when the new class makes the current group invalid
 watch(
   () => form.values.class,
   (newClass, oldClass) => {
     if (isEditing.value && newClass !== oldClass && newClass) {
       const validGroups = classGroupsMap.value[newClass] ?? []
-      form.setFieldValue('group', validGroups[0] ?? '')
+      if (!validGroups.includes(form.values.group ?? '')) {
+        form.setFieldValue('group', validGroups[0] ?? '')
+      }
+    }
+  },
+)
+
+// When a superior account is selected in create mode, mirror its class/group/balanceDirection
+watch(
+  () => form.values.superiorAccount,
+  (newSuperior) => {
+    if (!props.accountId && newSuperior) {
+      form.setFieldValue('class', newSuperior.class)
+      form.setFieldValue('group', newSuperior.group)
+      form.setFieldValue('balanceDirection', newSuperior.balanceDirection)
     }
   },
 )
