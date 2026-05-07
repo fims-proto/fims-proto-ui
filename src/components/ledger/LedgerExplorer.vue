@@ -13,7 +13,7 @@ import PeriodSelector from '@/components/period/PeriodSelector.vue'
 import { LedgerService } from '@/services/general-ledger/ledger'
 import type { LedgerDimensionSummaryItem, LedgerEntry } from '@/services/general-ledger/ledger'
 import type { Period } from '@/services/general-ledger'
-import type { AccountSlim, AccountDetail } from '@/services/general-ledger/account/types'
+import type { AccountDetail } from '@/services/general-ledger/account/types'
 import { AccountService } from '@/services/general-ledger/account'
 import { DimensionService } from '@/services/dimension'
 import type { DimensionCategory } from '@/services/dimension'
@@ -88,15 +88,15 @@ const isLoading = ref(false)
 // --- Computed UI state ---
 
 const accountDimensionCategories = computed(() => accountDetail.value?.dimensionCategories ?? [])
-const accountHasDimensions = computed(() => accountDimensionCategories.value.length > 0)
 
 const availableCategories = computed<Array<{ id: string; name: string }>>(() => {
   if (props.accountId) return accountDimensionCategories.value
   return allCategories.value
 })
 
-const transactionsEnabled = computed(() => !!(props.accountId || props.dimensionOptionId))
-const aggregatedViewEnabled = computed(() => !props.accountId || accountHasDimensions.value)
+const accountViewEnabled = computed(() => !props.accountId)
+const dimensionViewEnabled = computed(() => !!props.dimensionCategoryId && !props.dimensionOptionId)
+const transactionsViewEnabled = computed(() => !!(props.accountId || props.dimensionOptionId))
 
 const runningBalances = computed(() => {
   if (!props.accountId) return [] as number[]
@@ -105,14 +105,6 @@ const runningBalances = computed(() => {
     balance += entry.amount
     return balance
   })
-})
-
-// The aggregated toggle item shows 'dimension' when the selected account has dimensions
-// (even before a category is chosen), or when no account is selected but a category is set.
-const aggregatedView = computed<'account' | 'dimension'>(() => {
-  if (props.accountId && accountHasDimensions.value) return 'dimension'
-  if (!props.accountId && props.dimensionCategoryId) return 'dimension'
-  return 'account'
 })
 
 const ledgerColumns = computed(() => createLedgerColumns())
@@ -127,69 +119,69 @@ function pushQuery(patch: Record<string, string | undefined>) {
   router.push({ query: { ...route.query, ...patch } })
 }
 
+// Returns the most specific enabled view given the remaining filter state.
+// Used when clearing a filter to land on a sensible default.
+function bestView(
+  accountId: string | undefined,
+  dimensionCategoryId: string | undefined,
+  dimensionOptionId: string | undefined,
+): ViewMode {
+  if (accountId || dimensionOptionId) return 'transactions'
+  if (dimensionCategoryId) return 'dimension'
+  return 'account'
+}
+
 function handleRangeSelected(start: Period, end: Period) {
   pushQuery({ fromPeriod: toPeriodString(start), toPeriod: toPeriodString(end) })
 }
 
-async function handleAccountChange(account: AccountSlim | undefined) {
-  if (!account) {
-    pushQuery({ accountId: undefined, dimensionCategoryId: undefined, dimensionOptionId: undefined, view: 'account' })
+async function handleAccountChange(accountId: string | undefined) {
+  if (!accountId) {
+    accountDetail.value = undefined
+    pushQuery({ accountId: undefined, view: bestView(undefined, props.dimensionCategoryId, props.dimensionOptionId) })
     return
   }
-  const { data } = await AccountService.getAccountById(props.sobId, account.id)
+  const { data } = await AccountService.getAccountById(props.sobId, accountId)
+  accountDetail.value = data
   const categories = data?.dimensionCategories ?? []
-  if (categories.length && !props.dimensionOptionId) {
-    // Auto-select the first category and switch to dimension view
-    const firstCategoryId = props.dimensionCategoryId ?? categories[0]?.id
-    if (!firstCategoryId) return
-    pushQuery({
-      accountId: account.id,
-      dimensionCategoryId: firstCategoryId,
-      dimensionOptionId: undefined,
-      view: 'dimension',
-    })
+  const categoryStillValid = props.dimensionCategoryId && categories.some((c) => c.id === props.dimensionCategoryId)
+  if (categoryStillValid) {
+    pushQuery({ accountId, view: 'transactions' })
   } else {
-    pushQuery({ accountId: account.id, view: 'transactions' })
+    pushQuery({ accountId, dimensionCategoryId: undefined, dimensionOptionId: undefined, view: 'transactions' })
   }
 }
 
-function handleCategoryChange(value: unknown) {
-  const categoryId = typeof value === 'string' && value !== 'none' ? value : undefined
+function handleCategoryChange(categoryId: string | undefined) {
   if (categoryId) {
     pushQuery({ dimensionCategoryId: categoryId, dimensionOptionId: undefined, view: 'dimension' })
   } else {
-    pushQuery({ dimensionCategoryId: undefined, dimensionOptionId: undefined })
+    pushQuery({
+      dimensionCategoryId: undefined,
+      dimensionOptionId: undefined,
+      view: bestView(props.accountId, undefined, undefined),
+    })
   }
 }
 
-function handleOptionChange(value: unknown) {
-  const optionId = typeof value === 'string' && value !== 'none' ? value : undefined
+function handleOptionChange(optionId: string | undefined) {
   if (optionId) {
-    const newView: ViewMode = props.accountId ? 'transactions' : 'account'
-    pushQuery({ dimensionOptionId: optionId, view: newView })
+    // Setting an option without an account → go to account view to see per-account breakdown
+    pushQuery({ dimensionOptionId: optionId, view: props.accountId ? 'transactions' : 'account' })
   } else {
-    pushQuery({ dimensionOptionId: undefined })
+    pushQuery({ dimensionOptionId: undefined, view: bestView(props.accountId, props.dimensionCategoryId, undefined) })
   }
 }
 
 function handleViewChange(value: unknown) {
-  if (typeof value === 'string') pushQuery({ view: value })
+  if (typeof value === 'string') {
+    const patch: Record<string, string | undefined> = { view: value }
+    if (value === 'dimension') patch.dimensionOptionId = undefined
+    pushQuery(patch)
+  }
 }
 
 // --- Data loading ---
-
-// Fetch account detail whenever accountId prop changes
-watch(
-  () => props.accountId,
-  async (id) => {
-    accountDetail.value = undefined
-    if (id) {
-      const { data } = await AccountService.getAccountById(props.sobId, id)
-      accountDetail.value = data
-    }
-  },
-  { immediate: true },
-)
 
 // Load all-categories list once (when no account is selected we need all categories)
 watch(
@@ -197,6 +189,21 @@ watch(
   async (sobId) => {
     const { data } = await DimensionService.getDimensionCategories(sobId, { page: 1, size: 100 })
     if (data) allCategories.value = data.content
+  },
+  { immediate: true },
+)
+
+// Fetch account detail whenever accountId prop changes
+watch(
+  () => props.accountId,
+  async (id) => {
+    if (!id) {
+      accountDetail.value = undefined
+      return
+    }
+    if (accountDetail.value?.id === id) return
+    const { data } = await AccountService.getAccountById(props.sobId, id)
+    accountDetail.value = data
   },
   { immediate: true },
 )
@@ -219,13 +226,16 @@ watch(
     dimensionOptionsPage.value = 1
     transactionsPage.value = 1
     try {
+      const loads: Promise<void>[] = []
       if (currentView.value === 'account') {
-        await loadLedgers(from, to, 1)
-      } else if (currentView.value === 'dimension' && props.dimensionCategoryId) {
-        await loadDimensionOptions(from, to, 1)
+        loads.push(loadLedgers(from, to, 1))
       } else if (currentView.value === 'transactions' && (props.accountId || props.dimensionOptionId)) {
-        await loadTransactions(from, to, 1)
+        loads.push(loadTransactions(from, to, 1))
       }
+      if (props.dimensionCategoryId) {
+        loads.push(loadDimensionOptions(from, to, 1))
+      }
+      await Promise.all(loads)
     } finally {
       isLoading.value = false
     }
@@ -327,12 +337,20 @@ const totalCount = computed(() => {
       <div class="flex shrink-0 flex-wrap items-end gap-3">
         <div class="flex flex-col gap-1">
           <span class="text-muted-foreground text-xs">{{ $t('account.accountTitle') }}</span>
-          <AccountInput :model-value="selectedAccount" class="w-64" @update:model-value="handleAccountChange" />
+          <AccountInput
+            :model-value="selectedAccount"
+            class="w-64"
+            @update:model-value="handleAccountChange($event?.id)"
+          />
         </div>
 
-        <div v-if="availableCategories.length" class="flex flex-col gap-1">
+        <div class="flex flex-col gap-1">
           <span class="text-muted-foreground text-xs">{{ $t('ledger.dimensionCategory') }}</span>
-          <Select :model-value="dimensionCategoryId ?? 'none'" @update:model-value="handleCategoryChange($event)">
+          <Select
+            :model-value="dimensionCategoryId ?? 'none'"
+            :disabled="!availableCategories.length"
+            @update:model-value="handleCategoryChange($event !== 'none' ? ($event as string) : undefined)"
+          >
             <SelectTrigger class="w-40">
               <SelectValue :placeholder="$t('ledger.dimensionCategory')" />
             </SelectTrigger>
@@ -345,9 +363,13 @@ const totalCount = computed(() => {
           </Select>
         </div>
 
-        <div v-if="dimensionCategoryId" class="flex flex-col gap-1">
+        <div class="flex flex-col gap-1">
           <span class="text-muted-foreground text-xs">{{ $t('ledger.dimensionOption') }}</span>
-          <Select :model-value="dimensionOptionId ?? 'none'" @update:model-value="handleOptionChange($event)">
+          <Select
+            :model-value="dimensionOptionId ?? 'none'"
+            :disabled="!dimensionCategoryId"
+            @update:model-value="handleOptionChange($event !== 'none' ? ($event as string) : undefined)"
+          >
             <SelectTrigger class="w-40">
               <SelectValue :placeholder="$t('ledger.dimensionOption')" />
             </SelectTrigger>
@@ -360,14 +382,16 @@ const totalCount = computed(() => {
           </Select>
         </div>
 
-        <!-- View toggle: aggregated view (account OR dimension) + transactions -->
         <div class="flex flex-col gap-1">
           <span class="text-muted-foreground text-xs">{{ $t('ledger.viewMode.label') }}</span>
           <ToggleGroup type="single" :model-value="currentView" @update:model-value="handleViewChange">
-            <ToggleGroupItem v-if="aggregatedViewEnabled" :value="aggregatedView">
-              {{ aggregatedView === 'dimension' ? $t('ledger.viewMode.dimension') : $t('ledger.viewMode.account') }}
+            <ToggleGroupItem value="account" :disabled="!accountViewEnabled">
+              {{ $t('ledger.viewMode.account') }}
             </ToggleGroupItem>
-            <ToggleGroupItem v-if="transactionsEnabled" value="transactions">
+            <ToggleGroupItem value="dimension" :disabled="!dimensionViewEnabled">
+              {{ $t('ledger.viewMode.dimension') }}
+            </ToggleGroupItem>
+            <ToggleGroupItem value="transactions" :disabled="!transactionsViewEnabled">
               {{ $t('ledger.viewMode.transactions') }}
             </ToggleGroupItem>
           </ToggleGroup>
@@ -382,7 +406,7 @@ const totalCount = computed(() => {
             :data="ledgers"
             :is-loading="isLoading"
             :get-sub-rows="(row) => row.children"
-            :on-row-click="(row) => pushQuery({ accountId: row.accountId, view: 'transactions' })"
+            :on-row-click="(row) => handleAccountChange(row.accountId)"
             initial-expanded
             hide-toolbar
             bordered
@@ -394,7 +418,13 @@ const totalCount = computed(() => {
             :columns="dimensionOptionColumns"
             :data="dimensionOptions"
             :is-loading="isLoading"
-            :on-row-click="(item) => pushQuery({ dimensionOptionId: item.dimensionOption.id, view: 'account' })"
+            :on-row-click="
+              (item) =>
+                pushQuery({
+                  dimensionOptionId: item.dimensionOption.id,
+                  view: props.accountId ? 'transactions' : 'account',
+                })
+            "
             hide-toolbar
             bordered
           />

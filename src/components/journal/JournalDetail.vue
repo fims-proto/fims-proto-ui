@@ -708,9 +708,7 @@ async function handleDelete() {
                             <div class="text-sm">
                               <span>{{ field.value?.accountNumber }}</span>
                               <span class="ml-1">{{
-                                field.value?.id
-                                  ? accountStore.action.getFullTitle(field.value.id)
-                                  : field.value?.title
+                                field.value?.id ? accountStore.action.getFullTitle(field.value.id) : field.value?.title
                               }}</span>
                             </div>
                           </template>

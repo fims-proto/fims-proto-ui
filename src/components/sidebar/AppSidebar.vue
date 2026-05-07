@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { computed, toRefs } from 'vue'
+import { useRoute } from 'vue-router'
 
 import {
   BookOpenCheck,
@@ -25,6 +26,7 @@ const props = withDefaults(defineProps<SidebarProps>(), {
 })
 
 const { t } = useI18n()
+const route = useRoute()
 const { workingSob } = toRefs(useSobStore().state)
 const { currentPeriod } = toRefs(usePeriodStore().state)
 
@@ -55,7 +57,14 @@ const data = computed(() => {
       {
         title: t('nav.ledgerExplorer'),
         icon: ChartLine,
-        to: { name: 'ledgerExplorer', params: { sobId: workingSob.value.id } },
+        to: {
+          name: 'ledgerExplorer',
+          params: { sobId: workingSob.value.id },
+          query: {
+            fromPeriod: route.query.fromPeriod as string | undefined,
+            toPeriod: route.query.toPeriod as string | undefined,
+          },
+        },
       },
     ],
     settings: [
