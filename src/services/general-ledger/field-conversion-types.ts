@@ -71,6 +71,20 @@ export const PRE_CLOSE_CHECK_FIELDS_CONVERSION: FieldConversionRecord = {
   },
 }
 
+export const BATCH_PRE_CLOSE_CHECK_FIELDS_CONVERSION: FieldConversionRecord = {
+  unpostedJournals: {
+    count: 'number',
+    journals: {
+      amount: 'number',
+    },
+  },
+  trialBalance: {
+    openingAmount: 'number',
+    periodAmount: 'number',
+    endingAmount: 'number',
+  },
+}
+
 // -----------------------------------------------
 // ------ Account number field conversions -------
 // -----------------------------------------------

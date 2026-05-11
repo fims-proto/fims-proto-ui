@@ -10,8 +10,23 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { ConfirmationButton } from '@/components/common/confirmation'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
-import { PeriodService, JournalService, type PreCloseCheck, type PreCloseCheckStatus } from '@/services/general-ledger'
+import {
+  PeriodService,
+  JournalService,
+  type PreCloseCheck,
+  type PreCloseCheckStatus,
+  type BatchPreCloseCheck,
+} from '@/services/general-ledger'
 import { usePeriodStore } from '@/store/period'
 import { useToastStore } from '@/store/toast'
 import { PERIOD_CHANGED } from '@/services/event'
@@ -36,6 +51,12 @@ const isClosing = ref(false)
 const isCreatingMonthlyClosingJournal = ref(false)
 const isCreatingYearEndClosingJournal = ref(false)
 
+const batchDialogOpen = ref(false)
+const batchTargetPeriod = ref<string>('') // YYYY-MM format
+const batchPreCloseCheck = ref<BatchPreCloseCheck | null>(null)
+const isBatchChecking = ref(false)
+const isBatchClosing = ref(false)
+
 const period = computed(() => allPeriods.value.find((p) => p.id === props.periodId))
 const isCurrent = computed(() => period.value?.isCurrent ?? false)
 const isClosed = computed(() => period.value?.isClosed ?? false)
@@ -44,6 +65,34 @@ const periodStr = computed(() => {
   if (!period.value) return null
   return `${period.value.fiscalYear}-${String(period.value.periodNumber).padStart(2, '0')}`
 })
+
+// Generate up to 12 future periods from the current period (backend limit).
+// Computed mathematically — does not depend on allPeriods being populated.
+const futurePeriodOptions = computed(() => {
+  const current = period.value
+  if (!current) return []
+  const options: { label: string; value: string }[] = []
+  let year = current.fiscalYear
+  let num = current.periodNumber
+  for (let i = 0; i < 12; i++) {
+    num++
+    if (num > 12) {
+      num = 1
+      year++
+    }
+    const value = `${year}-${String(num).padStart(2, '0')}`
+    options.push({ label: t('period.periodText', [year, num]), value })
+  }
+  return options
+})
+
+const batchAllChecksPassed = computed(
+  () =>
+    batchPreCloseCheck.value?.unpostedJournals.status === 'PASSED' &&
+    batchPreCloseCheck.value?.trialBalance.status === 'PASSED',
+)
+
+const canBatchClose = computed(() => batchAllChecksPassed.value && !isBatchChecking.value && !isBatchClosing.value)
 
 const allChecksPassed = computed(() => {
   if (preCloseCheck.value == null) return false
@@ -154,6 +203,39 @@ async function onCreateYearEndClosingJournal() {
     isCreatingYearEndClosingJournal.value = false
   }
 }
+
+// Auto-trigger batch pre-close check when the user selects a target period
+async function onBatchTargetPeriodChange(val: string) {
+  batchTargetPeriod.value = val
+  batchPreCloseCheck.value = null
+  if (!val) return
+  isBatchChecking.value = true
+  try {
+    const { data } = await PeriodService.getBatchPreCloseCheck(props.sobId, val)
+    if (data) batchPreCloseCheck.value = data
+  } finally {
+    isBatchChecking.value = false
+  }
+}
+
+async function onBatchClose() {
+  isBatchClosing.value = true
+  try {
+    const { exception } = await PeriodService.batchClosePeriods(props.sobId, batchTargetPeriod.value)
+    if (!exception) {
+      toastStore.action.success(t('common.requestCompleted'), {
+        description: t('period.management.batchClose.closeSuccess'),
+      })
+      batchDialogOpen.value = false
+      batchTargetPeriod.value = ''
+      batchPreCloseCheck.value = null
+      bus.emit()
+      await periodStore.action.refreshPeriods(props.sobId)
+    }
+  } finally {
+    isBatchClosing.value = false
+  }
+}
 </script>
 
 <template>
@@ -162,7 +244,10 @@ async function onCreateYearEndClosingJournal() {
       <template v-if="isCurrent">
         <Button variant="ghost" :disabled="isLoading" @click="load">
           <RefreshCw :class="['size-4', isLoading && 'animate-spin']" />
-          {{ $t('common.refresh') }}
+          {{ $t('period.management.preCheck') }}
+        </Button>
+        <Button variant="ghost" @click="batchDialogOpen = true">
+          {{ $t('period.management.batchClose.button') }}
         </Button>
         <ConfirmationButton :disabled="!canClose" :message="$t('period.management.confirmClose')" @confirm="onClose">
           <Loader2 v-if="isClosing" class="size-4 animate-spin" />
@@ -530,4 +615,95 @@ async function onCreateYearEndClosingJournal() {
       </p>
     </div>
   </PageFrame>
+
+  <Dialog
+    v-model:open="batchDialogOpen"
+    @update:open="
+      (v) => {
+        if (!v) {
+          batchTargetPeriod = ''
+          batchPreCloseCheck = null
+        }
+      }
+    "
+  >
+    <DialogContent class="sm:max-w-md">
+      <DialogHeader>
+        <DialogTitle>{{ $t('period.management.batchClose.dialogTitle') }}</DialogTitle>
+        <DialogDescription>{{ $t('period.management.batchClose.dialogDescription') }}</DialogDescription>
+      </DialogHeader>
+
+      <div class="flex flex-col gap-4 py-2">
+        <!-- Current period info -->
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-sm font-medium">{{ $t('period.management.currentPeriod') }} :</span>
+          <span class="text-sm">{{ periodLabel() }}</span>
+        </div>
+
+        <!-- Target period selector -->
+        <div class="flex flex-wrap items-center gap-2">
+          <label class="text-sm font-medium">{{ $t('period.management.batchClose.targetPeriod') }} :</label>
+          <Select :model-value="batchTargetPeriod" @update:model-value="(v) => onBatchTargetPeriodChange(v as string)">
+            <SelectTrigger class="min-w-48 flex-1">
+              <SelectValue :placeholder="$t('period.management.batchClose.selectTargetPeriod')" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem v-for="opt in futurePeriodOptions" :key="opt.value" :value="opt.value">
+                {{ opt.label }}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <!-- Check results -->
+        <div v-if="isBatchChecking" class="text-muted-foreground flex items-center gap-2 text-sm">
+          <Loader2 class="size-4 animate-spin" />
+          {{ $t('period.management.batchClose.checking') }}
+        </div>
+        <div v-else-if="batchPreCloseCheck" class="flex flex-col gap-2 text-sm">
+          <!-- Unposted journals -->
+          <div class="flex items-center gap-2">
+            <CheckCircle2
+              v-if="batchPreCloseCheck.unpostedJournals.status === 'PASSED'"
+              class="size-4 text-green-500"
+            />
+            <XCircle v-else class="text-destructive size-4" />
+            <span>{{ $t('period.management.checkItems.unpostedJournals') }}</span>
+            <span v-if="batchPreCloseCheck.unpostedJournals.status === 'PASSED'" class="text-muted-foreground">
+              {{ $t('period.management.batchClose.checkPassed') }}
+            </span>
+            <span v-else class="text-destructive">
+              {{
+                $t('period.management.batchClose.unpostedJournalsCount', [batchPreCloseCheck.unpostedJournals.count])
+              }}
+            </span>
+          </div>
+          <!-- Trial balance -->
+          <div class="flex items-center gap-2">
+            <CheckCircle2 v-if="batchPreCloseCheck.trialBalance.status === 'PASSED'" class="size-4 text-green-500" />
+            <XCircle v-else class="text-destructive size-4" />
+            <span>{{ $t('period.management.checkItems.trialBalance') }}</span>
+            <span v-if="batchPreCloseCheck.trialBalance.status === 'PASSED'" class="text-muted-foreground">
+              {{ $t('period.management.batchClose.checkPassed') }}
+            </span>
+            <span v-else class="text-destructive">
+              {{ $n(batchPreCloseCheck.trialBalance.endingAmount, 'decimal') }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <DialogFooter>
+        <Button variant="outline" @click="batchDialogOpen = false">{{ $t('action.cancel') }}</Button>
+        <ConfirmationButton
+          :disabled="!canBatchClose"
+          :message="$t('period.management.batchClose.confirmClose')"
+          @confirm="onBatchClose"
+        >
+          <Loader2 v-if="isBatchClosing" class="size-4 animate-spin" />
+          {{ $t('period.management.batchClose.closePeriod') }}
+        </ConfirmationButton>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
 </template>

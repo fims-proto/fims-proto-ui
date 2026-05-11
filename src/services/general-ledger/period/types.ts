@@ -63,3 +63,19 @@ export type PreCloseCheckJournal = z.infer<typeof PreCloseCheckJournalSchema>
 export type PreCloseCheckPnLAccount = z.infer<typeof PreCloseCheckPnLAccountSchema>
 export type PreCloseCheckCurrentYearProfitAccount = z.infer<typeof PreCloseCheckCurrentYearProfitAccountSchema>
 export type PreCloseCheck = z.infer<typeof PreCloseCheckSchema>
+
+export const BatchPreCloseCheckSchema = z.object({
+  unpostedJournals: z.object({
+    count: z.number(),
+    journals: z.array(PreCloseCheckJournalSchema),
+    status: PreCloseCheckStatusSchema,
+  }),
+  trialBalance: z.object({
+    openingAmount: z.number(),
+    periodAmount: z.number(),
+    endingAmount: z.number(),
+    status: PreCloseCheckStatusSchema,
+  }),
+})
+
+export type BatchPreCloseCheck = z.infer<typeof BatchPreCloseCheckSchema>

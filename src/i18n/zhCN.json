@@ -176,6 +176,7 @@
     "management": {
       "title": "期间管理",
       "currentPeriod": "当前期间",
+      "preCheck": "检查",
       "closePeriod": "结账",
       "confirmClose": "确认结账？此操作不可撤销。",
       "closeSuccess": "结账成功",
@@ -223,6 +224,19 @@
         "confirmGenerate": "将生成本年利润结转凭证，继续操作？",
         "viewJournal": "查看结转分录",
         "generateSuccess": "年度结转分录已创建"
+      },
+      "batchClose": {
+        "button": "连续结账",
+        "dialogTitle": "连续结账",
+        "dialogDescription": "选择目标期间，系统将自动结账至该期（含）",
+        "targetPeriod": "目标期间",
+        "selectTargetPeriod": "选择目标期间",
+        "checking": "检查中...",
+        "checkPassed": "通过",
+        "unpostedJournalsCount": "{0} 条未记账分录",
+        "confirmClose": "确认连续结账？此操作将关闭从当前期间至所选目标期间的所有期间，不可撤销。",
+        "closeSuccess": "连续结账成功",
+        "closePeriod": "结账"
       }
     }
   },

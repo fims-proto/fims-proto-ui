@@ -668,3 +668,17 @@ convertAccountNumberFields(result.data, ACCOUNT_NUMBER_CONVERSION, codeLengths)
 - **Primary language:** Simplified Chinese (zh-CN)
 - **Backend repo:** This is a UI-only repository; backend is separate
 - **API contract:** Always reference `swagger/swagger.yaml` as source of truth for API schemas
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in GitHub Issues for `fims-proto/fims-proto-ui`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default label vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context layout — one `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
