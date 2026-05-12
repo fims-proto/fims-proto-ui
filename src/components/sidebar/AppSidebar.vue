@@ -9,6 +9,7 @@ import {
   FileSpreadsheet,
   GitBranch,
   HandCoins,
+  LayoutDashboard,
   Network,
   RefreshCcwDot,
 } from 'lucide-vue-next'
@@ -29,6 +30,8 @@ const { t } = useI18n()
 const route = useRoute()
 const { workingSob } = toRefs(useSobStore().state)
 const { currentPeriod } = toRefs(usePeriodStore().state)
+
+const dashboardItem = [{ title: t('nav.dashboard'), icon: LayoutDashboard, to: { name: 'home' } }]
 
 const data = computed(() => {
   if (!workingSob.value || !currentPeriod.value) {
@@ -96,6 +99,7 @@ const data = computed(() => {
       <SobSwitcher />
     </SidebarHeader>
     <SidebarContent>
+      <NavGroup :items="dashboardItem" :title="t('nav.start')" />
       <NavGroup :items="data.scenarios" :title="t('nav.scenarios')" />
       <NavGroup :items="data.settings" :title="t('nav.settings')" hide-on-collapse />
     </SidebarContent>

@@ -523,7 +523,7 @@ function toggleCategorySelection(categoryId: string, update: (value: string[]) =
           <template #edit="{ onUpdate }">
             <Popover v-model:open="dimensionCategoriesPopoverOpen">
               <PopoverTrigger as-child>
-                <Button variant="outline" size="sm" class="h-9 w-full justify-start border-dashed">
+                <Button type="button" variant="outline" size="sm" class="h-9 w-full justify-start border-dashed">
                   <PlusCircle class="mr-2 h-4 w-4" />
                   {{ $t('account.dimension.selectDimensionCategories') }}
                   <template v-if="selectedCategoryIds.size > 0">

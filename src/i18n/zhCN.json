@@ -41,15 +41,12 @@
     "detail": "详情"
   },
   "nav": {
+    "start": "开始",
+    "dashboard": "仪表盘",
     "scenarios": "场景",
     "settings": "设置",
     "transaction": "交易",
     "ledgerExplorer": "分析",
-    "explorer": {
-      "overview": "总览",
-      "account": "按科目",
-      "dimension": "按维度"
-    },
     "report": "报表",
     "periodReview": "期间",
     "chartOfAccounts": "科目",

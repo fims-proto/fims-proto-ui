@@ -112,7 +112,7 @@ const table = useVueTable({
         ]"
       >
         <TableHeader>
-          <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
+          <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id" class="hover:bg-transparent">
             <TableHead
               v-for="header in headerGroup.headers"
               :key="header.id"
@@ -134,7 +134,7 @@ const table = useVueTable({
                 v-for="row in table.getRowModel().rows"
                 :key="row.id"
                 :data-state="row.getIsSelected() ? 'selected' : undefined"
-                :class="props.onRowClick ? 'cursor-pointer' : ''"
+                :class="props.onRowClick ? '' : 'hover:bg-transparent'"
                 @click="props.onRowClick?.(row.original)"
               >
                 <TableCell
