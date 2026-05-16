@@ -48,11 +48,6 @@ const data = computed(() => {
         to: { name: 'journalList', params: { sobId: workingSob.value.id } },
       },
       {
-        title: t('nav.report'),
-        icon: FileSpreadsheet,
-        to: { name: 'reportList', params: { sobId: workingSob.value.id } },
-      },
-      {
         title: t('nav.periodReview'),
         icon: BookOpenCheck,
         to: { name: 'periodDetail', params: { sobId: workingSob.value.id, periodId: currentPeriod.value.id } },
@@ -68,6 +63,11 @@ const data = computed(() => {
             toPeriod: route.query.toPeriod as string | undefined,
           },
         },
+      },
+      {
+        title: t('nav.report'),
+        icon: FileSpreadsheet,
+        to: { name: 'reportList', params: { sobId: workingSob.value.id } },
       },
     ],
     settings: [
