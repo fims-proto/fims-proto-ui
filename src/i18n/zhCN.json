@@ -91,6 +91,7 @@
     "listTitle": "账套 ({0})",
     "title": "账套",
     "sobUnselected": "未选择账套",
+    "selectOrCreate": "请从左侧列表选择一个账套，或新建一个",
     "name": "公司名称",
     "baseCurrency": "本位币",
     "startingPeriod": "启用期间",

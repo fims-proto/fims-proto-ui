@@ -2,6 +2,7 @@ import { createRouter, createWebHistory, RouterView, type RouteRecordRaw } from 
 import { loadWorkingSob, updateWorkingSob, verifyCurrentUser, verifyNotLoggedIn } from './before-enter-handlers'
 import AppLayout from '@/components/AppLayout.vue'
 import NotImplementedPage from '@/components/pages/NotImplementedPage.vue'
+import SobEmptyState from '@/components/pages/SobEmptyState.vue'
 import ExceptionPage from '@/components/pages/ExceptionPage.vue'
 import NotFoundPage from '@/components/pages/NotFoundPage.vue'
 import AuthenticationLogin from '@/components/user/AuthenticationLogin.vue'
@@ -70,7 +71,7 @@ const routes: RouteRecordRaw[] = [
             name: 'sobList',
             components: {
               list: SobList,
-              main: NotImplementedPage,
+              main: SobEmptyState,
             },
           },
           {
