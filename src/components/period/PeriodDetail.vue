@@ -159,14 +159,17 @@ async function load() {
 async function onClose() {
   isClosing.value = true
   try {
-    const { exception } = await PeriodService.closePeriod(props.sobId, props.periodId)
-    if (!exception) {
+    const { data, exception } = await PeriodService.closePeriod(props.sobId, props.periodId)
+    if (exception) return
+    if (data) {
+      toastStore.action.warn(t('common.requestCompleted'), { description: data.message, duration: -1, closable: true })
+    } else {
       toastStore.action.success(t('common.requestCompleted'), {
         description: t('period.management.closeSuccess'),
       })
-      bus.emit()
-      await periodStore.action.refreshPeriods(props.sobId)
     }
+    bus.emit()
+    await periodStore.action.refreshPeriods(props.sobId)
   } finally {
     isClosing.value = false
   }
@@ -221,17 +224,20 @@ async function onBatchTargetPeriodChange(val: string) {
 async function onBatchClose() {
   isBatchClosing.value = true
   try {
-    const { exception } = await PeriodService.batchClosePeriods(props.sobId, batchTargetPeriod.value)
-    if (!exception) {
+    const { data, exception } = await PeriodService.batchClosePeriods(props.sobId, batchTargetPeriod.value)
+    if (exception) return
+    if (data) {
+      toastStore.action.warn(t('common.requestCompleted'), { description: data.message, duration: -1, closable: true })
+    } else {
       toastStore.action.success(t('common.requestCompleted'), {
         description: t('period.management.batchClose.closeSuccess'),
       })
-      batchDialogOpen.value = false
-      batchTargetPeriod.value = ''
-      batchPreCloseCheck.value = null
-      bus.emit()
-      await periodStore.action.refreshPeriods(props.sobId)
     }
+    batchDialogOpen.value = false
+    batchTargetPeriod.value = ''
+    batchPreCloseCheck.value = null
+    bus.emit()
+    await periodStore.action.refreshPeriods(props.sobId)
   } finally {
     isBatchClosing.value = false
   }

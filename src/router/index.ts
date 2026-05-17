@@ -19,8 +19,7 @@ import LedgerInitialize from '@/components/ledger/LedgerInitialize.vue'
 import LedgerExplorer from '@/components/ledger/LedgerExplorer.vue'
 import JournalList from '@/components/journal/JournalList.vue'
 import JournalDetail from '@/components/journal/JournalDetail.vue'
-import ReportList from '@/components/report/ReportList.vue'
-import ReportDetail from '@/components/report/ReportDetail.vue'
+import ReportPage from '@/components/report/ReportPage.vue'
 import PeriodList from '@/components/period/PeriodList.vue'
 import PeriodDetail from '@/components/period/PeriodDetail.vue'
 
@@ -256,34 +255,11 @@ const routes: RouteRecordRaw[] = [
       },
       // reports
       {
-        path: 'sobs/:sobId/reports',
+        path: 'sobs/:sobId/report',
+        name: 'report',
         beforeEnter: [loadWorkingSob, updateWorkingSob],
-        children: [
-          {
-            path: '',
-            name: 'reportList',
-            props: { list: (route) => ({ sobId: route.params.sobId }) },
-            components: {
-              list: ReportList,
-            },
-          },
-          {
-            path: ':reportId',
-            name: 'reportDetail',
-            meta: {
-              listPanelSize: 30,
-              mainPanelSize: 70,
-            },
-            props: {
-              list: (route) => ({ sobId: route.params.sobId }),
-              main: (route) => ({ sobId: route.params.sobId, reportId: route.params.reportId }),
-            },
-            components: {
-              list: ReportList,
-              main: ReportDetail,
-            },
-          },
-        ],
+        props: { main: (route) => ({ sobId: route.params.sobId }) },
+        components: { main: ReportPage },
       },
       // periods
       {

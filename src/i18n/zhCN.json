@@ -443,6 +443,8 @@
     "btn": {
       "generate": "生成报表",
       "regenerate": "重新生成",
+      "editTemplate": "编辑模版",
+      "exitEditTemplate": "退出编辑模版",
       "editItem": "编辑项目",
       "viewItem": "查看项目",
       "addItem": "添加项目",
@@ -461,6 +463,11 @@
       "accountRequired": "请选择科目",
       "confirmDeleteItem": "确定要删除此项目吗？此操作无法撤销。",
       "validationFailed": "验证失败，请检查输入内容"
+    },
+    "unclosedPeriodWarning": "此账期尚未关闭，数据可能不完整",
+    "emptyState": {
+      "title": "当前账期尚未生成报表",
+      "description": "选择其他账期，或为当前账期创建报表"
     },
     "dialog": {
       "selectPeriod": "选择账期",

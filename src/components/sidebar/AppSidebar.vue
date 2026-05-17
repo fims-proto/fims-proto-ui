@@ -67,7 +67,7 @@ const data = computed(() => {
       {
         title: t('nav.report'),
         icon: FileSpreadsheet,
-        to: { name: 'reportList', params: { sobId: workingSob.value.id } },
+        to: { name: 'report', params: { sobId: workingSob.value.id } },
       },
     ],
     settings: [

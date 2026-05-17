@@ -79,3 +79,9 @@ export const BatchPreCloseCheckSchema = z.object({
 })
 
 export type BatchPreCloseCheck = z.infer<typeof BatchPreCloseCheckSchema>
+
+export const PeriodCloseWarningSchema = z.object({
+  slug: z.string(),
+  message: z.string(),
+})
+export type PeriodCloseWarning = z.infer<typeof PeriodCloseWarningSchema>

@@ -5,14 +5,17 @@ import i18n from '@/i18n'
 
 export async function invokeWithErrorHandler<T>(
   invoker: () => Promise<T>,
-  errorExtractor: (e: AxiosError) => SlugError = generalErrorExtractor,
+  options?: { suppress404?: boolean },
 ): Promise<Response<T>> {
   try {
     return { data: await invoker() }
   } catch (error) {
     if ((error as AxiosError).response) {
+      if (options?.suppress404 && (error as AxiosError).response?.status === 404) {
+        return {}
+      }
       // server response
-      const slugError = errorExtractor(error as AxiosError)
+      const slugError = generalErrorExtractor(error as AxiosError)
       notify(slugError)
       return { exception: slugError }
     }

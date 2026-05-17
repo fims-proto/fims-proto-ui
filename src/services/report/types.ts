@@ -79,13 +79,6 @@ export type Item = z.infer<typeof ItemSchema>
 export type Formula = z.infer<typeof FormulaSchema>
 export type Account = z.infer<typeof AccountSchema>
 
-export const GenerateReportRequestSchema = z.object({
-  title: z.string().min(1).max(40).optional(),
-  amountTypes: z.array(z.enum(AMOUNT_TYPE)).min(1).optional(),
-  periodFiscalYear: z.number().int(),
-  periodNumber: z.number().int().min(1).max(12),
-})
-
 export const UpdateReportRequestItemFormulaSchema = z.object({
   id: z.string().uuid().optional(),
   sumFactor: z.union([z.literal(1), z.literal(-1)]),
@@ -136,7 +129,6 @@ export const UpdateReportResponseSchema = z.object({
   createdItemIds: z.record(z.string(), z.string().uuid()),
 })
 
-export type GenerateReportRequest = z.infer<typeof GenerateReportRequestSchema>
 export type UpdateReportRequestItemFormula = z.infer<typeof UpdateReportRequestItemFormulaSchema>
 export type UpdateReportRequestItem = z.infer<typeof UpdateReportRequestItemSchema>
 export type UpdateReportRequestSection = z.infer<typeof UpdateReportRequestSectionSchema>

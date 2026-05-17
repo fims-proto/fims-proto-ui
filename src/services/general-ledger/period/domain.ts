@@ -3,7 +3,7 @@ import { FIMS_URL } from '../../../config'
 import { convertAccountNumberFields, convertFieldsFromString } from '../../field-conversion'
 import { invokeWithErrorHandler, type Response } from '../../error-handler'
 import { useSobStore } from '../../../store/sob'
-import { type Period, type PreCloseCheck, type BatchPreCloseCheck } from './types'
+import { type Period, type PreCloseCheck, type BatchPreCloseCheck, type PeriodCloseWarning } from './types'
 import {
   PERIOD_FIELDS_CONVERSION,
   PRE_CLOSE_CHECK_AN_CONVERSION,
@@ -20,10 +20,11 @@ class PeriodService {
     })
   }
 
-  public async closePeriod(sobId: string, periodId: string): Promise<Response<void>> {
-    return invokeWithErrorHandler(
-      async () => await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/period/${periodId}/close`),
-    )
+  public async closePeriod(sobId: string, periodId: string): Promise<Response<PeriodCloseWarning | null>> {
+    return invokeWithErrorHandler(async () => {
+      const result = await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/period/${periodId}/close`)
+      return result.data ? (result.data as PeriodCloseWarning) : null
+    })
   }
 
   public async getPreCloseCheck(sobId: string, periodId: string): Promise<Response<PreCloseCheck>> {
@@ -47,13 +48,13 @@ class PeriodService {
     })
   }
 
-  public async batchClosePeriods(sobId: string, targetPeriod: string): Promise<Response<void>> {
-    return invokeWithErrorHandler(
-      async () =>
-        await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/periods/batch-close`, null, {
-          params: { targetPeriod },
-        }),
-    )
+  public async batchClosePeriods(sobId: string, targetPeriod: string): Promise<Response<PeriodCloseWarning | null>> {
+    return invokeWithErrorHandler(async () => {
+      const result = await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/periods/batch-close`, null, {
+        params: { targetPeriod },
+      })
+      return result.data ? (result.data as PeriodCloseWarning) : null
+    })
   }
 }
 
