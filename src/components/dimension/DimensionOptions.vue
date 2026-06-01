@@ -8,14 +8,7 @@ import { useForm, Field as VeeField } from 'vee-validate'
 import { PageFrame } from '@/components/common/page'
 import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/common/data-table'
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { EditableField } from '@/components/common/form'
 import { ConfirmationButton } from '@/components/common/confirmation'
@@ -187,16 +180,9 @@ function onClose() {
 
   <!-- Option Dialog (Create/Update) -->
   <Dialog :open="optionDialogOpen" @update:open="onOptionDialogOpenChange">
-    <DialogContent class="max-h-[90vh] overflow-y-auto">
+    <DialogContent class="max-h-[90vh] overflow-y-auto" :aria-describedby="undefined">
       <DialogHeader>
         <DialogTitle>{{ optionDialogTitle }}</DialogTitle>
-        <DialogDescription>
-          {{
-            optionDialogMode === 'create'
-              ? $t('dimension.msg.createOptionDescription')
-              : $t('dimension.msg.updateOptionDescription')
-          }}
-        </DialogDescription>
       </DialogHeader>
 
       <div class="flex flex-col gap-4">

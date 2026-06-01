@@ -194,7 +194,7 @@
         "endingAmount": "期末差额"
       },
       "unpostedJournals": {
-        "count": "未记账分录：{0} 条",
+        "count": "未记账分录: {0} 条",
         "showMore": "还有更多未记账分录，点击查看",
         "noUnposted": "无未记账分录",
         "documentNumber": "分录号",
@@ -272,13 +272,13 @@
     },
     "initialize": {
       "title": "初始化期初余额",
-      "firstPeriod": "启用期间：{0}",
+      "firstPeriod": "启用期间: {0}",
       "periodClosed": "该期间已结账，无法修改期初余额",
       "totalDebit": "借方合计",
       "totalCredit": "贷方合计",
       "status": "状态",
       "balanced": "平衡",
-      "notBalanced": "不平衡 (差额：{0})",
+      "notBalanced": "不平衡 (差额: {0})",
       "saveSuccess": "期初余额保存成功",
       "validation": {
         "mustBeBalanced": "借贷必须平衡才能保存"
@@ -314,11 +314,7 @@
       "optionDeleteSuccess": "维度成员删除成功",
       "confirmDeleteCategory": "确定要删除此维度吗？此操作无法撤销。",
       "confirmDeleteOption": "确定要删除此维度成员吗？此操作无法撤销。",
-      "createCategoryDescription": "创建新的维度",
-      "createOptionDescription": "创建新的维度成员",
-      "viewOptionDescription": "查看维度成员详情",
-      "updateCategoryDescription": "编辑维度信息",
-      "updateOptionDescription": "编辑维度成员信息"
+      "viewOptionDescription": "查看维度成员详情"
     }
   },
   "journal": {
@@ -400,9 +396,19 @@
     "class": "类型",
     "classEnum": {
       "balance_sheet": "资产负债表",
-      "income_statement": "利润表"
+      "income_statement": "利润表",
+      "cash_flow_statement": "现金流量表"
     },
-    "amountType": "金额类型",
+    "column": {
+      "valueType": "金额类型",
+      "valueTypeEnum": {
+        "year_opening_balance": "年初余额",
+        "period_ending_balance": "期末余额",
+        "year_to_date_amount": "本年累计",
+        "last_year_amount": "上年金额",
+        "period_amount": "本期金额"
+      }
+    },
     "amountTypeEnum": {
       "year_opening_balance": "年初余额",
       "period_ending_balance": "期末余额",
@@ -410,14 +416,11 @@
       "last_year_amount": "上年金额",
       "period_amount": "本期金额"
     },
-    "dataSource": "数据源",
-    "dataSourceEnum": {
-      "formulas": "公式",
-      "sum": "累计值",
-      "none": "无"
-    },
-    "item": {
+    "row": {
       "text": "文本",
+      "showLineNo": "显示行次",
+      "displaySumFactor": "显示加减前缀",
+      "referenceLabelWithLineNo": "{lineNo} - {text}",
       "sumFactor": "累计方式",
       "sumFactorEnum": {
         "1": "加",
@@ -425,19 +428,35 @@
         "0": "不计入"
       }
     },
-    "formula": {
-      "accountTitle": "科目",
+    "expression": {
+      "kind": "表达式类型",
+      "kindEnum": {
+        "ledger_accounts": "科目取数",
+        "cash_flow_items": "现金流量项目",
+        "rows_explicit": "指定行合计",
+        "children_sum": "子行合计",
+        "none": "无"
+      },
+      "ledgerAccounts": "科目引用",
+      "cashFlowItems": "现金流量项目引用",
+      "rowReferences": "行引用",
+      "account": "科目",
+      "cashFlowItem": "现金流量项目",
+      "rowReference": "引用行",
+      "selectCashFlowItem": "请选择现金流量项目",
+      "selectRowReference": "请选择引用行",
       "sumFactor": "计入",
       "sumFactorEnum": {
         "1": "加",
         "-1": "减"
       },
-      "rule": "取数规则",
-      "ruleEnum": {
+      "measure": "取数规则",
+      "measureEnum": {
         "net": "余额",
         "debit": "借方",
         "credit": "贷方",
-        "transaction": "发生额"
+        "transaction": "发生额",
+        "opening_balance": "期初余额"
       }
     },
     "btn": {
@@ -445,23 +464,29 @@
       "regenerate": "重新生成",
       "editTemplate": "编辑模版",
       "exitEditTemplate": "退出编辑模版",
-      "editItem": "编辑项目",
-      "viewItem": "查看项目",
-      "addItem": "添加项目",
+      "editRow": "编辑行",
+      "viewRow": "查看行",
+      "addRow": "添加行",
       "insertBefore": "在前面插入",
       "insertChild": "插入子项",
       "insertAfter": "在后面插入",
-      "addFormula": "新增公式"
+      "addReference": "新增引用"
     },
     "msg": {
       "generateCompleted": "成功报表生成",
       "regenerateCompleted": "成功重新生成报表",
       "updateCompleted": "报表更新并重新计算完成",
       "templateUpdateCompleted": "报表模板更新成功",
-      "updateSuccessButRegenerateFailed": "报表更新成功，但重新计算失败",
+      "updateSuccessButRecalculateFailed": "报表更新成功，但重新计算失败",
       "textIsRequired": "文本不能为空",
       "accountRequired": "请选择科目",
-      "confirmDeleteItem": "确定要删除此项目吗？此操作无法撤销。",
+      "cashFlowItemRequired": "请选择现金流量项目",
+      "rowReferenceRequired": "请选择引用行",
+      "expressionReferenceRequired": "请至少添加一个引用",
+      "duplicateRowCode": "存在重复的报表行标识，请重新添加自定义行",
+      "invalidRowReference": "行引用只能指向当前行之前已经计算的行",
+      "confirmDeleteRow": "确定要删除此行吗？此操作无法撤销。",
+      "confirmRegenerate": "重新生成会用最新模板重建当前报表，可能覆盖当前报表的结构调整。确定继续吗？",
       "validationFailed": "验证失败，请检查输入内容"
     },
     "unclosedPeriodWarning": "此账期尚未关闭，数据可能不完整",
@@ -476,10 +501,15 @@
     },
     "chart": {
       "lineNumber": "行次",
-      "breakdown": "其中：",
+      "rowTextLabel": {
+        "balanceSheetLeft": "资产",
+        "balanceSheetRight": "负债和所有者权益",
+        "default": "项目"
+      },
+      "breakdown": "其中: ",
       "sumFactorEnum": {
-        "1": "加：",
-        "-1": "减："
+        "1": "加: ",
+        "-1": "减: "
       }
     }
   }

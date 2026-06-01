@@ -6,27 +6,18 @@ import type { Entry } from '../report-display-types'
 
 defineProps<{
   entry: Entry
-  prevEntry: Entry | null
-  amountTypes: string[]
+  columnCount: number
 }>()
 </script>
 
 <template>
-  <!-- First cell: Entry name -->
-  <TableCell v-if="entry.text">
-    <ReportEntryCell :entry="entry" :prev-entry="prevEntry" />
+  <TableCell>
+    <ReportEntryCell :entry="entry" />
   </TableCell>
 
-  <!-- Blank row (no text) -->
-  <TableCell v-else>
-    <ReportEntryCell :entry="entry" :prev-entry="prevEntry" />
+  <TableCell class="text-muted-foreground w-16 text-center">
+    {{ entry.showLineNo ? entry.lineNo : '' }}
   </TableCell>
 
-  <!-- Line number cell -->
-  <TableCell class="text-muted-foreground text-center">
-    {{ entry.lineNumber ?? '' }}
-  </TableCell>
-
-  <!-- Amount cells -->
-  <ReportAmountCell v-for="(_, idx) in amountTypes" :key="`amt-${idx}`" :amount="entry.amounts?.[idx]" />
+  <ReportAmountCell v-for="idx in columnCount" :key="`amt-${idx}`" :amount="entry.amounts?.[idx - 1]" />
 </template>

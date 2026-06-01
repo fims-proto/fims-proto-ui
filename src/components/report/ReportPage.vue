@@ -9,30 +9,42 @@ import { AlertCircle, FolderOpen, Plus, X } from 'lucide-vue-next'
 import { PageFrame } from '@/components/common/page'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { ConfirmationButton } from '@/components/common/confirmation'
 import PeriodSelector from '@/components/period/PeriodSelector.vue'
-import ItemDialog from './ItemDialog.vue'
+import RowDialog from './RowDialog.vue'
 import BalanceSheetView from './views/BalanceSheetView.vue'
-import IncomeStatementView from './views/IncomeStatementView.vue'
+import SingleColumnView from './views/SingleColumnView.vue'
 import { useUnsavedChanges, UnsavedChangesDialog } from '@/components/common/unsaved-guard'
 
 import {
   ReportService,
   type Report,
-  type Item,
-  type Section,
+  type Row,
   UpdateReportRequestSchema,
   type UpdateReportRequest,
-  type UpdateReportRequestSection,
-  type UpdateReportRequestItem,
+  type UpdateRowRequest,
   CLASS_OPTIONS,
 } from '@/services/report'
+import { CashFlowItemService, type CashFlowItem } from '@/services/general-ledger'
 import type { Period } from '@/services/general-ledger/period'
 import { usePeriodStore } from '@/store/period'
 import { buildReportDisplayData } from './report-display-helper'
 import type { Entry } from './report-display-types'
 import { useToastStore } from '@/store/toast'
-import { insertItemInTree, updateItemInTree, deleteItemFromTree } from '@/utils/tree-mutation'
-import { transformItemToRequest, cleanTemporaryIds } from './report-transforms'
+import { transformRowToRequest } from './report-transforms'
+import {
+  cleanTemporaryRowIds,
+  createCustomRowCode,
+  deleteRow,
+  getInsertionEvaluationIndex,
+  getReferenceableRows,
+  insertRow,
+  type InsertPosition,
+  renumberRows,
+  rowsInEvaluationOrder,
+  updateReportRowsFromForm,
+  updateRow,
+} from './report-row-tree'
 
 const props = defineProps<{
   sobId: string
@@ -44,28 +56,27 @@ const { t } = useI18n()
 const toast = useToastStore()
 const periodStore = usePeriodStore()
 
-// --- Page state ---
 const selectedClass = ref<(typeof CLASS_OPTIONS)[number]>('balance_sheet')
 const selectedPeriod = ref<Period | null>(null)
 const isTemplateMode = ref(false)
 const report = ref<Report | undefined>()
+const cashFlowItems = ref<CashFlowItem[]>([])
+const cashFlowItemsLoaded = ref(false)
 const isLoading = ref(false)
 const isNotFound = ref(false)
 const isGenerating = ref(false)
 
-// --- Edit state ---
 const isEditing = ref(false)
 const isSaving = ref(false)
 const isRegenerating = ref(false)
 const warningDismissed = ref(false)
 
-const editDialogOpen = ref(false)
-const selectedItem = ref<Item>()
-type ItemDialogMode = 'view' | 'edit' | 'create'
-const itemDialogMode = ref<ItemDialogMode>('view')
-type InsertPosition = 'before' | 'after' | 'child'
+const rowDialogOpen = ref(false)
+const selectedRow = ref<Row>()
+type RowDialogMode = 'view' | 'edit' | 'create'
+const rowDialogMode = ref<RowDialogMode>('view')
 const insertPosition = ref<InsertPosition | null>(null)
-const referenceItem = ref<Item | null>(null)
+const referenceRow = ref<Row | null>(null)
 
 const reportForm = useForm({
   validationSchema: toTypedSchema(UpdateReportRequestSchema),
@@ -77,14 +88,18 @@ const periodText = computed(() => {
   if (!selectedPeriod.value) return null
   return t('period.periodText', [selectedPeriod.value.fiscalYear, selectedPeriod.value.periodNumber])
 })
-const reportTitle = computed(() => {
-  if (!selectedClass.value) return t('report.title')
-  return t(`report.classEnum.${selectedClass.value}`)
+const reportTitle = computed(() => t(`report.classEnum.${selectedClass.value}`))
+const referenceableRows = computed(() => {
+  const rows = reportForm.values.rows ?? []
+  const fallbackIndex =
+    rowDialogMode.value === 'create'
+      ? getInsertionEvaluationIndex(rows, referenceRow.value?.id, insertPosition.value)
+      : undefined
+  return getReferenceableRows(rows, selectedRow.value?.id, fallbackIndex)
 })
 
 const { confirmOpen, onConfirmLeave, onCancelLeave } = useUnsavedChanges(computed(() => reportForm.meta.value.dirty))
 
-// --- Period format helpers ---
 function periodToParam(p: Period): string {
   return `${p.fiscalYear}-${p.periodNumber.toString().padStart(2, '0')}`
 }
@@ -97,7 +112,6 @@ function paramToPeriod(s: string): Period | undefined {
   return periodStore.state.allPeriods.find((p) => p.fiscalYear === year && p.periodNumber === num)
 }
 
-// --- URL sync ---
 function syncToUrl() {
   const query: Record<string, string> = { class: selectedClass.value }
   if (isTemplateMode.value) {
@@ -108,7 +122,15 @@ function syncToUrl() {
   router.replace({ query })
 }
 
-// --- Load report ---
+async function loadCashFlowItems() {
+  if (cashFlowItemsLoaded.value) return
+  const { data } = await CashFlowItemService.getCashFlowItems(props.sobId)
+  if (data) {
+    cashFlowItems.value = [...data].sort((a, b) => a.sequence - b.sequence)
+    cashFlowItemsLoaded.value = true
+  }
+}
+
 async function load() {
   if (!selectedClass.value) return
 
@@ -117,9 +139,11 @@ async function load() {
   report.value = undefined
 
   try {
+    await loadCashFlowItems()
+
     if (isTemplateMode.value) {
       const { data } = await ReportService.getTemplate(props.sobId, selectedClass.value)
-      report.value = data
+      setLoadedReport(data)
     } else if (selectedPeriod.value) {
       const { data } = await ReportService.getReportByClassAndPeriod(
         props.sobId,
@@ -127,7 +151,7 @@ async function load() {
         periodToParam(selectedPeriod.value),
       )
       if (data) {
-        report.value = data
+        setLoadedReport(data)
       } else {
         isNotFound.value = true
       }
@@ -135,28 +159,32 @@ async function load() {
   } finally {
     isLoading.value = false
   }
-
-  if (report.value) {
-    const formValues = transformToForm(report.value)
-    reportForm.resetForm({ values: formValues }, { force: true })
-  }
 }
 
-// --- Watch for state changes to reload ---
+function setLoadedReport(loadedReport: Report | undefined) {
+  if (!loadedReport) return
+
+  const formValues = transformToForm(loadedReport)
+  renumberRows(loadedReport.class, formValues.rows)
+  updateReportRowsFromForm(loadedReport.rows, formValues.rows)
+  report.value = loadedReport
+  reportForm.resetForm({ values: formValues }, { force: true })
+}
+
 watch([selectedClass, selectedPeriod], () => {
   syncToUrl()
-  isEditing.value = false
+  if (!isTemplateMode.value) {
+    isEditing.value = false
+  }
   warningDismissed.value = false
   load()
 })
 
-// Template mode toggle: reload without resetting editing (enterTemplateEdit sets isEditing=true)
 watch(isTemplateMode, () => {
   syncToUrl()
   load()
 })
 
-// --- Initialize from URL and period store ---
 watch(
   () => periodStore.state.allPeriods,
   (periods) => {
@@ -172,11 +200,11 @@ watch(
 
     if (queryMode === 'template') {
       isTemplateMode.value = true
+      isEditing.value = true
     } else if (queryPeriod && typeof queryPeriod === 'string') {
       const period = paramToPeriod(queryPeriod)
       if (period) selectedPeriod.value = period
     } else {
-      // Default: current period
       const current = periodStore.state.currentPeriod
       if (current) selectedPeriod.value = current
     }
@@ -184,156 +212,108 @@ watch(
   { immediate: true },
 )
 
-// --- Form helpers ---
 function transformToForm(r: Report): UpdateReportRequest {
-  function transformSection(section: Section): UpdateReportRequestSection {
-    return {
-      id: section.id,
-      title: section.title,
-      sections: section.sections?.map(transformSection),
-      items: (section.items || []).map((item) => ({
-        ...item,
-        formulas: item.formulas?.map((formula) => ({
-          id: formula.id,
-          accountNumber: formula.account.accountNumber,
-          sumFactor: formula.sumFactor,
-          rule: formula.rule,
-        })),
-      })),
-    }
-  }
   return {
     title: r.title,
-    amountTypes: r.amountTypes,
-    sections: r.sections.map(transformSection),
+    rows: r.rows.map(transformRowToRequest),
   }
 }
 
-// --- Item operations ---
-function createNewItem(ref: Item, position: InsertPosition): Item {
-  let level: number
-  let isBreakdownItem: boolean
-  let isAbleToAddChild: boolean
-
-  if (position === 'child') {
-    level = ref.level + 1
-    isBreakdownItem = true
-    isAbleToAddChild = false
-  } else {
-    level = ref.level
-    isBreakdownItem = ref.isBreakdownItem ?? false
-    isAbleToAddChild = !isBreakdownItem
-  }
-
+function createNewRow(reference: Row, position: InsertPosition): Row {
   return {
     id: `new-${crypto.randomUUID()}`,
+    rowCode: createCustomRowCode(reportForm.values.rows ?? []),
     text: '',
-    level,
+    indent: position === 'child' ? reference.indent + 1 : reference.indent,
+    showLineNo: true,
     sumFactor: 0,
-    dataSource: 'none',
-    isEditable: true,
-    isBreakdownItem,
-    isAbleToAddChild,
     displaySumFactor: false,
+    canEdit: true,
+    canMove: true,
+    canAddChild: position !== 'child',
+    expression: {
+      kind: 'none',
+    },
   }
 }
 
 function handleRowClick(entry: Entry) {
   if (!entry.text) return
-  selectedItem.value = entry
-  itemDialogMode.value = !entry.isEditable ? 'view' : isEditing.value ? 'edit' : 'view'
-  editDialogOpen.value = true
+  selectedRow.value = entry
+  rowDialogMode.value = entry.canEdit && isEditing.value ? 'edit' : 'view'
+  insertPosition.value = null
+  referenceRow.value = null
+  rowDialogOpen.value = true
 }
 
 function handleInsertBefore(entry: Entry) {
-  referenceItem.value = entry
-  insertPosition.value = 'before'
-  selectedItem.value = createNewItem(entry, 'before')
-  itemDialogMode.value = 'create'
-  editDialogOpen.value = true
+  openCreateDialog(entry, 'before')
 }
 
 function handleInsertChild(entry: Entry) {
-  referenceItem.value = entry
-  insertPosition.value = 'child'
-  selectedItem.value = createNewItem(entry, 'child')
-  itemDialogMode.value = 'create'
-  editDialogOpen.value = true
+  openCreateDialog(entry, 'child')
 }
 
 function handleInsertAfter(entry: Entry) {
-  referenceItem.value = entry
-  insertPosition.value = 'after'
-  selectedItem.value = createNewItem(entry, 'after')
-  itemDialogMode.value = 'create'
-  editDialogOpen.value = true
+  openCreateDialog(entry, 'after')
 }
 
-function handleDeleteItem(entry: Entry) {
-  const sections = reportForm.values.sections
-  if (!sections) return
+function openCreateDialog(entry: Entry, position: InsertPosition) {
+  referenceRow.value = entry
+  insertPosition.value = position
+  selectedRow.value = createNewRow(entry, position)
+  rowDialogMode.value = 'create'
+  rowDialogOpen.value = true
+}
 
-  const formDeleted = deleteItemFromTree<UpdateReportRequestSection, UpdateReportRequestItem>(
-    sections,
-    (item) => item.id === entry.id,
-  )
+function handleDeleteRow(row: Row) {
+  if (!row.id) return
 
-  if (formDeleted && report.value) {
-    deleteItemFromTree<Section, Item>(report.value.sections, (item) => item.id === entry.id)
-    reportForm.setFieldTouched('sections', true)
+  const rows = cloneRows(reportForm.values.rows ?? [])
+  if (deleteRow(rows, row.id)) {
+    applyRows(rows)
   }
 }
 
-function handleItemSaved(updatedItem: Item) {
-  const sections = reportForm.values.sections
-  if (!sections) return
+function handleRowSaved(updatedRow: UpdateRowRequest) {
+  const rows = cloneRows(reportForm.values.rows ?? [])
 
-  if (itemDialogMode.value === 'create') {
-    const refItem = referenceItem.value
+  if (rowDialogMode.value === 'create') {
+    const refRow = referenceRow.value
     const position = insertPosition.value
-    if (!refItem || !position) return
+    if (!refRow || !position) return
 
-    const formInserted = insertItemInTree<UpdateReportRequestSection, Item, UpdateReportRequestItem>(
-      sections,
-      updatedItem,
-      {
-        findReference: (item) => item.id === refItem.id,
-        transformItem: transformItemToRequest,
-        position,
-      },
-    )
-
-    if (formInserted && report.value) {
-      insertItemInTree<Section, Item>(report.value.sections, updatedItem, {
-        findReference: (item) => item.id === refItem.id,
-        position,
-      })
-      reportForm.setFieldTouched('sections', true)
+    if (!insertRow(rows, refRow.id, updatedRow, position)) {
+      return
     }
+  } else if (updatedRow.id && !updateRow(rows, updatedRow.id, () => updatedRow)) {
+    return
+  }
 
-    itemDialogMode.value = 'view'
-    insertPosition.value = null
-    referenceItem.value = null
-  } else {
-    const formUpdated = updateItemInTree<UpdateReportRequestSection, UpdateReportRequestItem>(
-      sections,
-      (item) => item.id === updatedItem.id,
-      () => transformItemToRequest(updatedItem),
-    )
+  applyRows(rows)
+  rowDialogMode.value = 'view'
+  insertPosition.value = null
+  referenceRow.value = null
+}
 
-    if (formUpdated && report.value) {
-      updateItemInTree<Section, Item>(
-        report.value.sections,
-        (item) => item.id === updatedItem.id,
-        () => updatedItem,
-      )
-      reportForm.setFieldTouched('sections', true)
-    }
+function applyRows(rows: UpdateRowRequest[]) {
+  renumberRows(selectedClass.value, rows)
+  reportForm.setFieldValue('rows', rows)
+  reportForm.setFieldTouched('rows', true)
+
+  if (report.value) {
+    updateReportRowsFromForm(report.value.rows, rows)
   }
 }
 
-// --- Save ---
 async function onSave() {
+  if (!report.value) return
+
+  renumberRows(selectedClass.value, reportForm.values.rows ?? [])
+  if (!validateRowReferences(reportForm.values.rows ?? [])) {
+    return
+  }
+
   const validation = await reportForm.validate()
   if (!validation.valid) {
     toast.action.error(t('report.msg.validationFailed'))
@@ -342,20 +322,20 @@ async function onSave() {
 
   isSaving.value = true
   try {
-    const cleanedRequest = cleanTemporaryIds(reportForm.values as UpdateReportRequest)
+    const cleanedRequest = cleanTemporaryRowIds(reportForm.values as UpdateReportRequest)
     const { exception: updateException } = await ReportService.updateReport(
       props.sobId,
-      report.value!.id,
+      report.value.id,
       cleanedRequest,
     )
     if (updateException) return
 
-    if (report.value?.template) {
+    if (report.value.template) {
       toast.action.success(t('report.msg.templateUpdateCompleted'))
     } else {
-      const { exception: regenException } = await ReportService.regenerateReport(props.sobId, report.value!.id)
-      if (regenException) {
-        toast.action.warn(t('report.msg.updateSuccessButRegenerateFailed'))
+      const { exception: recalculateException } = await ReportService.recalculateReport(props.sobId, report.value.id)
+      if (recalculateException) {
+        toast.action.warn(t('report.msg.updateSuccessButRecalculateFailed'))
       } else {
         toast.action.success(t('report.msg.updateCompleted'))
       }
@@ -368,7 +348,6 @@ async function onSave() {
   }
 }
 
-// --- Regenerate ---
 async function handleRegenerate() {
   if (!report.value) return
   isRegenerating.value = true
@@ -382,7 +361,6 @@ async function handleRegenerate() {
   }
 }
 
-// --- Generate (empty state) ---
 async function handleGenerate() {
   if (!selectedPeriod.value) return
   isGenerating.value = true
@@ -394,10 +372,8 @@ async function handleGenerate() {
     )
     if (exception) return
     if (data) {
-      report.value = data
       isNotFound.value = false
-      const formValues = transformToForm(data)
-      reportForm.resetForm({ values: formValues }, { force: true })
+      setLoadedReport(data)
       toast.action.success(t('report.msg.generateCompleted'))
     }
   } finally {
@@ -405,7 +381,6 @@ async function handleGenerate() {
   }
 }
 
-// --- Template mode ---
 function enterTemplateEdit() {
   isTemplateMode.value = true
   isEditing.value = true
@@ -429,6 +404,35 @@ function handlePeriodSelected(period: Period) {
 function handleCancel() {
   isEditing.value = false
   load()
+}
+
+function cloneRows(rows: UpdateRowRequest[]): UpdateRowRequest[] {
+  return JSON.parse(JSON.stringify(rows)) as UpdateRowRequest[]
+}
+
+function validateRowReferences(rows: UpdateRowRequest[]) {
+  const seenCodes = new Set<string>()
+  const allCodes = new Set<string>()
+
+  for (const row of rowsInEvaluationOrder(rows)) {
+    if (allCodes.has(row.rowCode)) {
+      toast.action.error(t('report.msg.duplicateRowCode'))
+      return false
+    }
+
+    allCodes.add(row.rowCode)
+
+    for (const ref of row.expression.rowReferences ?? []) {
+      if (!seenCodes.has(ref.rowCode)) {
+        toast.action.error(t('report.msg.invalidRowReference'))
+        return false
+      }
+    }
+
+    seenCodes.add(row.rowCode)
+  }
+
+  return true
 }
 </script>
 
@@ -458,12 +462,17 @@ function handleCancel() {
         </SelectContent>
       </Select>
 
-      <!-- Instance view buttons -->
       <template v-if="!isTemplateMode">
         <template v-if="!isEditing">
-          <Button v-if="report" variant="outline" :disabled="isRegenerating" @click="handleRegenerate">
+          <ConfirmationButton
+            v-if="report"
+            variant="outline"
+            :disabled="isRegenerating"
+            :message="$t('report.msg.confirmRegenerate')"
+            @confirm="handleRegenerate"
+          >
             {{ $t('report.btn.regenerate') }}
-          </Button>
+          </ConfirmationButton>
           <Button variant="outline" @click="enterTemplateEdit">{{ $t('report.btn.editTemplate') }}</Button>
           <Button v-if="report" variant="outline" @click="isEditing = true">{{ $t('action.edit') }}</Button>
         </template>
@@ -473,14 +482,12 @@ function handleCancel() {
         </template>
       </template>
 
-      <!-- Template view buttons -->
       <template v-else>
         <Button :disabled="isSaving || !reportForm.meta.value.valid" @click="onSave">{{ $t('action.save') }}</Button>
         <Button variant="ghost" @click="exitTemplateEdit">{{ $t('report.btn.exitEditTemplate') }}</Button>
       </template>
     </template>
 
-    <!-- Unclosed period warning strip -->
     <div
       v-if="!warningDismissed && !isTemplateMode && selectedPeriod && !selectedPeriod.isClosed && report"
       class="bg-warning/10 text-warning-foreground mb-4 flex items-center gap-2 rounded-md border border-yellow-200 bg-yellow-50 px-4 py-2 text-sm text-yellow-800"
@@ -492,29 +499,23 @@ function handleCancel() {
       </button>
     </div>
 
-    <!-- Loading -->
     <div v-if="isLoading" class="space-y-3">
       <div v-for="i in 8" :key="i" class="bg-muted h-8 animate-pulse rounded" />
     </div>
 
-    <!-- Report content -->
     <template v-else-if="report && displayData">
       <BalanceSheetView
         v-if="isBalanceSheet"
         :display-data="displayData"
-        :sob-id="props.sobId"
-        :report-id="report.id"
         :is-editing="isEditing"
         @row-click="handleRowClick"
         @insert-before="handleInsertBefore"
         @insert-child="handleInsertChild"
         @insert-after="handleInsertAfter"
       />
-      <IncomeStatementView
+      <SingleColumnView
         v-else
         :display-data="displayData"
-        :sob-id="props.sobId"
-        :report-id="report.id"
         :is-editing="isEditing"
         @row-click="handleRowClick"
         @insert-before="handleInsertBefore"
@@ -523,7 +524,6 @@ function handleCancel() {
       />
     </template>
 
-    <!-- Empty state -->
     <div v-else-if="isNotFound && !isTemplateMode" class="mt-32 flex flex-col items-center gap-3">
       <FolderOpen class="text-muted-foreground/30" :size="96" :stroke-width="2" />
       <p class="text-muted-foreground text-base font-medium">{{ $t('report.emptyState.title') }}</p>
@@ -535,19 +535,18 @@ function handleCancel() {
     </div>
   </PageFrame>
 
-  <!-- Item dialog -->
-  <ItemDialog
-    v-if="selectedItem && report"
-    v-model:open="editDialogOpen"
-    :sob-id="props.sobId"
-    :report-id="report.id"
+  <RowDialog
+    v-if="selectedRow && report"
+    v-model:open="rowDialogOpen"
+    :row="selectedRow"
+    :columns="report.columns"
     :report-class="report.class"
     :report-is-template="report.template"
-    :item="selectedItem"
-    :amount-types="report.amountTypes"
-    :mode="itemDialogMode"
-    @saved="handleItemSaved"
-    @deleted="(item) => handleDeleteItem(item as Entry)"
+    :cash-flow-items="cashFlowItems"
+    :referenceable-rows="referenceableRows"
+    :mode="rowDialogMode"
+    @saved="handleRowSaved"
+    @deleted="handleDeleteRow"
   />
 
   <UnsavedChangesDialog :open="confirmOpen" @confirm="onConfirmLeave" @cancel="onCancelLeave" />

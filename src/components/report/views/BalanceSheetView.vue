@@ -5,69 +5,44 @@ import type { ReportDisplayData, Entry } from '../report-display-types'
 
 const props = defineProps<{
   displayData: ReportDisplayData
-  sobId: string
-  reportId: string
   isEditing: boolean
 }>()
 
 const emit = defineEmits<{
-  rowClick: [entry: Entry, index: number]
-  insertBefore: [entry: Entry, index: number]
-  insertChild: [entry: Entry, index: number]
-  insertAfter: [entry: Entry, index: number]
+  rowClick: [entry: Entry]
+  insertBefore: [entry: Entry]
+  insertChild: [entry: Entry]
+  insertAfter: [entry: Entry]
 }>()
 
-// Headers for both sides
-const assetHeader = computed(() => props.displayData.headers[0] ?? null)
-const liabilityHeader = computed(() => props.displayData.headers[1] ?? null)
-
-// Convert rows to flat Entry[] arrays
-const assetEntries = computed(() => props.displayData.rows?.map((row) => row.asset.entry!) ?? [])
-
-const liabilityEntries = computed(() => props.displayData.rows?.map((row) => row.liability.entry!) ?? [])
-
-// Handle row click - receives (entry, index) from ReportTable
-function handleRowClick(entry: Entry, index: number) {
-  emit('rowClick', entry, index)
-}
-
-function handleInsertBefore(entry: Entry, index: number) {
-  emit('insertBefore', entry, index)
-}
-
-function handleInsertChild(entry: Entry, index: number) {
-  emit('insertChild', entry, index)
-}
-
-function handleInsertAfter(entry: Entry, index: number) {
-  emit('insertAfter', entry, index)
-}
+const leftHeader = computed(() => props.displayData.headers[0])
+const rightHeader = computed(() => props.displayData.headers[1])
+const leftEntries = computed(() => props.displayData.balanceSheetEntries?.[0] ?? [])
+const rightEntries = computed(() => props.displayData.balanceSheetEntries?.[1] ?? [])
 </script>
 
 <template>
-  <div v-if="assetHeader && liabilityHeader && displayData.rows" class="overflow-auto rounded-md border">
-    <div class="flex">
-      <!-- Assets Table -->
+  <div v-if="leftHeader && rightHeader" class="overflow-auto rounded-md border">
+    <div class="grid min-w-max grid-cols-2">
       <ReportTable
-        :header="assetHeader"
-        :entries="assetEntries"
+        :header="leftHeader"
+        :entries="leftEntries"
         :is-editing="isEditing"
         class="border-r"
-        @row-click="handleRowClick"
-        @insert-before="handleInsertBefore"
-        @insert-child="handleInsertChild"
-        @insert-after="handleInsertAfter"
+        @row-click="emit('rowClick', $event)"
+        @insert-before="emit('insertBefore', $event)"
+        @insert-child="emit('insertChild', $event)"
+        @insert-after="emit('insertAfter', $event)"
       />
 
-      <!-- Liabilities + Equity Table -->
       <ReportTable
-        :header="liabilityHeader"
-        :entries="liabilityEntries"
+        :header="rightHeader"
+        :entries="rightEntries"
         :is-editing="isEditing"
-        @row-click="handleRowClick"
-        @insert-before="handleInsertBefore"
-        @insert-child="handleInsertChild"
-        @insert-after="handleInsertAfter"
+        @row-click="emit('rowClick', $event)"
+        @insert-before="emit('insertBefore', $event)"
+        @insert-child="emit('insertChild', $event)"
+        @insert-after="emit('insertAfter', $event)"
       />
     </div>
   </div>

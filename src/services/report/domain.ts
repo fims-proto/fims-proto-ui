@@ -2,7 +2,7 @@ import axios from 'axios'
 import { FIMS_URL } from '../../config'
 import { invokeWithErrorHandler, type Response } from '../error-handler'
 import { useSobStore } from '../../store/sob'
-import type { Report, UpdateReportRequest, UpdateReportResponse } from './types'
+import type { Report, UpdateReportRequest } from './types'
 import { convertAccountNumberFields, convertFieldsFromString } from '../field-conversion'
 import {
   REPORT_AN_CONVERSION,
@@ -22,10 +22,7 @@ class ReportService {
           params: { class: reportClass, period },
         })
 
-        const codeLengths = useSobStore().state.workingSob?.accountsCodeLength ?? []
-        convertFieldsFromString(result.data, REPORT_FIELDS_CONVERSION)
-        convertAccountNumberFields(result.data, REPORT_AN_CONVERSION, codeLengths)
-        return result.data
+        return this.convertReportResponse(result.data)
       },
       { suppress404: true },
     )
@@ -38,10 +35,7 @@ class ReportService {
           params: { class: reportClass },
         })
 
-        const codeLengths = useSobStore().state.workingSob?.accountsCodeLength ?? []
-        convertFieldsFromString(result.data, REPORT_FIELDS_CONVERSION)
-        convertAccountNumberFields(result.data, REPORT_AN_CONVERSION, codeLengths)
-        return result.data
+        return this.convertReportResponse(result.data)
       },
       { suppress404: true },
     )
@@ -53,10 +47,13 @@ class ReportService {
         params: { class: reportClass, period },
       })
 
-      const codeLengths = useSobStore().state.workingSob?.accountsCodeLength ?? []
-      convertFieldsFromString(result.data, REPORT_FIELDS_CONVERSION)
-      convertAccountNumberFields(result.data, REPORT_AN_CONVERSION, codeLengths)
-      return result.data
+      return this.convertReportResponse(result.data)
+    })
+  }
+
+  public async recalculateReport(sobId: string, reportId: string): Promise<Response<void>> {
+    return invokeWithErrorHandler(async () => {
+      await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/report/${reportId}/recalculate`)
     })
   }
 
@@ -66,19 +63,21 @@ class ReportService {
     })
   }
 
-  public async updateReport(
-    sobId: string,
-    reportId: string,
-    request: UpdateReportRequest,
-  ): Promise<Response<UpdateReportResponse>> {
+  public async updateReport(sobId: string, reportId: string, request: UpdateReportRequest): Promise<Response<void>> {
     return invokeWithErrorHandler(async () => {
-      const requestCopy = JSON.parse(JSON.stringify(request))
+      const requestCopy = JSON.parse(JSON.stringify(request)) as UpdateReportRequest
       const codeLengths = useSobStore().state.workingSob?.accountsCodeLength ?? []
       convertAccountNumberFields(requestCopy, REPORT_UPDATE_REQUEST_AN_CONVERSION, codeLengths)
 
-      const result = await axios.patch(`${FIMS_URL}/api/v1/sob/${sobId}/report/${reportId}`, requestCopy)
-      return result.data
+      await axios.patch(`${FIMS_URL}/api/v1/sob/${sobId}/report/${reportId}`, requestCopy)
     })
+  }
+
+  private convertReportResponse(data: unknown): Report {
+    const codeLengths = useSobStore().state.workingSob?.accountsCodeLength ?? []
+    convertFieldsFromString(data, REPORT_FIELDS_CONVERSION)
+    convertAccountNumberFields(data, REPORT_AN_CONVERSION, codeLengths)
+    return data as Report
   }
 }
 

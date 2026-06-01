@@ -1,61 +1,77 @@
 import z from 'zod'
-import { DATA_SOURCE, FORMULA_RULE, CLASS_OPTIONS, AMOUNT_TYPE } from './constants'
+import { CLASS_OPTIONS, COLUMN_VALUE_TYPE, EXPRESSION_KIND, LEDGER_MEASURE } from './constants'
 
 export const PeriodSchema = z.object({
   fiscalYear: z.number().int(),
   periodNumber: z.number().int().min(1).max(12),
 })
 
-export const AccountSchema = z.object({
+export const ColumnSchema = z.object({
   id: z.string().uuid(),
-  sobId: z.string().uuid(),
-  superiorAccountId: z.string().uuid().optional(),
-  title: z.string(),
-  accountNumber: z.string(),
-  level: z.number().int(),
-  isLeaf: z.boolean(),
-  class: z.string(),
-  group: z.string(),
-  balanceDirection: z.string(),
+  label: z.string().min(1),
+  valueType: z.enum(COLUMN_VALUE_TYPE),
+  sequence: z.number().int().optional(),
 })
 
-export const FormulaSchema = z.object({
-  id: z.string().uuid(),
-  account: AccountSchema,
+export const LedgerAccountReferenceSchema = z.object({
+  accountId: z.string().uuid().optional(),
+  accountNumber: z.string().min(1).optional(),
   sumFactor: z.union([z.literal(1), z.literal(-1)]),
-  rule: z.enum(FORMULA_RULE),
-  amounts: z.array(z.number()).min(1),
+  measure: z.enum(LEDGER_MEASURE),
 })
 
-export const ItemSchema = z.object({
-  id: z.string().uuid(),
-  text: z.string().min(1).max(40),
-  level: z.number().int().min(1),
-  sumFactor: z.union([z.literal(1), z.literal(0), z.literal(-1)]),
-  itemType: z.string().optional(),
-  displaySumFactor: z.boolean().optional(),
-  dataSource: z.enum(DATA_SOURCE),
-  formulas: z.array(FormulaSchema).optional(),
-  amounts: z.array(z.number()).min(1).optional(),
-  isEditable: z.boolean().optional(),
-  isBreakdownItem: z.boolean().optional(),
-  isAbleToAddChild: z.boolean().optional(),
-  isAbleToAddLeaf: z.boolean().optional(),
+export const CashFlowItemReferenceSchema = z.object({
+  code: z.string().min(1),
+  itemId: z.string().uuid().optional(),
+  sumFactor: z.union([z.literal(1), z.literal(-1)]),
 })
 
-export const SectionSchema: z.ZodType<{
+export const RowReferenceSchema = z.object({
+  rowCode: z.string().min(1),
+  sumFactor: z.union([z.literal(1), z.literal(-1)]),
+})
+
+export const ExpressionSchema = z.object({
+  id: z.string().uuid().optional(),
+  kind: z.enum(EXPRESSION_KIND),
+  ledgerAccounts: z.array(LedgerAccountReferenceSchema).optional(),
+  cashFlowItems: z.array(CashFlowItemReferenceSchema).optional(),
+  rowReferences: z.array(RowReferenceSchema).optional(),
+})
+
+export const RowSchema: z.ZodType<{
   id: string
-  title?: string
-  amounts: number[]
-  sections?: Section[]
-  items?: Item[]
+  rowCode: string
+  text: string
+  indent: number
+  sequence?: number
+  lineNo?: number
+  showLineNo: boolean
+  sumFactor: 1 | 0 | -1
+  displaySumFactor: boolean
+  canEdit: boolean
+  canMove: boolean
+  canAddChild: boolean
+  expression: Expression
+  rows?: Row[]
+  amounts?: number[]
 }> = z.lazy(() =>
   z.object({
     id: z.string().uuid(),
-    title: z.string().min(1).max(40).optional(),
-    amounts: z.array(z.number()).min(1),
-    sections: z.array(SectionSchema).optional(),
-    items: z.array(ItemSchema).optional(),
+    rowCode: z.string().min(1),
+    text: z.string().min(1),
+    indent: z.number().int(),
+    sequence: z.number().int().optional(),
+    lineNo: z.number().int().optional(),
+    showLineNo: z.boolean(),
+    sumFactor: z.union([z.literal(1), z.literal(0), z.literal(-1)]),
+    displaySumFactor: z.boolean(),
+    canEdit: z.boolean(),
+    canMove: z.boolean(),
+    canAddChild: z.boolean(),
+    expression: ExpressionSchema,
+    rows: z.array(RowSchema).optional(),
+    amounts: z.array(z.number()).optional(),
   }),
 )
 
@@ -63,74 +79,89 @@ export const ReportSchema = z.object({
   id: z.string().uuid(),
   sobId: z.string().uuid(),
   period: PeriodSchema.optional(),
-  title: z.string().min(1).max(40),
+  title: z.string().min(1),
   template: z.boolean(),
   class: z.enum(CLASS_OPTIONS),
-  amountTypes: z.array(z.enum(AMOUNT_TYPE)).min(1),
-  sections: z.array(SectionSchema).min(1),
+  columns: z.array(ColumnSchema).min(1),
+  rows: z.array(RowSchema).min(1),
   createdAt: z.date(),
   updatedAt: z.date(),
 })
 
-export type Report = z.infer<typeof ReportSchema>
-export type Period = z.infer<typeof PeriodSchema>
-export type Section = z.infer<typeof SectionSchema>
-export type Item = z.infer<typeof ItemSchema>
-export type Formula = z.infer<typeof FormulaSchema>
-export type Account = z.infer<typeof AccountSchema>
-
-export const UpdateReportRequestItemFormulaSchema = z.object({
-  id: z.string().uuid().optional(),
+export const UpdateLedgerAccountReferenceRequestSchema = z.object({
+  accountNumber: z.string().min(1),
+  accountId: z.string().uuid().optional(),
   sumFactor: z.union([z.literal(1), z.literal(-1)]),
-  accountNumber: z.string(),
-  rule: z.enum(FORMULA_RULE),
+  measure: z.enum(LEDGER_MEASURE),
 })
 
-export const UpdateItemRequestSchema = z.object({
-  text: z.string().min(1).max(40).optional(),
-  sumFactor: z.union([z.literal(1), z.literal(0), z.literal(-1)]),
-  dataSource: z.enum(DATA_SOURCE),
-  formulas: z.array(UpdateReportRequestItemFormulaSchema).optional(),
+export const UpdateCashFlowItemReferenceRequestSchema = z.object({
+  code: z.string().min(1),
+  itemId: z.string().uuid().optional(),
+  sumFactor: z.union([z.literal(1), z.literal(-1)]),
 })
 
-export const UpdateReportRequestItemSchema = z.object({
-  id: z.string().optional(),
-  text: z.string().min(1).max(40).optional(),
-  level: z.number().int().min(1),
-  sumFactor: z.union([z.literal(1), z.literal(0), z.literal(-1)]),
-  dataSource: z.enum(DATA_SOURCE),
-  displaySumFactor: z.boolean().optional(),
-  isBreakdownItem: z.boolean().optional(),
-  isAbleToAddChild: z.boolean().optional(),
-  formulas: z.array(UpdateReportRequestItemFormulaSchema).optional(),
+export const UpdateRowReferenceRequestSchema = z.object({
+  rowCode: z.string().min(1),
+  sumFactor: z.union([z.literal(1), z.literal(-1)]),
 })
 
-export const UpdateReportRequestSectionSchema: z.ZodType<{
-  id: string
-  title?: string
-  sections?: UpdateReportRequestSection[]
-  items: UpdateReportRequestItem[]
+export const UpdateExpressionRequestSchema = z.object({
+  kind: z.enum(EXPRESSION_KIND),
+  ledgerAccounts: z.array(UpdateLedgerAccountReferenceRequestSchema).optional(),
+  cashFlowItems: z.array(UpdateCashFlowItemReferenceRequestSchema).optional(),
+  rowReferences: z.array(UpdateRowReferenceRequestSchema).optional(),
+})
+
+export const UpdateRowRequestSchema: z.ZodType<{
+  id?: string
+  rowCode: string
+  text: string
+  indent: number
+  lineNo?: number
+  showLineNo: boolean
+  sumFactor: 1 | 0 | -1
+  displaySumFactor: boolean
+  canEdit?: boolean
+  canMove?: boolean
+  canAddChild?: boolean
+  expression: UpdateExpressionRequest
+  rows?: UpdateRowRequest[]
 }> = z.lazy(() =>
   z.object({
-    id: z.string().uuid(),
-    title: z.string().min(1).max(40).optional(),
-    sections: z.array(UpdateReportRequestSectionSchema).optional(),
-    items: z.array(UpdateReportRequestItemSchema),
+    id: z.string().optional(),
+    rowCode: z.string().min(1),
+    text: z.string().min(1),
+    indent: z.number().int(),
+    lineNo: z.number().int().optional(),
+    showLineNo: z.boolean(),
+    sumFactor: z.union([z.literal(1), z.literal(0), z.literal(-1)]),
+    displaySumFactor: z.boolean(),
+    canEdit: z.boolean().optional(),
+    canMove: z.boolean().optional(),
+    canAddChild: z.boolean().optional(),
+    expression: UpdateExpressionRequestSchema,
+    rows: z.array(UpdateRowRequestSchema).optional(),
   }),
 )
 
 export const UpdateReportRequestSchema = z.object({
-  title: z.string().min(1).max(40).optional(),
-  amountTypes: z.array(z.enum(AMOUNT_TYPE)).optional(),
-  sections: z.array(UpdateReportRequestSectionSchema),
+  title: z.string().min(1).optional(),
+  rows: z.array(UpdateRowRequestSchema),
 })
 
-export const UpdateReportResponseSchema = z.object({
-  createdItemIds: z.record(z.string(), z.string().uuid()),
-})
+export type Report = z.infer<typeof ReportSchema>
+export type Period = z.infer<typeof PeriodSchema>
+export type Column = z.infer<typeof ColumnSchema>
+export type Row = z.infer<typeof RowSchema>
+export type Expression = z.infer<typeof ExpressionSchema>
+export type LedgerAccountReference = z.infer<typeof LedgerAccountReferenceSchema>
+export type CashFlowItemReference = z.infer<typeof CashFlowItemReferenceSchema>
+export type RowReference = z.infer<typeof RowReferenceSchema>
 
-export type UpdateReportRequestItemFormula = z.infer<typeof UpdateReportRequestItemFormulaSchema>
-export type UpdateReportRequestItem = z.infer<typeof UpdateReportRequestItemSchema>
-export type UpdateReportRequestSection = z.infer<typeof UpdateReportRequestSectionSchema>
 export type UpdateReportRequest = z.infer<typeof UpdateReportRequestSchema>
-export type UpdateReportResponse = z.infer<typeof UpdateReportResponseSchema>
+export type UpdateRowRequest = z.infer<typeof UpdateRowRequestSchema>
+export type UpdateExpressionRequest = z.infer<typeof UpdateExpressionRequestSchema>
+export type UpdateLedgerAccountReferenceRequest = z.infer<typeof UpdateLedgerAccountReferenceRequestSchema>
+export type UpdateCashFlowItemReferenceRequest = z.infer<typeof UpdateCashFlowItemReferenceRequestSchema>
+export type UpdateRowReferenceRequest = z.infer<typeof UpdateRowReferenceRequestSchema>

@@ -8,14 +8,7 @@ import { useForm, Field as VeeField } from 'vee-validate'
 import { PageFrame } from '@/components/common/page'
 import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/common/data-table'
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { EditableField } from '@/components/common/form'
 import { ConfirmationButton } from '@/components/common/confirmation'
@@ -171,16 +164,9 @@ function onDialogOpenChange(open: boolean) {
 
   <!-- Create/Update Category Dialog -->
   <Dialog :open="dialogOpen" @update:open="onDialogOpenChange">
-    <DialogContent>
+    <DialogContent :aria-describedby="undefined">
       <DialogHeader>
         <DialogTitle>{{ dialogTitle }}</DialogTitle>
-        <DialogDescription>
-          {{
-            dialogMode === 'create'
-              ? $t('dimension.msg.createCategoryDescription')
-              : $t('dimension.msg.updateCategoryDescription')
-          }}
-        </DialogDescription>
       </DialogHeader>
 
       <div class="flex flex-col gap-4">

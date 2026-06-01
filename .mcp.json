@@ -3,6 +3,10 @@
     "shadcnVue": {
       "command": "npx",
       "args": ["shadcn-vue@latest", "mcp"]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest", "--base-url", "http://127.0.0.1:4455/ui"]
     }
   }
 }

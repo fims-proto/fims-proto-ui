@@ -1,0 +1,6 @@
+[mcp_servers.shadcnVue]
+args = [
+    "shadcn-vue@latest",
+    "mcp",
+]
+command = "npx"
