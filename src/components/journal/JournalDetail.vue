@@ -805,12 +805,12 @@ async function handleDelete() {
                           </template>
                         </VeeField>
 
-                        <!-- Dimension Options -->
+                        <!-- Dimension Options + Cash Flow Item -->
                         <div
-                          v-if="item.account?.dimensionCategories && item.account.dimensionCategories.length > 0"
-                          class="grid grid-cols-[auto_1fr] items-center gap-2"
+                          v-if="(item.account?.dimensionCategories?.length ?? 0) > 0 || requiresCashFlowItem(item)"
+                          class="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-2 gap-y-2"
                         >
-                          <template v-for="category in item.account.dimensionCategories" :key="category.id">
+                          <template v-for="category in item.account?.dimensionCategories ?? []" :key="category.id">
                             <span class="text-muted-foreground text-xs font-medium whitespace-nowrap">
                               {{ category.name }}:
                             </span>
@@ -833,37 +833,39 @@ async function handleDelete() {
                               </div>
                             </VeeField>
                           </template>
-                        </div>
 
-                        <!-- Cash Flow Item -->
-                        <div v-if="requiresCashFlowItem(item)" class="grid grid-cols-[auto_1fr] items-center gap-2">
-                          <span class="text-muted-foreground text-xs font-medium whitespace-nowrap">
-                            {{ $t('journal.cashFlowItem') }}:
-                          </span>
-                          <VeeField v-slot="{ field }" :name="`journalLines[${index}].cashFlowItemId`">
-                            <Select
-                              v-if="isEditing"
-                              :name="field.name"
-                              :model-value="field.value"
-                              @update:model-value="(v) => handleCashFlowItemSelect(v as string, index, field.onChange)"
-                            >
-                              <SelectTrigger>
-                                <SelectValue :placeholder="$t('common.pleaseSelect')" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem
-                                  v-for="cashFlowItem in cashFlowItems"
-                                  :key="cashFlowItem.id"
-                                  :value="cashFlowItem.id"
-                                >
-                                  {{ cashFlowItem.name }}
-                                </SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <div v-else class="text-xs">
-                              {{ formatCashFlowItemLabel(field.value) }}
-                            </div>
-                          </VeeField>
+                          <template v-if="requiresCashFlowItem(item)">
+                            <span class="text-muted-foreground text-xs font-medium whitespace-nowrap">
+                              {{ $t('journal.cashFlowItem') }}:
+                            </span>
+                            <VeeField v-slot="{ field }" :name="`journalLines[${index}].cashFlowItemId`">
+                              <Select
+                                v-if="isEditing"
+                                :name="field.name"
+                                :model-value="field.value"
+                                class="w-full"
+                                @update:model-value="
+                                  (v) => handleCashFlowItemSelect(v as string, index, field.onChange)
+                                "
+                              >
+                                <SelectTrigger class="w-full">
+                                  <SelectValue :placeholder="$t('common.pleaseSelect')" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem
+                                    v-for="cashFlowItem in cashFlowItems"
+                                    :key="cashFlowItem.id"
+                                    :value="cashFlowItem.id"
+                                  >
+                                    {{ cashFlowItem.name }}
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <div v-else class="text-xs">
+                                {{ formatCashFlowItemLabel(field.value) }}
+                              </div>
+                            </VeeField>
+                          </template>
                         </div>
                       </div>
                     </TableCell>
