@@ -34,6 +34,10 @@ A reference from one Report Expression to another Report Row by row code. Row re
 
 The third mandatory financial report alongside the Balance Sheet and Income Statement. It reports cash movement using Cash Flow Items and includes a reconciliation from opening cash to ending cash.
 
+### Cash Equivalent Account
+
+An account counted as cash or cash equivalent in Cash Flow Statement reconciliation. Journal lines posted to a Cash Equivalent Account do not need a Cash Flow Item.
+
 ### Generate (Report)
 
 Creating a missing Report Instance from the corresponding Report Template. Idempotent: if the instance already exists, generation returns the existing instance unchanged.

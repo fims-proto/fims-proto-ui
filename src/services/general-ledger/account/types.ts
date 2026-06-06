@@ -28,6 +28,9 @@ export const AccountSlimSchema = z.object({
   class: z.string().length(1),
   group: z.string().length(3),
   balanceDirection: z.enum(['debit', 'credit']),
+  isCashEquivalent: z.boolean(),
+  defaultCashFlowItemIdForDebit: z.string().uuid().optional(),
+  defaultCashFlowItemIdForCredit: z.string().uuid().optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
 })
@@ -44,6 +47,9 @@ export const CreateAccountSchema = z.object({
   class: z.string().length(1),
   group: z.string().length(3),
   dimensionCategoryIds: z.array(z.string().uuid()).optional(),
+  isCashEquivalent: z.boolean(),
+  defaultCashFlowItemIdForDebit: z.string().uuid().nullable().optional(),
+  defaultCashFlowItemIdForCredit: z.string().uuid().nullable().optional(),
 })
 
 export const UpdateAccountSchema = z.object({
@@ -52,6 +58,9 @@ export const UpdateAccountSchema = z.object({
   balanceDirection: z.enum(['debit', 'credit']),
   group: z.string().length(3),
   dimensionCategoryIds: z.array(z.string().uuid()).optional(),
+  isCashEquivalent: z.boolean().optional(),
+  defaultCashFlowItemIdForDebit: z.string().uuid().nullable().optional(),
+  defaultCashFlowItemIdForCredit: z.string().uuid().nullable().optional(),
 })
 
 export type AccountClass = z.infer<typeof AccountClassSchema>

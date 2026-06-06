@@ -150,6 +150,12 @@
       "selectDimensionCategories": "选择维度类别",
       "noDimensionCategories": "无维度"
     },
+    "cashFlow": {
+      "isCashEquivalent": "现金及现金等价物",
+      "defaultCashFlowItemForDebit": "借方默认现金流量项目",
+      "defaultCashFlowItemForCredit": "贷方默认现金流量项目",
+      "noDefault": "无默认项目"
+    },
     "msg": {
       "saveSuccess": "科目保存成功",
       "deleteSuccess": "科目删除成功",

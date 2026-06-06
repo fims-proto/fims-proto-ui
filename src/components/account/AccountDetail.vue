@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
@@ -39,6 +40,7 @@ import {
 } from '@/services/general-ledger'
 import { DimensionService, type DimensionCategory } from '@/services/dimension'
 import { useSobStore } from '@/store/sob'
+import { useCashFlowItemStore } from '@/store/cash-flow-item'
 import { useToastStore } from '@/store/toast'
 import { useUnsavedChanges, UnsavedChangesDialog } from '@/components/common/unsaved-guard'
 import { ConfirmationButton } from '@/components/common/confirmation'
@@ -53,8 +55,10 @@ const router = useRouter()
 const { t } = useI18n()
 const toast = useToastStore()
 const sobStore = useSobStore()
+const cashFlowItemStore = useCashFlowItemStore()
 const bus = useEventBus(ACCOUNT_CHANGED)
 const workingSob = computed(() => sobStore.state.workingSob)
+const NONE_CASH_FLOW_ITEM_ID = '__none__'
 
 // Create form schema with validation that captures accountCodeLength at creation time
 function createFormSchema(accountCodeLength: readonly number[]) {
@@ -99,6 +103,9 @@ const EMPTY_ACCOUNT = {
   group: '101',
   balanceDirection: 'debit' as const,
   dimensionCategoryIds: [],
+  isCashEquivalent: false,
+  defaultCashFlowItemIdForDebit: null,
+  defaultCashFlowItemIdForCredit: null,
 }
 
 const form = useForm({
@@ -123,6 +130,8 @@ const groupOptions = computed(() => {
 })
 
 const selectedCategoryIds = computed(() => new Set(form.values.dimensionCategoryIds ?? []))
+const cashFlowItems = computed(() => cashFlowItemStore.state.allCashFlowItems)
+const isCashEquivalent = computed(() => form.values.isCashEquivalent ?? false)
 
 const selectedCategories = computed(() => {
   const ids = form.values.dimensionCategoryIds ?? []
@@ -132,6 +141,14 @@ const selectedCategories = computed(() => {
 const formatClassLabel = (value?: string) => (value ? t(`account.classEnum.${value}`) : '')
 const formatGroupLabel = (value?: string) => (value ? t(`account.groupEnum.${value}`) : '')
 const formatBalanceDirectionLabel = (value?: string) => (value ? t(`account.balanceDirectionEnum.${value}`) : '')
+const formatBooleanLabel = (value?: boolean) => t(value ? 'common.yes' : 'common.no')
+const formatCashFlowItemLabel = (value?: string | null) => {
+  if (!value) return t('account.cashFlow.noDefault')
+  const item = cashFlowItems.value.find((candidate) => candidate.id === value)
+  return item ? item.name : value
+}
+const toCashFlowItemSelectValue = (value?: string | null) => value ?? NONE_CASH_FLOW_ITEM_ID
+const fromCashFlowItemSelectValue = (value: string) => (value === NONE_CASH_FLOW_ITEM_ID ? null : value)
 
 // Computed validation constraints for levelNumber based on current level
 const levelNumberConstraints = computed(() => {
@@ -159,6 +176,15 @@ watch(
         form.setFieldValue('group', validGroups[0] ?? '')
       }
     }
+  },
+)
+
+watch(
+  () => form.values.isCashEquivalent,
+  (newValue) => {
+    if (!newValue) return
+    form.setFieldValue('defaultCashFlowItemIdForDebit', null)
+    form.setFieldValue('defaultCashFlowItemIdForCredit', null)
   },
 )
 
@@ -197,6 +223,7 @@ async function loadDimensionCategories() {
 async function load() {
   await loadAccountClasses()
   await loadDimensionCategories()
+  await cashFlowItemStore.action.refreshCashFlowItems(props.sobId)
 
   if (props.accountId) {
     isEditing.value = false
@@ -210,6 +237,9 @@ async function load() {
         group: data.group,
         balanceDirection: data.balanceDirection,
         dimensionCategoryIds: data.dimensionCategories?.map((c) => c.id) ?? [],
+        isCashEquivalent: data.isCashEquivalent,
+        defaultCashFlowItemIdForDebit: data.defaultCashFlowItemIdForDebit ?? null,
+        defaultCashFlowItemIdForCredit: data.defaultCashFlowItemIdForCredit ?? null,
         superiorAccount: undefined as typeof data | undefined,
       }
 
@@ -237,6 +267,10 @@ const onSubmit = form.handleSubmit(async (values, { resetForm }) => {
   // Transform superiorAccount to superiorAccountNumber
   if (values.superiorAccount) {
     values.superiorAccountNumber = values.superiorAccount.accountNumber
+  }
+  if (values.isCashEquivalent) {
+    values.defaultCashFlowItemIdForDebit = null
+    values.defaultCashFlowItemIdForCredit = null
   }
 
   let data
@@ -494,6 +528,99 @@ function toggleCategorySelection(categoryId: string, update: (value: string[]) =
           </template>
         </EditableField>
       </VeeField>
+
+      <VeeField v-slot="{ field, errors }" name="isCashEquivalent">
+        <EditableField
+          :label="$t('account.cashFlow.isCashEquivalent')"
+          label-for="isCashEquivalent"
+          :is-editing="isEditing"
+          :value="field.value"
+          :errors="errors"
+          :data-invalid="!!errors.length"
+          :formatter="formatBooleanLabel"
+          @update:value="field.onChange"
+        >
+          <template #edit="{ value, onUpdate }">
+            <Switch
+              id="isCashEquivalent"
+              :model-value="value ?? false"
+              :disabled="!isEditing"
+              :aria-label="$t('account.cashFlow.isCashEquivalent')"
+              @update:model-value="(v) => onUpdate(Boolean(v))"
+            />
+          </template>
+        </EditableField>
+      </VeeField>
+
+      <template v-if="!isCashEquivalent">
+        <VeeField v-slot="{ field, errors }" name="defaultCashFlowItemIdForDebit">
+          <EditableField
+            :label="$t('account.cashFlow.defaultCashFlowItemForDebit')"
+            label-for="defaultCashFlowItemIdForDebit"
+            :is-editing="isEditing"
+            :value="field.value"
+            :errors="errors"
+            :data-invalid="!!errors.length"
+            :formatter="formatCashFlowItemLabel"
+            @update:value="field.onChange"
+          >
+            <template #edit="{ value, onUpdate }">
+              <Select
+                :name="field.name"
+                :disabled="!isEditing"
+                :model-value="toCashFlowItemSelectValue(value)"
+                @update:model-value="(v) => onUpdate(fromCashFlowItemSelectValue(v as string))"
+              >
+                <SelectTrigger id="defaultCashFlowItemIdForDebit" :aria-invalid="!!errors.length">
+                  <SelectValue :placeholder="$t('common.pleaseSelect')" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem :value="NONE_CASH_FLOW_ITEM_ID">
+                    {{ $t('account.cashFlow.noDefault') }}
+                  </SelectItem>
+                  <SelectItem v-for="item in cashFlowItems" :key="item.id" :value="item.id">
+                    {{ item.name }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </template>
+          </EditableField>
+        </VeeField>
+
+        <VeeField v-slot="{ field, errors }" name="defaultCashFlowItemIdForCredit">
+          <EditableField
+            :label="$t('account.cashFlow.defaultCashFlowItemForCredit')"
+            label-for="defaultCashFlowItemIdForCredit"
+            :is-editing="isEditing"
+            :value="field.value"
+            :errors="errors"
+            :data-invalid="!!errors.length"
+            :formatter="formatCashFlowItemLabel"
+            @update:value="field.onChange"
+          >
+            <template #edit="{ value, onUpdate }">
+              <Select
+                :name="field.name"
+                :disabled="!isEditing"
+                :model-value="toCashFlowItemSelectValue(value)"
+                @update:model-value="(v) => onUpdate(fromCashFlowItemSelectValue(v as string))"
+              >
+                <SelectTrigger id="defaultCashFlowItemIdForCredit" :aria-invalid="!!errors.length">
+                  <SelectValue :placeholder="$t('common.pleaseSelect')" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem :value="NONE_CASH_FLOW_ITEM_ID">
+                    {{ $t('account.cashFlow.noDefault') }}
+                  </SelectItem>
+                  <SelectItem v-for="item in cashFlowItems" :key="item.id" :value="item.id">
+                    {{ item.name }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </template>
+          </EditableField>
+        </VeeField>
+      </template>
 
       <VeeField v-slot="{ field, errors }" name="dimensionCategoryIds">
         <EditableField

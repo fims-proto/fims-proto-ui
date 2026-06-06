@@ -4,3 +4,18 @@ args = [
     "mcp",
 ]
 command = "npx"
+
+[mcp_servers.shadcnVue.tools.get_project_registries]
+approval_mode = "approve"
+
+[mcp_servers.shadcnVue.tools.search_items_in_registries]
+approval_mode = "approve"
+
+[mcp_servers.shadcnVue.tools.get_item_examples_from_registries]
+approval_mode = "approve"
+
+[mcp_servers.shadcnVue.tools.view_items_in_registries]
+approval_mode = "approve"
+
+[mcp_servers.shadcnVue.tools.get_add_command_for_items]
+approval_mode = "approve"

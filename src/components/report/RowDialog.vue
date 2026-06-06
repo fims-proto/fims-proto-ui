@@ -261,7 +261,7 @@ function buildExpression(): UpdateExpressionRequest | undefined {
 
 function cashFlowItemLabel(code: string) {
   const item = props.cashFlowItems.find((candidate) => candidate.code === code)
-  return item ? `${item.code} - ${item.name}` : code
+  return item ? item.name : code
 }
 
 function rowReferenceLabel(rowCode: string) {
@@ -480,7 +480,7 @@ function isExpressionKind(value: unknown): value is (typeof EXPRESSION_KIND)[num
                     <NativeSelect v-if="showEditUI" v-model="cashFlowRef.code">
                       <option value="">{{ $t('report.expression.selectCashFlowItem') }}</option>
                       <option v-for="item in props.cashFlowItems" :key="item.id" :value="item.code">
-                        {{ item.code }} - {{ item.name }}
+                        {{ item.name }}
                       </option>
                     </NativeSelect>
                     <span v-else>{{ cashFlowItemLabel(cashFlowRef.code) }}</span>
