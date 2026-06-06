@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { InputGroup, InputGroupInput, InputGroupAddon } from '@/components/ui/input-group'
 import { Badge } from '@/components/ui/badge'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import DateInput from './DateInput.vue'
 import AccountInput from '@/components/account/AccountInput.vue'
@@ -32,6 +33,7 @@ import type { AccountSlim, DimensionOptionRef } from '@/services/general-ledger/
 import { ConfirmationButton } from '@/components/common/confirmation'
 import { useUnsavedChanges, UnsavedChangesDialog } from '@/components/common/unsaved-guard'
 import { useAccountStore } from '@/store/account'
+import { useCashFlowItemStore } from '@/store/cash-flow-item'
 import { useUserStore } from '@/store/user'
 import { useToastStore } from '@/store/toast'
 import { JOURNAL_CHANGED } from '@/services/event'
@@ -45,6 +47,7 @@ const props = defineProps<{
 const router = useRouter()
 const { t, n } = useI18n()
 const accountStore = useAccountStore()
+const cashFlowItemStore = useCashFlowItemStore()
 const userStore = useUserStore()
 const toastStore = useToastStore()
 const bus = useEventBus(JOURNAL_CHANGED)
@@ -52,6 +55,7 @@ const bus = useEventBus(JOURNAL_CHANGED)
 const isEditing = ref(!props.journalId)
 const journal = ref<JournalDetail>()
 const referenceJournal = ref<JournalDetail>()
+const cashFlowItemOverriddenLineKeys = ref(new Set<string>())
 
 // Zod schemas
 const JournalLineSchema = z
@@ -63,6 +67,7 @@ const JournalLineSchema = z
       message: t('journal.journalLine.decimalPrecision'),
     }),
     dimensionOptions: z.record(z.custom<DimensionOptionRef>()).optional(),
+    cashFlowItemId: z.string().uuid().optional(),
   })
   .refine(
     (item) => {
@@ -110,6 +115,23 @@ const JournalFormSchema = z
       message: t('journal.msg.notBalanced'),
     },
   )
+  .superRefine((data, ctx) => {
+    const validLines = data.journalLines.filter((item) => item.account)
+    const hasCashEquivalentLine = validLines.some((item) => item.account?.isCashEquivalent)
+    const hasNonCashEquivalentLine = validLines.some((item) => item.account && !item.account.isCashEquivalent)
+
+    if (!hasCashEquivalentLine || !hasNonCashEquivalentLine) return
+
+    data.journalLines.forEach((item, index) => {
+      if (!item.account || item.account.isCashEquivalent || item.cashFlowItemId) return
+
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['journalLines', index],
+        message: t('journal.msg.emptyCashFlowItem'),
+      })
+    })
+  })
 
 type FormJournalLine = z.infer<typeof JournalLineSchema>
 type JournalFormValues = z.infer<typeof JournalFormSchema>
@@ -120,6 +142,7 @@ const EMPTY_LINE_ITEM: Omit<FormJournalLine, '_key'> = {
   text: '',
   amount: 0,
   dimensionOptions: undefined,
+  cashFlowItemId: undefined,
 }
 
 const EMPTY_JOURNAL: JournalFormValues = {
@@ -156,19 +179,69 @@ const isBalanced = computed(() => {
 })
 
 const title = computed(() => (props.journalId ? journal.value?.documentNumber : t('journal.creation.title')))
+const cashFlowItems = computed(() => cashFlowItemStore.state.allCashFlowItems)
+const hasMixedCashFlowLines = computed(() => {
+  const validLines = (form.values.journalLines ?? []).filter((item) => item.account)
+  return (
+    validLines.some((item) => item.account?.isCashEquivalent) &&
+    validLines.some((item) => !item.account?.isCashEquivalent)
+  )
+})
+
+function requiresCashFlowItem(item: FormJournalLine) {
+  return hasMixedCashFlowLines.value && !!item.account && !item.account.isCashEquivalent
+}
+
+function formatCashFlowItemLabel(value?: string) {
+  if (!value) return ''
+  return cashFlowItems.value.find((item) => item.id === value)?.name ?? value
+}
+
+function defaultCashFlowItemIdForLine(item: FormJournalLine, amount = item.amount) {
+  if (!item.account || item.account.isCashEquivalent) return undefined
+  if (amount > 0) return item.account.defaultCashFlowItemIdForDebit
+  if (amount < 0) return item.account.defaultCashFlowItemIdForCredit
+  return undefined
+}
+
+function syncDefaultCashFlowItem(index: number, amount?: number) {
+  const item = form.values.journalLines?.[index]
+  if (!item) return
+
+  if (!item.account || item.account.isCashEquivalent) {
+    form.setFieldValue(`journalLines[${index}].cashFlowItemId`, undefined as never)
+    return
+  }
+
+  if (cashFlowItemOverriddenLineKeys.value.has(item._key)) return
+
+  form.setFieldValue(`journalLines[${index}].cashFlowItemId`, defaultCashFlowItemIdForLine(item, amount) as never)
+}
+
+function handleCashFlowItemSelect(value: string, index: number, onChange: (value: string) => void) {
+  const item = form.values.journalLines?.[index]
+  if (item) {
+    cashFlowItemOverriddenLineKeys.value.add(item._key)
+  }
+  onChange(value)
+}
 
 // Handle account selection - fetch AccountDetail for dimension categories
 async function handleAccountSelect(account: AccountSlim | undefined, index: number) {
   if (!account) {
-    // Account deselected, clear dimension options
+    const currentLineKey = form.values.journalLines?.[index]?._key
+    if (currentLineKey) {
+      cashFlowItemOverriddenLineKeys.value.delete(currentLineKey)
+    }
     form.setFieldValue(`journalLines[${index}].dimensionOptions`, undefined as never) // vee-validate can't infer type in the array
+    form.setFieldValue(`journalLines[${index}].cashFlowItemId`, undefined as never) // vee-validate can't infer type in the array
     return
   }
 
   // Check if we already have AccountDetail with dimensionCategories
   const currentAccount = form.values.journalLines?.[index]?.account
   if (currentAccount && 'dimensionCategories' in currentAccount && currentAccount.id === account.id) {
-    // Already have AccountDetail with same ID, no need to fetch
+    syncDefaultCashFlowItem(index)
     return
   }
 
@@ -177,6 +250,7 @@ async function handleAccountSelect(account: AccountSlim | undefined, index: numb
   if (data) {
     form.setFieldValue(`journalLines[${index}].account`, data as never) // vee-validate can't infer type in the array
     form.setFieldValue(`journalLines[${index}].dimensionOptions`, undefined as never) // vee-validate can't infer type in the array
+    syncDefaultCashFlowItem(index)
   }
 }
 
@@ -191,6 +265,10 @@ function addJournalLine() {
 
 function removeJournalLine(index: number) {
   const current = form.values.journalLines ?? []
+  const removedLineKey = current[index]?._key
+  if (removedLineKey) {
+    cashFlowItemOverriddenLineKeys.value.delete(removedLineKey)
+  }
   form.setFieldValue(
     'journalLines',
     current.filter((_, i) => i !== index),
@@ -201,6 +279,9 @@ function removeJournalLine(index: number) {
 async function load() {
   journal.value = undefined
   referenceJournal.value = undefined
+  cashFlowItemOverriddenLineKeys.value = new Set()
+  await cashFlowItemStore.action.refreshCashFlowItems(props.sobId)
+
   if (props.journalId) {
     const { data, exception } = await JournalService.getJournalById(props.sobId, props.journalId)
     if (exception || !data) return
@@ -215,29 +296,35 @@ async function load() {
     }
 
     // Transform to form values
+    const journalLines = data.journalLines.map((item) => {
+      // Convert dimensionOptions array to Record
+      const dimensionOptions: Record<string, DimensionOptionRef> = {}
+      if (item.dimensionOptions) {
+        item.dimensionOptions.forEach((opt) => {
+          dimensionOptions[opt.category.id] = opt
+        })
+      }
+      // Convert signed amount to debit/credit for display
+      const amount = item.amount || 0
+      return {
+        _key: crypto.randomUUID(),
+        account: item.account,
+        text: item.text,
+        amount: amount,
+        dimensionOptions: Object.entries(dimensionOptions).length > 0 ? dimensionOptions : undefined,
+        cashFlowItemId: item.cashFlowItemId,
+      }
+    })
+
     const formValues: JournalFormValues = {
       headerText: data.headerText,
       attachmentQuantity: data.attachmentQuantity,
       transactionDate: data.transactionDate,
-      journalLines: data.journalLines.map((item) => {
-        // Convert dimensionOptions array to Record
-        const dimensionOptions: Record<string, DimensionOptionRef> = {}
-        if (item.dimensionOptions) {
-          item.dimensionOptions.forEach((opt) => {
-            dimensionOptions[opt.category.id] = opt
-          })
-        }
-        // Convert signed amount to debit/credit for display
-        const amount = item.amount || 0
-        return {
-          _key: crypto.randomUUID(),
-          account: item.account,
-          text: item.text,
-          amount: amount,
-          dimensionOptions: Object.entries(dimensionOptions).length > 0 ? dimensionOptions : undefined,
-        }
-      }),
+      journalLines,
     }
+    cashFlowItemOverriddenLineKeys.value = new Set(
+      journalLines.filter((item) => item.cashFlowItemId).map((item) => item._key),
+    )
 
     form.resetForm({ values: formValues }, { force: true })
   } else {
@@ -269,6 +356,9 @@ watch(() => props.journalId, load, { immediate: true })
 const onSubmit = form.handleSubmit(async (values) => {
   // Filter out empty journal lines
   const validJournalLines = values.journalLines.filter((item) => item.account)
+  const shouldSubmitCashFlowItems =
+    validJournalLines.some((item) => item.account?.isCashEquivalent) &&
+    validJournalLines.some((item) => !item.account?.isCashEquivalent)
 
   // Transform to API format
   const journalLinesRequest: JournalLineRequest[] = validJournalLines.map((item) => {
@@ -280,6 +370,7 @@ const onSubmit = form.handleSubmit(async (values) => {
       text: values.headerText,
       amount: item.amount || 0,
       dimensionOptionIds: dimensionOptionIds.length > 0 ? dimensionOptionIds : undefined,
+      cashFlowItemId: shouldSubmitCashFlowItems && !item.account!.isCashEquivalent ? item.cashFlowItemId : undefined,
     }
   })
 
@@ -743,6 +834,37 @@ async function handleDelete() {
                             </VeeField>
                           </template>
                         </div>
+
+                        <!-- Cash Flow Item -->
+                        <div v-if="requiresCashFlowItem(item)" class="grid grid-cols-[auto_1fr] items-center gap-2">
+                          <span class="text-muted-foreground text-xs font-medium whitespace-nowrap">
+                            {{ $t('journal.cashFlowItem') }}:
+                          </span>
+                          <VeeField v-slot="{ field }" :name="`journalLines[${index}].cashFlowItemId`">
+                            <Select
+                              v-if="isEditing"
+                              :name="field.name"
+                              :model-value="field.value"
+                              @update:model-value="(v) => handleCashFlowItemSelect(v as string, index, field.onChange)"
+                            >
+                              <SelectTrigger>
+                                <SelectValue :placeholder="$t('common.pleaseSelect')" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem
+                                  v-for="cashFlowItem in cashFlowItems"
+                                  :key="cashFlowItem.id"
+                                  :value="cashFlowItem.id"
+                                >
+                                  {{ cashFlowItem.name }}
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <div v-else class="text-xs">
+                              {{ formatCashFlowItemLabel(field.value) }}
+                            </div>
+                          </VeeField>
+                        </div>
                       </div>
                     </TableCell>
 
@@ -757,7 +879,13 @@ async function handleDelete() {
                             min="0"
                             :model-value="field.value && field.value > 0 ? field.value : ''"
                             class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                            @update:model-value="(val) => field.onChange(Number(val) || 0)"
+                            @update:model-value="
+                              (val) => {
+                                const amount = Number(val) || 0
+                                field.onChange(amount)
+                                syncDefaultCashFlowItem(index, amount)
+                              }
+                            "
                           />
                         </template>
                         <template v-else>
@@ -779,7 +907,13 @@ async function handleDelete() {
                             min="0"
                             :model-value="field.value && field.value < 0 ? Math.abs(field.value) : ''"
                             class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                            @update:model-value="(val) => field.onChange(val ? -Number(val) || 0 : 0)"
+                            @update:model-value="
+                              (val) => {
+                                const amount = val ? -Number(val) || 0 : 0
+                                field.onChange(amount)
+                                syncDefaultCashFlowItem(index, amount)
+                              }
+                            "
                           />
                         </template>
                         <template v-else>

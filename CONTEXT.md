@@ -38,6 +38,10 @@ The third mandatory financial report alongside the Balance Sheet and Income Stat
 
 An account counted as cash or cash equivalent in Cash Flow Statement reconciliation. Journal lines posted to a Cash Equivalent Account do not need a Cash Flow Item.
 
+### Cash Flow Item
+
+A cash-flow classification assigned to non-cash journal lines when a journal moves value between Cash Equivalent Accounts and non-cash accounts.
+
 ### Generate (Report)
 
 Creating a missing Report Instance from the corresponding Report Template. Idempotent: if the instance already exists, generation returns the existing instance unchanged.

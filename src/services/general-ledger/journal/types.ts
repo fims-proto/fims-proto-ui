@@ -33,6 +33,7 @@ export type JournalLine = {
   id: string
   account: AccountDetail
   dimensionOptions?: DimensionOptionRef[]
+  cashFlowItemId?: string
   text: string
   amount: number
   createdAt: Date
@@ -61,6 +62,7 @@ export type JournalLineRequest = {
   id?: string
   accountNumber: string
   dimensionOptionIds?: string[]
+  cashFlowItemId?: string
   text: string
   amount: number
 }
