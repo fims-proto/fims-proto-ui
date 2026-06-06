@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 import { useAccountStore } from '@/store/account'
-import type { Account } from '@/services/general-ledger/account/types'
+import type { AccountSlim } from '@/services/general-ledger/account/types'
 
 defineOptions({
   inheritAttrs: false,
@@ -19,12 +19,15 @@ const props = defineProps<{
   id?: string
   placeholder?: string
   disabled?: boolean
+  onlyLeaf?: boolean
+  showFullTitle?: boolean
 }>()
 
-const model = defineModel<Account | undefined>()
+const model = defineModel<AccountSlim | undefined>()
 
 const { t } = useI18n()
-const { allAccounts } = toRefs(useAccountStore().state)
+const accountStore = useAccountStore()
+const { allAccounts } = toRefs(accountStore.state)
 
 const open = ref(false)
 
@@ -38,12 +41,13 @@ const buttonAttrs = computed(() => {
 
 const displayValue = computed(() => {
   if (model.value) {
-    return `${model.value.accountNumber} - ${model.value.title}`
+    const title = props.showFullTitle ? accountStore.action.getFullTitle(model.value.id) : model.value.title
+    return `${model.value.accountNumber} - ${title}`
   }
   return props.placeholder || t('account.searchPlaceholder')
 })
 
-function handleSelect(account: Account) {
+function handleSelect(account: AccountSlim) {
   // Toggle selection: if clicking the same account, clear it
   model.value = model.value?.id === account.id ? undefined : account
   open.value = false
@@ -80,16 +84,18 @@ function clearSelection() {
             <CommandList>
               <CommandEmpty>{{ $t('account.notFound') }}</CommandEmpty>
               <CommandGroup>
-                <CommandItem
-                  v-for="account in allAccounts"
-                  :key="account.id"
-                  :value="`${account.accountNumber} ${account.title}`"
-                  @select="handleSelect(account)"
-                >
-                  <Check :class="cn('mr-2 h-4 w-4', model?.id === account.id ? 'opacity-100' : 'opacity-0')" />
-                  <span class="font-medium">{{ account.accountNumber }}</span>
-                  <span class="text-muted-foreground ml-2">{{ account.title }}</span>
-                </CommandItem>
+                <template v-for="account in allAccounts">
+                  <CommandItem
+                    v-if="!props.onlyLeaf || account.isLeaf"
+                    :key="account.id"
+                    :value="`${account.accountNumber} ${account.title}`"
+                    @select="handleSelect(account)"
+                  >
+                    <Check :class="cn('mr-2 h-4 w-4', model?.id === account.id ? 'opacity-100' : 'opacity-0')" />
+                    <span class="font-medium">{{ account.accountNumber }}</span>
+                    <span class="text-muted-foreground ml-2">{{ account.title }}</span>
+                  </CommandItem>
+                </template>
               </CommandGroup>
             </CommandList>
           </Command>

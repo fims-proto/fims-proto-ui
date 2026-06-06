@@ -7,6 +7,7 @@
     "yes": "是",
     "no": "否",
     "noData": "没有数据",
+    "refresh": "刷新",
     "description": "描述",
     "year": "年",
     "month": "月",
@@ -40,15 +41,12 @@
     "detail": "详情"
   },
   "nav": {
+    "start": "开始",
+    "dashboard": "仪表盘",
     "scenarios": "场景",
     "settings": "设置",
     "transaction": "交易",
     "ledgerExplorer": "分析",
-    "explorer": {
-      "overview": "总览",
-      "account": "按科目",
-      "dimension": "按维度"
-    },
     "report": "报表",
     "periodReview": "期间",
     "chartOfAccounts": "科目",
@@ -70,7 +68,8 @@
     "collapseAll": "收起全部"
   },
   "user": {
-    "loginPrompt": "在下面输入您的电子邮件以登录到您的帐户",
+    "loginPrompt": "在下面输入您的电子邮件以登录到您的账户",
+    "registerPrompt": "您的账户已创建，请设置您的密码以完成注册",
     "email": "E-Mail",
     "password": "密码",
     "firstname": "名字",
@@ -78,8 +77,9 @@
     "newPassword": "新密码",
     "confirmNewPassword": "密码确认",
     "passwordNotSame": "密码不一致",
-    "login": "登入",
-    "logout": "登出"
+    "login": "登录",
+    "logout": "登出",
+    "system": "系统"
   },
   "profile": {
     "title": "用户设置",
@@ -91,6 +91,7 @@
     "listTitle": "账套 ({0})",
     "title": "账套",
     "sobUnselected": "未选择账套",
+    "selectOrCreate": "请从左侧列表选择一个账套，或新建一个",
     "name": "公司名称",
     "baseCurrency": "本位币",
     "startingPeriod": "启用期间",
@@ -144,26 +145,104 @@
       "507": "所得税",
       "701": "共同"
     },
-    "auxiliary": {
+    "dimension": {
       "category": "维度",
-      "selectAuxiliaryCategories": "选择维度类别",
-      "noAuxiliaryCategories": "无维度"
+      "selectDimensionCategories": "选择维度类别",
+      "noDimensionCategories": "无维度"
+    },
+    "cashFlow": {
+      "isCashEquivalent": "现金及现金等价物",
+      "defaultCashFlowItemForDebit": "借方默认现金流量项目",
+      "defaultCashFlowItemForCredit": "贷方默认现金流量项目",
+      "noDefault": "无默认项目"
     },
     "msg": {
       "saveSuccess": "科目保存成功",
+      "deleteSuccess": "科目删除成功",
+      "confirmDelete": "确定要删除此科目吗？此操作无法撤销。",
       "levelNumberOutOfRange": "本级编码必须在 1 到 {0} 之间",
       "invalidLevel": "无效的科目级次"
     }
   },
   "period": {
+    "title": "期间",
+    "listTitle": "期间 ({0})",
     "periodUnselected": "未选择财务周期",
-    "title": "账期",
-    "current": "当前",
-    "closed": "已结账",
     "periodText": "{0} 年第 {1} 期",
     "startPeriod": "开始",
     "endPeriod": "结束",
-    "rangeSeparator": "至"
+    "rangeSeparator": "至",
+    "status": {
+      "open": "开放",
+      "current": "当前",
+      "closed": "已结账"
+    },
+    "management": {
+      "title": "期间管理",
+      "currentPeriod": "当前期间",
+      "preCheck": "检查",
+      "closePeriod": "结账",
+      "confirmClose": "确认结账？此操作不可撤销。",
+      "closeSuccess": "结账成功",
+      "notCurrent": "该期间不是当前活动期间，无法执行结账操作",
+      "alreadyClosed": "该期间已结账",
+      "checkUndetermined": "此检查项尚未就绪，请先完成前置检查",
+      "checkItems": {
+        "unpostedJournals": "未记账分录",
+        "trialBalance": "试算平衡",
+        "pnlBalance": "损益账户清零",
+        "currentYearProfitAccount": "本年利润结转"
+      },
+      "trialBalance": {
+        "description": "以下数值为借贷差额，均为零则表示借贷平衡",
+        "openingAmount": "期初差额",
+        "periodAmount": "期间差额",
+        "endingAmount": "期末差额"
+      },
+      "unpostedJournals": {
+        "count": "未记账分录: {0} 条",
+        "showMore": "还有更多未记账分录，点击查看",
+        "noUnposted": "无未记账分录",
+        "documentNumber": "分录号",
+        "headerText": "摘要",
+        "amount": "金额",
+        "transactionDate": "日期",
+        "isAudited": "审核",
+        "isReviewed": "复核"
+      },
+      "pnlAccounts": {
+        "accountNumber": "科目编号",
+        "accountTitle": "科目名称",
+        "carryForward": "创建结转分录",
+        "confirmCarryForward": "将为所有损益类科目生成结转凭证，继续操作？",
+        "viewJournal": "查看结转分录",
+        "zeroed": "损益账户余额已清零",
+        "generateSuccess": "月度结转分录已创建"
+      },
+      "currentYearProfitAccount": {
+        "accountNumber": "科目编号",
+        "accountTitle": "科目名称",
+        "endingAmount": "余额",
+        "passed": "本年利润已结转",
+        "generateJournal": "创建结转分录",
+        "confirmGenerate": "将生成本年利润结转凭证，继续操作？",
+        "viewJournal": "查看结转分录",
+        "generateSuccess": "年度结转分录已创建"
+      },
+      "batchClose": {
+        "button": "连续结账",
+        "dialogTitle": "连续结账",
+        "dialogDescription": "选择目标期间，系统将自动结账至该期（含）",
+        "targetPeriod": "目标期间",
+        "selectTargetPeriod": "选择目标期间",
+        "checking": "检查中...",
+        "checkPassed": "通过",
+        "unpostedJournalsCount": "{0} 条未记账分录",
+        "confirmClose": "确认连续结账？此操作将关闭从当前期间至所选目标期间的所有期间，不可撤销。",
+        "closeSuccess": "连续结账成功",
+        "closePeriod": "结账"
+      }
+    }
   },
   "ledger": {
     "title": "账簿总览",
@@ -177,60 +256,71 @@
     "explorer": {
       "title": "科目分析",
       "noAccountSelected": "请先选择科目",
-      "noDimension": "不按维度",
       "openingBalance": "期初余额",
       "periodDebit": "期间借方",
       "periodCredit": "期间贷方",
       "endingBalance": "期末余额",
+      "openingBalanceDebit": "期初余额（借）",
+      "openingBalanceCredit": "期初余额（贷）",
+      "endingBalanceDebit": "期末余额（借）",
+      "endingBalanceCredit": "期末余额（贷）",
       "runningBalance": "余额",
       "date": "日期",
       "journalNumber": "分录号",
       "entryText": "摘要",
       "debitAmount": "借方",
       "creditAmount": "贷方",
-      "dimension": "维度",
-      "dimensionMember": "维度成员"
+      "dimensionCategory": "维度分类",
+      "noDimensionCategory": "无",
+      "dimensionOptions": "维度选项",
+      "noDimensionOptionSelected": "请选择维度选项",
+      "selectedOptionSummary": "选中维度余额"
     },
     "initialize": {
       "title": "初始化期初余额",
-      "firstPeriod": "启用期间：{0}",
+      "firstPeriod": "启用期间: {0}",
       "periodClosed": "该期间已结账，无法修改期初余额",
       "totalDebit": "借方合计",
       "totalCredit": "贷方合计",
       "status": "状态",
       "balanced": "平衡",
-      "notBalanced": "不平衡 (差额：{0})",
+      "notBalanced": "不平衡 (差额: {0})",
       "saveSuccess": "期初余额保存成功",
       "validation": {
         "mustBeBalanced": "借贷必须平衡才能保存"
       }
-    }
+    },
+    "viewMode": {
+      "account": "按科目",
+      "dimension": "按维度",
+      "transactions": "明细流水",
+      "label": "视图"
+    },
+    "dimensionCategory": "维度分类",
+    "dimensionOption": "维度选项"
   },
-  "auxiliary": {
+  "dimension": {
     "categoryListTitle": "维度 ({0})",
-    "categoryDetail": "维度详情",
-    "categoryKey": "编号",
-    "categoryTitle": "名称",
-    "accountsTitle": "成员 ({0})",
-    "accountKey": "编号",
-    "accountTitle": "名称",
-    "description": "描述",
+    "categoryName": "名称",
+    "optionsTitle": "{0} 成员 ({1})",
+    "optionName": "名称",
     "createCategory": "新建维度",
-    "createAccount": "新建维度成员",
-    "viewAccount": "查看维度成员",
-    "isStandard": "类型",
-    "standard": "标准",
-    "custom": "自定义",
-    "selectAccount": "选择维度成员",
-    "noAuxiliaryAccounts": "无维度成员",
+    "createOption": "新建维度成员",
+    "viewOption": "查看维度成员",
+    "selectOption": "选择维度成员",
+    "noOptions": "无维度成员",
+    "updateCategory": "编辑维度",
+    "updateOption": "编辑维度成员",
     "msg": {
       "categorySaveSuccess": "维度保存成功",
-      "accountSaveSuccess": "维度成员保存成功",
-      "updateNotSupported": "暂不支持更新",
-      "keyImmutable": "创建后编号不可修改",
-      "createCategoryDescription": "创建新的维度，编号创建后不可修改",
-      "createAccountDescription": "创建新的维度成员，编号创建后不可修改",
-      "viewAccountDescription": "查看维度成员详情"
+      "optionSaveSuccess": "维度成员保存成功",
+      "categoryUpdateSuccess": "维度更新成功",
+      "optionUpdateSuccess": "维度成员更新成功",
+      "categoryDeleteSuccess": "维度删除成功",
+      "optionDeleteSuccess": "维度成员删除成功",
+      "confirmDeleteCategory": "确定要删除此维度吗？此操作无法撤销。",
+      "confirmDeleteOption": "确定要删除此维度成员吗？此操作无法撤销。",
+      "viewOptionDescription": "查看维度成员详情"
     }
   },
   "journal": {
@@ -245,6 +335,7 @@
     "amount": "发生金额",
     "debit": "借方金额",
     "credit": "贷方金额",
+    "cashFlowItem": "现金流量项",
     "attachmentQuantity": "附单据",
     "attachmentQuantityUnit": "张",
     "transactionDate": "日期",
@@ -273,36 +364,59 @@
     "cancelReview": "取消复核",
     "notReviewed": "未复核",
     "isReviewed": "已复核",
-    "post": "登账",
-    "notPosted": "未登账",
-    "isPosted": "已登账",
+    "post": "记账",
+    "notPosted": "未记账",
+    "isPosted": "已记账",
+    "adjusting": "调整分录",
+    "journalType": "分录类型",
+    "referenceJournal": "参考分录",
+    "journalTypeEnum": {
+      "GENERAL": "普通分录",
+      "ADJUSTING": "调整分录",
+      "REVERSING": "冲销分录",
+      "CLOSING": "结账分录",
+      "YEARLY_CLOSING": "年终结账分录"
+    },
     "msg": {
       "emptyHeaderText": "摘要不能为空",
       "notBalanced": "借贷不平衡",
-      "emptyAuxiliaryAccountKey": "未填写维度成员",
-      "minTwoItems": "至少需要两条分录",
+      "emptyDimensionOption": "未填写维度成员",
+      "emptyCashFlowItem": "未填写现金流量项目",
+      "minTwoItems": "至少需要两条非空分录",
       "success": "分录保存成功",
       "confirmCancelAudit": "确认取消审核？",
       "confirmCancelReview": "确认取消复核？",
-      "confirmPost": "确认登账？此操作不可撤销。",
+      "confirmPost": "确认记账？此操作不可撤销。",
+      "confirmDelete": "确认删除此结账分录？此操作将反冲相关账务余额。",
       "auditSuccess": "分录审核成功",
       "cancelAuditSuccess": "已取消分录审核",
       "reviewSuccess": "分录复核成功",
       "cancelReviewSuccess": "已取消分录复核",
-      "postSuccess": "分录登账成功"
+      "postSuccess": "分录记账成功",
+      "deleteSuccess": "结账分录已删除"
     }
   },
   "report": {
-    "subjectName": "报表",
+    "listTitle": "报表 ({0})",
     "title": "报表",
     "template": "模板",
     "period": "账期",
     "class": "类型",
     "classEnum": {
       "balance_sheet": "资产负债表",
-      "income_statement": "利润表"
+      "income_statement": "利润表",
+      "cash_flow_statement": "现金流量表"
     },
-    "amountType": "金额类型",
+    "column": {
+      "valueType": "金额类型",
+      "valueTypeEnum": {
+        "year_opening_balance": "年初余额",
+        "period_ending_balance": "期末余额",
+        "year_to_date_amount": "本年累计",
+        "last_year_amount": "上年金额",
+        "period_amount": "本期金额"
+      }
+    },
     "amountTypeEnum": {
       "year_opening_balance": "年初余额",
       "period_ending_balance": "期末余额",
@@ -310,14 +424,11 @@
       "last_year_amount": "上年金额",
       "period_amount": "本期金额"
     },
-    "dataSource": "数据源",
-    "dataSourceEnum": {
-      "formulas": "公式",
-      "sum": "累计值",
-      "none": "无"
-    },
-    "item": {
+    "row": {
       "text": "文本",
+      "showLineNo": "显示行次",
+      "displaySumFactor": "显示加减前缀",
+      "referenceLabelWithLineNo": "{lineNo} - {text}",
       "sumFactor": "累计方式",
       "sumFactorEnum": {
         "1": "加",
@@ -325,42 +436,71 @@
         "0": "不计入"
       }
     },
-    "formula": {
-      "accountTitle": "科目",
+    "expression": {
+      "kind": "表达式类型",
+      "kindEnum": {
+        "ledger_accounts": "科目取数",
+        "cash_flow_items": "现金流量项目",
+        "rows_explicit": "指定行合计",
+        "children_sum": "子行合计",
+        "none": "无"
+      },
+      "ledgerAccounts": "科目引用",
+      "cashFlowItems": "现金流量项目引用",
+      "rowReferences": "行引用",
+      "account": "科目",
+      "cashFlowItem": "现金流量项目",
+      "rowReference": "引用行",
+      "selectCashFlowItem": "请选择现金流量项目",
+      "selectRowReference": "请选择引用行",
       "sumFactor": "计入",
       "sumFactorEnum": {
         "1": "加",
         "-1": "减"
       },
-      "rule": "取数规则",
-      "ruleEnum": {
+      "measure": "取数规则",
+      "measureEnum": {
         "net": "余额",
         "debit": "借方",
         "credit": "贷方",
-        "transaction": "发生额"
+        "transaction": "发生额",
+        "opening_balance": "期初余额"
       }
     },
     "btn": {
       "generate": "生成报表",
       "regenerate": "重新生成",
-      "editItem": "编辑项目",
-      "viewItem": "查看项目",
-      "addItem": "添加项目",
+      "editTemplate": "编辑模版",
+      "exitEditTemplate": "退出编辑模版",
+      "editRow": "编辑行",
+      "viewRow": "查看行",
+      "addRow": "添加行",
       "insertBefore": "在前面插入",
       "insertChild": "插入子项",
       "insertAfter": "在后面插入",
-      "addFormula": "新增公式"
+      "addReference": "新增引用"
     },
     "msg": {
       "generateCompleted": "成功报表生成",
       "regenerateCompleted": "成功重新生成报表",
       "updateCompleted": "报表更新并重新计算完成",
       "templateUpdateCompleted": "报表模板更新成功",
-      "updateSuccessButRegenerateFailed": "报表更新成功，但重新计算失败",
+      "updateSuccessButRecalculateFailed": "报表更新成功，但重新计算失败",
       "textIsRequired": "文本不能为空",
       "accountRequired": "请选择科目",
-      "confirmDeleteItem": "确定要删除此项目吗？此操作无法撤销。",
+      "cashFlowItemRequired": "请选择现金流量项目",
+      "rowReferenceRequired": "请选择引用行",
+      "expressionReferenceRequired": "请至少添加一个引用",
+      "duplicateRowCode": "存在重复的报表行标识，请重新添加自定义行",
+      "invalidRowReference": "行引用只能指向当前行之前已经计算的行",
+      "confirmDeleteRow": "确定要删除此行吗？此操作无法撤销。",
+      "confirmRegenerate": "重新生成会用最新模板重建当前报表，可能覆盖当前报表的结构调整。确定继续吗？",
       "validationFailed": "验证失败，请检查输入内容"
+    },
+    "unclosedPeriodWarning": "此账期尚未关闭，数据可能不完整",
+    "emptyState": {
+      "title": "当前账期尚未生成报表",
+      "description": "选择其他账期，或为当前账期创建报表"
     },
     "dialog": {
       "selectPeriod": "选择账期",
@@ -369,10 +509,15 @@
     },
     "chart": {
       "lineNumber": "行次",
-      "breakdown": "其中：",
+      "rowTextLabel": {
+        "balanceSheetLeft": "资产",
+        "balanceSheetRight": "负债和所有者权益",
+        "default": "项目"
+      },
+      "breakdown": "其中: ",
       "sumFactorEnum": {
-        "1": "加：",
-        "-1": "减："
+        "1": "加: ",
+        "-1": "减: "
       }
     }
   }

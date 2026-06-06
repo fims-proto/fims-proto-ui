@@ -10,7 +10,7 @@ import { DataTable } from '@/components/common/data-table'
 import { columns } from './columns'
 import { treefyAccounts, type AccountTreeNode } from './treefy'
 import { useAccountStore } from '@/store/account'
-import { CLASS_OPTIONS, type Account } from '@/services/general-ledger'
+import { CLASS_OPTIONS, type AccountSlim } from '@/services/general-ledger'
 import { ACCOUNT_CHANGED } from '@/services/event'
 
 const props = defineProps<{
@@ -25,7 +25,7 @@ bus.on(() => accountStore.action.refreshAccounts(props.sobId))
 
 const accounts = computed<AccountTreeNode[]>(() => treefyAccounts(accountStore.state.allAccounts))
 
-const handleRowClick = (row: Account) => {
+const handleRowClick = (row: AccountSlim) => {
   router.push({
     name: 'accountDetail',
     params: {

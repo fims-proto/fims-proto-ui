@@ -24,8 +24,11 @@ const props = withDefaults(
   defineProps<{
     sobId: string
     mode?: 'single' | 'range'
+    initialPeriod?: Period
+    initialStart?: Period
+    initialEnd?: Period
   }>(),
-  { mode: 'single' },
+  { mode: 'single', initialPeriod: undefined, initialStart: undefined, initialEnd: undefined },
 )
 
 const emit = defineEmits<{
@@ -38,7 +41,7 @@ const periodStore = usePeriodStore()
 const { allPeriods: periods, currentPeriod } = toRefs(periodStore.state)
 
 // Single mode state
-const selectedPeriodId = ref<string | undefined>(currentPeriod.value?.id)
+const selectedPeriodId = ref<string | undefined>()
 
 // Range mode state
 const startYear = ref<number | undefined>()
@@ -54,17 +57,19 @@ watch(
 
     // Single mode
     if (!selectedPeriodId.value) {
-      selectedPeriodId.value = newPeriod.id
+      const initPeriod = props.initialPeriod ?? newPeriod
+      selectedPeriodId.value = initPeriod.id
+      emit('periodSelected', initPeriod)
     }
 
-    // Range mode
+    // Range mode — prefer initialStart/initialEnd props (restored from store) over currentPeriod
     if (!startPeriod.value) {
-      startPeriod.value = newPeriod
-      startYear.value = newPeriod.fiscalYear
+      startPeriod.value = props.initialStart ?? newPeriod
+      startYear.value = (props.initialStart ?? newPeriod).fiscalYear
     }
     if (!endPeriod.value) {
-      endPeriod.value = newPeriod
-      endYear.value = newPeriod.fiscalYear
+      endPeriod.value = props.initialEnd ?? newPeriod
+      endYear.value = (props.initialEnd ?? newPeriod).fiscalYear
     }
     if (props.mode === 'range' && startPeriod.value && endPeriod.value) {
       emit('rangeSelected', startPeriod.value, endPeriod.value)
@@ -180,10 +185,10 @@ const rangeTriggerText = computed(() => {
             <div class="flex items-center gap-2">
               <span>{{ getPeriodText(period) }}</span>
               <Badge v-if="period.id === currentPeriod?.id" variant="default" class="text-xs">
-                {{ $t('period.current') }}
+                {{ $t('period.status.current') }}
               </Badge>
               <Badge v-if="period.isClosed" variant="secondary" class="text-xs">
-                {{ $t('period.closed') }}
+                {{ $t('period.status.closed') }}
               </Badge>
             </div>
           </SelectItem>

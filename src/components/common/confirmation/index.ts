@@ -1,1 +1,1 @@
-export { default as ConfirmationDialog } from './ConfirmationDialog.vue'
+export { default as ConfirmationButton } from './ConfirmationButton.vue'

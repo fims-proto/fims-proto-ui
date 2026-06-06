@@ -1,47 +1,77 @@
 import axios from 'axios'
 import { FIMS_URL } from '../../../config'
-import { convertFieldsFromString } from '../../field-conversion'
+import { convertAccountNumberFields, convertFieldsFromString } from '../../field-conversion'
 import { invokeWithErrorHandler, type Response } from '../../error-handler'
+import { useSobStore } from '../../../store/sob'
 import { type Page, type Pageable } from '../../types'
-import { type Journal, type CreateJournalRequest, type UpdateJournalRequest } from './types'
-import { JOURNAL_FIELDS } from '../field-conversion-types'
+import {
+  type JournalSlim,
+  type JournalDetail,
+  type CreateJournalRequest,
+  type UpdateJournalRequest,
+  type ClosingJournalResponse,
+  type ClosingJournalIdsResponse,
+} from './types'
+import {
+  JOURNAL_FIELDS,
+  JOURNAL_LINE_REQUEST_AN_CONVERSION,
+  JOURNAL_RESPONSE_AN_CONVERSION,
+  JOURNAL_SLIM_FIELDS,
+} from '../field-conversion-types'
 import type { Filter } from '@/services/filter'
 
 class JournalService {
   public async getJournals(
     sobId: string,
     pageable: Pageable = { page: 1, size: 10 },
-    filterable?: Filter<Journal>,
-  ): Promise<Response<Page<Journal>>> {
+    filterable?: Filter<JournalSlim>,
+  ): Promise<Response<Page<JournalSlim>>> {
     const filterContent = filterable?.apiFilterString()
     const filterStr = filterContent && filterContent != 'true' ? `&$filter=${filterContent}` : ''
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(
         `${FIMS_URL}/api/v1/sob/${sobId}/journals?$sort=createdAt desc&$page=${pageable.page}&$size=${pageable.size}${filterStr}`,
       )
-      convertFieldsFromString(result.data.content, JOURNAL_FIELDS)
+      convertFieldsFromString(result.data.content, JOURNAL_SLIM_FIELDS)
       return result.data
     })
   }
 
-  public async getJournalById(sobId: string, id: string): Promise<Response<Journal>> {
+  public async getJournalById(sobId: string, id: string): Promise<Response<JournalDetail>> {
     return invokeWithErrorHandler(async () => {
       const result = await axios.get(`${FIMS_URL}/api/v1/sob/${sobId}/journal/${id}`)
-      return convertFieldsFromString(result.data, JOURNAL_FIELDS)
+
+      const codeLengths = useSobStore().state.workingSob?.accountsCodeLength ?? []
+      convertFieldsFromString(result.data, JOURNAL_FIELDS)
+      convertAccountNumberFields(result.data, JOURNAL_RESPONSE_AN_CONVERSION, codeLengths)
+      return result.data
     })
   }
 
-  public async createJournal(sobId: string, journal: CreateJournalRequest): Promise<Response<Journal>> {
+  public async createJournal(sobId: string, journal: CreateJournalRequest): Promise<Response<JournalDetail>> {
     return invokeWithErrorHandler(async () => {
-      const result = await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/journals`, journal)
-      return convertFieldsFromString(result.data, JOURNAL_FIELDS)
+      // Make a copy to avoid mutating the input
+      const journalCopy = JSON.parse(JSON.stringify(journal))
+      const codeLengths = useSobStore().state.workingSob?.accountsCodeLength ?? []
+      convertAccountNumberFields(journalCopy, JOURNAL_LINE_REQUEST_AN_CONVERSION, codeLengths)
+
+      const result = await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/journals`, journalCopy)
+
+      convertFieldsFromString(result.data, JOURNAL_FIELDS)
+      convertAccountNumberFields(result.data, JOURNAL_RESPONSE_AN_CONVERSION, codeLengths)
+      return result.data
     })
   }
 
   public async updateJournal(sobId: string, id: string, journal: UpdateJournalRequest): Promise<Response<void>> {
     return invokeWithErrorHandler(async () => {
+      // Make a copy to avoid mutating the input
+      const journalCopy = JSON.parse(JSON.stringify(journal))
+      const codeLengths = useSobStore().state.workingSob?.accountsCodeLength ?? []
+      convertAccountNumberFields(journalCopy, JOURNAL_LINE_REQUEST_AN_CONVERSION, codeLengths)
+
       // patch
-      await axios.patch(`${FIMS_URL}/api/v1/sob/${sobId}/journal/${id}`, journal)
+      await axios.patch(`${FIMS_URL}/api/v1/sob/${sobId}/journal/${id}`, journalCopy)
     })
   }
 
@@ -82,6 +112,33 @@ class JournalService {
       await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/journal/${id}/post`, {
         poster,
       })
+    })
+  }
+
+  public async getClosingJournalIds(sobId: string, period: string): Promise<Response<ClosingJournalIdsResponse>> {
+    return invokeWithErrorHandler(async () => {
+      const result = await axios.get(`${FIMS_URL}/api/v1/sob/${sobId}/journals/closing-journal?period=${period}`)
+      return result.data
+    })
+  }
+
+  public async createMonthlyClosingJournal(sobId: string): Promise<Response<ClosingJournalResponse>> {
+    return invokeWithErrorHandler(async () => {
+      const result = await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/journals/monthly-closing-journal`)
+      return result.data
+    })
+  }
+
+  public async createYearEndClosingJournal(sobId: string): Promise<Response<ClosingJournalResponse>> {
+    return invokeWithErrorHandler(async () => {
+      const result = await axios.post(`${FIMS_URL}/api/v1/sob/${sobId}/journals/year-end-closing-journal`)
+      return result.data
+    })
+  }
+
+  public async deleteJournal(sobId: string, id: string): Promise<Response<void>> {
+    return invokeWithErrorHandler(async () => {
+      await axios.delete(`${FIMS_URL}/api/v1/sob/${sobId}/journal/${id}`)
     })
   }
 }

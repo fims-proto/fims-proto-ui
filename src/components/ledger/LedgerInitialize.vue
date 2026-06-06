@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useDebounceFn } from '@vueuse/core'
 
@@ -12,7 +12,7 @@ import { DataTable } from '@/components/common/data-table'
 import { CLASS_OPTIONS, LedgerService } from '@/services/general-ledger'
 import type { PeriodAndLedgers } from '@/services/general-ledger/ledger'
 import { useToastStore } from '@/store/toast'
-import { useUnsavedChangesStore } from '@/store/unsaved-changes'
+import { useUnsavedChanges, UnsavedChangesDialog } from '@/components/common/unsaved-guard'
 import { treefyLedgers, calculateParentBalances, flattenTree } from './treefy'
 import type { LedgerTreeNode } from './treefy'
 import { createColumns } from './columns'
@@ -23,7 +23,6 @@ const props = defineProps<{
 
 const { t } = useI18n()
 const toast = useToastStore()
-const unsavedChanges = useUnsavedChangesStore()
 
 const isLoading = ref(true)
 const isEditing = ref(false)
@@ -80,14 +79,8 @@ onMounted(() => {
   load()
 })
 
-// Watch dirty state and sync with unsaved changes store
-watch(isDirty, (val) => {
-  if (val) {
-    unsavedChanges.action.enableProtection()
-  } else {
-    unsavedChanges.action.disableProtection()
-  }
-})
+// Watch dirty state and sync with unsaved changes composable
+const { confirmOpen, onConfirmLeave, onCancelLeave } = useUnsavedChanges(isDirty)
 
 // Debounced calculation of parent balances
 const recalculateParents = useDebounceFn(() => {
@@ -140,7 +133,6 @@ function onEdit() {
 }
 
 function onCancel() {
-  unsavedChanges.action.disableProtection()
   isEditing.value = false
   load() // Reload to discard changes
 }
@@ -176,7 +168,6 @@ async function onSave() {
     }
 
     toast.action.success(t('ledger.initialize.saveSuccess'))
-    unsavedChanges.action.disableProtection()
 
     // Reload data
     await load()
@@ -195,7 +186,7 @@ async function onSave() {
           {{ $t('ledger.initialize.firstPeriod', [periodText]) }}
         </span>
         <Badge v-if="isPeriodClosed" variant="secondary">
-          {{ $t('period.closed') }}
+          {{ $t('period.status.closed') }}
         </Badge>
         <p v-if="isPeriodClosed" class="text-sm text-amber-600">
           {{ $t('ledger.initialize.periodClosed') }}
@@ -282,4 +273,6 @@ async function onSave() {
       </div>
     </div>
   </PageFrame>
+
+  <UnsavedChangesDialog :open="confirmOpen" @confirm="onConfirmLeave" @cancel="onCancelLeave" />
 </template>

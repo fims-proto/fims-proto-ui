@@ -38,7 +38,7 @@ const router = useRouter()
 const route = useRoute()
 
 function subItemActive(item: NavItem) {
-  return item.subItems?.some((sub) => router.resolve(sub.to!).fullPath === route.fullPath)
+  return item.subItems?.some((sub) => router.resolve(sub.to!).path === route.path)
 }
 </script>
 
@@ -79,6 +79,7 @@ function subItemActive(item: NavItem) {
                     <SidebarMenuSubButton as-child>
                       <RouterLink
                         :to="subItem.to!"
+                        class="select-none"
                         exact-active-class="bg-primary text-primary-foreground! hover:text-sidebar-foreground! transition-colors duration-200"
                       >
                         <component :is="subItem.icon" v-if="subItem.icon" />
@@ -109,6 +110,7 @@ function subItemActive(item: NavItem) {
                 <DropdownMenuItem v-for="subItem in item.subItems" :key="subItem.title" as-child>
                   <RouterLink
                     :to="subItem.to!"
+                    class="select-none"
                     exact-active-class="bg-primary text-primary-foreground transition-colors duration-200"
                   >
                     <component :is="subItem.icon" v-if="subItem.icon" />
@@ -125,6 +127,7 @@ function subItemActive(item: NavItem) {
           <SidebarMenuButton as-child :tooltip="item.title">
             <RouterLink
               :to="item.to!"
+              class="select-none"
               exact-active-class="bg-primary text-primary-foreground transition-colors duration-200"
             >
               <component :is="item.icon" v-if="item.icon" />

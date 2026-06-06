@@ -120,8 +120,57 @@
   body {
     @apply bg-background text-foreground;
   }
-  button:not(:disabled),
-  [role='button']:not(:disabled) {
-    cursor: pointer;
+}
+
+/* Global transition */
+@layer utilities {
+  /* fade */
+  .t-fade-enter-active,
+  .t-fade-leave-active {
+    @apply transition-opacity duration-200 ease-in-out;
+  }
+  .t-fade-enter-from,
+  .t-fade-leave-to {
+    @apply opacity-0;
+  }
+
+  /* slide-up */
+  .t-slide-up-enter-active,
+  .t-slide-up-leave-active {
+    @apply transition-all duration-200 ease-out;
+  }
+  .t-slide-up-enter-from {
+    @apply translate-y-4 opacity-0;
+  }
+  .t-slide-up-leave-to {
+    @apply -translate-y-4 opacity-0;
+  }
+
+  /* slide-down */
+  .t-slide-down-enter-active,
+  .t-slide-down-leave-active {
+    @apply transition-all duration-200 ease-out;
+  }
+  .t-slide-down-enter-from {
+    @apply -translate-y-4 opacity-0;
+  }
+  .t-slide-down-leave-to {
+    @apply translate-y-4 opacity-0;
+  }
+
+  /* table row */
+  .t-table-row-move,
+  .t-table-row-enter-active,
+  .t-table-row-leave-active {
+    @apply transition-all duration-200 ease-out;
+  }
+
+  .t-table-row-enter-from,
+  .t-table-row-leave-to {
+    @apply opacity-0;
+  }
+
+  .t-table-row-leave-active {
+    @apply absolute transition-transform;
   }
 }

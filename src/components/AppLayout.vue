@@ -10,7 +10,7 @@ interface ResizablePanelRef {
   resize: (size: number) => void
 }
 
-const MIN_SIZE = 33
+const MIN_SIZE = 25
 const DEFAULT_LIST_SIZE = 50
 const DEFAULT_MAIN_SIZE = 50
 

@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
@@ -25,23 +26,24 @@ import {
   CommandSeparator,
 } from '@/components/ui/command'
 import { Separator } from '@/components/ui/separator'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Check, PlusCircle, X } from 'lucide-vue-next'
 import AccountInput from './AccountInput.vue'
 
 import { cn } from '@/lib/utils'
 
 import {
-  AccountSchema,
+  AccountDetailSchema,
   CreateAccountSchema,
   AccountService,
   usePadLevelNumber,
   type AccountClass,
-  type AuxiliaryCategory,
 } from '@/services/general-ledger'
+import { DimensionService, type DimensionCategory } from '@/services/dimension'
 import { useSobStore } from '@/store/sob'
+import { useCashFlowItemStore } from '@/store/cash-flow-item'
 import { useToastStore } from '@/store/toast'
-import { useUnsavedChangesStore } from '@/store/unsaved-changes'
+import { useUnsavedChanges, UnsavedChangesDialog } from '@/components/common/unsaved-guard'
+import { ConfirmationButton } from '@/components/common/confirmation'
 import { ACCOUNT_CHANGED } from '@/services/event'
 
 const props = defineProps<{
@@ -52,15 +54,16 @@ const props = defineProps<{
 const router = useRouter()
 const { t } = useI18n()
 const toast = useToastStore()
-const unsavedChanges = useUnsavedChangesStore()
 const sobStore = useSobStore()
+const cashFlowItemStore = useCashFlowItemStore()
 const bus = useEventBus(ACCOUNT_CHANGED)
 const workingSob = computed(() => sobStore.state.workingSob)
+const NONE_CASH_FLOW_ITEM_ID = '__none__'
 
 // Create form schema with validation that captures accountCodeLength at creation time
 function createFormSchema(accountCodeLength: readonly number[]) {
   return CreateAccountSchema.extend({
-    superiorAccount: AccountSchema.optional(),
+    superiorAccount: AccountDetailSchema.optional(),
   }).superRefine((data, ctx) => {
     const currentLevel = (data.superiorAccount?.level ?? 0) + 1
     const maxDigits = accountCodeLength[currentLevel - 1]
@@ -90,8 +93,8 @@ const formSchema = ref(toTypedSchema(createFormSchema(workingSob.value?.accounts
 
 const isEditing = ref(!props.accountId) // true for create, false for view existing
 const classGroupsMap = ref<Record<string, string[]>>({})
-const auxiliaryCategories = ref<AuxiliaryCategory[]>([])
-const auxiliaryCategoriesPopoverOpen = ref(false)
+const dimensionCategories = ref<DimensionCategory[]>([])
+const dimensionCategoriesPopoverOpen = ref(false)
 
 const EMPTY_ACCOUNT = {
   title: '',
@@ -99,7 +102,10 @@ const EMPTY_ACCOUNT = {
   class: '1',
   group: '101',
   balanceDirection: 'debit' as const,
-  categoryKeys: [],
+  dimensionCategoryIds: [],
+  isCashEquivalent: false,
+  defaultCashFlowItemIdForDebit: null,
+  defaultCashFlowItemIdForCredit: null,
 }
 
 const form = useForm({
@@ -123,16 +129,26 @@ const groupOptions = computed(() => {
   return classValue ? (classGroupsMap.value[classValue] ?? []) : []
 })
 
-const selectedCategoryKeys = computed(() => new Set(form.values.categoryKeys ?? []))
+const selectedCategoryIds = computed(() => new Set(form.values.dimensionCategoryIds ?? []))
+const cashFlowItems = computed(() => cashFlowItemStore.state.allCashFlowItems)
+const isCashEquivalent = computed(() => form.values.isCashEquivalent ?? false)
 
 const selectedCategories = computed(() => {
-  const keys = form.values.categoryKeys ?? []
-  return auxiliaryCategories.value.filter((cat) => keys.includes(cat.key))
+  const ids = form.values.dimensionCategoryIds ?? []
+  return dimensionCategories.value.filter((cat) => ids.includes(cat.id))
 })
 
 const formatClassLabel = (value?: string) => (value ? t(`account.classEnum.${value}`) : '')
 const formatGroupLabel = (value?: string) => (value ? t(`account.groupEnum.${value}`) : '')
 const formatBalanceDirectionLabel = (value?: string) => (value ? t(`account.balanceDirectionEnum.${value}`) : '')
+const formatBooleanLabel = (value?: boolean) => t(value ? 'common.yes' : 'common.no')
+const formatCashFlowItemLabel = (value?: string | null) => {
+  if (!value) return t('account.cashFlow.noDefault')
+  const item = cashFlowItems.value.find((candidate) => candidate.id === value)
+  return item ? item.name : value
+}
+const toCashFlowItemSelectValue = (value?: string | null) => value ?? NONE_CASH_FLOW_ITEM_ID
+const fromCashFlowItemSelectValue = (value: string) => (value === NONE_CASH_FLOW_ITEM_ID ? null : value)
 
 // Computed validation constraints for levelNumber based on current level
 const levelNumberConstraints = computed(() => {
@@ -150,27 +166,41 @@ const levelNumberConstraints = computed(() => {
 
 watch(() => props.accountId, load, { immediate: true })
 
-// Watch class changes to clear invalid group selections
+// Watch class changes to reset group when the new class makes the current group invalid
 watch(
   () => form.values.class,
   (newClass, oldClass) => {
     if (isEditing.value && newClass !== oldClass && newClass) {
       const validGroups = classGroupsMap.value[newClass] ?? []
-      form.setFieldValue('group', validGroups[0] ?? '')
+      if (!validGroups.includes(form.values.group ?? '')) {
+        form.setFieldValue('group', validGroups[0] ?? '')
+      }
     }
   },
 )
 
 watch(
-  () => form.meta.value.dirty,
-  (val) => {
-    if (val) {
-      unsavedChanges.action.enableProtection()
-    } else {
-      unsavedChanges.action.disableProtection()
+  () => form.values.isCashEquivalent,
+  (newValue) => {
+    if (!newValue) return
+    form.setFieldValue('defaultCashFlowItemIdForDebit', null)
+    form.setFieldValue('defaultCashFlowItemIdForCredit', null)
+  },
+)
+
+// When a superior account is selected in create mode, mirror its class/group/balanceDirection
+watch(
+  () => form.values.superiorAccount,
+  (newSuperior) => {
+    if (!props.accountId && newSuperior) {
+      form.setFieldValue('class', newSuperior.class)
+      form.setFieldValue('group', newSuperior.group)
+      form.setFieldValue('balanceDirection', newSuperior.balanceDirection)
     }
   },
 )
+
+const { confirmOpen, onConfirmLeave, onCancelLeave } = useUnsavedChanges(computed(() => form.meta.value.dirty))
 
 async function loadAccountClasses() {
   const { data } = await AccountService.getClasses(props.sobId)
@@ -183,16 +213,17 @@ async function loadAccountClasses() {
   }
 }
 
-async function loadAuxiliaryCategories() {
-  const { data } = await AccountService.getAuxiliaryCategories(props.sobId, { page: 1, size: 100 })
+async function loadDimensionCategories() {
+  const { data } = await DimensionService.getDimensionCategories(props.sobId, { page: 1, size: 100 })
   if (data) {
-    auxiliaryCategories.value = data.content
+    dimensionCategories.value = data.content
   }
 }
 
 async function load() {
   await loadAccountClasses()
-  await loadAuxiliaryCategories()
+  await loadDimensionCategories()
+  await cashFlowItemStore.action.refreshCashFlowItems(props.sobId)
 
   if (props.accountId) {
     isEditing.value = false
@@ -201,11 +232,14 @@ async function load() {
       // Transform Account to form values with superiorAccount object if exists
       const formValues = {
         title: data.title,
-        levelNumber: data.numberHierarchy[data.level - 1] ?? 1,
+        levelNumber: 1, // Placeholder, computed after loading superior account
         class: data.class,
         group: data.group,
         balanceDirection: data.balanceDirection,
-        categoryKeys: data.auxiliaryCategories?.map((c) => c.key) ?? [],
+        dimensionCategoryIds: data.dimensionCategories?.map((c) => c.id) ?? [],
+        isCashEquivalent: data.isCashEquivalent,
+        defaultCashFlowItemIdForDebit: data.defaultCashFlowItemIdForDebit ?? null,
+        defaultCashFlowItemIdForCredit: data.defaultCashFlowItemIdForCredit ?? null,
         superiorAccount: undefined as typeof data | undefined,
       }
 
@@ -216,6 +250,10 @@ async function load() {
           formValues.superiorAccount = superiorAccount
         }
       }
+
+      // Derive levelNumber from accountNumber suffix after superior's accountNumber
+      const superiorAccountNumber = formValues.superiorAccount?.accountNumber ?? ''
+      formValues.levelNumber = parseInt(data.accountNumber.slice(superiorAccountNumber.length), 10) || 1
 
       form.resetForm({ values: formValues }, { force: true })
     }
@@ -229,6 +267,10 @@ const onSubmit = form.handleSubmit(async (values, { resetForm }) => {
   // Transform superiorAccount to superiorAccountNumber
   if (values.superiorAccount) {
     values.superiorAccountNumber = values.superiorAccount.accountNumber
+  }
+  if (values.isCashEquivalent) {
+    values.defaultCashFlowItemIdForDebit = null
+    values.defaultCashFlowItemIdForCredit = null
   }
 
   let data
@@ -263,7 +305,6 @@ const onSubmit = form.handleSubmit(async (values, { resetForm }) => {
 })
 
 function onCancel() {
-  unsavedChanges.action.disableProtection()
   if (!props.accountId) {
     // Create mode: go back in history
     router.back()
@@ -283,12 +324,21 @@ function onClose() {
   router.push({ name: 'accountList', params: { sobId: props.sobId } })
 }
 
-function toggleCategorySelection(categoryKey: string, update: (value: string[]) => void) {
-  const currentKeys = form.values.categoryKeys ?? []
-  const isSelected = currentKeys.includes(categoryKey)
-  const nextKeys = isSelected ? currentKeys.filter((k) => k !== categoryKey) : [...currentKeys, categoryKey]
+async function onDelete() {
+  if (!props.accountId) return
+  const { exception } = await AccountService.deleteAccount(props.sobId, props.accountId)
+  if (exception) return
+  toast.action.success(t('account.msg.deleteSuccess'))
+  bus.emit()
+  router.push({ name: 'accountList', params: { sobId: props.sobId } })
+}
 
-  update(nextKeys)
+function toggleCategorySelection(categoryId: string, update: (value: string[]) => void) {
+  const currentIds = form.values.dimensionCategoryIds ?? []
+  const isSelected = currentIds.includes(categoryId)
+  const nextIds = isSelected ? currentIds.filter((id) => id !== categoryId) : [...currentIds, categoryId]
+
+  update(nextIds)
 }
 </script>
 
@@ -300,6 +350,9 @@ function toggleCategorySelection(categoryKey: string, update: (value: string[]) 
     <template #end>
       <!-- Display mode: Edit + Close -->
       <template v-if="!isEditing && props.accountId">
+        <ConfirmationButton variant="destructive" :message="$t('account.msg.confirmDelete')" @confirm="onDelete">
+          {{ $t('action.delete') }}
+        </ConfirmationButton>
         <Button variant="outline" @click="onEdit">{{ $t('action.edit') }}</Button>
         <Button variant="ghost" @click="onClose">{{ $t('action.close') }}</Button>
       </template>
@@ -476,9 +529,102 @@ function toggleCategorySelection(categoryKey: string, update: (value: string[]) 
         </EditableField>
       </VeeField>
 
-      <VeeField v-slot="{ field, errors }" name="categoryKeys">
+      <VeeField v-slot="{ field, errors }" name="isCashEquivalent">
         <EditableField
-          :label="$t('account.auxiliary.category')"
+          :label="$t('account.cashFlow.isCashEquivalent')"
+          label-for="isCashEquivalent"
+          :is-editing="isEditing"
+          :value="field.value"
+          :errors="errors"
+          :data-invalid="!!errors.length"
+          :formatter="formatBooleanLabel"
+          @update:value="field.onChange"
+        >
+          <template #edit="{ value, onUpdate }">
+            <Switch
+              id="isCashEquivalent"
+              :model-value="value ?? false"
+              :disabled="!isEditing"
+              :aria-label="$t('account.cashFlow.isCashEquivalent')"
+              @update:model-value="(v) => onUpdate(Boolean(v))"
+            />
+          </template>
+        </EditableField>
+      </VeeField>
+
+      <template v-if="!isCashEquivalent">
+        <VeeField v-slot="{ field, errors }" name="defaultCashFlowItemIdForDebit">
+          <EditableField
+            :label="$t('account.cashFlow.defaultCashFlowItemForDebit')"
+            label-for="defaultCashFlowItemIdForDebit"
+            :is-editing="isEditing"
+            :value="field.value"
+            :errors="errors"
+            :data-invalid="!!errors.length"
+            :formatter="formatCashFlowItemLabel"
+            @update:value="field.onChange"
+          >
+            <template #edit="{ value, onUpdate }">
+              <Select
+                :name="field.name"
+                :disabled="!isEditing"
+                :model-value="toCashFlowItemSelectValue(value)"
+                @update:model-value="(v) => onUpdate(fromCashFlowItemSelectValue(v as string))"
+              >
+                <SelectTrigger id="defaultCashFlowItemIdForDebit" :aria-invalid="!!errors.length">
+                  <SelectValue :placeholder="$t('common.pleaseSelect')" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem :value="NONE_CASH_FLOW_ITEM_ID">
+                    {{ $t('account.cashFlow.noDefault') }}
+                  </SelectItem>
+                  <SelectItem v-for="item in cashFlowItems" :key="item.id" :value="item.id">
+                    {{ item.name }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </template>
+          </EditableField>
+        </VeeField>
+
+        <VeeField v-slot="{ field, errors }" name="defaultCashFlowItemIdForCredit">
+          <EditableField
+            :label="$t('account.cashFlow.defaultCashFlowItemForCredit')"
+            label-for="defaultCashFlowItemIdForCredit"
+            :is-editing="isEditing"
+            :value="field.value"
+            :errors="errors"
+            :data-invalid="!!errors.length"
+            :formatter="formatCashFlowItemLabel"
+            @update:value="field.onChange"
+          >
+            <template #edit="{ value, onUpdate }">
+              <Select
+                :name="field.name"
+                :disabled="!isEditing"
+                :model-value="toCashFlowItemSelectValue(value)"
+                @update:model-value="(v) => onUpdate(fromCashFlowItemSelectValue(v as string))"
+              >
+                <SelectTrigger id="defaultCashFlowItemIdForCredit" :aria-invalid="!!errors.length">
+                  <SelectValue :placeholder="$t('common.pleaseSelect')" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem :value="NONE_CASH_FLOW_ITEM_ID">
+                    {{ $t('account.cashFlow.noDefault') }}
+                  </SelectItem>
+                  <SelectItem v-for="item in cashFlowItems" :key="item.id" :value="item.id">
+                    {{ item.name }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </template>
+          </EditableField>
+        </VeeField>
+      </template>
+
+      <VeeField v-slot="{ field, errors }" name="dimensionCategoryIds">
+        <EditableField
+          :label="$t('account.dimension.category')"
           :is-editing="isEditing"
           :value="field.value"
           :errors="errors"
@@ -487,56 +633,52 @@ function toggleCategorySelection(categoryKey: string, update: (value: string[]) 
         >
           <template #display>
             <div v-if="selectedCategories.length > 0" class="flex flex-wrap gap-2">
-              <TooltipProvider v-for="category in selectedCategories" :key="category.key">
-                <Tooltip>
-                  <TooltipTrigger as-child>
-                    <Badge variant="secondary" class="cursor-default">
-                      <span>{{ category.title }}</span>
-                    </Badge>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{{ category.key }}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <Badge
+                v-for="category in selectedCategories"
+                :key="category.id"
+                variant="secondary"
+                class="cursor-default"
+              >
+                <span>{{ category.name }}</span>
+              </Badge>
             </div>
             <div v-else class="text-muted-foreground text-sm">
-              {{ $t('account.auxiliary.noAuxiliaryCategories') }}
+              {{ $t('account.dimension.noDimensionCategories') }}
             </div>
           </template>
 
           <template #edit="{ onUpdate }">
-            <Popover v-model:open="auxiliaryCategoriesPopoverOpen">
+            <Popover v-model:open="dimensionCategoriesPopoverOpen">
               <PopoverTrigger as-child>
-                <Button variant="outline" size="sm" class="h-9 w-full justify-start border-dashed">
+                <Button type="button" variant="outline" size="sm" class="h-9 w-full justify-start border-dashed">
                   <PlusCircle class="mr-2 h-4 w-4" />
-                  {{ $t('account.auxiliary.selectAuxiliaryCategories') }}
-                  <template v-if="selectedCategoryKeys.size > 0">
+                  {{ $t('account.dimension.selectDimensionCategories') }}
+                  <template v-if="selectedCategoryIds.size > 0">
                     <Separator orientation="vertical" class="mx-2 h-4" />
                     <Badge variant="secondary" class="rounded-sm px-1 font-normal">
-                      {{ selectedCategoryKeys.size }}
+                      {{ selectedCategoryIds.size }}
                     </Badge>
                   </template>
                 </Button>
               </PopoverTrigger>
               <PopoverContent class="w-75 p-0" align="start">
                 <Command>
-                  <CommandInput :placeholder="$t('account.auxiliary.category')" />
+                  <CommandInput :placeholder="$t('account.dimension.category')" />
                   <CommandList>
-                    <template v-if="auxiliaryCategories.length > 0">
+                    <template v-if="dimensionCategories.length > 0">
                       <CommandEmpty>{{ $t('common.noResults') }}</CommandEmpty>
                       <CommandGroup>
                         <CommandItem
-                          v-for="category in auxiliaryCategories"
-                          :key="category.key"
+                          v-for="category in dimensionCategories"
+                          :key="category.id"
                           :value="category"
-                          @select="() => toggleCategorySelection(category.key, onUpdate)"
+                          @select="() => toggleCategorySelection(category.id, onUpdate)"
                         >
                           <div
                             :class="
                               cn(
                                 'border-primary mr-2 flex h-4 w-4 items-center justify-center rounded-sm border',
-                                selectedCategoryKeys.has(category.key)
+                                selectedCategoryIds.has(category.id)
                                   ? 'bg-primary text-primary-foreground'
                                   : 'opacity-50 [&_svg]:invisible',
                               )
@@ -544,8 +686,7 @@ function toggleCategorySelection(categoryKey: string, update: (value: string[]) 
                           >
                             <Check :class="cn('h-4 w-4')" />
                           </div>
-                          <span>{{ category.title }}</span>
-                          <span class="text-muted-foreground ml-2 text-xs">{{ category.key }}</span>
+                          <span>{{ category.name }}</span>
                         </CommandItem>
                       </CommandGroup>
                     </template>
@@ -553,7 +694,7 @@ function toggleCategorySelection(categoryKey: string, update: (value: string[]) 
                       {{ $t('common.noData') }}
                     </div>
 
-                    <template v-if="selectedCategoryKeys.size > 0">
+                    <template v-if="selectedCategoryIds.size > 0">
                       <CommandSeparator />
                       <CommandGroup>
                         <CommandItem
@@ -571,30 +712,28 @@ function toggleCategorySelection(categoryKey: string, update: (value: string[]) 
             </Popover>
 
             <div v-if="selectedCategories.length > 0" class="mt-2 flex flex-wrap gap-2">
-              <TooltipProvider v-for="category in selectedCategories" :key="category.key">
-                <Tooltip>
-                  <TooltipTrigger as-child>
-                    <Badge variant="secondary" class="group flex items-center gap-1 pr-1">
-                      <span>{{ category.title }}</span>
-                      <button
-                        type="button"
-                        class="focus:ring-ring ml-1 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none"
-                        @click.stop="toggleCategorySelection(category.key, onUpdate)"
-                      >
-                        <X class="h-3 w-3" />
-                        <span class="sr-only">{{ $t('action.delete') }}</span>
-                      </button>
-                    </Badge>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{{ category.key }}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <Badge
+                v-for="category in selectedCategories"
+                :key="category.id"
+                variant="secondary"
+                class="group flex items-center gap-1 pr-1"
+              >
+                <span>{{ category.name }}</span>
+                <button
+                  type="button"
+                  class="focus:ring-ring ml-1 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none"
+                  @click.stop="toggleCategorySelection(category.id, onUpdate)"
+                >
+                  <X class="h-3 w-3" />
+                  <span class="sr-only">{{ $t('action.delete') }}</span>
+                </button>
+              </Badge>
             </div>
           </template>
         </EditableField>
       </VeeField>
     </form>
   </PageFrame>
+
+  <UnsavedChangesDialog :open="confirmOpen" @confirm="onConfirmLeave" @cancel="onCancelLeave" />
 </template>

@@ -29,11 +29,10 @@ const props = defineProps<{
   hasMore?: boolean
   isLoading?: boolean
   bordered?: boolean
+  hideToolbar?: boolean
 }>()
 
-const emit = defineEmits<{
-  loadMore: []
-}>()
+const emit = defineEmits<{ loadMore: [] }>()
 
 const globalFilter = ref('')
 const sorting = ref<SortingState>([])
@@ -94,6 +93,7 @@ const table = useVueTable({
   <div class="flex h-full flex-col gap-2">
     <!-- table header - fixed -->
     <DataTableToolbar
+      v-if="!hideToolbar"
       v-model:global-filter="globalFilter"
       :table="table"
       :faceted-filters="facetedFilters"
@@ -105,13 +105,14 @@ const table = useVueTable({
     <!-- table - scrollable -->
     <div class="min-h-0 flex-1 overflow-auto rounded-md border">
       <Table
-        :class="{
-          'border-collapse [&_td]:border-r [&_td]:border-b [&_td:last-child]:border-r-0 [&_th]:border-r [&_th]:border-b [&_th:last-child]:border-r-0 [&_tr:last-child_td]:border-b-0':
-            props.bordered,
-        }"
+        :class="[
+          props.bordered
+            ? 'border-collapse [&_td]:border-r [&_td]:border-b [&_td:last-child]:border-r-0 [&_th]:border-r [&_th]:border-b [&_th:last-child]:border-r-0'
+            : '[&_td]:border-b',
+        ]"
       >
         <TableHeader>
-          <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
+          <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id" class="hover:bg-transparent">
             <TableHead
               v-for="header in headerGroup.headers"
               :key="header.id"
@@ -128,25 +129,29 @@ const table = useVueTable({
         </TableHeader>
         <TableBody>
           <template v-if="table.getRowModel().rows?.length">
-            <TableRow
-              v-for="row in table.getRowModel().rows"
-              :key="row.id"
-              :data-state="row.getIsSelected() ? 'selected' : undefined"
-              :class="props.onRowClick ? 'hover:bg-muted/50 cursor-pointer' : ''"
-              @click="props.onRowClick?.(row.original)"
-            >
-              <TableCell
-                v-for="cell in row.getVisibleCells()"
-                :key="cell.id"
-                :class="(cell.column.columnDef.meta as any)?.class"
+            <TransitionGroup name="t-table-row">
+              <TableRow
+                v-for="row in table.getRowModel().rows"
+                :key="row.id"
+                :data-state="row.getIsSelected() ? 'selected' : undefined"
+                :class="props.onRowClick ? '' : 'hover:bg-transparent'"
+                @click="props.onRowClick?.(row.original)"
               >
-                <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
-              </TableCell>
-            </TableRow>
+                <TableCell
+                  v-for="cell in row.getVisibleCells()"
+                  :key="cell.id"
+                  :class="(cell.column.columnDef.meta as any)?.class"
+                >
+                  <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+                </TableCell>
+              </TableRow>
+            </TransitionGroup>
           </template>
           <template v-else>
             <TableRow>
-              <TableCell :colspan="columns.length" class="h-24 text-center">{{ $t('common.noResults') }}</TableCell>
+              <TableCell :colspan="table.getAllLeafColumns().length" class="h-24 text-center">{{
+                $t('common.noResults')
+              }}</TableCell>
             </TableRow>
           </template>
         </TableBody>

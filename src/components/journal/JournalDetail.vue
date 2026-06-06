@@ -14,52 +14,60 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { InputGroup, InputGroupInput, InputGroupAddon } from '@/components/ui/input-group'
 import { Badge } from '@/components/ui/badge'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import DateInput from './DateInput.vue'
 import AccountInput from '@/components/account/AccountInput.vue'
-import AuxiliaryAccountSelector from './AuxiliaryAccountSelector.vue'
+import DimensionOptionSelector from './DimensionOptionSelector.vue'
+import { formatUserName } from './formatUserName'
 
 import { JournalService } from '@/services/general-ledger/journal'
+import { AccountDetailSchema, AccountService } from '@/services/general-ledger/account'
 import type {
-  Journal,
+  JournalDetail,
   CreateJournalRequest,
   UpdateJournalRequest,
   JournalLineRequest,
-  AuxiliaryItemRequest,
 } from '@/services/general-ledger/journal/types'
-import type { Account, AuxiliaryAccount } from '@/services/general-ledger/account/types'
+import type { AccountSlim, DimensionOptionRef } from '@/services/general-ledger/account/types'
+import { ConfirmationButton } from '@/components/common/confirmation'
+import { useUnsavedChanges, UnsavedChangesDialog } from '@/components/common/unsaved-guard'
+import { useAccountStore } from '@/store/account'
+import { useCashFlowItemStore } from '@/store/cash-flow-item'
 import { useUserStore } from '@/store/user'
 import { useToastStore } from '@/store/toast'
-import { useUnsavedChangesStore } from '@/store/unsaved-changes'
-import { useConfirmationStore } from '@/store/confirmation'
 import { JOURNAL_CHANGED } from '@/services/event'
 
 const props = defineProps<{
   sobId: string
   journalId?: string
+  referenceJournalId?: string
 }>()
 
 const router = useRouter()
 const { t, n } = useI18n()
+const accountStore = useAccountStore()
+const cashFlowItemStore = useCashFlowItemStore()
 const userStore = useUserStore()
 const toastStore = useToastStore()
-const unsavedChanges = useUnsavedChangesStore()
-const confirmationStore = useConfirmationStore()
 const bus = useEventBus(JOURNAL_CHANGED)
 
 const isEditing = ref(!props.journalId)
-const journal = ref<Journal>()
+const journal = ref<JournalDetail>()
+const referenceJournal = ref<JournalDetail>()
+const cashFlowItemOverriddenLineKeys = ref(new Set<string>())
 
 // Zod schemas
 const JournalLineSchema = z
   .object({
     _key: z.string(),
-    account: z.custom<Account>().optional(),
+    account: AccountDetailSchema.optional(),
     text: z.string(),
     amount: z.number().refine((val) => Number.isInteger(val * 100), {
       message: t('journal.journalLine.decimalPrecision'),
     }),
-    auxiliaryAccounts: z.record(z.custom<AuxiliaryAccount>()).optional(),
+    dimensionOptions: z.record(z.custom<DimensionOptionRef>()).optional(),
+    cashFlowItemId: z.string().uuid().optional(),
   })
   .refine(
     (item) => {
@@ -76,16 +84,16 @@ const JournalLineSchema = z
   )
   .refine(
     (item) => {
-      // If no account selected, skip auxiliary account validation (empty row)
+      // If no account selected, skip dimension options validation (empty row)
       if (!item.account) {
         return true
       }
-      // Check all required auxiliary categories are filled
-      const requiredCategories = item.account.auxiliaryCategories ?? []
-      return requiredCategories.every((category) => item.auxiliaryAccounts?.[category.key])
+      // Check all required dimension categories are filled
+      const requiredCategories = item.account.dimensionCategories ?? []
+      return requiredCategories.every((cat) => item.dimensionOptions?.[cat.id])
     },
     {
-      message: t('journal.msg.emptyAuxiliaryAccountKey'),
+      message: t('journal.msg.emptyDimensionOption'),
     },
   )
 
@@ -107,6 +115,23 @@ const JournalFormSchema = z
       message: t('journal.msg.notBalanced'),
     },
   )
+  .superRefine((data, ctx) => {
+    const validLines = data.journalLines.filter((item) => item.account)
+    const hasCashEquivalentLine = validLines.some((item) => item.account?.isCashEquivalent)
+    const hasNonCashEquivalentLine = validLines.some((item) => item.account && !item.account.isCashEquivalent)
+
+    if (!hasCashEquivalentLine || !hasNonCashEquivalentLine) return
+
+    data.journalLines.forEach((item, index) => {
+      if (!item.account || item.account.isCashEquivalent || item.cashFlowItemId) return
+
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['journalLines', index],
+        message: t('journal.msg.emptyCashFlowItem'),
+      })
+    })
+  })
 
 type FormJournalLine = z.infer<typeof JournalLineSchema>
 type JournalFormValues = z.infer<typeof JournalFormSchema>
@@ -116,6 +141,8 @@ const EMPTY_LINE_ITEM: Omit<FormJournalLine, '_key'> = {
   account: undefined,
   text: '',
   amount: 0,
+  dimensionOptions: undefined,
+  cashFlowItemId: undefined,
 }
 
 const EMPTY_JOURNAL: JournalFormValues = {
@@ -152,21 +179,83 @@ const isBalanced = computed(() => {
 })
 
 const title = computed(() => (props.journalId ? journal.value?.documentNumber : t('journal.creation.title')))
+const cashFlowItems = computed(() => cashFlowItemStore.state.allCashFlowItems)
+const hasMixedCashFlowLines = computed(() => {
+  const validLines = (form.values.journalLines ?? []).filter((item) => item.account)
+  return (
+    validLines.some((item) => item.account?.isCashEquivalent) &&
+    validLines.some((item) => !item.account?.isCashEquivalent)
+  )
+})
 
-const formatUserName = (user?: { traits?: { name?: { first?: string; last?: string } } }) =>
-  `${user?.traits?.name?.last ?? ''}${user?.traits?.name?.first ?? ''}`
+function requiresCashFlowItem(item: FormJournalLine) {
+  return hasMixedCashFlowLines.value && !!item.account && !item.account.isCashEquivalent
+}
+
+function formatCashFlowItemLabel(value?: string) {
+  if (!value) return ''
+  return cashFlowItems.value.find((item) => item.id === value)?.name ?? value
+}
+
+function defaultCashFlowItemIdForLine(item: FormJournalLine, amount = item.amount) {
+  if (!item.account || item.account.isCashEquivalent) return undefined
+  if (amount > 0) return item.account.defaultCashFlowItemIdForDebit
+  if (amount < 0) return item.account.defaultCashFlowItemIdForCredit
+  return undefined
+}
+
+function syncDefaultCashFlowItem(index: number, amount?: number) {
+  const item = form.values.journalLines?.[index]
+  if (!item) return
+
+  if (!item.account || item.account.isCashEquivalent) {
+    form.setFieldValue(`journalLines[${index}].cashFlowItemId`, undefined as never)
+    return
+  }
+
+  if (cashFlowItemOverriddenLineKeys.value.has(item._key)) return
+
+  form.setFieldValue(`journalLines[${index}].cashFlowItemId`, defaultCashFlowItemIdForLine(item, amount) as never)
+}
+
+function handleCashFlowItemSelect(value: string, index: number, onChange: (value: string) => void) {
+  const item = form.values.journalLines?.[index]
+  if (item) {
+    cashFlowItemOverriddenLineKeys.value.add(item._key)
+  }
+  onChange(value)
+}
+
+// Handle account selection - fetch AccountDetail for dimension categories
+async function handleAccountSelect(account: AccountSlim | undefined, index: number) {
+  if (!account) {
+    const currentLineKey = form.values.journalLines?.[index]?._key
+    if (currentLineKey) {
+      cashFlowItemOverriddenLineKeys.value.delete(currentLineKey)
+    }
+    form.setFieldValue(`journalLines[${index}].dimensionOptions`, undefined as never) // vee-validate can't infer type in the array
+    form.setFieldValue(`journalLines[${index}].cashFlowItemId`, undefined as never) // vee-validate can't infer type in the array
+    return
+  }
+
+  // Check if we already have AccountDetail with dimensionCategories
+  const currentAccount = form.values.journalLines?.[index]?.account
+  if (currentAccount && 'dimensionCategories' in currentAccount && currentAccount.id === account.id) {
+    syncDefaultCashFlowItem(index)
+    return
+  }
+
+  // Fetch AccountDetail to get dimensionCategories
+  const { data } = await AccountService.getAccountById(props.sobId, account.id)
+  if (data) {
+    form.setFieldValue(`journalLines[${index}].account`, data as never) // vee-validate can't infer type in the array
+    form.setFieldValue(`journalLines[${index}].dimensionOptions`, undefined as never) // vee-validate can't infer type in the array
+    syncDefaultCashFlowItem(index)
+  }
+}
 
 // Unsaved changes protection
-watch(
-  () => form.meta.value.dirty,
-  (isDirty) => {
-    if (isDirty) {
-      unsavedChanges.action.enableProtection()
-    } else {
-      unsavedChanges.action.disableProtection()
-    }
-  },
-)
+const { confirmOpen, onConfirmLeave, onCancelLeave } = useUnsavedChanges(computed(() => form.meta.value.dirty))
 
 // Journal line management
 function addJournalLine() {
@@ -176,6 +265,10 @@ function addJournalLine() {
 
 function removeJournalLine(index: number) {
   const current = form.values.journalLines ?? []
+  const removedLineKey = current[index]?._key
+  if (removedLineKey) {
+    cashFlowItemOverriddenLineKeys.value.delete(removedLineKey)
+  }
   form.setFieldValue(
     'journalLines',
     current.filter((_, i) => i !== index),
@@ -184,6 +277,11 @@ function removeJournalLine(index: number) {
 
 // Load journal data
 async function load() {
+  journal.value = undefined
+  referenceJournal.value = undefined
+  cashFlowItemOverriddenLineKeys.value = new Set()
+  await cashFlowItemStore.action.refreshCashFlowItems(props.sobId)
+
   if (props.journalId) {
     const { data, exception } = await JournalService.getJournalById(props.sobId, props.journalId)
     if (exception || !data) return
@@ -191,36 +289,64 @@ async function load() {
     journal.value = data
     isEditing.value = false
 
+    // If this is an ADJUSTING (or other reference-based) journal, load the reference journal for display
+    if (data.referenceJournalId) {
+      const { data: refData } = await JournalService.getJournalById(props.sobId, data.referenceJournalId)
+      referenceJournal.value = refData ?? undefined
+    }
+
     // Transform to form values
+    const journalLines = data.journalLines.map((item) => {
+      // Convert dimensionOptions array to Record
+      const dimensionOptions: Record<string, DimensionOptionRef> = {}
+      if (item.dimensionOptions) {
+        item.dimensionOptions.forEach((opt) => {
+          dimensionOptions[opt.category.id] = opt
+        })
+      }
+      // Convert signed amount to debit/credit for display
+      const amount = item.amount || 0
+      return {
+        _key: crypto.randomUUID(),
+        account: item.account,
+        text: item.text,
+        amount: amount,
+        dimensionOptions: Object.entries(dimensionOptions).length > 0 ? dimensionOptions : undefined,
+        cashFlowItemId: item.cashFlowItemId,
+      }
+    })
+
     const formValues: JournalFormValues = {
       headerText: data.headerText,
       attachmentQuantity: data.attachmentQuantity,
       transactionDate: data.transactionDate,
-      journalLines: data.journalLines.map((item) => {
-        // Convert auxiliaryAccounts array to Record
-        const auxiliaryAccounts: Record<string, AuxiliaryAccount> = {}
-        if (item.auxiliaryAccounts) {
-          item.auxiliaryAccounts.forEach((aux) => {
-            auxiliaryAccounts[aux.category.key] = aux
-          })
-        }
-        // Convert signed amount to debit/credit for display
-        const amount = item.amount || 0
-        return {
-          _key: crypto.randomUUID(),
-          account: item.account,
-          text: item.text,
-          amount: amount,
-          auxiliaryAccounts: Object.entries(auxiliaryAccounts).length > 0 ? auxiliaryAccounts : undefined,
-        }
-      }),
+      journalLines,
     }
+    cashFlowItemOverriddenLineKeys.value = new Set(
+      journalLines.filter((item) => item.cashFlowItemId).map((item) => item._key),
+    )
 
     form.resetForm({ values: formValues }, { force: true })
   } else {
-    journal.value = undefined
     isEditing.value = true
-    form.resetForm({ values: EMPTY_JOURNAL }, { force: true })
+
+    // Load reference journal for display + header text pre-fill when creating an adjusting journal
+    if (props.referenceJournalId) {
+      const { data } = await JournalService.getJournalById(props.sobId, props.referenceJournalId)
+      referenceJournal.value = data ?? undefined
+    }
+
+    const prefillHeaderText = referenceJournal.value ? `调整分录：${referenceJournal.value.headerText}` : ''
+
+    form.resetForm(
+      {
+        values: {
+          ...EMPTY_JOURNAL,
+          headerText: prefillHeaderText,
+        },
+      },
+      { force: true },
+    )
   }
 }
 
@@ -230,22 +356,21 @@ watch(() => props.journalId, load, { immediate: true })
 const onSubmit = form.handleSubmit(async (values) => {
   // Filter out empty journal lines
   const validJournalLines = values.journalLines.filter((item) => item.account)
+  const shouldSubmitCashFlowItems =
+    validJournalLines.some((item) => item.account?.isCashEquivalent) &&
+    validJournalLines.some((item) => !item.account?.isCashEquivalent)
 
   // Transform to API format
   const journalLinesRequest: JournalLineRequest[] = validJournalLines.map((item) => {
-    // Convert auxiliaryAccounts Record to array
-    const auxiliaryAccountsArray: AuxiliaryItemRequest[] = Object.entries(item.auxiliaryAccounts ?? {}).map(
-      ([categoryKey, auxAccount]) => ({
-        categoryKey,
-        accountKey: auxAccount.key,
-      }),
-    )
+    // Convert dimensionOptions Record to array of IDs
+    const dimensionOptionIds = Object.values(item.dimensionOptions ?? {}).map((opt) => opt.id)
 
     return {
       accountNumber: item.account!.accountNumber,
       text: values.headerText,
       amount: item.amount || 0,
-      auxiliaryAccounts: auxiliaryAccountsArray,
+      dimensionOptionIds: dimensionOptionIds.length > 0 ? dimensionOptionIds : undefined,
+      cashFlowItemId: shouldSubmitCashFlowItems && !item.account!.isCashEquivalent ? item.cashFlowItemId : undefined,
     }
   })
 
@@ -253,9 +378,10 @@ const onSubmit = form.handleSubmit(async (values) => {
     // Create new journal
     const request: CreateJournalRequest = {
       headerText: values.headerText,
+      journalType: props.referenceJournalId ? 'ADJUSTING' : 'GENERAL',
+      referenceJournalId: props.referenceJournalId || undefined,
       attachmentQuantity: values.attachmentQuantity,
       transactionDate: values.transactionDate,
-      journalType: 'general_journal',
       creator: userStore.state.user.id,
       journalLines: journalLinesRequest,
     }
@@ -264,8 +390,10 @@ const onSubmit = form.handleSubmit(async (values) => {
     if (exception || !data) return
 
     toastStore.action.success(t('journal.msg.success'))
-    unsavedChanges.action.disableProtection()
     bus.emit()
+
+    // Reset form before navigating to prevent unsaved-changes dialog
+    form.resetForm()
 
     // Navigate to view mode with new journal
     router.push({
@@ -289,7 +417,6 @@ const onSubmit = form.handleSubmit(async (values) => {
     if (exception) return
 
     toastStore.action.success(t('journal.msg.success'))
-    unsavedChanges.action.disableProtection()
     bus.emit()
 
     // Reload and exit edit mode
@@ -311,8 +438,15 @@ function handleClose() {
   })
 }
 
+function handleCreateAdjusting() {
+  router.push({
+    name: 'journalNew',
+    params: { sobId: props.sobId },
+    query: { referenceJournalId: props.journalId },
+  })
+}
+
 function handleCancel() {
-  unsavedChanges.action.disableProtection()
   if (!props.journalId) {
     // Cancel creating new journal
     router.push({
@@ -337,23 +471,13 @@ async function handleAudit() {
   await load()
 }
 
-async function handleCancelAudit() {
+async function onCancelAudit() {
   if (!props.journalId) return
-  confirmationStore.action.confirm({
-    title: t('journal.audit'),
-    message: t('journal.msg.confirmCancelAudit'),
-    onConfirm: async () => {
-      const { exception } = await JournalService.cancelAuditJournal(
-        props.sobId,
-        props.journalId!,
-        userStore.state.user.id,
-      )
-      if (exception) return
-      toastStore.action.success(t('journal.msg.cancelAuditSuccess'))
-      bus.emit()
-      await load()
-    },
-  })
+  const { exception } = await JournalService.cancelAuditJournal(props.sobId, props.journalId, userStore.state.user.id)
+  if (exception) return
+  toastStore.action.success(t('journal.msg.cancelAuditSuccess'))
+  bus.emit()
+  await load()
 }
 
 async function handleReview() {
@@ -365,38 +489,31 @@ async function handleReview() {
   await load()
 }
 
-async function handleCancelReview() {
+async function onCancelReview() {
   if (!props.journalId) return
-  confirmationStore.action.confirm({
-    title: t('journal.review'),
-    message: t('journal.msg.confirmCancelReview'),
-    onConfirm: async () => {
-      const { exception } = await JournalService.cancelReviewJournal(
-        props.sobId,
-        props.journalId!,
-        userStore.state.user.id,
-      )
-      if (exception) return
-      toastStore.action.success(t('journal.msg.cancelReviewSuccess'))
-      bus.emit()
-      await load()
-    },
-  })
+  const { exception } = await JournalService.cancelReviewJournal(props.sobId, props.journalId, userStore.state.user.id)
+  if (exception) return
+  toastStore.action.success(t('journal.msg.cancelReviewSuccess'))
+  bus.emit()
+  await load()
 }
 
-async function handlePost() {
+async function onPost() {
   if (!props.journalId) return
-  confirmationStore.action.confirm({
-    title: t('journal.post'),
-    message: t('journal.msg.confirmPost'),
-    onConfirm: async () => {
-      const { exception } = await JournalService.postJournal(props.sobId, props.journalId!, userStore.state.user.id)
-      if (exception) return
-      toastStore.action.success(t('journal.msg.postSuccess'))
-      bus.emit()
-      await load()
-    },
-  })
+  const { exception } = await JournalService.postJournal(props.sobId, props.journalId, userStore.state.user.id)
+  if (exception) return
+  toastStore.action.success(t('journal.msg.postSuccess'))
+  bus.emit()
+  await load()
+}
+
+async function handleDelete() {
+  if (!props.journalId) return
+  const { exception } = await JournalService.deleteJournal(props.sobId, props.journalId)
+  if (exception) return
+  toastStore.action.success(t('journal.msg.deleteSuccess'))
+  bus.emit()
+  router.back()
 }
 </script>
 
@@ -404,26 +521,55 @@ async function handlePost() {
   <PageFrame :title="title" :dirty-indicator="form.meta.value.dirty">
     <template #end>
       <!-- View mode actions -->
-      <template v-if="!isEditing && journalId">
+      <template v-if="journal && !isEditing">
         <!-- Workflow action buttons -->
-        <Button v-if="!journal?.isAudited" variant="outline" @click="handleAudit">
+        <Button v-if="!journal.isAudited" variant="outline" @click="handleAudit">
           {{ $t('journal.audit') }}
         </Button>
-        <Button v-if="journal?.isAudited && !journal?.isPosted" variant="outline" @click="handleCancelAudit">
+        <ConfirmationButton
+          v-if="journal.isAudited && !journal.isPosted"
+          variant="outline"
+          :message="$t('journal.msg.confirmCancelAudit')"
+          @confirm="onCancelAudit"
+        >
           {{ $t('journal.cancelAudit') }}
-        </Button>
-        <Button v-if="!journal?.isReviewed" variant="outline" @click="handleReview">
+        </ConfirmationButton>
+        <Button v-if="!journal.isReviewed" variant="outline" @click="handleReview">
           {{ $t('journal.review') }}
         </Button>
-        <Button v-if="journal?.isReviewed && !journal?.isPosted" variant="outline" @click="handleCancelReview">
+        <ConfirmationButton
+          v-if="journal.isReviewed && !journal.isPosted"
+          variant="outline"
+          :message="$t('journal.msg.confirmCancelReview')"
+          @confirm="onCancelReview"
+        >
           {{ $t('journal.cancelReview') }}
-        </Button>
-        <Button v-if="journal?.isAudited && journal?.isReviewed && !journal?.isPosted" @click="handlePost">
+        </ConfirmationButton>
+        <ConfirmationButton
+          v-if="journal.isAudited && journal.isReviewed && !journal.isPosted"
+          :message="$t('journal.msg.confirmPost')"
+          @confirm="onPost"
+        >
           {{ $t('journal.post') }}
+        </ConfirmationButton>
+
+        <!-- Delete button for closing journals -->
+        <ConfirmationButton
+          v-if="journal.journalType === 'CLOSING' || journal.journalType === 'YEARLY_CLOSING'"
+          variant="destructive"
+          :message="$t('journal.msg.confirmDelete')"
+          @confirm="handleDelete"
+        >
+          {{ $t('action.delete') }}
+        </ConfirmationButton>
+
+        <!-- Create adjusting journal -->
+        <Button v-if="journal.isPosted" variant="outline" @click="handleCreateAdjusting">
+          {{ $t('journal.adjusting') }}
         </Button>
 
         <!-- Edit/Close buttons -->
-        <Button v-if="!journal?.isAudited && !journal?.isReviewed" variant="outline" @click="handleEdit">
+        <Button v-if="!journal.isAudited && !journal.isReviewed" variant="outline" @click="handleEdit">
           {{ $t('action.edit') }}
         </Button>
         <Button variant="ghost" @click="handleClose">{{ $t('action.close') }}</Button>
@@ -436,332 +582,423 @@ async function handlePost() {
       </template>
     </template>
 
-    <div class="space-y-8">
-      <!-- Workflow status badges -->
-      <div v-if="journal && !isEditing" class="flex gap-2">
-        <Badge v-if="journal.isAudited" class="bg-green-600">
-          {{ $t('journal.isAudited') }}
-        </Badge>
-        <Badge v-else variant="destructive">
-          {{ $t('journal.notAudited') }}
-        </Badge>
-        <Badge v-if="journal.isReviewed" class="bg-green-600">
-          {{ $t('journal.isReviewed') }}
-        </Badge>
-        <Badge v-else variant="destructive">
-          {{ $t('journal.notReviewed') }}
-        </Badge>
-        <Badge v-if="journal.isPosted" class="bg-green-600">
-          {{ $t('journal.isPosted') }}
-        </Badge>
-        <Badge v-else variant="destructive">
-          {{ $t('journal.notPosted') }}
-        </Badge>
-      </div>
+    <Transition name="t-fade">
+      <div v-if="journal || isEditing" class="space-y-8">
+        <!-- Workflow status badges -->
+        <div v-if="!isEditing" class="flex gap-2">
+          <Badge v-if="journal?.isAudited" class="bg-green-600">
+            {{ $t('journal.isAudited') }}
+          </Badge>
+          <Badge v-else variant="destructive">
+            {{ $t('journal.notAudited') }}
+          </Badge>
+          <Badge v-if="journal?.isReviewed" class="bg-green-600">
+            {{ $t('journal.isReviewed') }}
+          </Badge>
+          <Badge v-else variant="destructive">
+            {{ $t('journal.notReviewed') }}
+          </Badge>
+          <Badge v-if="journal?.isPosted" class="bg-green-600">
+            {{ $t('journal.isPosted') }}
+          </Badge>
+          <Badge v-else variant="destructive">
+            {{ $t('journal.notPosted') }}
+          </Badge>
+        </div>
 
-      <!-- Header section -->
-      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <!-- Header Text -->
-        <VeeField v-slot="{ field, errors }" name="headerText">
-          <EditableField
-            :label="$t('journal.headerText')"
-            label-for="headerText"
-            :is-editing="isEditing"
-            :value="field.value"
-            :errors="errors"
-            :data-invalid="!!errors.length"
-            @update:value="field.onChange"
-          >
-            <template #edit="{ value, onUpdate }">
-              <Input
-                id="headerText"
-                :model-value="value"
-                :name="field.name"
-                :placeholder="$t('journal.headerTextPlaceholder')"
-                :aria-invalid="!!errors.length"
-                @update:model-value="onUpdate"
-                @blur="field.onBlur"
-              />
-            </template>
-          </EditableField>
-        </VeeField>
-
-        <!-- Transaction Date -->
-        <VeeField v-slot="{ field, errors }" name="transactionDate">
-          <EditableField
-            :label="$t('journal.transactionDate')"
-            label-for="transactionDate"
-            :is-editing="isEditing"
-            :value="field.value"
-            :errors="errors"
-            :data-invalid="!!errors.length"
-            :formatter="(value?: string) => (value ? new Date(value).toLocaleDateString('zh-CN') : '')"
-            @update:value="field.onChange"
-          >
-            <template #edit="{ value, onUpdate }">
-              <DateInput
-                id="transactionDate"
-                :disabled="!isEditing"
-                :placeholder="$t('common.pleaseSelect')"
-                :model-value="value"
-                @update:model-value="onUpdate"
-              />
-            </template>
-          </EditableField>
-        </VeeField>
-
-        <!-- Attachment Quantity -->
-        <VeeField v-slot="{ field, errors }" name="attachmentQuantity">
-          <EditableField
-            :label="$t('journal.attachmentQuantity')"
-            label-for="attachmentQuantity"
-            :is-editing="isEditing"
-            :value="field.value"
-            :errors="errors"
-            :data-invalid="!!errors.length"
-            :formatter="(val) => `${val} ${$t('journal.attachmentQuantityUnit')}`"
-            @update:value="field.onChange"
-          >
-            <template #edit="{ value, onUpdate }">
-              <InputGroup>
-                <InputGroupInput
-                  id="attachmentQuantity"
-                  type="number"
-                  step="1"
-                  min="0"
+        <!-- Header section -->
+        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <!-- Header Text -->
+          <VeeField v-slot="{ field, errors }" name="headerText">
+            <EditableField
+              :label="$t('journal.headerText')"
+              label-for="headerText"
+              :is-editing="isEditing"
+              :value="field.value"
+              :errors="errors"
+              :data-invalid="!!errors.length"
+              @update:value="field.onChange"
+            >
+              <template #edit="{ value, onUpdate }">
+                <Input
+                  id="headerText"
                   :model-value="value"
                   :name="field.name"
+                  :placeholder="$t('journal.headerTextPlaceholder')"
                   :aria-invalid="!!errors.length"
-                  class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   @update:model-value="onUpdate"
                   @blur="field.onBlur"
                 />
-                <InputGroupAddon align="inline-end">{{ $t('journal.attachmentQuantityUnit') }}</InputGroupAddon>
-              </InputGroup>
+              </template>
+            </EditableField>
+          </VeeField>
+
+          <!-- Transaction Date -->
+          <VeeField v-slot="{ field, errors }" name="transactionDate">
+            <EditableField
+              :label="$t('journal.transactionDate')"
+              label-for="transactionDate"
+              :is-editing="isEditing"
+              :value="field.value"
+              :errors="errors"
+              :data-invalid="!!errors.length"
+              :formatter="(value?: string) => (value ? new Date(value).toLocaleDateString('zh-CN') : '')"
+              @update:value="field.onChange"
+            >
+              <template #edit="{ value, onUpdate }">
+                <DateInput
+                  id="transactionDate"
+                  :disabled="!isEditing"
+                  :placeholder="$t('common.pleaseSelect')"
+                  :model-value="value"
+                  @update:model-value="onUpdate"
+                />
+              </template>
+            </EditableField>
+          </VeeField>
+
+          <!-- Attachment Quantity -->
+          <VeeField v-slot="{ field, errors }" name="attachmentQuantity">
+            <EditableField
+              :label="$t('journal.attachmentQuantity')"
+              label-for="attachmentQuantity"
+              :is-editing="isEditing"
+              :value="field.value"
+              :errors="errors"
+              :data-invalid="!!errors.length"
+              :formatter="(val) => `${val} ${$t('journal.attachmentQuantityUnit')}`"
+              @update:value="field.onChange"
+            >
+              <template #edit="{ value, onUpdate }">
+                <InputGroup>
+                  <InputGroupInput
+                    id="attachmentQuantity"
+                    type="number"
+                    step="1"
+                    min="0"
+                    :model-value="value"
+                    :name="field.name"
+                    :aria-invalid="!!errors.length"
+                    class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    @update:model-value="onUpdate"
+                    @blur="field.onBlur"
+                  />
+                  <InputGroupAddon align="inline-end">{{ $t('journal.attachmentQuantityUnit') }}</InputGroupAddon>
+                </InputGroup>
+              </template>
+            </EditableField>
+          </VeeField>
+
+          <!-- Creator (readonly, only for existing journals) -->
+          <EditableField
+            v-if="!isEditing"
+            :label="$t('journal.creator')"
+            :is-editing="false"
+            :value="journal?.creator"
+            :formatter="formatUserName"
+          />
+
+          <!-- Auditor (readonly, only for existing journals) -->
+          <EditableField
+            v-if="journal?.isAudited && !isEditing"
+            :label="$t('journal.auditor')"
+            :is-editing="false"
+            :value="journal?.auditor"
+            :formatter="formatUserName"
+          />
+
+          <!-- Reviewer (readonly, only for existing journals) -->
+          <EditableField
+            v-if="journal?.isReviewed && !isEditing"
+            :label="$t('journal.reviewer')"
+            :is-editing="false"
+            :value="journal?.reviewer"
+            :formatter="formatUserName"
+          />
+
+          <!-- Journal Type (readonly, only for non-GENERAL journals or when creating adjusting) -->
+          <EditableField
+            v-if="journal?.journalType !== 'GENERAL' || props.referenceJournalId"
+            :label="$t('journal.journalType')"
+            :is-editing="false"
+            :value="journal?.journalType ?? 'ADJUSTING'"
+            :formatter="(val) => $t(`journal.journalTypeEnum.${val}`)"
+          />
+
+          <!-- Reference Journal (readonly, shown when journal has a reference) -->
+          <EditableField
+            v-if="journal?.referenceJournalId || props.referenceJournalId"
+            :label="$t('journal.referenceJournal')"
+            :is-editing="false"
+            :value="referenceJournal?.documentNumber"
+          >
+            <template #display>
+              <RouterLink
+                :to="{
+                  name: 'journalDetail',
+                  params: {
+                    sobId: props.sobId,
+                    journalId: journal?.referenceJournalId ?? props.referenceJournalId,
+                  },
+                }"
+                class="text-primary text-sm hover:underline"
+              >
+                {{ referenceJournal?.documentNumber ?? journal?.referenceJournalId ?? props.referenceJournalId }}
+              </RouterLink>
             </template>
           </EditableField>
-        </VeeField>
-
-        <!-- Creator (readonly, only for existing journals) -->
-        <EditableField
-          v-if="journal && !isEditing"
-          :label="$t('journal.creator')"
-          :is-editing="false"
-          :value="journal.creator"
-          :formatter="formatUserName"
-        />
-
-        <!-- Auditor (readonly, only for existing journals) -->
-        <EditableField
-          v-if="journal && journal.isAudited && !isEditing"
-          :label="$t('journal.auditor')"
-          :is-editing="false"
-          :value="journal.auditor"
-          :formatter="formatUserName"
-        />
-
-        <!-- Reviewer (readonly, only for existing journals) -->
-        <EditableField
-          v-if="journal && journal.isReviewed && !isEditing"
-          :label="$t('journal.reviewer')"
-          :is-editing="false"
-          :value="journal.reviewer"
-          :formatter="formatUserName"
-        />
-      </div>
-
-      <!-- Journal Lines Table -->
-      <div class="space-y-4">
-        <div class="flex items-center justify-between">
-          <h3 class="text-lg font-semibold">{{ $t('journal.journalLines') }}</h3>
-
-          <!-- Add Journal Line Button -->
-          <Button v-if="isEditing" variant="outline" @click="addJournalLine">
-            {{ $t('journal.addJournalLine') }}
-          </Button>
         </div>
 
-        <div class="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead class="w-12">#</TableHead>
-                <TableHead class="w-50">{{ $t('journal.account') }}</TableHead>
-                <TableHead class="w-37.5">{{ $t('journal.debit') }}</TableHead>
-                <TableHead class="w-37.5">{{ $t('journal.credit') }}</TableHead>
-                <TableHead v-if="isEditing" class="w-12"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <template v-for="(item, index) in form.values.journalLines ?? []" :key="item._key">
-                <TableRow>
-                  <TableCell>{{ index + 1 }}</TableCell>
+        <!-- Journal Lines Table -->
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold">{{ $t('journal.journalLines') }}</h3>
 
-                  <!-- Account + Auxiliary Accounts -->
-                  <TableCell>
-                    <div class="space-y-2">
-                      <!-- Main Account -->
-                      <VeeField v-slot="{ field }" :name="`journalLines[${index}].account`">
+            <!-- Add Journal Line Button -->
+            <Button v-if="isEditing" variant="outline" @click="addJournalLine">
+              {{ $t('journal.addJournalLine') }}
+            </Button>
+          </div>
+
+          <div class="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead class="w-12">#</TableHead>
+                  <TableHead class="w-50">{{ $t('journal.account') }}</TableHead>
+                  <TableHead class="w-37.5">{{ $t('journal.debit') }}</TableHead>
+                  <TableHead class="w-37.5">{{ $t('journal.credit') }}</TableHead>
+                  <TableHead v-if="isEditing" class="w-12"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <template v-for="(item, index) in form.values.journalLines ?? []" :key="item._key">
+                  <TableRow>
+                    <TableCell>{{ index + 1 }}</TableCell>
+
+                    <!-- Account + Dimension Options -->
+                    <TableCell>
+                      <div class="space-y-2">
+                        <!-- Main Account -->
+                        <VeeField v-slot="{ field }" :name="`journalLines[${index}].account`">
+                          <template v-if="isEditing">
+                            <AccountInput
+                              :disabled="!isEditing"
+                              :model-value="field.value"
+                              only-leaf
+                              show-full-title
+                              @update:model-value="
+                                (val) => {
+                                  field.onChange(val)
+                                  handleAccountSelect(val, index)
+                                }
+                              "
+                            />
+                          </template>
+                          <template v-else>
+                            <div class="text-sm">
+                              <span>{{ field.value?.accountNumber }}</span>
+                              <span class="ml-1">{{
+                                field.value?.id ? accountStore.action.getFullTitle(field.value.id) : field.value?.title
+                              }}</span>
+                            </div>
+                          </template>
+                        </VeeField>
+
+                        <!-- Dimension Options + Cash Flow Item -->
+                        <div
+                          v-if="(item.account?.dimensionCategories?.length ?? 0) > 0 || requiresCashFlowItem(item)"
+                          class="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-2 gap-y-2"
+                        >
+                          <template v-for="category in item.account?.dimensionCategories ?? []" :key="category.id">
+                            <span class="text-muted-foreground text-xs font-medium whitespace-nowrap">
+                              {{ category.name }}:
+                            </span>
+                            <VeeField
+                              v-slot="{ field }"
+                              :name="`journalLines[${index}].dimensionOptions.${category.id}`"
+                            >
+                              <!-- Edit mode: show selector -->
+                              <DimensionOptionSelector
+                                v-if="isEditing"
+                                :sob-id="props.sobId"
+                                :category="category"
+                                :model-value="field.value"
+                                class="w-full"
+                                @update:model-value="field.onChange"
+                              />
+                              <!-- Display mode: show text only -->
+                              <div v-else class="text-xs">
+                                {{ field.value?.name }}
+                              </div>
+                            </VeeField>
+                          </template>
+
+                          <template v-if="requiresCashFlowItem(item)">
+                            <span class="text-muted-foreground text-xs font-medium whitespace-nowrap">
+                              {{ $t('journal.cashFlowItem') }}:
+                            </span>
+                            <VeeField v-slot="{ field }" :name="`journalLines[${index}].cashFlowItemId`">
+                              <Select
+                                v-if="isEditing"
+                                :name="field.name"
+                                :model-value="field.value"
+                                class="w-full"
+                                @update:model-value="
+                                  (v) => handleCashFlowItemSelect(v as string, index, field.onChange)
+                                "
+                              >
+                                <SelectTrigger class="w-full">
+                                  <SelectValue :placeholder="$t('common.pleaseSelect')" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem
+                                    v-for="cashFlowItem in cashFlowItems"
+                                    :key="cashFlowItem.id"
+                                    :value="cashFlowItem.id"
+                                  >
+                                    {{ cashFlowItem.name }}
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <div v-else class="text-xs">
+                                {{ formatCashFlowItemLabel(field.value) }}
+                              </div>
+                            </VeeField>
+                          </template>
+                        </div>
+                      </div>
+                    </TableCell>
+
+                    <!-- Debit -->
+                    <TableCell class="align-top">
+                      <VeeField v-slot="{ field }" :name="`journalLines[${index}].amount`">
                         <template v-if="isEditing">
-                          <AccountInput
-                            :disabled="!isEditing"
-                            :model-value="field.value"
-                            @update:model-value="field.onChange"
+                          <Input
+                            :id="useId()"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            :model-value="field.value && field.value > 0 ? field.value : ''"
+                            class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                            @update:model-value="
+                              (val) => {
+                                const amount = Number(val) || 0
+                                field.onChange(amount)
+                                syncDefaultCashFlowItem(index, amount)
+                              }
+                            "
                           />
                         </template>
                         <template v-else>
-                          <div class="text-sm">
-                            <span>{{ field.value?.accountNumber }}</span>
-                            <span class="ml-1">{{ field.value?.title }}</span>
-                          </div>
+                          <span class="text-sm">{{
+                            field.value && field.value > 0 ? n(field.value, 'decimal') : ''
+                          }}</span>
                         </template>
                       </VeeField>
+                    </TableCell>
 
-                      <!-- Auxiliary Accounts -->
-                      <div
-                        v-if="item.account?.auxiliaryCategories && item.account.auxiliaryCategories.length > 0"
-                        class="grid grid-cols-[auto_1fr] items-center gap-2"
-                      >
-                        <template v-for="category in item.account.auxiliaryCategories" :key="category.key">
-                          <span class="text-muted-foreground text-xs font-medium whitespace-nowrap">
-                            {{ category.title }}:
-                          </span>
-                          <VeeField
-                            v-slot="{ field }"
-                            :name="`journalLines[${index}].auxiliaryAccounts.${category.key}`"
-                          >
-                            <!-- Edit mode: show selector -->
-                            <AuxiliaryAccountSelector
-                              v-if="isEditing"
-                              :sob-id="props.sobId"
-                              :category="category"
-                              :model-value="field.value"
-                              class="w-full"
-                              @update:model-value="field.onChange"
-                            />
-                            <!-- Display mode: show text only -->
-                            <div v-else class="text-xs">
-                              <span>{{ field.value?.key }}</span>
-                              <span class="ml-1">{{ field.value?.title }}</span>
-                            </div>
-                          </VeeField>
+                    <!-- Credit -->
+                    <TableCell class="align-top">
+                      <VeeField v-slot="{ field }" :name="`journalLines[${index}].amount`">
+                        <template v-if="isEditing">
+                          <Input
+                            :id="useId()"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            :model-value="field.value && field.value < 0 ? Math.abs(field.value) : ''"
+                            class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                            @update:model-value="
+                              (val) => {
+                                const amount = val ? -Number(val) || 0 : 0
+                                field.onChange(amount)
+                                syncDefaultCashFlowItem(index, amount)
+                              }
+                            "
+                          />
                         </template>
+                        <template v-else>
+                          <span class="text-sm">{{
+                            field.value && field.value < 0 ? n(Math.abs(field.value), 'decimal') : ''
+                          }}</span>
+                        </template>
+                      </VeeField>
+                    </TableCell>
+
+                    <!-- Remove button -->
+                    <TableCell v-if="isEditing" class="align-top">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        :title="$t('journal.removeJournalLine')"
+                        @click="removeJournalLine(index)"
+                      >
+                        <Trash2 class="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                </template>
+              </TableBody>
+              <TableFooter>
+                <!-- Journal Line Errors -->
+                <template v-for="(item, index) in form.values.journalLines ?? []" :key="`error-${item._key}`">
+                  <TableRow v-if="form.errors.value[`journalLines[${index}]`]">
+                    <TableCell :colspan="isEditing ? 5 : 4" class="bg-destructive/10">
+                      <div class="text-destructive flex items-center gap-2 text-sm">
+                        <AlertCircle class="h-4 w-4" />
+                        <span>
+                          {{ $t('journal.journalLine.errorPrefix', [index + 1]) }}:
+                          {{ form.errors.value[`journalLines[${index}]`] }}
+                        </span>
                       </div>
-                    </div>
-                  </TableCell>
-
-                  <!-- Debit -->
-                  <TableCell class="align-top">
-                    <VeeField v-slot="{ field }" :name="`journalLines[${index}].amount`">
-                      <template v-if="isEditing">
-                        <Input
-                          :id="useId()"
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          :model-value="field.value && field.value > 0 ? field.value : ''"
-                          class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                          @update:model-value="(val) => field.onChange(Number(val) || 0)"
-                        />
-                      </template>
-                      <template v-else>
-                        <span class="text-sm">{{
-                          field.value && field.value > 0 ? n(field.value, 'decimal') : ''
-                        }}</span>
-                      </template>
-                    </VeeField>
-                  </TableCell>
-
-                  <!-- Credit -->
-                  <TableCell class="align-top">
-                    <VeeField v-slot="{ field }" :name="`journalLines[${index}].amount`">
-                      <template v-if="isEditing">
-                        <Input
-                          :id="useId()"
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          :model-value="field.value && field.value < 0 ? Math.abs(field.value) : ''"
-                          class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                          @update:model-value="(val) => field.onChange(val ? -Number(val) || 0 : 0)"
-                        />
-                      </template>
-                      <template v-else>
-                        <span class="text-sm">{{
-                          field.value && field.value < 0 ? n(Math.abs(field.value), 'decimal') : ''
-                        }}</span>
-                      </template>
-                    </VeeField>
-                  </TableCell>
-
-                  <!-- Remove button -->
-                  <TableCell v-if="isEditing" class="align-top">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      :title="$t('journal.removeJournalLine')"
-                      @click="removeJournalLine(index)"
-                    >
-                      <Trash2 class="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              </template>
-            </TableBody>
-            <TableFooter>
-              <!-- Journal Line Errors -->
-              <template v-for="(item, index) in form.values.journalLines ?? []" :key="`error-${item._key}`">
-                <TableRow v-if="form.errors.value[`journalLines[${index}]`]">
+                    </TableCell>
+                  </TableRow>
+                </template>
+                <TableRow v-if="form.errors.value['journalLines']">
                   <TableCell :colspan="isEditing ? 5 : 4" class="bg-destructive/10">
                     <div class="text-destructive flex items-center gap-2 text-sm">
                       <AlertCircle class="h-4 w-4" />
                       <span>
-                        {{ $t('journal.journalLine.errorPrefix', [index + 1]) }}:
-                        {{ form.errors.value[`journalLines[${index}]`] }}
+                        {{ form.errors.value['journalLines'] }}
                       </span>
                     </div>
                   </TableCell>
                 </TableRow>
-              </template>
-              <TableRow v-if="form.errors.value['journalLines']">
-                <TableCell :colspan="isEditing ? 5 : 4" class="bg-destructive/10">
-                  <div class="text-destructive flex items-center gap-2 text-sm">
-                    <AlertCircle class="h-4 w-4" />
-                    <span>
-                      {{ form.errors.value['journalLines'] }}
-                    </span>
-                  </div>
-                </TableCell>
-              </TableRow>
 
-              <!-- Totals Row -->
-              <TableRow>
-                <TableCell :colspan="isEditing ? 5 : 4" class="text-right">
-                  <div class="flex items-center justify-end gap-6">
-                    <span class="font-semibold"> {{ $t('journal.debitTotal') }}: {{ $n(debitTotal, 'decimal') }} </span>
-                    <span class="font-semibold">
-                      {{ $t('journal.creditTotal') }}: {{ $n(creditTotal, 'decimal') }}
-                    </span>
-                    <div class="flex items-center gap-2">
-                      <template v-if="isBalanced">
-                        <CheckCircle2 class="h-4 w-4 text-green-600" />
-                        <span class="text-sm text-green-600">{{ $t('journal.balanced') }}</span>
-                      </template>
-                      <template v-else>
-                        <AlertCircle class="text-destructive h-4 w-4" />
-                        <span class="text-destructive text-sm">
-                          {{ $t('journal.unbalanced') }} {{ $t('journal.difference') }}:
-                          {{ $n(Math.abs(debitTotal - creditTotal), 'decimal') }}
-                        </span>
-                      </template>
+                <!-- Totals Row -->
+                <TableRow>
+                  <TableCell :colspan="isEditing ? 5 : 4" class="text-right">
+                    <div class="flex items-center justify-end gap-6">
+                      <span class="font-semibold">
+                        {{ $t('journal.debitTotal') }}: {{ $n(debitTotal, 'decimal') }}
+                      </span>
+                      <span class="font-semibold">
+                        {{ $t('journal.creditTotal') }}: {{ $n(creditTotal, 'decimal') }}
+                      </span>
+                      <div class="flex items-center gap-2">
+                        <template v-if="isBalanced">
+                          <CheckCircle2 class="h-4 w-4 text-green-600" />
+                          <span class="text-sm text-green-600">{{ $t('journal.balanced') }}</span>
+                        </template>
+                        <template v-else>
+                          <AlertCircle class="text-destructive h-4 w-4" />
+                          <span class="text-destructive text-sm">
+                            {{ $t('journal.unbalanced') }} {{ $t('journal.difference') }}:
+                            {{ $n(Math.abs(debitTotal - creditTotal), 'decimal') }}
+                          </span>
+                        </template>
+                      </div>
                     </div>
-                  </div>
-                </TableCell>
-              </TableRow>
-            </TableFooter>
-          </Table>
+                  </TableCell>
+                </TableRow>
+              </TableFooter>
+            </Table>
+          </div>
         </div>
       </div>
-    </div>
+    </Transition>
   </PageFrame>
+
+  <UnsavedChangesDialog :open="confirmOpen" @confirm="onConfirmLeave" @cancel="onCancelLeave" />
 </template>

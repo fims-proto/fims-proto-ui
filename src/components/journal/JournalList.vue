@@ -9,7 +9,7 @@ import { DataTable } from '@/components/common/data-table'
 import PeriodSelector from '@/components/period/PeriodSelector.vue'
 
 import { fullColumns, compactColumns } from './columns'
-import { JournalService, type Period, type Journal } from '@/services/general-ledger'
+import { JournalService, type Period, type JournalSlim } from '@/services/general-ledger'
 import type { Page } from '@/services/types'
 import { FilterFactory } from '@/services/filter'
 import { JOURNAL_CHANGED } from '@/services/event'
@@ -22,8 +22,8 @@ const router = useRouter()
 const route = useRoute()
 const bus = useEventBus(JOURNAL_CHANGED)
 
-const journals = ref<Journal[]>([])
-const page = ref<Page<Journal>>()
+const journals = ref<JournalSlim[]>([])
+const page = ref<Page<JournalSlim>>()
 const pageable = ref({ page: 1, size: 50 })
 const isLoading = ref(false)
 const selectedPeriodId = ref<string>()
@@ -59,7 +59,7 @@ async function load(refresh = false) {
 
   isLoading.value = true
   try {
-    const filterFactory = new FilterFactory<Journal>()
+    const filterFactory = new FilterFactory<JournalSlim>()
     const periodFilter = filterFactory.eq('periodId', selectedPeriodId.value)
 
     const { data } = await JournalService.getJournals(props.sobId, pageable.value, periodFilter)
@@ -77,7 +77,7 @@ function handleLoadMore() {
   pageable.value.page++
 }
 
-function handleRowClick(row: Journal) {
+function handleRowClick(row: JournalSlim) {
   router.push({
     name: 'journalDetail',
     params: {
@@ -102,7 +102,7 @@ function handleCreate() {
 </script>
 
 <template>
-  <PageFrame :title="$t('journal.listTitle', [page?.numberOfElements ?? 0])">
+  <PageFrame :title="$t('journal.listTitle', [page?.numberOfElements ?? 0])" no-scroll>
     <template #end>
       <PeriodSelector :sob-id="sobId" @period-selected="handlePeriodChange" />
       <Button @click="handleCreate">{{ $t('action.create') }}</Button>

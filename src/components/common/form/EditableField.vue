@@ -16,9 +16,7 @@ const props = defineProps<{
   class?: HTMLAttributes['class']
 }>()
 
-const emit = defineEmits<{
-  (e: 'update:value', value: T | undefined): void
-}>()
+const emit = defineEmits<{ 'update:value': [value: T | undefined] }>()
 
 defineSlots<{
   display?: (scope: { value: T | undefined }) => unknown
@@ -66,7 +64,14 @@ function handleUpdate(value: T | undefined) {
         {{ props.description }}
       </FieldDescription>
 
-      <FieldError v-if="props.errors?.length" :errors="props.errors" />
+      <div
+        class="grid transition-[grid-template-rows] duration-200 ease-out"
+        :class="props.errors?.length ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'"
+      >
+        <div class="min-h-0 overflow-hidden">
+          <FieldError v-if="props.errors?.length" :errors="props.errors" />
+        </div>
+      </div>
     </div>
   </Field>
 </template>

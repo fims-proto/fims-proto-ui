@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, useId, watch } from 'vue'
+import { computed, ref, useId, watch } from 'vue'
 import { useForm, Field as VeeField } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useRouter } from 'vue-router'
@@ -20,8 +20,9 @@ import { Minus, Plus } from 'lucide-vue-next'
 
 import { NewSobSchema, UpdateSobSchema, SobService, type Sob, type NewSob, type UpdateSob } from '@/services/sob'
 import { useToastStore } from '@/store/toast'
+import { useSobStore } from '@/store/sob'
 import { SOB_CHANGED } from '@/services/event'
-import { useUnsavedChangesStore } from '@/store/unsaved-changes'
+import { useUnsavedChanges, UnsavedChangesDialog } from '@/components/common/unsaved-guard'
 
 const props = defineProps<{
   sobId?: string
@@ -30,7 +31,7 @@ const props = defineProps<{
 const router = useRouter()
 const { t } = useI18n()
 const toast = useToastStore()
-const unsavedChanges = useUnsavedChangesStore()
+const sobStore = useSobStore()
 const bus = useEventBus(SOB_CHANGED)
 
 const isEditing = ref(!props.sobId)
@@ -85,16 +86,8 @@ const form = useForm({
 })
 
 watch(() => props.sobId, load, { immediate: true })
-watch(
-  () => form.meta.value.dirty,
-  (val) => {
-    if (val) {
-      unsavedChanges.action.enableProtection()
-    } else {
-      unsavedChanges.action.disableProtection()
-    }
-  },
-)
+
+const { confirmOpen, onConfirmLeave, onCancelLeave } = useUnsavedChanges(computed(() => form.meta.value.dirty))
 
 async function load() {
   if (props.sobId) {
@@ -166,6 +159,11 @@ const onSubmit = form.handleSubmit(async (values, { resetForm }) => {
   toast.action.success(t('sob.msg.saveSuccess'))
   bus.emit()
 
+  // If updating the current working sob, refresh the store to reflect changes
+  if (props.sobId && sobStore.state.workingSob?.id === props.sobId) {
+    await sobStore.action.refreshWorkingSob()
+  }
+
   if (!props.sobId && data) {
     router.push({ name: 'sobDetail', params: { sobId: data.id } })
     return
@@ -177,7 +175,6 @@ const onSubmit = form.handleSubmit(async (values, { resetForm }) => {
 })
 
 function onCancel() {
-  unsavedChanges.action.disableProtection()
   if (!props.sobId) {
     router.back()
   } else {
@@ -382,4 +379,6 @@ function onClose() {
       </VeeField>
     </form>
   </PageFrame>
+
+  <UnsavedChangesDialog :open="confirmOpen" @confirm="onConfirmLeave" @cancel="onCancelLeave" />
 </template>

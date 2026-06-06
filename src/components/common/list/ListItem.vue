@@ -12,9 +12,7 @@ defineProps<{
   }[]
 }>()
 
-defineEmits<{
-  (e: 'select'): void
-}>()
+defineEmits<{ select: [] }>()
 </script>
 
 <template>

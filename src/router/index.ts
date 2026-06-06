@@ -1,27 +1,27 @@
 import { createRouter, createWebHistory, RouterView, type RouteRecordRaw } from 'vue-router'
-import { loadWorkingSob, updateWorkingSob, verifyCurrentUser } from './before-enter-handlers'
-import { protectUnsavedChanges } from './before-leave-handlers'
+import { loadWorkingSob, updateWorkingSob, verifyCurrentUser, verifyNotLoggedIn } from './before-enter-handlers'
 import AppLayout from '@/components/AppLayout.vue'
 import NotImplementedPage from '@/components/pages/NotImplementedPage.vue'
+import SobEmptyState from '@/components/pages/SobEmptyState.vue'
 import ExceptionPage from '@/components/pages/ExceptionPage.vue'
 import NotFoundPage from '@/components/pages/NotFoundPage.vue'
 import AuthenticationLogin from '@/components/user/AuthenticationLogin.vue'
 import AuthenticationLogout from '@/components/user/AuthenticationLogout.vue'
+import RegisterUser from '@/components/user/RegisterUser.vue'
 import ProfileSetting from '@/components/user/ProfileSetting.vue'
 import SobDetail from '@/components/sob/SobDetail.vue'
 import SobList from '@/components/sob/SobList.vue'
 import AccountList from '@/components/account/AccountList.vue'
 import AccountDetail from '@/components/account/AccountDetail.vue'
-import AuxiliaryCategoryList from '@/components/account/AuxiliaryCategoryList.vue'
-import AuxiliaryCategoryDetail from '@/components/account/AuxiliaryCategoryDetail.vue'
+import DimensionCategories from '@/components/dimension/DimensionCategories.vue'
+import DimensionOptions from '@/components/dimension/DimensionOptions.vue'
 import LedgerInitialize from '@/components/ledger/LedgerInitialize.vue'
-import LedgerOverview from '@/components/ledger/LedgerOverview.vue'
-import AccountExplorer from '@/components/ledger/AccountExplorer.vue'
-import DimensionExplorer from '@/components/ledger/DimensionExplorer.vue'
+import LedgerExplorer from '@/components/ledger/LedgerExplorer.vue'
 import JournalList from '@/components/journal/JournalList.vue'
 import JournalDetail from '@/components/journal/JournalDetail.vue'
-import ReportList from '@/components/report/ReportList.vue'
-import ReportDetail from '@/components/report/ReportDetail.vue'
+import ReportPage from '@/components/report/ReportPage.vue'
+import PeriodList from '@/components/period/PeriodList.vue'
+import PeriodDetail from '@/components/period/PeriodDetail.vue'
 
 /**
  * In some cases, we need to browser redirect to home page.
@@ -70,7 +70,7 @@ const routes: RouteRecordRaw[] = [
             name: 'sobList',
             components: {
               list: SobList,
-              main: NotImplementedPage,
+              main: SobEmptyState,
             },
           },
           {
@@ -158,22 +158,22 @@ const routes: RouteRecordRaw[] = [
         children: [
           {
             path: '',
-            name: 'auxiliaryList',
+            name: 'dimensionList',
             props: { list: (route) => ({ sobId: route.params.sobId }) },
             components: {
-              list: AuxiliaryCategoryList,
+              list: DimensionCategories,
             },
           },
           {
-            path: ':categoryKey',
-            name: 'auxiliaryDetail',
+            path: ':categoryId',
+            name: 'dimensionDetail',
             props: {
               list: (route) => ({ sobId: route.params.sobId }),
-              main: (route) => ({ sobId: route.params.sobId, categoryKey: route.params.categoryKey }),
+              main: (route) => ({ sobId: route.params.sobId, categoryId: route.params.categoryId }),
             },
             components: {
-              list: AuxiliaryCategoryList,
-              main: AuxiliaryCategoryDetail,
+              list: DimensionCategories,
+              main: DimensionOptions,
             },
           },
         ],
@@ -184,40 +184,28 @@ const routes: RouteRecordRaw[] = [
         beforeEnter: [loadWorkingSob, updateWorkingSob],
         children: [
           {
-            path: 'overview',
-            name: 'ledgerOverview',
+            path: '',
+            name: 'ledgerExplorer',
             props: {
-              main: (route) => ({ sobId: route.params.sobId }),
+              main: (route) => ({
+                sobId: route.params.sobId as string,
+                fromPeriod: route.query.fromPeriod as string | undefined,
+                toPeriod: route.query.toPeriod as string | undefined,
+                accountId: route.query.accountId as string | undefined,
+                dimensionCategoryId: route.query.dimensionCategoryId as string | undefined,
+                dimensionOptionId: route.query.dimensionOptionId as string | undefined,
+                view: route.query.view as string | undefined,
+              }),
             },
             components: {
-              main: LedgerOverview,
-            },
-          },
-          {
-            path: 'account',
-            name: 'accountExplorer',
-            props: {
-              main: (route) => ({ sobId: route.params.sobId }),
-            },
-            components: {
-              main: AccountExplorer,
-            },
-          },
-          {
-            path: 'dimension',
-            name: 'dimensionExplorer',
-            props: {
-              main: (route) => ({ sobId: route.params.sobId }),
-            },
-            components: {
-              main: DimensionExplorer,
+              main: LedgerExplorer,
             },
           },
         ],
       },
-      // transactions
+      // journals
       {
-        path: 'sobs/:sobId/transactions',
+        path: 'sobs/:sobId/journals',
         beforeEnter: [loadWorkingSob, updateWorkingSob],
         children: [
           {
@@ -237,7 +225,10 @@ const routes: RouteRecordRaw[] = [
             },
             props: {
               list: (route) => ({ sobId: route.params.sobId }),
-              main: (route) => ({ sobId: route.params.sobId }),
+              main: (route) => ({
+                sobId: route.params.sobId as string,
+                referenceJournalId: route.query.referenceJournalId as string | undefined,
+              }),
             },
             components: {
               list: JournalList,
@@ -262,35 +253,31 @@ const routes: RouteRecordRaw[] = [
           },
         ],
       },
+      // reports
       {
-        path: 'sobs/:sobId/reports',
+        path: 'sobs/:sobId/report',
+        name: 'report',
         beforeEnter: [loadWorkingSob, updateWorkingSob],
-        children: [
-          {
-            path: '',
-            name: 'reportList',
-            props: { list: (route) => ({ sobId: route.params.sobId }) },
-            components: {
-              list: ReportList,
-            },
-          },
-          {
-            path: ':reportId',
-            name: 'reportDetail',
-            meta: {
-              listPanelSize: 30,
-              mainPanelSize: 70,
-            },
-            props: {
-              list: (route) => ({ sobId: route.params.sobId }),
-              main: (route) => ({ sobId: route.params.sobId, reportId: route.params.reportId }),
-            },
-            components: {
-              list: ReportList,
-              main: ReportDetail,
-            },
-          },
-        ],
+        props: { main: (route) => ({ sobId: route.params.sobId }) },
+        components: { main: ReportPage },
+      },
+      // periods
+      {
+        path: 'sobs/:sobId/periods/:periodId',
+        name: 'periodDetail',
+        beforeEnter: [loadWorkingSob, updateWorkingSob],
+        meta: { listPanelSize: 25, mainPanelSize: 75 },
+        props: {
+          list: (route) => ({ sobId: route.params.sobId as string }),
+          main: (route) => ({
+            sobId: route.params.sobId as string,
+            periodId: route.params.periodId as string,
+          }),
+        },
+        components: {
+          list: PeriodList,
+          main: PeriodDetail,
+        },
       },
     ],
   },
@@ -308,13 +295,12 @@ const routes: RouteRecordRaw[] = [
         name: 'logout',
         component: AuthenticationLogout,
       },
-      // TODO user registration
-      // {
-      //   path: 'register',
-      //   name: 'register',
-      //   beforeEnter: verifyNotLoggedIn,
-      //   component: RegisterUser,
-      // },
+      {
+        path: 'register',
+        name: 'register',
+        beforeEnter: verifyNotLoggedIn,
+        component: RegisterUser,
+      },
     ],
   },
   {
@@ -332,8 +318,6 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
 })
-
-router.beforeEach(protectUnsavedChanges)
 
 router.onError((...args) => {
   console.log(args)

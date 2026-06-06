@@ -13,16 +13,14 @@ import { ChevronDown, ChevronsUpDown, ChevronUp, EyeOff } from 'lucide-vue-next'
 
 import { cn } from '@/lib/utils'
 
+defineOptions({
+  inheritAttrs: false,
+})
+
 defineProps<{
   column: Column<TData>
   title: string
 }>()
-</script>
-
-<script lang="ts">
-export default {
-  inheritAttrs: false,
-}
 </script>
 
 <template>

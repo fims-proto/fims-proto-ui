@@ -23,9 +23,9 @@ const props = defineProps<{
 }>()
 
 defineEmits<{
-  (e: 'update:globalFilter', value: string): void
-  (e: 'expandAll'): void
-  (e: 'collapseAll'): void
+  'update:globalFilter': [value: string]
+  expandAll: []
+  collapseAll: []
 }>()
 
 const isFiltered = computed(() => props.table.getState().columnFilters.length > 0)
