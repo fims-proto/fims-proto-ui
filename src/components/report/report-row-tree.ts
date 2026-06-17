@@ -26,7 +26,7 @@ export function collectRowCodes(rows: RowLike<UpdateRowRequest>[]): Set<string> 
 
 export function createCustomRowCode(rows: RowLike<UpdateRowRequest>[]): string {
   const existing = collectRowCodes(rows)
-  let rowCode = ''
+  let rowCode: string
 
   do {
     rowCode = `CUSTOM_${crypto.randomUUID().slice(0, 8).toUpperCase()}`

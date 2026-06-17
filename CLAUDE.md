@@ -41,7 +41,7 @@ npx shadcn-vue@latest add <component-name>  # Add single component
 
 ### OpenAPI Specification
 
-The latest generated backend API contract is documented in **`../fims-proto-ms/docs/swagger_generated/openapi.json`** (OpenAPI 2.0 format).
+The latest generated backend API contract is documented in **`../fims-proto-ms/docs/swagger_generated/openapi.json`** (OpenAPI 3.0 format).
 
 **Key details:**
 
