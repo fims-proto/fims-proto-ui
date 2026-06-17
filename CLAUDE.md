@@ -41,7 +41,7 @@ npx shadcn-vue@latest add <component-name>  # Add single component
 
 ### OpenAPI Specification
 
-The latest generated backend API contract is documented in **`../fims-proto-ms/docs/swagger_generated/swagger.yaml`** (OpenAPI 2.0 format).
+The latest generated backend API contract is documented in **`../fims-proto-ms/docs/swagger_generated/openapi.json`** (OpenAPI 3.0 format).
 
 **Key details:**
 
@@ -69,7 +69,7 @@ The latest generated backend API contract is documented in **`../fims-proto-ms/d
 
 **When implementing new features:**
 
-1. Check `../fims-proto-ms/docs/swagger_generated/swagger.yaml` for exact request/response schemas
+1. Check `../fims-proto-ms/docs/swagger_generated/openapi.json` for exact request/response schemas
 2. Use Zod schemas in `src/services/<domain>/types.ts` that match OpenAPI definitions
 3. All service methods must return `Response<T>` and use `invokeWithErrorHandler()`
 4. Convert backend string fields: `convertFieldsFromString(data, FIELD_CONVERSION_MAP)`
@@ -131,7 +131,7 @@ export type Account = z.infer<typeof AccountSchema>
 - Wrap all calls in `invokeWithErrorHandler(async () => {...})`
 - Convert backend string fields: `convertFieldsFromString(data, FIELD_CONVERSION_MAP)`
 
-**Backend API reference:** `../fims-proto-ms/docs/swagger_generated/swagger.yaml` or `http://127.0.0.1:4455/fims/swagger/index.html`
+**Backend API reference:** `../fims-proto-ms/docs/swagger_generated/openapi.json` or `http://127.0.0.1:4455/fims/swagger/index.html`
 
 **Example:** `src/services/general-ledger/account/domain.ts`
 
@@ -218,14 +218,14 @@ table.*                     - data table UI (search, filter, sort)
 - **Concept:** All accounting data is scoped to a Set of Books
 - **Working SOB:** `useSobStore().state.workingSob` (persisted to localStorage)
 - **Route pattern:** Most routes include `:sobId` param
-- **API endpoints:** See `../fims-proto-ms/docs/swagger_generated/swagger.yaml` under `sobs` tag
+- **API endpoints:** See `../fims-proto-ms/docs/swagger_generated/openapi.json` under `sobs` tag
 
 ### Accounts
 
 - Parent-child tree via `superiorAccountId`
 - Tree helper: `src/components/account/treefy.ts`
 - Selection: `AccountInput.vue` provides combobox + table dialog
-- **API endpoints:** See `../fims-proto-ms/docs/swagger_generated/swagger.yaml` under `accounts` tag
+- **API endpoints:** See `../fims-proto-ms/docs/swagger_generated/openapi.json` under `accounts` tag
 - **Key operations:** List all, create, update, search with filters
 
 ### Dimension
@@ -234,7 +234,7 @@ table.*                     - data table UI (search, filter, sort)
 - Two-level structure: Categories contain Dimension Options (members)
 - Categories: Independent entities (name only, no key field)
 - Options (Members): Independent entities (name only, no key/description fields)
-- **API endpoints:** See `../fims-proto-ms/docs/swagger_generated/swagger.yaml` under `dimension` tag
+- **API endpoints:** See `../fims-proto-ms/docs/swagger_generated/openapi.json` under `dimension` tag
 - **Key operations:**
   - `GET /sob/{sobId}/dimension/categories` - List all dimension categories
   - `POST /sob/{sobId}/dimension/categories` - Create new dimension category
@@ -250,20 +250,20 @@ table.*                     - data table UI (search, filter, sort)
 
 - Journal entries with journal lines (debit/credit)
 - Workflow: Create → Review → Audit → Post
-- **API endpoints:** See `../fims-proto-ms/docs/swagger_generated/swagger.yaml` under `journals` tag
+- **API endpoints:** See `../fims-proto-ms/docs/swagger_generated/openapi.json` under `journals` tag
 - **Lifecycle operations:** `review`, `cancel-review`, `audit`, `cancel-audit`, `post`
 
 ### Ledgers
 
 - Account balances per period (opening, period activity, ending)
 - Initialize opening balances via `/ledgers/initialize`
-- **API endpoints:** See `../fims-proto-ms/docs/swagger_generated/swagger.yaml` under `ledgers` tag
+- **API endpoints:** See `../fims-proto-ms/docs/swagger_generated/openapi.json` under `ledgers` tag
 
 ### Periods
 
 - Monthly accounting periods with open/closed status
 - One current period per SOB
-- **API endpoints:** See `../fims-proto-ms/docs/swagger_generated/swagger.yaml` under `periods` tag
+- **API endpoints:** See `../fims-proto-ms/docs/swagger_generated/openapi.json` under `periods` tag
 - **Key operations:** List periods, get current, close period
 
 ### Reports (Financial Statements)
@@ -271,7 +271,7 @@ table.*                     - data table UI (search, filter, sort)
 - Templates vs instances
 - Hierarchical sections → items → formulas
 - Amount calculation from General Ledger data
-- **API endpoints:** See `../fims-proto-ms/docs/swagger_generated/swagger.yaml` under `reports` tag
+- **API endpoints:** See `../fims-proto-ms/docs/swagger_generated/openapi.json` under `reports` tag
 - **Key operations:** Generate from template, regenerate amounts, update item formulas
 
 ## Code Style Guidelines
@@ -362,12 +362,12 @@ Before implementing a fix for a bug, create a brief plan and confirm the approac
 **API calls returning 404:**
 
 - Verify `VITE_FIMS_API_URL` matches backend base path
-- Check `../fims-proto-ms/docs/swagger_generated/swagger.yaml` for exact endpoint paths
+- Check `../fims-proto-ms/docs/swagger_generated/openapi.json` for exact endpoint paths
 - Ensure SOB is loaded via route guards before making API calls
 
 **TypeScript errors after API changes:**
 
-- Regenerate Zod schemas in `src/services/<domain>/types.ts` to match `../fims-proto-ms/docs/swagger_generated/swagger.yaml`
+- Regenerate Zod schemas in `src/services/<domain>/types.ts` to match `../fims-proto-ms/docs/swagger_generated/openapi.json`
 - Run `npm run type-check` to identify all mismatches
 
 ## Field Conversion System (Two-Layer Approach)
@@ -468,7 +468,7 @@ await axios.post(endpoint, requestCopy)
 ### API Response Type Mismatch
 
 **Problem:** TypeScript errors when consuming API responses
-**Solution:** Check `../fims-proto-ms/docs/swagger_generated/swagger.yaml` for exact field types and create matching Zod schemas
+**Solution:** Check `../fims-proto-ms/docs/swagger_generated/openapi.json` for exact field types and create matching Zod schemas
 
 ## Key Files Reference
 
@@ -481,7 +481,7 @@ await axios.post(endpoint, requestCopy)
 
 **API Contract:**
 
-- `../fims-proto-ms/docs/swagger_generated/swagger.yaml` - OpenAPI 2.0 specification for FIMS backend API
+- `../fims-proto-ms/docs/swagger_generated/openapi.json` - OpenAPI 2.0 specification for FIMS backend API
 
 **Architecture:**
 
@@ -579,7 +579,7 @@ npx shadcn-vue@latest add button dialog table
 
 When implementing a new feature:
 
-1. **Find the endpoint** in `../fims-proto-ms/docs/swagger_generated/swagger.yaml` under the relevant tag
+1. **Find the endpoint** in `../fims-proto-ms/docs/swagger_generated/openapi.json` under the relevant tag
 2. **Check request schema** - Look at the `$ref` in the request body
 3. **Check response schema** - Look at the `$ref` in the 200/201 response
 4. **Review error responses** - Note the slug/message pattern for error handling
@@ -667,7 +667,7 @@ convertAccountNumberFields(result.data, ACCOUNT_NUMBER_CONVERSION, codeLengths)
 - **No test framework configured** - tests not part of current setup
 - **Primary language:** Simplified Chinese (zh-CN)
 - **Backend repo:** This is a UI-only repository; backend is separate
-- **API contract:** Always reference `../fims-proto-ms/docs/swagger_generated/swagger.yaml` as source of truth for API schemas
+- **API contract:** Always reference `../fims-proto-ms/docs/swagger_generated/openapi.json` as source of truth for API schemas
 
 ## Agent skills
 
