@@ -33,6 +33,10 @@ export function goHome() {
 
 const routes: RouteRecordRaw[] = [
   {
+    path: '/',
+    redirect: '/ui',
+  },
+  {
     path: '/ui',
     beforeEnter: [verifyCurrentUser, loadWorkingSob, updateWorkingSob],
     component: AppLayout,
