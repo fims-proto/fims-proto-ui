@@ -1,7 +1,5 @@
 # AGENTS.md
 
-This file provides guidance to Codex (Codex.ai/code) when working with code in this repository.
-
 ## Project Overview
 
 **FIMS (Financial Information Management System)** - A Vue 3 + TypeScript SPA for managing accounting data including accounts, journals, ledgers, and financial reports.
@@ -41,19 +39,19 @@ npx shadcn-vue@latest add <component-name>  # Add single component
 
 ### OpenAPI Specification
 
-The latest generated backend API contract is documented in **`../fims-proto-ms/docs/swagger_generated/openapi.json`** (OpenAPI 3.0 format).
+The latest generated backend API contract is documented in **`../fims-proto-ms/docs/swagger_generated/openapi.json`** (OpenAPI 3.1.0 format).
 
 **Key details:**
 
-- **Base URL:** `http://127.0.0.1:4455/fims/api/v1`
+- **Server URL:** `http://127.0.0.1:4455/fims` (API paths are under `/api/v1`)
 - **Swagger UI:** `http://127.0.0.1:4455/fims/swagger/index.html`
-- **Format:** OpenAPI 2.0 (Swagger)
+- **Format:** OpenAPI 3.1.0
 
 **Main resource tags:**
 
 - `accounts` - Chart of accounts management
 - `dimension` - Dimension categories and members
-- `journals` - Journal entry journals (create, update, review, audit, post)
+- `journals` - Journal entries (create, update, review, audit, post)
 - `ledgers` - General ledger balances and transactions
 - `periods` - Accounting periods management
 - `reports` - Financial statement reports (balance sheet, income statement)
@@ -294,7 +292,6 @@ Before implementing a fix for a bug, create a brief plan and confirm the approac
   - Use `//` for all comments by default.
   - Use `/** */` only for complex, non-obvious logic that requires multi-line explanation.
   - Do not comment obvious code; comment intent or edge cases only.
-  - **Minimal commenting**
   - Do not comment every function or variable.
   - If code needs many comments to be understood, refactor the code instead.
 
@@ -304,7 +301,7 @@ Before implementing a fix for a bug, create a brief plan and confirm the approac
 
 ### TypeScript
 
-- Strict mode enabled - no implicit any - do not use `as any` in anytime!
+- Strict mode enabled - no implicit any - do not use `as any`.
 - Use `import type { ... }` for type-only imports
 - Get types from `src/services/<domain>/types.ts`
 
@@ -330,7 +327,7 @@ Before implementing a fix for a bug, create a brief plan and confirm the approac
 ### Linting
 
 - ESLint with TypeScript and Vue plugins
-- Check: Files are linted automatically via IDE integration
+- Check: Run `npm run lint` before finishing code changes
 - Config: `eslint.config.js` (flat config format)
 
 ## Development Workflow
@@ -458,7 +455,7 @@ await axios.post(endpoint, requestCopy)
 ### Enum Translation
 
 **Problem:** Enum values not translated
-**Solution:** Use `i18n.global.t(\\`domain.fieldEnum.\\${value}\\`)` pattern
+**Solution:** Use ``i18n.global.t(`domain.fieldEnum.${value}`)`` pattern
 
 ### Named Views Not Rendering
 
@@ -481,7 +478,7 @@ await axios.post(endpoint, requestCopy)
 
 **API Contract:**
 
-- `../fims-proto-ms/docs/swagger_generated/openapi.json` - OpenAPI 2.0 specification for FIMS backend API
+- `../fims-proto-ms/docs/swagger_generated/openapi.json` - OpenAPI 3.1.0 specification for FIMS backend API
 
 **Architecture:**
 
@@ -664,7 +661,7 @@ convertAccountNumberFields(result.data, ACCOUNT_NUMBER_CONVERSION, codeLengths)
 
 ## Notes
 
-- **No test framework configured** - tests not part of current setup
+- **No test runner configured in this UI repo** - use type-check, lint, format check, and build for verification
 - **Primary language:** Simplified Chinese (zh-CN)
 - **Backend repo:** This is a UI-only repository; backend is separate
 - **API contract:** Always reference `../fims-proto-ms/docs/swagger_generated/openapi.json` as source of truth for API schemas

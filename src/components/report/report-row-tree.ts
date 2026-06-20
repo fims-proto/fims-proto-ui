@@ -207,10 +207,27 @@ export function rowsInEvaluationOrder<T extends RowLike<T>>(rows: T[]): T[] {
 }
 
 export function updateReportRowsFromForm(reportRows: Row[], formRows: UpdateRowRequest[]) {
-  reportRows.splice(0, reportRows.length, ...formRows.map(formRowToReportRow))
+  const existingRowsById = new Map<string, Row>()
+  const existingRowsByCode = new Map<string, Row>()
+  walkRows(reportRows, (row) => {
+    existingRowsById.set(row.id, row)
+    existingRowsByCode.set(row.rowCode, row)
+  })
+
+  reportRows.splice(
+    0,
+    reportRows.length,
+    ...formRows.map((row) => formRowToReportRow(row, existingRowsById, existingRowsByCode)),
+  )
 }
 
-function formRowToReportRow(row: UpdateRowRequest): Row {
+function formRowToReportRow(
+  row: UpdateRowRequest,
+  existingRowsById: Map<string, Row>,
+  existingRowsByCode: Map<string, Row>,
+): Row {
+  const existingRow = (row.id ? existingRowsById.get(row.id) : undefined) ?? existingRowsByCode.get(row.rowCode)
+
   return {
     id: row.id ?? `new-${crypto.randomUUID()}`,
     rowCode: row.rowCode,
@@ -224,7 +241,8 @@ function formRowToReportRow(row: UpdateRowRequest): Row {
     canMove: row.canMove ?? true,
     canAddChild: row.canAddChild ?? false,
     expression: row.expression,
-    rows: row.rows?.map(formRowToReportRow),
+    amounts: existingRow?.amounts,
+    rows: row.rows?.map((childRow) => formRowToReportRow(childRow, existingRowsById, existingRowsByCode)),
   }
 }
 
